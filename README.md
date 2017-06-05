@@ -5,7 +5,7 @@ This is a program meant to work with the SciencBase.gov REST API to do things li
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-Download the scripts that you wish to run. Make sure you are running Python 3 or have it converted to Python 2 syntax. Thus far, you only need to have the correct libraries installed (see below) and run the script in whatever console/terminal/command line you prefer.
+Download the scripts that you wish to run. Make sure you are running Python 3 or have it converted to Python 2 syntax.
 
 ### Prerequisites
 
@@ -29,7 +29,7 @@ However, some come pre-installed on python.
 To install pysb, follow instructions here: https://my.usgs.gov/bitbucket/projects/SBE/repos/pysb/browse
 
 ### Installing
-
+Simply install all libraries and python 3 before running the program in your favorite command line program.
 
 ## Running the tests
 
@@ -41,7 +41,7 @@ To install pysb, follow instructions here: https://my.usgs.gov/bitbucket/project
 
 
 ## Deployment
-
+Thus far, you only need to have the correct libraries installed (see below) and run the script in whatever console/terminal/command line you prefer.
 
 ## Built With
 
