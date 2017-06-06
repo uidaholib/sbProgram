@@ -20,9 +20,9 @@ def main(projectDictNumber):
     print(currentProject)
 
     #projectItemDictNum = 0
-    getProjectData(projectDictNumber, currentProject)
+    getProjectData(projects, projectDictNumber, currentProject)
 
-def getProjectData(projectDictNumber, currentProject):
+def getProjectData(projects, projectDictNumber, currentProject):
     projectItems = sb.get_child_ids(currentProject)
     currentProjectJson = sb.get_item(currentProject)
     for i in projectItems:
@@ -32,6 +32,8 @@ def getProjectData(projectDictNumber, currentProject):
             possibleProjectData = sb.get_ancestor_ids(i)
             print('Possible Project Data:')
             print(possibleProjectData)
+            print('Total Items:')
+            print(len(possibleProjectData))
         else:
             pass
     #projectItemDictNum += 1
@@ -41,7 +43,27 @@ def getProjectData(projectDictNumber, currentProject):
     I am done looking through the \''''+str(currentProjectJson['title'])+
                                                         '''' project folder.''')
     projectDictNumber += 1
-    #main():
+    whatNext(projects, projectDictNumber)
+
+def whatNext(projects, projectDictNumber):
+    print("Continue? (Y / N)")
+    answer = input("> ")
+    if 'y' in answer or 'Y' in answer:
+        if projectDictNumber > len(projects):
+            print("You have finished. No more available Projects")
+            print('Goodbye')
+            exit()
+        elif projectDictNumber <= len(projects):
+            print("Ok, let\'s start on project "+str(projectDictNumber+1)+
+                " of "+str(len(projects))+".")
+            main(projectDictNumber)
+    elif 'n' in answer or 'N' in answer:
+        print('Goodbye')
+        exit()
+    else:
+        print("Please type an 'N' or 'Y'.")
+        whatNext(projects, projectDictNumber)
+
     #elif projectItemDictNum <= len(projectItems):
     #    getProjectData(currentProject, projectItemDictNum)
     #else:
@@ -50,7 +72,7 @@ def getProjectData(projectDictNumber, currentProject):
 
 def nextFunction():
 
-     main(projectDictNumber)
+    main(projectDictNumber)
 
 if __name__ == '__main__':
     main(projectDictNumber)
