@@ -9,33 +9,61 @@ sb = pysb.SbSession()
 
 totalDataCount = 0
 projectDictNumber = 0
+possibleProjectData = []
 
-def main(projectDictNumber):
+def main(projectDictNumber, possibleProjectData):
     FY2012 = '5006c2c9e4b0abf7ce733f42'
 
     projects = sb.get_child_ids(FY2012)
     print(len(projects))
     print(projects)
-    currentProject = projects[projectDictNumber]
+    currentProject = '5006e99ee4b0abf7ce733f58' #Quantico
+    #currentProject = projects[projectDictNumber]
     print(currentProject)
-
+    possibleProjectData[:] = []
     #projectItemDictNum = 0
-    getProjectData(projects, projectDictNumber, currentProject)
+    getProjectData(projects, projectDictNumber, currentProject, possibleProjectData)
 
-def getProjectData(projects, projectDictNumber, currentProject):
+def getProjectData(projects, projectDictNumber, currentProject, possibleProjectData):
     projectItems = sb.get_child_ids(currentProject)
     currentProjectJson = sb.get_item(currentProject)
     for i in projectItems:
         currentProjectItemJson = sb.get_item(i)
         print(currentProjectItemJson['title'])
         if currentProjectItemJson['title'] == "Approved DataSets":
-            possibleProjectData = sb.get_ancestor_ids(i)
+            possibleProjectData += sb.get_ancestor_ids(i)
             print('Possible Project Data:')
             print(possibleProjectData)
             print('Total Items:')
             print(len(possibleProjectData))
         else:
             pass
+    findShortcuts(projects, projectDictNumber, currentProject,
+                        possibleProjectData, projectItems, currentProjectJson)
+
+def findShortcuts(projects, projectDictNumber, currentProject,
+                    possibleProjectData, projectItems, currentProjectJson):
+    print("Looking for shortcuts in any items...")
+    for i in projectItems:
+        currentProjectItemJson = sb.get_item(i)
+        print(currentProjectItemJson['title'])
+        if currentProjectItemJson['title'] == "Approved DataSets":
+            shortcuts = sb.get_shortcut_ids(i)
+            print(shortcuts)
+            if shortcuts == []:
+                print("No shortcuts in \"Approved DataSets\".")
+            elif shortcuts != []:
+                possibleProjectData += shortcuts
+                print("We found some shortcuts and added them to the Possible Project Data:")
+                print(possibleProjectData)
+                print('Total Items:')
+                print(len(possibleProjectData))
+                getProjectData(projects, projectDictNumber, currentProject, possibleProjectData)
+            else:
+                print("Something went wrong. Current function: getProjectData")
+        else:
+            pass
+
     #projectItemDictNum += 1
     #if projectItemDictNum > len(projectItems):
 
@@ -72,10 +100,10 @@ def whatNext(projects, projectDictNumber):
 
 def nextFunction():
 
-    main(projectDictNumber)
+    main(projectDictNumber, possibleProjectData)
 
 if __name__ == '__main__':
-    main(projectDictNumber)
+    main(projectDictNumber, possibleProjectData)
 
 sb.logout()
 
