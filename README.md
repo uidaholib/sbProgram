@@ -16,7 +16,7 @@ Libraries you need to run this program:
 * pandas
 * openpyxl
 * json
-* pprint
+
 
 On windows, for most of these you will just need to type:
 
