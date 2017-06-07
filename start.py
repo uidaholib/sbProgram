@@ -19,8 +19,8 @@ def questionLogin():
     Would you like to login?
     (Y / N)
     ''')
-    answer = input('> ')
-    if 'Y' in answer or 'y' in answer:
+    answer = input('> ').lower()
+    if answer.startswith('y'):
         login()
     elif 'N' in answer or 'n' in answer:
         main()
@@ -46,13 +46,13 @@ def main():
     1. Search ScienceBase
     2. Specialty tasks
     ''')
-    answer = input('> ')
-    if '1' in answer or 'Search' in answer or 'search' in answer:
+    answer = input('> ').lower()
+    if '1' or 'search' in answer:
             import search
             search.search()
-    elif '2' in answer or 'Special' in answer or 'special' in answer:
-        import specialtyTasks_working2
-        specialtyTasks_working2.main()
+    elif '2' or 'special' in answer:
+        import specialtyTasks_working3
+        specialtyTasks_working3.main()
     else:
         print('''
     Sorry, I didnt' understand that.''')
