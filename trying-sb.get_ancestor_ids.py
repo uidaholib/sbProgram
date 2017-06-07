@@ -10,61 +10,85 @@ sb = pysb.SbSession()
 totalDataCount = 0
 projectDictNumber = 0
 possibleProjectData = []
+exceptionItems = []
+exceptionFound = False
 
-
-def main(projectDictNumber, possibleProjectData):
+def main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound):
     FY2012 = '5006c2c9e4b0abf7ce733f42'
 
     projects = sb.get_child_ids(FY2012)
     print(len(projects))
     print(projects)
-    currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico
-    # currentProject = projects[projectDictNumber]
+    # currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico
+    currentProject = projects[projectDictNumber]
     print(currentProject)
     possibleProjectData[:] = []
     # projectItemDictNum = 0
     lookedForShortcutsBefore = False
-    getProjectData(projects, projectDictNumber, currentProject,
-                   possibleProjectData, lookedForShortcutsBefore)
+    lookedForDataBefore = False
+    getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                   lookedForShortcutsBefore, lookedForDataBefore)
 
 
-def getProjectData(projects, projectDictNumber, currentProject,
-                   possibleProjectData, lookedForShortcutsBefore):
+def getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                   lookedForShortcutsBefore, lookedForDataBefore):
     projectItems = sb.get_child_ids(currentProject)
     currentProjectJson = sb.get_item(currentProject)
-    for i in projectItems:
-        currentProjectItemJson = sb.get_item(i)
-        print(currentProjectItemJson['title'])
-        if currentProjectItemJson['title'] == "Approved DataSets":
-            possibleProjectData_Set = set(possibleProjectData)
-            ancestors = sb.get_ancestor_ids(i)
-            for item in ancestors:
-                if item not in possibleProjectData_Set:
-                    possibleProjectData_Set.add(sb.get_ancestor_ids(i))
-                    possibleProjectData.append(sb.get_ancestor_ids(i))
-                else:
-                    pass
-            print('Possible Project Data:')
-            print(possibleProjectData)
-            print('Total Items:')
-            print(len(possibleProjectData))
-        else:
-            pass
+    if lookedForDataBefore is False:
+        print("""
 
-    findShortcuts(projects, projectDictNumber, currentProject,
-                  possibleProjectData, projectItems, currentProjectJson,
-                  lookedForShortcutsBefore)
-
-
-def findShortcuts(projects, projectDictNumber, currentProject,
-                  possibleProjectData, projectItems, currentProjectJson,
-                  lookedForShortcutsBefore):
-    print("Looking for shortcuts in any items...")
-    foundShortcutsThisTime = False
-    if lookedForShortcutsBefore == False:
+        Currently searching '"""+str(currentProjectJson['title'])+"'.")
+        lookedForDataBefore = True
         for i in projectItems:
             currentProjectItemJson = sb.get_item(i)
             print(currentProjectItemJson['title'])
+            if currentProjectItemJson['title'] == "Approved DataSets":
+                possibleProjectData_Set = set()
+                possibleProjectData_Set.update(possibleProjectData)
+                ancestors = sb.get_ancestor_ids(i)
+                for item in ancestors:
+                    if item not in possibleProjectData_Set:
+                        possibleProjectData_Set.add(item)
+                        possibleProjectData.append(item)
+                    else:
+                        pass
+                print('First look at Possible Project Data:')
+                print(possibleProjectData)
+                print('Total Items:')
+                print(len(possibleProjectData))
+            else:
+                pass
+    for i in possibleProjectData:
+        possibleProjectData_Set = set()
+        possibleProjectData_Set.update(possibleProjectData)
+        ancestors = sb.get_ancestor_ids(i)
+        for item in ancestors:
+            if item not in possibleProjectData_Set:
+                possibleProjectData_Set.add(item)
+                possibleProjectData.append(item)
+            elif item in possibleProjectData_Set:
+                pass
+            else:
+                print("Something went wrong. Current function: "
+                      + "getProjectData (1)")
+    print('Double checked Possible Project Data:')
+    print(possibleProjectData)
+    print('Total Items:')
+    print(len(possibleProjectData))
+
+    findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, exceptionFound,
+                  possibleProjectData, projectItems, currentProjectJson,
+                  lookedForShortcutsBefore, lookedForDataBefore)
+
+
+def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, exceptionFound,
+                  possibleProjectData, projectItems, currentProjectJson,
+                  lookedForShortcutsBefore, lookedForDataBefore):
+    print("Looking for shortcuts in any items...")
+    foundShortcutsThisTime = False
+    if lookedForShortcutsBefore is False:
+        for i in projectItems:
+            currentProjectItemJson = sb.get_item(i)
             if currentProjectItemJson['title'] == "Approved DataSets":
                 shortcuts = sb.get_shortcut_ids(i)
                 print(shortcuts)
@@ -82,18 +106,22 @@ def findShortcuts(projects, projectDictNumber, currentProject,
                     print(len(possibleProjectData))
                 else:
                     print("Something went wrong. Current function: "
-                          + "getProjectData (1)")
+                          + "findShortcuts (1)")
                     exit()
             else:
                 pass
-    elif lookedForShortcutsBefore == True:
+    elif lookedForShortcutsBefore is True:
         pass
     else:
-        print("Something went wrong. Current function: getProjectData (2)")
+        print("Something went wrong. Current function: findShortcuts (2)")
         exit()
     allShortcuts = []
     for i in possibleProjectData:
-        allShortcuts += sb.get_shortcut_ids(i)
+        try:
+            allShortcuts += sb.get_shortcut_ids(i)
+        except Exception:
+            exceptionItems.append(i)
+            exceptionFound = True
     print(allShortcuts)
     if allShortcuts == []:
         print("No shortcuts in \"Possible Project Data\".")
@@ -106,24 +134,39 @@ def findShortcuts(projects, projectDictNumber, currentProject,
         print('Total Items:')
         print(len(possibleProjectData))
     else:
-        print("Something went wrong. Current function: getProjectData (3)")
+        print("Something went wrong. Current function: findShortcuts (3)")
         exit()
 
-    if foundShortcutsThisTime == True:
-        getProjectData(projects, projectDictNumber, currentProject,
-                       possibleProjectData, lookedForShortcutsBefore)
-    elif foundShortcutsThisTime == False:
-        print('''
-        I am done looking through the \''''+str(currentProjectJson['title']) +
-              '''' project folder.''')
-        projectDictNumber += 1
-        whatNext(projects, projectDictNumber)
+    if foundShortcutsThisTime is True:
+        main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
+        # getProjectData(projects, projectDictNumber, currentProject,
+        #               possibleProjectData, lookedForShortcutsBefore,
+        #               lookedForDataBefore)
+    elif foundShortcutsThisTime is False:
+        if exceptionFound is False:
+            print('''
+            I am done looking through the \''''+str(currentProjectJson['title']) +
+                  '''' project folder.''')
+            projectDictNumber += 1
+            whatNext(projects, projectDictNumber, exceptionItems, exceptionFound)
+        elif exceptionFound is True:
+            diagnostics(projects, projectDictNumber, exceptionItems, exceptionFound, currentProjectJson)
 
     # projectItemDictNum += 1
     # if projectItemDictNum > len(projectItems):
 
+def diagnostics(projects, projectDictNumber, exceptionItems, exceptionFound, currentProjectJson):
+    print("There appear to have been exceptions raised for the following items:")
+    print(exceptionItems)
+    print('''
 
-def whatNext(projects, projectDictNumber):
+    I am done looking through the \''''+str(currentProjectJson['title']) +
+          '''' project folder.''')
+    projectDictNumber += 1
+    whatNext(projects, projectDictNumber, exceptionItems, exceptionFound)
+
+
+def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
     print("Continue? (Y / N)")
     answer = input("> ")
     if 'y' in answer or 'Y' in answer:
@@ -134,13 +177,13 @@ def whatNext(projects, projectDictNumber):
         elif projectDictNumber <= len(projects):
             print("Ok, let\'s start on project "+str(projectDictNumber+1) +
                   " of "+str(len(projects))+".")
-            main(projectDictNumber)
+            main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
     elif 'n' in answer or 'N' in answer:
         print('Goodbye')
         exit()
     else:
         print("Please type an 'N' or 'Y'.")
-        whatNext(projects, projectDictNumber)
+        whatNext(projects, projectDictNumber, exceptionItems, exceptionFound)
 
     # elif projectItemDictNum <= len(projectItems):
     #    getProjectData(currentProject, projectItemDictNum)
@@ -150,11 +193,11 @@ def whatNext(projects, projectDictNumber):
 
 def nextFunction():
 
-    main(projectDictNumber, possibleProjectData)
+    main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
 
 
 if __name__ == '__main__':
-    main(projectDictNumber, possibleProjectData)
+    main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
 
 sb.logout()
 
