@@ -28,6 +28,7 @@ L9Exceptions = []
 L10Exceptions_IDs = []
 #==============================================================================
 def main():
+    #clears lists in case they are populated from a previous tally
     ChosenFiscalYear[:] = []
     L1Project[:] = []
     L2DataInProject[:] = []
