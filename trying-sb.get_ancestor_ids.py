@@ -8,24 +8,25 @@ from pprint import pprint
 sb = pysb.SbSession()
 
 totalDataCount = 0
-projectDictNumber = 0
+projectDictNumber = 11
 possibleProjectData = []
 exceptionItems = []
 exceptionFound = False
+lookedForShortcutsBefore = False
+lookedForDataBefore = False
 
-def main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound):
+def main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore):
     FY2012 = '5006c2c9e4b0abf7ce733f42'
 
-    projects = sb.get_child_ids(FY2012)
+    projects = sb.get_child_ids(FY2012) # Raised exception?
     print(len(projects))
     print(projects)
-    # currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico
+    #currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico: Marshes to Mudflats project
     currentProject = projects[projectDictNumber]
     print(currentProject)
     possibleProjectData[:] = []
     # projectItemDictNum = 0
-    lookedForShortcutsBefore = False
-    lookedForDataBefore = False
+
     getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
                    lookedForShortcutsBefore, lookedForDataBefore)
 
@@ -61,7 +62,12 @@ def getProjectData(projectDictNumber, possibleProjectData, projects, currentProj
     for i in possibleProjectData:
         possibleProjectData_Set = set()
         possibleProjectData_Set.update(possibleProjectData)
-        ancestors = sb.get_ancestor_ids(i)
+        try:
+            ancestors = sb.get_ancestor_ids(i)
+        except Exception:
+            exceptionItems.append(i)
+            exceptionFound = True
+            print("--------Hit upon a 404 exception: "+str(i)+" (1)")
         for item in ancestors:
             if item not in possibleProjectData_Set:
                 possibleProjectData_Set.add(item)
@@ -88,30 +94,41 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
     foundShortcutsThisTime = False
     if lookedForShortcutsBefore is False:
         for i in projectItems:
-            currentProjectItemJson = sb.get_item(i)
-            if currentProjectItemJson['title'] == "Approved DataSets":
-                shortcuts = sb.get_shortcut_ids(i)
-                print(shortcuts)
-                if shortcuts == []:
-                    lookedForShortcutsBefore = True
-                    print("No shortcuts in \"Approved DataSets\".")
-                elif shortcuts != []:
-                    lookedForShortcutsBefore = True
-                    foundShortcutsThisTime = True
-                    possibleProjectData += shortcuts
-                    print("We found some shortcuts and added them to the " +
-                          "Possible Project Data:")
-                    print(possibleProjectData)
-                    print('Total Items:')
-                    print(len(possibleProjectData))
+            try:
+                currentProjectItemJson = sb.get_item(i)
+                if currentProjectItemJson['title'] == "Approved DataSets":
+                    shortcuts = sb.get_shortcut_ids(i)
+                    print(shortcuts)
+                    if shortcuts == []:
+                        lookedForShortcutsBefore = True
+                        print("No shortcuts in \"Approved DataSets\".")
+                    elif shortcuts != []:
+                        lookedForShortcutsBefore = True
+                        foundShortcutsThisTime = True
+                        possibleProjectData += shortcuts
+                        print("We found some shortcuts and added them to the " +
+                              "Possible Project Data:")
+                        print(shortcuts)
+                        print('Total Items added:')
+                        print(len(shortcuts))
+                        print("New Possible Project Data:")
+                        print(possibleProjectData)
+                        print("Current Item total:")
+                        print(len(possibleProjectData))
+                    else:
+                        print("Something went wrong. Current function: "
+                              + "findShortcuts (1)")
+                        exit()
                 else:
-                    print("Something went wrong. Current function: "
-                          + "findShortcuts (1)")
-                    exit()
-            else:
-                pass
+                    pass
+            except Exception:
+                exceptionItems.append(i)
+                exceptionFound = True
+                print("--------Hit upon a 404 exception: "+str(i)+" (2)")
+
+
     elif lookedForShortcutsBefore is True:
-        pass
+        pass #something should happen here
     else:
         print("Something went wrong. Current function: findShortcuts (2)")
         exit()
@@ -122,6 +139,7 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
         except Exception:
             exceptionItems.append(i)
             exceptionFound = True
+            print("--------Hit upon a 404 exception: "+str(i)+" (3)")
     print(allShortcuts)
     if allShortcuts == []:
         print("No shortcuts in \"Possible Project Data\".")
@@ -138,11 +156,14 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
         exit()
 
     if foundShortcutsThisTime is True:
-        main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
+        print("-------- Found shortcuts this time!")
+        getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                           lookedForShortcutsBefore, lookedForDataBefore)
         # getProjectData(projects, projectDictNumber, currentProject,
         #               possibleProjectData, lookedForShortcutsBefore,
         #               lookedForDataBefore)
     elif foundShortcutsThisTime is False:
+        print("-------- Didn't find any Shortcuts this time!") # Quantico
         if exceptionFound is False:
             print('''
             I am done looking through the \''''+str(currentProjectJson['title']) +
@@ -170,14 +191,16 @@ def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
     print("Continue? (Y / N)")
     answer = input("> ")
     if 'y' in answer or 'Y' in answer:
-        if projectDictNumber > len(projects):
-            print("You have finished. No more available Projects")
+        if projectDictNumber >= len(projects):
+            print("You have finished. No more available Projects.")
             print('Goodbye')
             exit()
-        elif projectDictNumber <= len(projects):
+        elif projectDictNumber < len(projects):
             print("Ok, let\'s start on project "+str(projectDictNumber+1) +
                   " of "+str(len(projects))+".")
-            main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
+            lookedForShortcutsBefore = False
+            lookedForDataBefore = False
+            main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
     elif 'n' in answer or 'N' in answer:
         print('Goodbye')
         exit()
@@ -193,11 +216,11 @@ def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
 
 def nextFunction():
 
-    main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
+    main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
 
 
 if __name__ == '__main__':
-    main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound)
+    main(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
 
 sb.logout()
 
