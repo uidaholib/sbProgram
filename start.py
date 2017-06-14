@@ -1,12 +1,24 @@
+# -*- coding: utf-8 -*-
+"""Initial login script for the ScienceBase MACRO program
+
+This module contains the login functions for the user to log in to ScienceBase
+should they need to. It then asks the user whether whether they are searching
+ScienceBase or using other specialty tasks such as parsing and counting of
+ScienceBase data.
+
+PEON
+Program for Executive/Ease Of and Nuisancej
+menial executive task
+menial assignment and computational relief operator
+"""
 
 
-
-
+from pprint import pprint
 import requests
 import json
 import pysb
 
-from pprint import pprint
+
 
 
 
@@ -32,7 +44,7 @@ def questionLogin():
 def login():
     user = input('Username: ')
     sb.loginc(user)
-    if sb.is_logged_in() == True:
+    if sb.is_logged_in(): # if user is logged in. Same as if sb.is_logged_in == True
         print('''
     Login Successful''')
         main()
@@ -48,8 +60,8 @@ def main():
     ''')
     answer = input('> ').lower()
     if '1' or 'search' in answer:
-            import search
-            search.search()
+        import search
+        search.search()
     elif '2' or 'special' in answer:
         import specialtyTasks_working3
         specialtyTasks_working3.main()
