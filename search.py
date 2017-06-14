@@ -21,7 +21,7 @@ searchFolderID_SWCSC = '&folderId=4f8c6580e4b0546c0c397b4e'
 totalSearchURL = ''
 
 def search():
-    if sb.is_logged_in() == True:
+    if sb.is_logged_in(): # if user is logged in. Same as if sb.is_logged_in == True
         print('''
         Great, let's privately search ScienceBase.
         Do you want to search the NWCSC folder, or the SWCSC folder?''')
