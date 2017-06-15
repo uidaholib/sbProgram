@@ -2,14 +2,15 @@
 """Initial login script for the ScienceBase MACRO program
 
 This module contains the login functions for the user to log in to ScienceBase
-should they need to. It then asks the user whether whether they are searching
+should they need to. It then asks the user whether they are searching
 ScienceBase or using other specialty tasks such as parsing and counting of
-ScienceBase data.
+ScienceBase data and calls the appropriate script.
 
 PEON
-Program for Executive/Ease Of and Nuisancej
+Program for Executive/Ease Of and Nuisance
 menial executive task
 menial assignment and computational relief operator
+Macro Architechture for Computational and Reporting/Recording Operations
 """
 
 
@@ -56,15 +57,15 @@ def main():
     print('''
     So what do you want to do?
     1. Search ScienceBase
-    2. Specialty tasks
+    2. Other Tasks
     ''')
     answer = input('> ').lower()
-    if '1' or 'search' in answer:
+    if '1' in answer or 'search' in answer:
         import search
         search.search()
-    elif '2' or 'special' in answer:
-        import specialtyTasks_working3
-        specialtyTasks_working3.main()
+    elif '2' in answer or 'special' in answer:
+        import tasks
+        tasks.main()
     else:
         print('''
     Sorry, I didnt' understand that.''')
