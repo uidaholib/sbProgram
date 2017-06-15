@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*-
+"""Base-level Search script for the ScienceBase MACRO program
+
+This module contains the search functions for the user to search ScienceBase in
+either the NWCSC folder or the SWCSC folder and print the results of that
+search. It gives the user several options to choose from after executing a
+search.
+
+1. It allows the user to conduct a different search
+2. It can call another script to get more information on a particular result
+3. It allows them to go back and login.
+4/5. It allows the user to page forward and backward through results, should
+those results exist.
+6. It offers to call a script to count the data within a result (which first
+requires parsing of that result).
+7. If the user is logged in, it offers to call a script to edit a result.
+"""
 
 import requests
 import json
@@ -25,10 +42,10 @@ def search():
         print('''
         Great, let's privately search ScienceBase.
         Do you want to search the NWCSC folder, or the SWCSC folder?''')
-        answer = input('> ')
-        if 'nwcsc' in answer or 'NWCSC' in answer or 'n' in answer:
+        answer = input('> ').lower()
+        if 'nwcsc' in answer or 'n' in answer:
             searchNWCSC()
-        elif 'swcsc' in answer or 'SWCSC' in answer or 's' in answer:
+        elif 'swcsc' in answer or 's' in answer:
             searchSWCSC()
         else:
             print('''
@@ -38,11 +55,11 @@ def search():
         print('''
         Great, let's publically search ScienceBase.
         Do you want to search the NWCSC folder, or the SWCSC folder?''')
-        answer = input('> ')
-        if 'nwcsc' in answer or 'NWCSC' in answer or 'n' in answer:
+        answer = input('> ').lower()
+        if 'nwcsc' in answer or 'n' in answer:
             searchNWCSC()
-        elif 'swcsc' in answer or 'SWCSC' in answer or 's' in answer:
-            searchNWCSC()
+        elif 'swcsc' in answer or 's' in answer:
+            searchSWCSC()
         else:
             print('''
         I didn't understand that input. Let's try that again...''')
@@ -79,7 +96,7 @@ def searchGET(search, totalSearchURL):
     print('''
     There are '''+str(total)+''' items that match your search parameters.
     ''')
-    searchResults = {} #remember this
+    searchResults = [] #remember this
     page = 0
     titles = 0
     num = 1
@@ -90,9 +107,9 @@ def searchGET(search, totalSearchURL):
             if result['hasChildren'] == True:
                 try:
                     print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
-                                                            ['title']))
+                                                    ['title']))
                     searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                            ['url'])
+                                             ['url'])
                     titles += 1
                     num += 1
                 except UnicodeEncodeError:
@@ -103,9 +120,9 @@ def searchGET(search, totalSearchURL):
             elif result['hasChildren'] == False:
                 try:
                     print(str(num)+'. (File)'+str(parsed_r['items'][titles]
-                                                            ['title']))
+                                                  ['title']))
                     searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                            ['url'])
+                                             ['url'])
                     titles += 1
                     num += 1
                 except UnicodeEncodeError:
@@ -116,9 +133,9 @@ def searchGET(search, totalSearchURL):
             else:
                 try:
                     print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
-                                                            ['title']))
+                                                     ['title']))
                     searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                            ['url'])
+                                             ['url'])
                     titles += 1
                     num += 1
                 except UnicodeEncodeError:
@@ -134,9 +151,9 @@ def searchGET(search, totalSearchURL):
             if result['hasChildren'] == True:
                 try:
                     print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
-                                                            ['title']))
+                                                    ['title']))
                     searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                            ['url'])
+                                             ['url'])
                     titles += 1
                     num += 1
                 except UnicodeEncodeError:
@@ -147,9 +164,9 @@ def searchGET(search, totalSearchURL):
             elif result['hasChildren'] == False:
                 try:
                     print(str(num)+'. (File)'+str(parsed_r['items'][titles]
-                                                            ['title']))
+                                                  ['title']))
                     searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                            ['url'])
+                                             ['url'])
                     titles += 1
                     num += 1
                 except UnicodeEncodeError:
@@ -160,9 +177,9 @@ def searchGET(search, totalSearchURL):
             else:
                 try:
                     print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
-                                                            ['title']))
+                                                     ['title']))
                     searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                            ['url'])
+                                             ['url'])
                     titles += 1
                     num += 1
                 except UnicodeEncodeError:
@@ -175,7 +192,7 @@ def searchGET(search, totalSearchURL):
 
 
 def nowWhat(parsed_r, total, page): #EXAMINE LATER
-    if sb.is_logged_in() == True:
+    if sb.is_logged_in():
         if total > 20:
             print('''
     Now what would you like to do?
@@ -188,7 +205,7 @@ def nowWhat(parsed_r, total, page): #EXAMINE LATER
     7. Edit a result
     (Type number)
         ''')
-    elif sb.is_logged_in() == False:
+    elif not sb.is_logged_in():
         print('''
     Now what would you like to do?
     1. Search again
@@ -205,7 +222,8 @@ def nowWhat(parsed_r, total, page): #EXAMINE LATER
     elif '2' in answer:
         investigateResult(parsed_r)
     elif '3' in answer:
-        main()
+        import start
+        start.questionLogin()
     elif '4' in answer:
         more(parsed_r, total, page)
     elif '5' in answer:
@@ -213,7 +231,7 @@ def nowWhat(parsed_r, total, page): #EXAMINE LATER
     elif '6' in answer:
         import specialtyTasks
         specialtyTasks.resultDataCount(parsed_r)
-    elif '7' in answer and sb.is_logged_in() == True:
+    elif '7' in answer and sb.is_logged_in():
         editResult(parsed_r)
     else:
         print('''
@@ -248,7 +266,7 @@ def more(parsed_r, total, page):
         morePages = False
     else:
         morePages = True
-    if morePages == True:
+    if morePages is True:
         r = requests.get(parsed_r['nextlink']['url'])#, auth=(username, password)))
 
         print('''
@@ -262,7 +280,7 @@ def more(parsed_r, total, page):
         print('''
         There are '''+str(total)+''' items that match your search parameters.
         ''')
-        searchResults = {} #remember this
+        searchResults = [] #remember this
         page += 1
         titles = 0
         num = 1
@@ -273,12 +291,12 @@ def more(parsed_r, total, page):
             while titles < 20:
                 result = sb.get_json(parsed_r['items'][titles]['link']['url'])
                 #pprint(result) #Quantico
-                if result['hasChildren'] == True:
+                if result['hasChildren'] is True:
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                        ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -289,9 +307,9 @@ def more(parsed_r, total, page):
                 elif result['hasChildren'] == False:
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                      ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -302,9 +320,9 @@ def more(parsed_r, total, page):
                 else:
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                         ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -319,9 +337,9 @@ def more(parsed_r, total, page):
                 if result['hasChildren'] == True:
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                        ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -332,9 +350,9 @@ def more(parsed_r, total, page):
                 elif result['hasChildren'] == False:
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                      ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -345,9 +363,9 @@ def more(parsed_r, total, page):
                 else:
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                         ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -356,7 +374,7 @@ def more(parsed_r, total, page):
                         num += 1
         #print searchResults #Quantico
         nowWhat(parsed_r, total, page)
-    elif morePages == False:
+    elif morePages is False:
         print('''
     I'm sorry, there don't appear to be any more items''')
         nowWhat(parsed_r, total, page)
@@ -375,7 +393,7 @@ def back(parsed_r, total, page):
         morePages = False
     else:
         morePages = True
-    if morePages == True:
+    if morePages is True:
         r = requests.get(parsed_r['prevlink']['url'])#, auth=(username, password)))
 
         print('''
@@ -389,7 +407,7 @@ def back(parsed_r, total, page):
         print('''
         There are '''+str(total)+''' items that match your search parameters.
         ''')
-        searchResults = {} #remember this
+        searchResults = [] #remember this
         page -= 1
         titles = 0
         num = 1
@@ -403,9 +421,9 @@ def back(parsed_r, total, page):
                 if result['hasChildren'] == True:
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                        ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -416,9 +434,9 @@ def back(parsed_r, total, page):
                 elif result['hasChildren'] == False:
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                      ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -429,9 +447,9 @@ def back(parsed_r, total, page):
                 else:
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                         ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -446,9 +464,9 @@ def back(parsed_r, total, page):
                 if result['hasChildren'] == True:
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                        ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -459,9 +477,9 @@ def back(parsed_r, total, page):
                 elif result['hasChildren'] == False:
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                      ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -472,9 +490,9 @@ def back(parsed_r, total, page):
                 else:
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
-                                                                ['title']))
+                                                         ['title']))
                         searchResults[titles] = (parsed_r['items'][titles]['link']
-                                                                ['url'])
+                                                 ['url'])
                         titles += 1
                         num += 1
                     except UnicodeEncodeError:
@@ -483,7 +501,7 @@ def back(parsed_r, total, page):
                         num += 1
         #print searchResults #Quantico
         nowWhat(parsed_r, total, page)
-    elif morePages == False:
+    elif morePages is False:
         print('''
     Sorry, you are already on the first 20 results, there are no more before this.''')
         nowWhat(parsed_r, total, page)
@@ -497,6 +515,7 @@ def back(parsed_r, total, page):
 def editResult(parsed_r):
     pass
 
-
+if __name__ == '__main__':
+    search()
 
 sb.logout()
