@@ -180,9 +180,8 @@ def doubleCheckFY(old_r, folder):
     ''')
     answer = input('> ').lower()
     if 'yes' in answer or 'y' in answer:
-        FiscalYear = True
         import parse
-        parse.main(folder, FiscalYear)
+        parse.main(folder)
     elif 'no' in answer or 'n' in answer:
         print('''
     Ok, let's try this again.''')
