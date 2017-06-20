@@ -8,7 +8,7 @@ from pprint import pprint
 sb = pysb.SbSession()
 
 totalDataCount = 0
-projectDictNumber = 11
+projectDictNumber = 0
 possibleProjectData = []
 exceptionItems = []
 exceptionFound = False
@@ -19,33 +19,63 @@ lookedForDataBefore = False
 def main(itemToBeParsed):
     """This function should start the parsing process by taking an array of ids
     from whatever scripted created it, and using that as the basis to parse
-    through. If there is more than one ID to be parsed,
+    through. It then calls startUp().
 
     Args:
         itemToBeParsed (array): This is the list of ScienceBase IDs that need
-                                parsed
-    It then calls startUp().
+                                parsed.
+    """
+    startUp(projectDictNumber, possibleProjectData, exceptionItems,
+            exceptionFound, lookedForShortcutsBefore, lookedForDataBefore,
+            itemToBeParsed)
+
+
+def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore, itemToBeParsed):
+    """This function takes the array itemToBeParsed and checks if it is only
+    one ID or multiple. If only one, it checks to see if the item is a project.
+    If it is, it is added to the "projects" array.
+
+    Args:
+        projectDictNumber (int): the dictionary position within the "projects"
+                                 array that changes throughout the script to
+                                 parse from one project to another.
+        possibleProjectData (array): all IDs that possibly contain data within
+                                     the current project.
+        exceptionItems (array): list of all item IDs that raised exceptions
+                                when attempting to get their information.
+        exceptionFound (boolean): Automatically set to "False", it changes to
+                                  "True" if any exceptions are raised when
+                                  attempting to get information on an item.
+        lookedForShortcutsBefore (boolean): Set to "False" by default, this
+                                            changes to "True" if
+                                            findShortcuts() has been called
+                                            before for the particular project.
+        lookedForDataBefore (boolean): Set to "False" by default, it changes to
+                                       "True" if getProjectData() has been
+                                       called before.
+        itemToBeParsed (array): This is the list of ScienceBase IDs that need
+                                parsed.
     """
     if len(itemToBeParsed) > 1:
         pass
+    elif len(itemToBeParsed) == 1:
+        r = sb.get_item(itemToBeParsed)
+        if r["browseCategories"] is "Project":
+            projects = sb.get_child_ids(itemToBeParsed) # Raised exception?
+            print(len(projects))  # Quantico
+            print(projects)  #Quantico
+            # currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico: Marshes to Mudflats project
+            currentProject = projects[projectDictNumber]
+            print(currentProject)
+            possibleProjectData[:] = []
 
+            getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                           lookedForShortcutsBefore, lookedForDataBefore)
+        else:
 
+    else:
+        print("There are no items to parse.")
 
-
-def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore):
-    FY2012 = '5006c2c9e4b0abf7ce733f42'
-
-    projects = sb.get_child_ids(FY2012) # Raised exception?
-    print(len(projects))
-    print(projects)
-    #currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico: Marshes to Mudflats project
-    currentProject = projects[projectDictNumber]
-    print(currentProject)
-    possibleProjectData[:] = []
-    # projectItemDictNum = 0
-
-    getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                   lookedForShortcutsBefore, lookedForDataBefore)
 
 
 def getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
@@ -143,9 +173,8 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
                 exceptionFound = True
                 print("--------Hit upon a 404 exception: "+str(i)+" (2)")
 
-
     elif lookedForShortcutsBefore is True:
-        pass #something should happen here
+        pass #something should happen here. eyekeeper
     else:
         print("Something went wrong. Current function: findShortcuts (2)")
         exit()
@@ -217,7 +246,7 @@ def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
                   " of "+str(len(projects))+".")
             lookedForShortcutsBefore = False
             lookedForDataBefore = False
-            startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
+            startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore, itemToBeParsed)
     elif 'n' in answer or 'N' in answer:
         print('Goodbye')
         exit()
@@ -233,11 +262,11 @@ def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
 
 def nextFunction():
 
-    startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
+    startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore, itemToBeParsed)
 
 
 if __name__ == '__main__':
-    startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
+    main(itemToBeParsed)
 
 sb.logout()
 
