@@ -31,9 +31,15 @@ def main(itemToBeParsed):
 
 
 def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore, itemToBeParsed):
-    """This function takes the array itemToBeParsed and checks if it is only
-    one ID or multiple. If only one, it checks to see if the item is a project.
-    If it is, it is added to the "projects" array.
+    """This function first creates an array called "projects". It then takes
+    the array itemToBeParsed and checks if it contains only one ID or if it
+    contains multiple. If only one, it checks to see if the item is a project.
+    If it is, it is added to the "projects" array and getProjectData() is
+    called. If it is not a project, the array is appended to
+    possibleProjectData and parse() is called.
+
+    If it contains multiple IDs,
+    they are all checked
 
     Args:
         projectDictNumber (int): the dictionary position within the "projects"
@@ -55,24 +61,93 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
                                        called before.
         itemToBeParsed (array): This is the list of ScienceBase IDs that need
                                 parsed.
+
     """
+    projects = []
     if len(itemToBeParsed) > 1:
-        pass
+        print(len(itemToBeParsed))  # Quantico
+        for i in itemToBeParsed:
+            itemToBeParsed_json = sb.get_item(itemToBeParsed)
+            print("1")  # Quantico
+            try:
+                if itemToBeParsed_json["browseCategories"] == "Project":
+                    print("2")  # Quantico
+                    projects.append(itemToBeParsed)
+                    print(len(projects))  # Quantico
+                    print(projects)  #Quantico
+                    currentProject = projects[projectDictNumber]
+                    print(currentProject)
+                    possibleProjectData[:] = []
+                    print("3")  # Quantico
+
+                    getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                                   lookedForShortcutsBefore, lookedForDataBefore)
+            except KeyError:
+                else:
+                if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
+                    print("4")  # Quantico
+                    children = sb.get_child_ids(itemToBeParsed)
+                    exampleChild = children[0]
+                    exampleChild_json = sb.get_item(exampleChild)
+                    try:
+                        if exampleChild_json["browseCategories"] == "Project":
+                            print("5")  # Quantico
+                            projects.append(children)
+                            print(len(projects))  # Quantico
+                            print(projects)  #Quantico
+                            currentProject = projects[projectDictNumber]
+                            print(currentProject)
+                            possibleProjectData[:] = []
+                            print("6")  # Quantico
+
+                            getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                                           lookedForShortcutsBefore, lookedForDataBefore)
+                    except KeyError:
+                        else:
+                            print("7")  # Quantico
+                            possibleProjectData[:] = []
+                            possibleProjectData.append(itemToBeParsed)
+                            parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                                               lookedForShortcutsBefore, lookedForDataBefore)
+
     elif len(itemToBeParsed) == 1:
-        r = sb.get_item(itemToBeParsed)
-        if r["browseCategories"] is "Project":
-            projects = sb.get_child_ids(itemToBeParsed) # Raised exception?
+        print("8")  # Quantico
+        itemToBeParsed_json = sb.get_item(itemToBeParsed)
+        if itemToBeParsed_json["browseCategories"] == "Project":
+            print("9")  # Quantico
+            projects.append(itemToBeParsed)
             print(len(projects))  # Quantico
             print(projects)  #Quantico
             # currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico: Marshes to Mudflats project
             currentProject = projects[projectDictNumber]
             print(currentProject)
             possibleProjectData[:] = []
+            print("10")  # Quantico
 
             getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
                            lookedForShortcutsBefore, lookedForDataBefore)
-        else:
+        elif itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
+            print("11")  # Quantico
+            children = sb.get_child_ids(itemToBeParsed_json)
+            exampleChild = children[0]
+            if exampleChild["browseCategories"] == "Project":
+                print("12")  # Quantico
+                projects.append(children)
+                print(len(projects))  # Quantico
+                print(projects)  #Quantico
+                currentProject = projects[projectDictNumber]
+                print(currentProject)
+                possibleProjectData[:] = []
+                print("13")  # Quantico
 
+                getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                               lookedForShortcutsBefore, lookedForDataBefore)
+        else:
+            print("14")  # Quantico
+            possibleProjectData[:] = []
+            possibleProjectData.append(itemToBeParsed)
+            parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                               lookedForShortcutsBefore, lookedForDataBefore)
     else:
         print("There are no items to parse.")
 
@@ -80,6 +155,7 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
 
 def getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
                    lookedForShortcutsBefore, lookedForDataBefore):
+    print("15")  # Quantico
     projectItems = sb.get_child_ids(currentProject)
     currentProjectJson = sb.get_item(currentProject)
     if lookedForDataBefore is False:
@@ -106,6 +182,11 @@ def getProjectData(projectDictNumber, possibleProjectData, projects, currentProj
                 print(len(possibleProjectData))
             else:
                 pass
+    parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                       lookedForShortcutsBefore, lookedForDataBefore)
+
+def parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                   lookedForShortcutsBefore, lookedForDataBefore):
     for i in possibleProjectData:
         possibleProjectData_Set = set()
         possibleProjectData_Set.update(possibleProjectData)
