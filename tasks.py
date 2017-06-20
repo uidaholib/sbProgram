@@ -136,8 +136,8 @@ def yearDataCount():
 def chooseFiscalYear(r):
     """This function prints out the available fiscal years for the chosen CSC
     and asks the user to pick the one to be parsed and whose data will be
-    counted. After a choice is made, it calls doubleCheck(), passing it "r" and
-    the new variable "folder" that is the selected fiscal year.
+    counted. After a choice is made, it calls doubleCheckFY(), passing it "r" and
+    the new variable "folder" that is the item ID of the selected fiscal year.
     """
     # print(sb.is_logged_in()) # Quantico
     # pprint(r) # Quantico
@@ -158,14 +158,14 @@ def chooseFiscalYear(r):
         val = int(float(answer))
         f = val-1
         folder = r[f]
-        doubleCheck(r, folder)
+        doubleCheckFY(r, folder)
 
     except ValueError:
         print("That's not a number. Let's try this again.")
         chooseFiscalYear(r)
 
 
-def doubleCheck(old_r, folder):
+def doubleCheckFY(old_r, folder):
     """This function confirms the fiscal year choice from the previous function.
     If confirmed, it calls the parse.py script to begin parsing the data. If
     unconfirmed, it calls chooseFiscalYear() again.
@@ -181,7 +181,7 @@ def doubleCheck(old_r, folder):
     answer = input('> ').lower()
     if 'yes' in answer or 'y' in answer:
         import parse
-        parse.main()
+        parse.main(folder)
     elif 'no' in answer or 'n' in answer:
         print('''
     Ok, let's try this again.''')
@@ -190,7 +190,7 @@ def doubleCheck(old_r, folder):
         print('''
     Sorry, I didn't understand that. Try typing 'Yes' or 'No' or the first''' +
               ''' letter of your answer.''')
-        doubleCheck(old_r, folder)
+        doubleCheckFY(old_r, folder)
 
 
 if __name__ == '__main__':
