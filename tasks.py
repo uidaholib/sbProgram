@@ -116,7 +116,7 @@ def yearDataCount():
     and passes it the "r" variable.
     """
     print('''
-    Which folder would you like to get the data from?
+    Which folder would you like to get the data from:
     NWCSC folder or the SWCSC folder?
     ''')
     answer = input('> ').lower()
@@ -180,8 +180,9 @@ def doubleCheckFY(old_r, folder):
     ''')
     answer = input('> ').lower()
     if 'yes' in answer or 'y' in answer:
+        FiscalYear = True
         import parse
-        parse.main(folder)
+        parse.main(folder, FiscalYear)
     elif 'no' in answer or 'n' in answer:
         print('''
     Ok, let's try this again.''')
