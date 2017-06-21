@@ -25,6 +25,8 @@ def main(itemToBeParsed):
         itemToBeParsed (array): This is the list of ScienceBase IDs that need
                                 parsed.
     """
+    print("Item to Be Parsed: ")  # Quantico
+    print(itemToBeParsed)  # Quantico
     startUp(projectDictNumber, possibleProjectData, exceptionItems,
             exceptionFound, lookedForShortcutsBefore, lookedForDataBefore,
             itemToBeParsed)
@@ -60,102 +62,169 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
                                        "True" if getProjectData() has been
                                        called before.
         itemToBeParsed (array): This is the list of ScienceBase IDs that need
-                                parsed.
+                                parsed. Sent from previous scripts.
 
     """
     projects = []
+    possibleProjectData[:] = []
     if len(itemToBeParsed) > 1:
         print(len(itemToBeParsed))  # Quantico
+        print(itemToBeParsed)  # Quantico
+        itemToBeParsedDictNum = 0
         for i in itemToBeParsed:
             itemToBeParsed_json = sb.get_item(itemToBeParsed)
-            print("1")  # Quantico
+            print("Place: 1")  # Quantico
             try:
-                if itemToBeParsed_json["browseCategories"] == "Project":
-                    print("2")  # Quantico
+                if "Project" in itemToBeParsed_json["browseCategories"]:
+                    print("Place: 2")  # Quantico
                     projects.append(itemToBeParsed)
                     print(len(projects))  # Quantico
                     print(projects)  #Quantico
                     currentProject = projects[projectDictNumber]
                     print(currentProject)
-                    possibleProjectData[:] = []
-                    print("3")  # Quantico
-
-                    getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                                   lookedForShortcutsBefore, lookedForDataBefore)
-            except KeyError:
-                else:
-                if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
-                    print("4")  # Quantico
+                    print("Place: 3")  # Quantico
+                elif itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
+                    print("Place: 4")  # Quantico
                     children = sb.get_child_ids(itemToBeParsed)
                     exampleChild = children[0]
                     exampleChild_json = sb.get_item(exampleChild)
                     try:
-                        if exampleChild_json["browseCategories"] == "Project":
-                            print("5")  # Quantico
+                        if "Project" in exampleChild_json["browseCategories"]:
+                            print("Place: 5")  # Quantico
                             projects.append(children)
                             print(len(projects))  # Quantico
                             print(projects)  #Quantico
                             currentProject = projects[projectDictNumber]
                             print(currentProject)
-                            possibleProjectData[:] = []
-                            print("6")  # Quantico
-
-                            getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                                           lookedForShortcutsBefore, lookedForDataBefore)
-                    except KeyError:
+                            print("Place: 6")  # Quantico
                         else:
-                            print("7")  # Quantico
-                            possibleProjectData[:] = []
-                            possibleProjectData.append(itemToBeParsed)
-                            parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                                               lookedForShortcutsBefore, lookedForDataBefore)
+                            print("Place: 20")  # Quantico
+                            possibleProjectData.append(itemToBeParsed) # eyekeeper
+
+
+                    except KeyError:
+                        print("Place: 7")  # Quantico
+                        possibleProjectData.append(itemToBeParsed)
+                else:
+                    print("Place: 21")  # Quantico
+                    possibleProjectData.append(itemToBeParsed) # eyekeeper
+
+            except KeyError:
+                if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
+                    print("Place: 4")  # Quantico
+                    children = sb.get_child_ids(itemToBeParsed)
+                    exampleChild = children[0]
+                    exampleChild_json = sb.get_item(exampleChild)
+                    try:
+                        if "Project" in exampleChild_json["browseCategories"]:
+                            print("Place: 5")  # Quantico
+                            projects.append(children)
+                            print(len(projects))  # Quantico
+                            print(projects)  #Quantico
+                            currentProject = projects[projectDictNumber]
+                            print(currentProject)
+                            print("Place: 6")  # Quantico
+                        else:
+                            print("Place: 20")  # Quantico
+                            possibleProjectData.append(itemToBeParsed) # eyekeeper
+
+
+                    except KeyError:
+                        print("Place: 7")  # Quantico
+                        possibleProjectData.append(itemToBeParsed)
+
 
     elif len(itemToBeParsed) == 1:
-        print("8")  # Quantico
-        itemToBeParsed_json = sb.get_item(itemToBeParsed)
-        if itemToBeParsed_json["browseCategories"] == "Project":
-            print("9")  # Quantico
-            projects.append(itemToBeParsed)
-            print(len(projects))  # Quantico
-            print(projects)  #Quantico
-            # currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico: Marshes to Mudflats project
-            currentProject = projects[projectDictNumber]
-            print(currentProject)
-            possibleProjectData[:] = []
-            print("10")  # Quantico
-
-            getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                           lookedForShortcutsBefore, lookedForDataBefore)
-        elif itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
-            print("11")  # Quantico
-            children = sb.get_child_ids(itemToBeParsed_json)
-            exampleChild = children[0]
-            if exampleChild["browseCategories"] == "Project":
-                print("12")  # Quantico
-                projects.append(children)
+        print(len(itemToBeParsed))  # Quantico
+        print(itemToBeParsed)  # Quantico
+        print("Place: 8")  # Quantico
+        itemToBeParsed_json = sb.get_item(itemToBeParsed[0])
+        try:
+            if "Project" in itemToBeParsed_json["browseCategories"]:
+                print("Place: 9")  # Quantico
+                projects.append(itemToBeParsed)
                 print(len(projects))  # Quantico
                 print(projects)  #Quantico
+                # currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico: Marshes to Mudflats project
                 currentProject = projects[projectDictNumber]
                 print(currentProject)
-                possibleProjectData[:] = []
-                print("13")  # Quantico
+                print("Place: 10")  # Quantico
+            else:
+                if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
+                    print("Place: 11.1")  # Quantico
+                    children = sb.get_child_ids(itemToBeParsed[0])
+                    exampleChild = children[0]
+                    print('exampleChild: ')
+                    print(exampleChild)  # Quantico
+                    exampleChild_json = sb.get_item(exampleChild)
+                    print(exampleChild_json["browseCategories"])
+                    try:
+                        if "Project" in exampleChild_json["browseCategories"]:
+                            print("Place: 12.1")  # Quantico
+                            print("children: ")  # Quantico
+                            print(children)  # Quantico
+                            for i in children:
+                                projects.append(i)
+                            print(len(projects))  # Quantico
+                            print(projects)  #Quantico
+                            currentProject = projects[projectDictNumber]
+                            print(currentProject)
+                            print("Place: 13.1")  # Quantico
+                    except KeyError:
+                        print("Not Fiscal Year")  # Quantico
+                        possibleProjectData.append(itemToBeParsed) # eyekeeper
 
-                getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                               lookedForShortcutsBefore, lookedForDataBefore)
-        else:
-            print("14")  # Quantico
-            possibleProjectData[:] = []
-            possibleProjectData.append(itemToBeParsed)
-            parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                               lookedForShortcutsBefore, lookedForDataBefore)
+                else:
+                    print("Place: 14.1")  # Quantico
+                    possibleProjectData.append(itemToBeParsed)
+
+
+        except KeyError:
+            if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
+                print("Place: 11.2")  # Quantico
+                children = sb.get_child_ids(itemToBeParsed[0])
+                exampleChild = children[0]
+                print('exampleChild: ')
+                print(exampleChild)  # Quantico
+                exampleChild_json = sb.get_item(exampleChild)
+                print(exampleChild_json["browseCategories"])
+                try:
+                    if "Project" in exampleChild_json["browseCategories"]:
+                        print("Place: 12.2")  # Quantico
+                        print("children: ")  # Quantico
+                        print(children)  # Quantico
+                        for i in children:
+                            projects.append(i)
+                        print(len(projects))  # Quantico
+                        print(projects)  #Quantico
+                        currentProject = projects[projectDictNumber]
+                        print(currentProject)
+                        print("Place: 13.2")  # Quantico
+                except KeyError:
+                    print("Not Fiscal Year (2)")  # Quantico
+                    possibleProjectData.append(itemToBeParsed)  # eyekeeper
+
+            else:
+                print("Place: 14.2")  # Quantico
+                possibleProjectData.append(itemToBeParsed)
+
     else:
         print("There are no items to parse.")
+
+    print("projects: ")  # Quantico
+    print(projects)  # Quantico call getProjectData() for these
+    print("possibleProjectData: ")  # Quantico
+    print(possibleProjectData)  # Quantico call parse() for these
+    # ^ probably do this first, because the projects will need this variable
+    # perhaps make a class for the data and one for the projects
+    # I also need to make sure that anything that doesn't meet any of the
+    # requirements to be put in the "possible data" variable
 
 
 
 def getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
                    lookedForShortcutsBefore, lookedForDataBefore):
-    print("15")  # Quantico
+    print("Place: 15")  # Quantico
     projectItems = sb.get_child_ids(currentProject)
     currentProjectJson = sb.get_item(currentProject)
     if lookedForDataBefore is False:
@@ -347,6 +416,8 @@ def nextFunction():
 
 
 if __name__ == '__main__':
+    itemToBeParsed = []
+    itemToBeParsed.append("5006c2c9e4b0abf7ce733f42")
     main(itemToBeParsed)
 
 sb.logout()
