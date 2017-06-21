@@ -157,7 +157,8 @@ def chooseFiscalYear(r):
     try:
         val = int(float(answer))
         f = val-1
-        folder = r[f]
+        folder = []  # This has to be a list to parse correctly
+        folder.append(r[f])
         doubleCheckFY(r, folder)
 
     except ValueError:
@@ -170,7 +171,7 @@ def doubleCheckFY(old_r, folder):
     If confirmed, it calls the parse.py script to begin parsing the data. If
     unconfirmed, it calls chooseFiscalYear() again.
     """
-    r = sb.get_item(folder)
+    r = sb.get_item(folder[0])
     # pprint(r) #Quantico
     print('''
     Ok, so we're counting the data in '''+r['title']+'''.
@@ -180,6 +181,8 @@ def doubleCheckFY(old_r, folder):
     ''')
     answer = input('> ').lower()
     if 'yes' in answer or 'y' in answer:
+        print("What I'm sending over: ")  # Quantico
+        print(folder)  # Quantico
         import parse
         parse.main(folder)
     elif 'no' in answer or 'n' in answer:
