@@ -219,6 +219,9 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
     # perhaps make a class for the data and one for the projects
     # I also need to make sure that anything that doesn't meet any of the
     # requirements to be put in the "possible data" variable
+    # for these it will be something like:
+    # for i in projects:
+        # i = Project() # which is a class
 
 
 
