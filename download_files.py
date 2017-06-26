@@ -125,3 +125,7 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
 
 
 # then just get_item('id') for each thing. Then get_item_files_zip(sb_json, destination)
+
+
+if __name__ == '__main__':
+    main()
