@@ -8,4 +8,4 @@ projects, and Fiscal Years to be accessed from all other modules via "g.items",
 itemsToBeParsed = []
 items = []
 projects = []
-FiscalYears = []
+fiscalYears = []
