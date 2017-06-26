@@ -1,3 +1,35 @@
+import g
+import requests
+import json
+import pysb
+import sys
+
+from pprint import pprint
+
+sb = pysb.SbSession()
+
+totalDataCount = 0
+projectDictNumber = 0
+possibleProjectData = []
+exceptionItems = []
+exceptionFound = False
+lookedForShortcutsBefore = False
+lookedForDataBefore = False
+
+
+def main():
+    possibleProjectData[:] = []
+    print("FY made it!") # Quantico
+    FYprojects = []
+    for i in g.fiscalYears:
+        currentFYprojects = sb.get_child_ids(i)
+        for project in currentFYprojects:
+            if project not in FYprojects:
+                FYprojects.append(project)
+    currentProject = FYprojects[projectDictNumber]
+    getProjectData(projectDictNumber, possibleProjectData, FYprojects,
+                   currentProject, exceptionItems, exceptionFound,
+                   lookedForShortcutsBefore, lookedForDataBefore)
 
 
 
@@ -7,11 +39,8 @@
 
 
 
-
-
-
-
-def getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+def getProjectData(projectDictNumber, possibleProjectData, projects,
+                   currentProject, exceptionItems, exceptionFound,
                    lookedForShortcutsBefore, lookedForDataBefore):
     print("Place: 15")  # Quantico
     projectItems = sb.get_child_ids(currentProject)
@@ -40,13 +69,15 @@ def getProjectData(projectDictNumber, possibleProjectData, projects, currentProj
                 print(len(possibleProjectData))
             else:
                 pass
-    parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                       lookedForShortcutsBefore, lookedForDataBefore)
+    parse(projectDictNumber, possibleProjectData, projects, projectItems,
+          currentProject, exceptionItems, exceptionFound,
+          lookedForShortcutsBefore, lookedForDataBefore, currentProjectJson)
 
-def parse(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
-                   lookedForShortcutsBefore, lookedForDataBefore):
+def parse(projectDictNumber, possibleProjectData, projects, projectItems,
+          currentProject, exceptionItems, exceptionFound,
+          lookedForShortcutsBefore, lookedForDataBefore, currentProjectJson):
+    possibleProjectData_Set = set()
     for i in possibleProjectData:
-        possibleProjectData_Set = set()
         possibleProjectData_Set.update(possibleProjectData)
         try:
             ancestors = sb.get_ancestor_ids(i)
@@ -193,42 +224,12 @@ def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
         print("Please type an 'N' or 'Y'.")
         whatNext(projects, projectDictNumber, exceptionItems, exceptionFound)
 
-    # elif projectItemDictNum <= len(projectItems):
-    #    getProjectData(currentProject, projectItemDictNum)
-    # else:
-    #    print('Something is wrong. Current function: getProjectData')
-
-
-def nextFunction():
-
-    sort_items(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
-
 
 if __name__ == '__main__':
     g.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
-    g.itemsToBeParsed.append("5006e94ee4b0abf7ce733f56")
-    g.itemsToBeParsed.append("55130c4fe4b02e76d75c0755")
-    g.itemsToBeParsed.append("55e07a67e4b0f42e3d040f3c")
-    g.itemsToBeParsed.append("58111fafe4b0f497e79892f7")
-    g.itemsToBeParsed.append("57daef3fe4b090824ffc3226")
+    # g.itemsToBeParsed.append("5006e94ee4b0abf7ce733f56")
+    # g.itemsToBeParsed.append("55130c4fe4b02e76d75c0755")
+    # g.itemsToBeParsed.append("55e07a67e4b0f42e3d040f3c")
+    # g.itemsToBeParsed.append("58111fafe4b0f497e79892f7")
+    # g.itemsToBeParsed.append("57daef3fe4b090824ffc3226")
     main()
-
-sb.logout()
-
-
-# ancestor = sb.get_ancestor_ids(parentid)
-# print(ancestor)
-
-# trying = '5536dbe1e4b0b22a15808467'
-# tryThis = sb.get_item_file_info(trying)
-# print("TryThis:")
-# print(tryThis)
-# List file info from the newly found items
-# print("Starting count...")
-# for i in ancestor:
-#    ret = sb.get_item_file_info(i)
-#    print('ret created')
-#    print(ret)
-#    for fileinfo in ret:
-#        print("File " + fileinfo["name"] + ", " + str(fileinfo["size"]) +
-#              "bytes, download URL " + fileinfo["url"])
