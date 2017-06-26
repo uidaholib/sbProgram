@@ -160,6 +160,7 @@ def chooseFiscalYear(r):
         f = val-1
         folder = []  # This has to be a list to parse correctly
         folder.append(r[f])
+        g.itemsToBeParsed.append(r[f])
         doubleCheckFY(r, folder)
 
     except ValueError:
@@ -184,8 +185,9 @@ def doubleCheckFY(old_r, folder):
     if 'yes' in answer or 'y' in answer:
         print("What I'm sending over: ")  # Quantico
         print(folder)  # Quantico
+        print(g.itemsToBeParsed)
         import parse
-        parse.main(folder)
+        parse.main()
     elif 'no' in answer or 'n' in answer:
         print('''
     Ok, let's try this again.''')

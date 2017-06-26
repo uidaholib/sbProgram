@@ -17,7 +17,7 @@ lookedForShortcutsBefore = False
 lookedForDataBefore = False
 
 
-def main(itemToBeParsed):
+def main():
     """This function should start the parsing process by taking an array of ids
     from whatever scripted created it, and using that as the basis to parse
     through. It then calls startUp().
@@ -26,14 +26,13 @@ def main(itemToBeParsed):
         itemToBeParsed (array): This is the list of ScienceBase IDs that need
                                 parsed.
     """
-    print("Item to Be Parsed: ")  # Quantico
-    print(itemToBeParsed)  # Quantico
+    print("Items to Be Parsed: ")  # Quantico
+    print(g.itemsToBeParsed)  # Quantico
     startUp(projectDictNumber, possibleProjectData, exceptionItems,
-            exceptionFound, lookedForShortcutsBefore, lookedForDataBefore,
-            itemToBeParsed)
+            exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
 
 
-def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore, itemToBeParsed):
+def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore):
     """This function first creates an array called "projects". It then takes
     the array itemToBeParsed and checks if it contains only one ID or if it
     contains multiple. If only one, it checks to see if the item is a project.
@@ -62,31 +61,30 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
         lookedForDataBefore (boolean): Set to "False" by default, it changes to
                                        "True" if getProjectData() has been
                                        called before.
-        itemToBeParsed (array): This is the list of ScienceBase IDs that need
-                                parsed. Sent from previous scripts.
+
 
     """
     projects = []
     possibleProjectData[:] = []
-    if len(itemToBeParsed) > 1:
-        print(len(itemToBeParsed))  # Quantico
-        print(itemToBeParsed)  # Quantico
-        itemToBeParsedDictNum = 0
-        for i in itemToBeParsed:
-            itemToBeParsed_json = sb.get_item(itemToBeParsed)
+    if len(g.itemsToBeParsed) > 1:
+        print(len(g.itemsToBeParsed))  # Quantico
+        print(g.itemsToBeParsed)  # Quantico
+        itemsToBeParsedDictNum = 0
+        for i in g.itemsToBeParsed:
+            itemsToBeParsed_json = sb.get_item(i)
             print("Place: 1")  # Quantico
             try:
-                if "Project" in itemToBeParsed_json["browseCategories"]:
+                if "Project" in itemsToBeParsed_json["browseCategories"]:
                     print("Place: 2")  # Quantico
-                    projects.append(itemToBeParsed)
+                    projects.append(i)
                     print(len(projects))  # Quantico
                     print(projects)  #Quantico
                     currentProject = projects[projectDictNumber]
                     print(currentProject)
                     print("Place: 3")  # Quantico
-                elif itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
+                elif itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                     print("Place: 4")  # Quantico
-                    children = sb.get_child_ids(itemToBeParsed)
+                    children = sb.get_child_ids(i)
                     exampleChild = children[0]
                     exampleChild_json = sb.get_item(exampleChild)
                     try:
@@ -100,20 +98,20 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
                             print("Place: 6")  # Quantico
                         else:
                             print("Place: 20")  # Quantico
-                            possibleProjectData.append(itemToBeParsed) # eyekeeper
+                            possibleProjectData.append(i) # eyekeeper
 
 
                     except KeyError:
                         print("Place: 7")  # Quantico
-                        possibleProjectData.append(itemToBeParsed)
+                        possibleProjectData.append(i)
                 else:
                     print("Place: 21")  # Quantico
-                    possibleProjectData.append(itemToBeParsed) # eyekeeper
+                    possibleProjectData.append(i) # eyekeeper
 
             except KeyError:
-                if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
+                if itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                     print("Place: 4")  # Quantico
-                    children = sb.get_child_ids(itemToBeParsed)
+                    children = sb.get_child_ids(i)
                     exampleChild = children[0]
                     exampleChild_json = sb.get_item(exampleChild)
                     try:
@@ -127,23 +125,23 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
                             print("Place: 6")  # Quantico
                         else:
                             print("Place: 20")  # Quantico
-                            possibleProjectData.append(itemToBeParsed) # eyekeeper
+                            possibleProjectData.append(i) # eyekeeper
 
 
                     except KeyError:
                         print("Place: 7")  # Quantico
-                        possibleProjectData.append(itemToBeParsed)
+                        possibleProjectData.append(i)
 
 
-    elif len(itemToBeParsed) == 1:
-        print(len(itemToBeParsed))  # Quantico
-        print(itemToBeParsed)  # Quantico
+    elif len(g.itemsToBeParsed) == 1: # eyekeeper this is probably totally unnecessary. Just have "for i in g.itemsToBeParsed". No need for if len(g.itemsToBeParsed) == 1
+        print(len(g.itemsToBeParsed))  # Quantico
+        print(g.itemsToBeParsed)  # Quantico
         print("Place: 8")  # Quantico
-        itemToBeParsed_json = sb.get_item(itemToBeParsed[0])
+        itemsToBeParsed_json = sb.get_item(g.itemsToBeParsed[0])
         try:
-            if "Project" in itemToBeParsed_json["browseCategories"]:
+            if "Project" in itemsToBeParsed_json["browseCategories"]:
                 print("Place: 9")  # Quantico
-                projects.append(itemToBeParsed)
+                projects.append(g.itemsToBeParsed[0])
                 print(len(projects))  # Quantico
                 print(projects)  #Quantico
                 # currentProject = '5006e99ee4b0abf7ce733f58'  # Quantico: Marshes to Mudflats project
@@ -151,9 +149,9 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
                 print(currentProject)
                 print("Place: 10")  # Quantico
             else:
-                if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
+                if itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
                     print("Place: 11.1")  # Quantico
-                    children = sb.get_child_ids(itemToBeParsed[0])
+                    children = sb.get_child_ids(g.itemsToBeParsed[0])
                     exampleChild = children[0]
                     print('exampleChild: ')
                     print(exampleChild)  # Quantico
@@ -173,17 +171,17 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
                             print("Place: 13.1")  # Quantico
                     except KeyError:
                         print("Not Fiscal Year")  # Quantico
-                        possibleProjectData.append(itemToBeParsed) # eyekeeper
+                        possibleProjectData.append(g.itemsToBeParsed[0]) # eyekeeper
 
                 else:
                     print("Place: 14.1")  # Quantico
-                    possibleProjectData.append(itemToBeParsed)
+                    possibleProjectData.append(g.itemsToBeParsed[0])
 
 
         except KeyError:
-            if itemToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
+            if itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is an FY
                 print("Place: 11.2")  # Quantico
-                children = sb.get_child_ids(itemToBeParsed[0])
+                children = sb.get_child_ids(g.itemsToBeParsed[0])
                 exampleChild = children[0]
                 print('exampleChild: ')
                 print(exampleChild)  # Quantico
@@ -203,11 +201,11 @@ def startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFou
                         print("Place: 13.2")  # Quantico
                 except KeyError:
                     print("Not Fiscal Year (2)")  # Quantico
-                    possibleProjectData.append(itemToBeParsed)  # eyekeeper
+                    possibleProjectData.append(g.itemsToBeParsed[0])  # eyekeeper
 
             else:
                 print("Place: 14.2")  # Quantico
-                possibleProjectData.append(itemToBeParsed)
+                possibleProjectData.append(g.itemsToBeParsed[0])
 
     else:
         print("There are no items to parse.")
@@ -400,7 +398,7 @@ def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
                   " of "+str(len(projects))+".")
             lookedForShortcutsBefore = False
             lookedForDataBefore = False
-            startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore, itemToBeParsed)
+            startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
     elif 'n' in answer or 'N' in answer:
         print('Goodbye')
         exit()
@@ -416,13 +414,12 @@ def whatNext(projects, projectDictNumber, exceptionItems, exceptionFound):
 
 def nextFunction():
 
-    startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore, itemToBeParsed)
+    startUp(projectDictNumber, possibleProjectData, exceptionItems, exceptionFound, lookedForShortcutsBefore, lookedForDataBefore)
 
 
 if __name__ == '__main__':
-    itemToBeParsed = []
-    itemToBeParsed.append("5006c2c9e4b0abf7ce733f42")
-    main(itemToBeParsed)
+    g.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
+    main()
 
 sb.logout()
 
