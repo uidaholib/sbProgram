@@ -16,6 +16,7 @@ requires parsing of that result).
 7. If the user is logged in, it offers to call a script to edit a result.
 """
 
+import g
 import requests
 import json
 import pysb

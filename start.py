@@ -15,7 +15,7 @@ menial assignment and computational relief operator
 Macro Architechture for Computational and Reporting/Recording Operations
 """
 
-
+import g
 from pprint import pprint
 import json
 import requests
