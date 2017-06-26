@@ -9,3 +9,7 @@ itemsToBeParsed = []
 items = []
 projects = []
 fiscalYears = []
+
+totalDataCount = 0
+missingDataIDs = []
+exceptionItems = []
