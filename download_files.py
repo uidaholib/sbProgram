@@ -5,10 +5,41 @@ sb = pysb.SbSession()
 
 def main():
     projectItems = sb.get_ancestor_ids("5006e94ee4b0abf7ce733f56")
+    parse(projectDictNumber, projectItems, projects, currentProject, exceptionItems, exceptionFound,
+                       lookedForShortcutsBefore, lookedForDataBefore)
 
+def parse(projectDictNumber, projectItems, projects, currentProject, exceptionItems, exceptionFound,
+                   lookedForShortcutsBefore, lookedForDataBefore):
+
+    projectItems_Set = set()
+    projectItems_Set.update(projectItems)
+    for i in projectItems_Set:
+        try:
+            ancestors = sb.get_ancestor_ids(i)
+        except Exception:
+            exceptionItems.append(i)
+            exceptionFound = True
+            print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+        for item in ancestors:
+            if item not in projectItems_Set:
+                projectItems_Set.add(item)
+                projectItems.append(item)
+            elif item in projectItems_Set:
+                pass
+            else:
+                print("Something went wrong. Current function: "
+                      + "getProjectData (1)")
+    print('Double checked Possible Project Data:')
+    print(projectItems)
+    print('Total Items:')
+    print(len(projectItems))
+
+    findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, exceptionFound,
+                  projectItems, projectItems, currentProjectJson,
+                  lookedForShortcutsBefore, lookedForDataBefore)
 
 def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, exceptionFound,
-                  possibleProjectData, projectItems, currentProjectJson,
+                  projectItems, projectItems, currentProjectJson,
                   lookedForShortcutsBefore, lookedForDataBefore):
     print("Looking for shortcuts in any items...")
     foundShortcutsThisTime = False
@@ -25,16 +56,16 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
                     elif shortcuts != []:
                         lookedForShortcutsBefore = True
                         foundShortcutsThisTime = True
-                        possibleProjectData += shortcuts
+                        projectItems += shortcuts
                         print("We found some shortcuts and added them to the " +
                               "Possible Project Data:")
                         print(shortcuts)
                         print('Total Items added:')
                         print(len(shortcuts))
                         print("New Possible Project Data:")
-                        print(possibleProjectData)
+                        print(projectItems)
                         print("Current Item total:")
-                        print(len(possibleProjectData))
+                        print(len(projectItems))
                     else:
                         print("Something went wrong. Current function: "
                               + "findShortcuts (1)")
@@ -52,7 +83,7 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
         print("Something went wrong. Current function: findShortcuts (2)")
         exit()
     allShortcuts = []
-    for i in possibleProjectData:
+    for i in projectItems:
         try:
             allShortcuts += sb.get_shortcut_ids(i)
         except Exception:
@@ -64,22 +95,22 @@ def findShortcuts(projects, projectDictNumber, currentProject, exceptionItems, e
         print("No shortcuts in \"Possible Project Data\".")
     elif allShortcuts != []:
         foundShortcutsThisTime = True
-        possibleProjectData += allShortcuts
+        projectItems += allShortcuts
         print("We found some shortcuts and added them to the Possible Project "
               + "Data:")
-        print(possibleProjectData)
+        print(projectItems)
         print('Total Items:')
-        print(len(possibleProjectData))
+        print(len(projectItems))
     else:
         print("Something went wrong. Current function: findShortcuts (3)")
         exit()
 
     if foundShortcutsThisTime is True:
         print("-------- Found shortcuts this time!")
-        getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+        getProjectData(projectDictNumber, projectItems, projects, currentProject, exceptionItems, exceptionFound,
                            lookedForShortcutsBefore, lookedForDataBefore)
         # getProjectData(projects, projectDictNumber, currentProject,
-        #               possibleProjectData, lookedForShortcutsBefore,
+        #               projectItems, lookedForShortcutsBefore,
         #               lookedForDataBefore)
     elif foundShortcutsThisTime is False:
         print("-------- Didn't find any Shortcuts this time!") # Quantico
