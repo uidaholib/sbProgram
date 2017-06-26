@@ -151,6 +151,10 @@ def sort_items(projectDictNumber, possibleProjectData, exceptionItems, exception
     # for i in projects:
         # i = Project() # which is a class
 
+def parse_base(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
+                   lookedForShortcutsBefore, lookedForDataBefore):
+
+
 
 
 def getProjectData(projectDictNumber, possibleProjectData, projects, currentProject, exceptionItems, exceptionFound,
