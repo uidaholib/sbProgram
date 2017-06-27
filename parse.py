@@ -63,70 +63,105 @@ def sort_items():
         start.questionLogin()
     print("""
     Sorting Items...""")
+
+    print(g.itemsToBeParsed)  # Quantico
     for i in g.itemsToBeParsed:
         itemsToBeParsed_json = sb.get_item(i)
-        # print("Place: 1")  # Quantico
+        pprint(itemsToBeParsed_json)
+        print("Place: 1")  # Quantico
         try: # is it a project?
             if "Project" in itemsToBeParsed_json["browseCategories"]:
-                # print("Place: 2")  # Quantico
+                print("Place: 2")  # Quantico
                 if i not in g.projects:
                     g.projects.append(i)
+                    if i in g.fiscalYears:
+                        g.fiscalYears.remove(i)
+                    if i in g.items:
+                        g.items.remove(i)
                 # print(len(g.projects))  # Quantico
                 # print(g.projects)  #Quantico
-                # print("Place: 3")  # Quantico
+                print("Place: 3")  # Quantico
             elif itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
-                # print("Place: 4")  # Quantico
+                print("Place: 4")  # Quantico
                 children = sb.get_child_ids(i)
 
                 for child in children:
                     exampleChild_json = sb.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
-                            # print("Place: 5")  # Quantico
+                            print("Place: 5")  # Quantico
                             if i not in g.fiscalYears:
                                 g.fiscalYears.append(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
+                                if i in g.items:
+                                    g.items.remove(i)
                             # print(len(g.fiscalYears))  # Quantico
                             # print(g.fiscalYears)  #Quantico
-                            # print("Place: 6")  # Quantico
+                            print("Place: 6")  # Quantico
                         else:
-                            # print("Place: 20")  # Quantico
+                            print("Place: 20")  # Quantico
                             if i not in g.items:
                                 g.items.append(i) # eyekeeper
+                                if i in g.fiscalYears:
+                                    g.fiscalYears.remove(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
 
 
                     except KeyError:
-                        # print("Place: 7")  # Quantico
+                        print("Place: 7")  # Quantico
                         if i not in g.items:
                             g.items.append(i)
+                            if i in g.fiscalYears:
+                                g.fiscalYears.remove(i)
+                            if i in g.projects:
+                                g.projects.remove(i)
             else:
-                # print("Place: 21")  # Quantico
+                print("Place: 21")  # Quantico
                 g.items.append(i) # eyekeeper
+                if i in g.fiscalYears:
+                    g.fiscalYears.remove(i)
+                if i in g.projects:
+                    g.projects.remove(i)
 
         except KeyError:
             if itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
-                # print("Place: 4")  # Quantico
+                print("Place: 4")  # Quantico
                 children = sb.get_child_ids(i)
 
                 for child in children:
                     exampleChild_json = sb.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
-                            # print("Place: 5")  # Quantico
+                            print("Place: 5.2")  # Quantico
                             if i not in g.fiscalYears:
                                 g.fiscalYears.append(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
+                                if i in g.items:
+                                    g.items.remove(i)
                             # print(len(g.fiscalYears))  # Quantico
                             # print(g.fiscalYears)  #Quantico
-                            # print("Place: 6")  # Quantico
+                            print("Place: 6.2")  # Quantico
                         else:
-                            # print("Place: 20")  # Quantico
+                            print("Place: 20.2")  # Quantico
                             if i not in g.items:
                                 g.items.append(i) # eyekeeper
+                                if i in g.fiscalYears:
+                                    g.fiscalYears.remove(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
 
 
                     except KeyError:
-                        # print("Place: 7")  # Quantico
+                        print("Place: 7.2")  # Quantico
                         if i not in g.items:
                             g.items.append(i)
+                            if i in g.fiscalYears:
+                                g.fiscalYears.remove(i)
+                            if i in g.projects:
+                                g.projects.remove(i)
 
     print("""
     Fiscal Years:""")
@@ -175,19 +210,19 @@ def parseOnTheFly():
     for i in g.items:
         oldgItems.append(i)
 
-    if g.onTheFlyParsing == []:
+    if g.itemsToBeParsed == []:
         print("There are no items to be parsed.")
         return
     print("""
     Sorting Items...""")
 
-    print(g.onTheFlyParsing)  # Quantico
-    for i in g.onTheFlyParsing:
-        onTheFlyParsing_json = sb.get_item(i)
-        pprint(onTheFlyParsing_json)
+    print(g.itemsToBeParsed)  # Quantico
+    for i in g.itemsToBeParsed:
+        itemsToBeParsed_json = sb.get_item(i)
+        pprint(itemsToBeParsed_json)
         print("Place: 1")  # Quantico
         try: # is it a project?
-            if "Project" in onTheFlyParsing_json["browseCategories"]:
+            if "Project" in itemsToBeParsed_json["browseCategories"]:
                 print("Place: 2")  # Quantico
                 if i not in g.projects:
                     g.projects.append(i)
@@ -198,7 +233,7 @@ def parseOnTheFly():
                 # print(len(g.projects))  # Quantico
                 # print(g.projects)  #Quantico
                 print("Place: 3")  # Quantico
-            elif onTheFlyParsing_json["hasChildren"] == True:  #Seeing if it is a FY
+            elif itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                 print("Place: 4")  # Quantico
                 children = sb.get_child_ids(i)
 
@@ -243,7 +278,7 @@ def parseOnTheFly():
                     g.projects.remove(i)
 
         except KeyError:
-            if onTheFlyParsing_json["hasChildren"] == True:  #Seeing if it is a FY
+            if itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                 print("Place: 4")  # Quantico
                 children = sb.get_child_ids(i)
 
