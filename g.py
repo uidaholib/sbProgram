@@ -10,12 +10,12 @@ itemsToBeParsed = []
 items = []
 projects = []
 fiscalYears = []
-
+onTheFlyParsing = []
 
 totalDataCount = 0
 
 # Lists to be printed to Excel:
-
+# Project sheet:
 ID = []
 ObjectType = []
 Name = []
@@ -25,5 +25,7 @@ DataInProject = []
 DataPerFile = []
 RunningDataTotal = []
 NestedData = []
+
+# Other sheets
 MissingData = []
 Exceptions = []
