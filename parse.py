@@ -164,6 +164,167 @@ def parse_base():
     print("Done parsing all items!")
 
 
+def parseOnTheFly():
+    oldgFiscalYears = []
+    for i in g.fiscalYears:
+        oldgFiscalYears.append(i)
+    oldgProjects = []
+    for i in g.projects:
+        oldgProjects.append(i)
+    oldgItems = []
+    for i in g.items:
+        oldgItems.append(i)
+
+    if g.onTheFlyParsing == []:
+        print("There are no items to be parsed.")
+        return
+    print("""
+    Sorting Items...""")
+
+    print(g.onTheFlyParsing)  # Quantico
+    for i in g.onTheFlyParsing:
+        onTheFlyParsing_json = sb.get_item(i)
+        pprint(onTheFlyParsing_json)
+        print("Place: 1")  # Quantico
+        try: # is it a project?
+            if "Project" in onTheFlyParsing_json["browseCategories"]:
+                print("Place: 2")  # Quantico
+                if i not in g.projects:
+                    g.projects.append(i)
+                    if i in g.fiscalYears:
+                        g.fiscalYears.remove(i)
+                    if i in g.items:
+                        g.items.remove(i)
+                # print(len(g.projects))  # Quantico
+                # print(g.projects)  #Quantico
+                print("Place: 3")  # Quantico
+            elif onTheFlyParsing_json["hasChildren"] == True:  #Seeing if it is a FY
+                print("Place: 4")  # Quantico
+                children = sb.get_child_ids(i)
+
+                for child in children:
+                    exampleChild_json = sb.get_item(child)
+                    try:
+                        if "Project" in exampleChild_json["browseCategories"]:
+                            print("Place: 5")  # Quantico
+                            if i not in g.fiscalYears:
+                                g.fiscalYears.append(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
+                                if i in g.items:
+                                    g.items.remove(i)
+                            # print(len(g.fiscalYears))  # Quantico
+                            # print(g.fiscalYears)  #Quantico
+                            print("Place: 6")  # Quantico
+                        else:
+                            print("Place: 20")  # Quantico
+                            if i not in g.items:
+                                g.items.append(i) # eyekeeper
+                                if i in g.fiscalYears:
+                                    g.fiscalYears.remove(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
+
+
+                    except KeyError:
+                        print("Place: 7")  # Quantico
+                        if i not in g.items:
+                            g.items.append(i)
+                            if i in g.fiscalYears:
+                                g.fiscalYears.remove(i)
+                            if i in g.projects:
+                                g.projects.remove(i)
+            else:
+                print("Place: 21")  # Quantico
+                g.items.append(i) # eyekeeper
+                if i in g.fiscalYears:
+                    g.fiscalYears.remove(i)
+                if i in g.projects:
+                    g.projects.remove(i)
+
+        except KeyError:
+            if onTheFlyParsing_json["hasChildren"] == True:  #Seeing if it is a FY
+                print("Place: 4")  # Quantico
+                children = sb.get_child_ids(i)
+
+                for child in children:
+                    exampleChild_json = sb.get_item(child)
+                    try:
+                        if "Project" in exampleChild_json["browseCategories"]:
+                            print("Place: 5.2")  # Quantico
+                            if i not in g.fiscalYears:
+                                g.fiscalYears.append(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
+                                if i in g.items:
+                                    g.items.remove(i)
+                            # print(len(g.fiscalYears))  # Quantico
+                            # print(g.fiscalYears)  #Quantico
+                            print("Place: 6.2")  # Quantico
+                        else:
+                            print("Place: 20.2")  # Quantico
+                            if i not in g.items:
+                                g.items.append(i) # eyekeeper
+                                if i in g.fiscalYears:
+                                    g.fiscalYears.remove(i)
+                                if i in g.projects:
+                                    g.projects.remove(i)
+
+
+                    except KeyError:
+                        print("Place: 7.2")  # Quantico
+                        if i not in g.items:
+                            g.items.append(i)
+                            if i in g.fiscalYears:
+                                g.fiscalYears.remove(i)
+                            if i in g.projects:
+                                g.projects.remove(i)
+
+    print("""
+    Here are the old lists:
+    """)
+    print("""
+    Previous Fiscal Years:""")
+    print(oldgFiscalYears)
+    print("""
+    Previous Projects:""")  # Quantico
+    print(oldgProjects)  # Quantico call getProjectData() for these
+    print("""
+    Previous Items:""")  # Quantico
+    print(oldgItems)  # Quantico call parse() for these
+
+    print("""
+
+    Here are the new lists:
+    """)
+    print("""
+    Fiscal Years:""")
+    print(g.fiscalYears)
+    print("""
+    Projects:""")  # Quantico
+    print(g.projects)  # Quantico call getProjectData() for these
+    print("""
+    Items:""")  # Quantico
+    print(g.items)  # Quantico call parse() for these
+
+    print("Would you like to keep the old or new lists?")
+    answer = input("> ").lower()
+    if "old" in answer or "previous" in answer:
+        g.fiscalYears = oldgFiscalYears
+        g.projects = oldgProjects
+        g.items = oldgItems
+        print("Done. Didn't keep changes")
+        print("======================================================")
+        print(g.fiscalYears)  # Quantico
+        print(g.projects)  # Quantico
+        print(g.items)  # Quantico
+        return
+    elif "new" in answer:
+        print("Done. Kept Changes.")
+        print("======================================================")
+        return
+
+
 
 if __name__ == '__main__':
     g.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
