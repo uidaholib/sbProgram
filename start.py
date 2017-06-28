@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Initial login script for the ScienceBase MACRO/PEON program
+"""Initial login script for the ScienceBase MACRO program
 
 This module contains the login functions for the user to log in to ScienceBase
 should they need to. It then asks the user whether they are searching
 ScienceBase or using other specialty tasks such as parsing and counting of
 ScienceBase data and calls the appropriate script.
 
-PEON
-Program for Executive/Ease Of and Nuisance
-Programmatic Executive and Organization/Operations via Network
-Program for Executive Operations via Network
-menial executive task
-menial assignment and computational relief operator
-Macro Architechture for Computational and Reporting/Recording Operations
+Macro Architechture for Computational and Reporting Operations
 """
 
 import g
