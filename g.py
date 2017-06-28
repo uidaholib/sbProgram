@@ -6,7 +6,7 @@ projects, and Fiscal Years to be accessed from all other modules via "g.items",
 "g.projects", "g.FiscalYears" and g.itemsToBeParsed. It also contains the total
 data count, and the variables needed to print data counting info to excel."""
 
-itemsToBeParsed = []
+itemsToBeParsed = ["4f8c64d2e4b0546c0c397b46", "5006c2c9e4b0abf7ce733f42", "55e4d96be4b05561fa208585", "58111fafe4b0f497e79892f7"]
 items = []
 projects = []
 fiscalYears = ["5006e94ee4b0abf7ce733f56"]

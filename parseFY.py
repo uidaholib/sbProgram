@@ -54,11 +54,7 @@ def getProjectData(projectDictNumber, possibleProjectData, projects,
     projectItems = sb.get_child_ids(currentProject)
     currentProjectJson = sb.get_item(currentProject)
     if lookedForDataBefore is False:
-        g.ID.append(currentProject)
-        g.ObjectType.append("Project")
-        g.Name.append(currentProjectJson["title"])
-        findCurrentProjectFY(currentProject, currentProjectJson)
-        g.FiscalYear.append()
+        populateGPYLists(currentProject, currentProjectJson)
         print("""
 
         Currently searching '"""+str(currentProjectJson['title'])+"'.")
@@ -86,12 +82,65 @@ def getProjectData(projectDictNumber, possibleProjectData, projects,
           currentProject, exceptionFound,
           lookedForShortcutsBefore, lookedForDataBefore, currentProjectJson)
 
+
+def populateGPYLists(currentProject, currentProjectJson):
+    g.ID.append(currentProject)
+    print(g.ID)  # Quantico
+    g.ObjectType.append("Project")
+    print(g.ObjectType)  # Quantico
+    g.Name.append(currentProjectJson["title"])
+    print(g.Name)  # Quantico
+    findCurrentProjectFY(currentProject, currentProjectJson)
+    print(g.FiscalYear)  # Quantico
+    g.Project.append("Self")
+    print(g.Project)  # Quantico
+    return
+
+
 def findCurrentProjectFY(currentProject, currentProjectJson):
-    currentId = currentProject
+    currentId = currentProject[:]
     json = currentProjectJson
     parentId = currentProjectJson["parentId"]
-    children = sb.get_child_ids()
-    while json['']
+    children = sb.get_child_ids(currentId)
+    try:
+        child = children[0]
+    except KeyError:
+        print("No children of the current item.")
+        currentId = parentId[:]  # this makes a slice that is the whole list.
+        json = sb.get_item(currentId)
+        parentId = json['parentId']
+        children = sb.get_child_ids(currentId)
+        child = children[0]
+    childJson = sb.get_item(child)
+    if 'FY' in json['title']:
+        print("Item is a Fiscal Year")  # Quantico
+        g.fiscalYears.append(json['title'])
+        return
+    control = True
+    while control is True:
+        try:
+            while 'Project' not in childJson['browseCategories']:
+                currentId = parentId[:]  # this makes a slice that is the whole list.
+                json = sb.get_item(currentId)
+                parentId = json['parentId']
+                children = sb.get_child_ids(currentId)
+                child = children[0]
+                childJson = sb.get_item(child)
+                print("Not a Fiscal Year.")  # Quantico
+        except KeyError:
+            currentId = parentId[:]  # this makes a slice that is the whole list.
+            json = sb.get_item(currentId)
+            parentId = json['parentId']
+            children = sb.get_child_ids(currentId)
+            child = children[0]
+            childJson = sb.get_item(child)
+            print("Not a Fiscal Year.")
+            continue
+        control = False
+    print("appending "+str(json['title']))  # Quantico
+    g.fiscalYears.append(json['title'])
+    return
+
     #do a "while" loop here. Something like, while the children of the current thing are NOT projects...
     #and when they are, take the ['title'] and append that to g.FiscalYear and return
 

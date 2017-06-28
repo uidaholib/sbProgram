@@ -68,7 +68,22 @@ def sort_items():
     for i in g.itemsToBeParsed:
         itemsToBeParsed_json = sb.get_item(i)
         # pprint(itemsToBeParsed_json)  #Quantico
-        # print("Place: 1")  # Quantico
+        print("Place: 1")  # Quantico
+
+        if 'CSC' in itemsToBeParsed_json['title']:
+            print("Place: 1.1")  # Quantico
+            print("Item is a CSC folder.")  # Quantico
+            g.itemsToBeParsed.remove(i)
+            cscChildren = sb.get_child_ids(i)
+            for year in cscChildren:
+                if year not in g.fiscalYears:
+                    g.fiscalYears.append(year)
+                    if year in g.projects:
+                        g.projects.remove(year)
+                    if year in g.items:
+                        g.items.remove(year)
+            continue
+
         try: # is it a project?
             if "Project" in itemsToBeParsed_json["browseCategories"]:
                 # print("Place: 2")  # Quantico
@@ -217,10 +232,24 @@ def parseOnTheFly():
     Sorting Items...""")
 
     print(g.onTheFlyParsing)  # Quantico
+
     for i in g.onTheFlyParsing:
         onTheFlyParsing_json = sb.get_item(i)
         # pprint(onTheFlyParsing_json)  # Quantico
         print("Place: 1")  # Quantico
+        if 'CSC' in onTheFlyParsing_json['title']:
+            print("Place: 1.1")  # Quantico
+            print("Item is a CSC folder.")  # Quantico
+            g.onTheFlyParsing.remove(i)
+            cscChildren = sb.get_child_ids(i)
+            for year in cscChildren:
+                if year not in g.fiscalYears:
+                    g.fiscalYears.append(year)
+                    if year in g.projects:
+                        g.projects.remove(year)
+                    if year in g.items:
+                        g.items.remove(year)
+            continue
         try: # is it a project?
             if "Project" in onTheFlyParsing_json["browseCategories"]:
                 print("Place: 2")  # Quantico
@@ -375,9 +404,9 @@ def question(oldgItems, oldgProjects, oldgFiscalYears):
 
 
 if __name__ == '__main__':
-    g.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
-    # g.itemsToBeParsed.append("5006e94ee4b0abf7ce733f56")
-    # g.itemsToBeParsed.append("55130c4fe4b02e76d75c0755")
+    # g.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
+    # g.itemsToBeParsed.append("4f8c64d2e4b0546c0c397b46")
+    # g.itemsToBeParsed.append("55e4d96be4b05561fa208585")
     # g.itemsToBeParsed.append("55e07a67e4b0f42e3d040f3c")
     # g.itemsToBeParsed.append("58111fafe4b0f497e79892f7")
     # g.itemsToBeParsed.append("57daef3fe4b090824ffc3226")

@@ -158,5 +158,5 @@ def doneCountingFY(r, DataHostedElsewhere_id, PossiblePermissionsIssues_id, Coul
 
     This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
     ''' megabytes, or '''+str(totalgData)+''' gigabytes.
-    ''')x
+    ''')
     issueDiagnostics(r, DataHostedElsewhere_id, PossiblePermissionsIssues_id, CouldNotFindFiles_id, totalFYData)
