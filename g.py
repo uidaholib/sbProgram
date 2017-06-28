@@ -1,5 +1,5 @@
 """This module contains variables that need accessed by all modules in the
-ScienceBase PEON program.
+ScienceBase MACRO program.
 
 This module contains empty lists to be populated with all ScienceBase items,
 projects, and Fiscal Years to be accessed from all other modules via "g.items",
