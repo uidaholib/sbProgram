@@ -30,7 +30,7 @@ def questionLogin():
     answer = input('> ').lower()
     if answer.startswith('y'):
         login()
-    elif 'N' in answer or 'n' in answer:
+    elif 'n' in answer:
         main()
     else:
         print('''
