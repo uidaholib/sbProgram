@@ -57,7 +57,7 @@ def countData(actualData, numFiles):
                 try:
                     for z in actualDataJson['facets']:
                         for i in z['files']:
-                            print("Extention size: "+str(i['size']/1000)+ "kilobytes")
+                            print("Extention size: "+str(i['size']/1000)+ " kilobytes")
                             filesExist = True
                             bData += i['size']
                             thisData = i['size']
@@ -70,7 +70,7 @@ def countData(actualData, numFiles):
                         print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
                         forDataPerFile_1.append('[Missing]')
                         g.MissingData.append(actualDataJson['id'])
-                        continue #if we get a KeyError, it's ok. Keep calm and carry on.
+                        pass #if we get a KeyError, it's ok. Keep calm and carry on.
 
 
 
@@ -92,7 +92,7 @@ def countData(actualData, numFiles):
                     print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
                     forDataPerFile_1.append('[Missing]')
                     g.MissingData.append(actualDataJson['id'])
-                    continue #if we get a KeyError, it's ok. Keep calm and carry on.
+                    pass #if we get a KeyError, it's ok. Keep calm and carry on.
         forDataPerFile_2.append(forDataPerFile_1) #This should add a string representing the sizes of each item in the project to a list for exporting to Excel later
 
 
@@ -111,22 +111,23 @@ def countData(actualData, numFiles):
         print('----So far, our total data for the fiscal year is '+str(g.totalFYData/1000000000)+' gigabytes.')
         g.RunningDataTotal.append(g.totalFYData/1000000000) #This should add the running total of all data for the fiscal year to a list for exporting to Excel later
     else:
-        print('Something went wrong. Current function: countData')
+        print('No Files. Current function: countData')
     return
 
 
-def doneCountingFY(r, DataHostedElsewhere_id, PossiblePermissionsIssues_id, CouldNotFindFiles_id):
+def doneCountingFY():
     totalkData = g.totalFYData/1000 #this tells us how many kilobytes we have from bytes
     totalmData = totalkData/1000 #this tells us how many megabytes we have from kilobytes
     totalgData = totalmData/1000 #this tells us how many gigabytes we have from megabytes
+    r = g.FiscalYear[-1]  # r is the last reported fiscal year.
     print('''
-    In total, I found '''+str(g.totalFYData)+''' bytes of data in '''+r['title']+
+    In total, I found '''+str(g.totalFYData)+''' bytes of data in '''+str(r)+
     '''.
 
     This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
     ''' megabytes, or '''+str(totalgData)+''' gigabytes.
     ''')
-    issueDiagnostics(r, DataHostedElsewhere_id, PossiblePermissionsIssues_id, CouldNotFindFiles_id)
+    return
 
 
 if __name__ == '__main__':
