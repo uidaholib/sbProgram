@@ -404,30 +404,7 @@ def question(oldgItems, oldgProjects, oldgFiscalYears):
 
 
 if __name__ == '__main__':
-    # g.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
-    # g.itemsToBeParsed.append("4f8c64d2e4b0546c0c397b46")
-    # g.itemsToBeParsed.append("55e4d96be4b05561fa208585")
-    # g.itemsToBeParsed.append("55e07a67e4b0f42e3d040f3c")
-    # g.itemsToBeParsed.append("58111fafe4b0f497e79892f7")
-    # g.itemsToBeParsed.append("57daef3fe4b090824ffc3226")
+
     main()
 
 sb.logout()
-
-
-# ancestor = sb.get_ancestor_ids(parentid)
-# print(ancestor)
-
-# trying = '5536dbe1e4b0b22a15808467'
-# tryThis = sb.get_item_file_info(trying)
-# print("TryThis:")
-# print(tryThis)
-# List file info from the newly found items
-# print("Starting count...")
-# for i in ancestor:
-#    ret = sb.get_item_file_info(i)
-#    print('ret created')
-#    print(ret)
-#    for fileinfo in ret:
-#        print("File " + fileinfo["name"] + ", " + str(fileinfo["size"]) +
-#              "bytes, download URL " + fileinfo["url"])
