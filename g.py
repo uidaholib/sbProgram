@@ -6,25 +6,26 @@ projects, and Fiscal Years to be accessed from all other modules via "g.items",
 "g.projects", "g.FiscalYears" and g.itemsToBeParsed. It also contains the total
 data count, and the variables needed to print data counting info to excel."""
 
-itemsToBeParsed = ["4f8c64d2e4b0546c0c397b46", "5006c2c9e4b0abf7ce733f42", "55e4d96be4b05561fa208585", "58111fafe4b0f497e79892f7"]
+#itemsToBeParsed = ["4f8c64d2e4b0546c0c397b46", "5006c2c9e4b0abf7ce733f42", "55e4d96be4b05561fa208585", "58111fafe4b0f497e79892f7"]
+itemsToBeParsed = ["5006c2c9e4b0abf7ce733f42"]
 items = []
 projects = []
-fiscalYears = ["5006e94ee4b0abf7ce733f56"]
+fiscalYears = []
 onTheFlyParsing = []
 
 totalDataCount = 0
-
+totalFYData = 0
 # Lists to be printed to Excel:
 # Project sheet:
-ID = []
-ObjectType = []
-Name = []
-FiscalYear = []
-Project = []
-DataInProject = []
-DataPerFile = []
-RunningDataTotal = []
-NestedData = []
+ID = []  # Added
+ObjectType = []  # Added
+Name = []  # Added
+FiscalYear = []  # Added
+Project = []  # Added
+DataInProject = []   # Added
+DataPerFile = []   # Added
+RunningDataTotal = []  # Added
+
 
 # Other sheets
 MissingData = []
