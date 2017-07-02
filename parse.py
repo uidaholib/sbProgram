@@ -202,14 +202,66 @@ def parse_base():
         import parseFY
         parseFY.main()
         print("--------------Done parsing Fiscal Years.")
+        print("""
+        Would you like to create an Excel Spreadsheet with all parsed data """+
+        """currently in memory before continuing on? If you choose no, all """+
+        """information gathered will continue to be compiled and will be """+
+        """available to be included in a final spreadsheet at the end of """+
+        """the process or to be used to create a speadsheet after each """+
+        """subsequent Fiscal Year, Project, or Item that was originally """+
+        """selected to be parsed is parsed.
+
+        (Y / N)""")
+        answer = input("> ").lower()
+        if "y" in answer:
+            import ExcelPrint
+            ExcelPrint.main()
+            ExcelPrint.clearMemory()
+        elif 'n' in answer:
+            print("No spreadsheet created.")
+
     if g.projects != []:
         import parseProjects
         parseProjects.main()
         print("--------------Done parsing projects.")
+        print("""
+        Would you like to create an Excel Spreadsheet with all parsed data """+
+        """currently in memory before continuing on? If you choose no, all """+
+        """information gathered will continue to be compiled and will be """+
+        """available to be included in a final spreadsheet at the end of """+
+        """the process or to be used to create a speadsheet after each """+
+        """subsequent Fiscal Year, Project, or Item that was originally """+
+        """selected to be parsed is parsed.
+
+        (Y / N)""")
+        answer = input("> ").lower()
+        if "y" in answer:
+            import ExcelPrint
+            ExcelPrint.main()
+            ExcelPrint.clearMemory()
+        elif 'n' in answer:
+            print("No spreadsheet created.")
     if g.items != []:
         import parseItems
         parseItems.main()
         print("--------------Done parsing items.")
+        print("""
+        Would you like to create an Excel Spreadsheet with all parsed data """+
+        """currently in memory before continuing on? If you choose no, all """+
+        """information gathered will continue to be compiled and will be """+
+        """available to be included in a final spreadsheet at the end of """+
+        """the process or to be used to create a speadsheet after each """+
+        """subsequent Fiscal Year, Project, or Item that was originally """+
+        """selected to be parsed is parsed.
+
+        (Y / N)""")
+        answer = input("> ").lower()
+        if "y" in answer:
+            import ExcelPrint
+            ExcelPrint.main()
+            ExcelPrint.clearMemory()
+        elif 'n' in answer:
+            print("No spreadsheet created.")
 
     print("Done parsing all items!")
 
