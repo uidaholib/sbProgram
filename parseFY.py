@@ -21,6 +21,7 @@ firstFYParse = True
 FYdictNum = 0
 
 def main():
+    global possibleProjectData
     possibleProjectData[:] = []
     print("parseFY.py main") # Quantico
     global firstFYParse
@@ -46,6 +47,7 @@ def main():
                    lookedForShortcutsBefore, lookedForDataBefore)
 
 def getProjects():
+    global possibleProjectData
     possibleProjectData[:] = []
     global FYprojects
     FYprojects[:] = []
