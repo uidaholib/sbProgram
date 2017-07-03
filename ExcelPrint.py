@@ -158,14 +158,14 @@ def saveExcel(wb, filePath):
         print('''
     What name would you like to give the Excel file?''')
         name = input('> ')
-        wb.save(str(name)+".xlsx")
+        wb.save(str(filePath)+str(name)+".xlsx")
         print('''
     Workbook saved as "'''+str(name)+'''.xlsx" in the working directory.''')
         return
     elif 'no' in answer or 'No' in answer or 'n' in answer or 'N' in answer:
-        wb.save(str(ChosenFiscalYear)+" Data Metrics.xlsx")
+        wb.save(str(filePath)+str(ChosenFiscalYear)+" Data Metrics.xlsx")
         print('''
-    Workbook saved as "'''+str(ChosenFiscalYear)+''' Data Metrics.xlsx" in the working directory.''')
+    Workbook saved as "'''+str(ChosenFiscalYear)+''' Data Metrics.xlsx" in \''''+str(filePath)+'''\'.''')
         return
 
 
