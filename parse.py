@@ -216,7 +216,7 @@ def parse_base():
         if "y" in answer:
             import ExcelPrint
             ExcelPrint.main()
-            ExcelPrint.clearMemory()
+            editGPY.clearMemory()
         elif 'n' in answer:
             print("No spreadsheet created.")
 
@@ -238,7 +238,7 @@ def parse_base():
         if "y" in answer:
             import ExcelPrint
             ExcelPrint.main()
-            ExcelPrint.clearMemory()
+            editGPY.clearMemory()
         elif 'n' in answer:
             print("No spreadsheet created.")
     if g.items != []:
@@ -259,7 +259,7 @@ def parse_base():
         if "y" in answer:
             import ExcelPrint
             ExcelPrint.main()
-            ExcelPrint.clearMemory()
+            editGPY.clearMemory()
         elif 'n' in answer:
             print("No spreadsheet created.")
 

@@ -128,7 +128,7 @@ def ask(wb):
         if 'desktop' in answer2:
             filePath = os.path.expanduser("~/Desktop/")
             saveExcel(wb, filePath)
-        elif '/' in answer2:
+        elif '/' in answer2 or '\\' in answer2:
             filePath = answer2
             saveExcel(wb, filePath)
         else:
@@ -167,24 +167,3 @@ def saveExcel(wb, filePath):
         print('''
     Workbook saved as "'''+str(ChosenFiscalYear)+''' Data Metrics.xlsx" in \''''+str(filePath)+'''\'.''')
         return
-
-
-def clearMemory():
-    print("""
-    Would you like to clear the memory of all of the data parsed so far"""+
-    """, or keep all data to be placed into a single Excel spreadsheet """+
-    """later?""")
-    answer2 = input("> ").lower()
-    if 'clear' in answer2 or 'empty' in answer2:
-        g.itemsToBeParsed[:] = []
-        g.items[:] = []
-        g.projects[:] = []
-        g.fiscalYears[:] = []
-        g.onTheFlyParsing[:] = []
-        return
-    elif 'keep' in answer2 or 'save' in answer2:
-        print('''
-    Ok. Memory contents kept.''')
-        return
-    else:
-        clearMemory()
