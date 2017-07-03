@@ -49,7 +49,7 @@ def countData(actualData, numFiles):
             for z in actualDataJson['files']: #I try looking at each item in 'approved datasets' and seeing if it has any files attached, if not, I say there aren't any
                 filesExist = True
                 bData += actualDataJson['files'][dictNum]['size'] #this adds the size of the file to bData. It cycles through each file in the dataset folder.
-                thisData = actualDataJson['files'][dictNum]['size']
+                thisData = actualDataJson['files'][dictNum]['size']/1000
                 foundData = True
                 forDataPerFile_1.append(thisData)
                 dictNum += 1 #this increases the dictionary place so that we move to the next file
@@ -60,17 +60,25 @@ def countData(actualData, numFiles):
                             print("Extention size: "+str(i['size']/1000)+ " kilobytes")
                             filesExist = True
                             bData += i['size']
-                            thisData = i['size']
+                            thisData = i['size']/1000
                             foundData = True
                             forDataPerFile_1.append(thisData)
                 except KeyError:
                     if foundData is True:
                         filesExist = True
                     elif foundData is not True:
-                        print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
-                        forDataPerFile_1.append('[Missing]')
-                        g.MissingData.append(actualDataJson['id'])
-                        pass #if we get a KeyError, it's ok. Keep calm and carry on.
+                        if 'Folder' in actualDataJson['systemTypes']:
+                            print("----Item is a folder. No attached files.")
+                        else:
+                            print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
+                            forDataPerFile_1.append('[Missing]')
+                            if data not in g.MissingData:
+                                g.MissingData.append(actualDataJson['id'])
+                            else:
+                                print("---------Something went wrong. Current"+
+                                      " Function: countData (1)")
+                                print(str(data)+" already in g.MissingData.")
+                         #if we get a KeyError, it's ok. Keep calm and carry on.
 
 
 
@@ -82,17 +90,24 @@ def countData(actualData, numFiles):
                         print("Extention size: "+str(i['size']/1000)+ "kilobytes")
                         filesExist = True
                         bData += i['size']
-                        thisData = i['size']
+                        thisData = i['size']/1000
                         foundData = True
                         forDataPerFile_1.append(thisData)
             except KeyError:
                 if foundData is True:
                     filesExist = True
                 elif foundData is not True:
-                    print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
-                    forDataPerFile_1.append('[Missing]')
-                    g.MissingData.append(actualDataJson['id'])
-                    pass #if we get a KeyError, it's ok. Keep calm and carry on.
+                    if 'Folder' in actualDataJson['systemTypes']:
+                        print("----Item is a folder. No attached files.")
+                    else:
+                        print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
+                        forDataPerFile_1.append('[Missing]')
+                        if data not in g.MissingData:
+                            g.MissingData.append(actualDataJson['id'])
+                        else:
+                            print("---------Something went wrong. Current"+
+                                  " Function: countData (2)")
+                            print(str(data)+" already in g.MissingData.")
         forDataPerFile_2.append(forDataPerFile_1) #This should add a string representing the sizes of each item in the project to a list for exporting to Excel later
 
 
@@ -107,11 +122,14 @@ def countData(actualData, numFiles):
         'project\'s '+'\'Approved Dataset\' folder, bringing the total data in this project to '+
         str(kData)+' kilobytes, or '+str(mData)+' megabytes, or '+
         str(gData)+' gigabytes.')
-        g.totalFYData += bData
+        g.totalDataCount += gData
+        g.totalFYData += gData
         print('----So far, our total data for the fiscal year is '+str(g.totalFYData/1000000000)+' gigabytes.')
-        g.RunningDataTotal.append(g.totalFYData/1000000000) #This should add the running total of all data for the fiscal year to a list for exporting to Excel later
+        g.RunningDataTotal.append(g.totalDataCount) #This should add the running total of all data for the fiscal year to a list for exporting to Excel later
+
     else:
-        print('No Files. Current function: countData')
+        print('No Files exist in actualData. Current function: countData (3)')
+
     return
 
 
@@ -119,6 +137,7 @@ def doneCountingFY():
     totalkData = g.totalFYData/1000 #this tells us how many kilobytes we have from bytes
     totalmData = totalkData/1000 #this tells us how many megabytes we have from kilobytes
     totalgData = totalmData/1000 #this tells us how many gigabytes we have from megabytes
+    
     r = g.FiscalYear[-1]  # r is the last reported fiscal year.
     print('''
     In total, I found '''+str(g.totalFYData)+''' bytes of data in '''+str(r)+
