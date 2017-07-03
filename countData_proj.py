@@ -111,7 +111,7 @@ def countData(actualData, numFiles):
         forDataPerFile_2.append(forDataPerFile_1) #This should add a string representing the sizes of each item in the project to a list for exporting to Excel later
 
 
-    g.DataPerFile.append(forDataPerFile_2)
+    g.DataPerFile.append(str(forDataPerFile_2))
     if filesExist == True:
         kData = bData/1000 #this tells us how many kilobytes we have from bytes
         mData = kData/1000 #this tells us how many megabytes we have from kilobytes
@@ -124,7 +124,7 @@ def countData(actualData, numFiles):
         str(gData)+' gigabytes.')
         g.totalDataCount += gData
         g.totalFYData += gData
-        print('----So far, our total data for the fiscal year is '+str(g.totalFYData/1000000000)+' gigabytes.')
+        print('----So far, our total data for the fiscal year is '+str(g.totalFYData)+' gigabytes.')
         g.RunningDataTotal.append(g.totalDataCount) #This should add the running total of all data for the fiscal year to a list for exporting to Excel later
 
     else:
@@ -137,8 +137,8 @@ def doneCountingFY():
     totalkData = g.totalFYData/1000 #this tells us how many kilobytes we have from bytes
     totalmData = totalkData/1000 #this tells us how many megabytes we have from kilobytes
     totalgData = totalmData/1000 #this tells us how many gigabytes we have from megabytes
-    
-    r = g.FiscalYear[-1]  # r is the last reported fiscal year.
+
+    r = g.FiscalYear[-1]  # r is the last reported fiscal year. Most recent list item.
     print('''
     In total, I found '''+str(g.totalFYData)+''' bytes of data in '''+str(r)+
     '''.
