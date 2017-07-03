@@ -7,10 +7,11 @@ projects, and Fiscal Years to be accessed from all other modules via "g.items",
 data count, and the variables needed to print data counting info to excel."""
 
 #itemsToBeParsed = ["4f8c64d2e4b0546c0c397b46", "5006c2c9e4b0abf7ce733f42", "55e4d96be4b05561fa208585", "58111fafe4b0f497e79892f7"]
-#itemsToBeParsed = ["5006c2c9e4b0abf7ce733f42"]
-itemsToBeParsed = []
+itemsToBeParsed = ["5006c2c9e4b0abf7ce733f42"]
+#itemsToBeParsed = []
 items = []
-projects = ["5006e99ee4b0abf7ce733f58", "55ae7b23e4b066a249242391", "5006e94ee4b0abf7ce733f56"]
+#projects = ["5006e99ee4b0abf7ce733f58", "55ae7b23e4b066a249242391", "5006e94ee4b0abf7ce733f56"]
+projects = []
 fiscalYears = []
 onTheFlyParsing = []
 

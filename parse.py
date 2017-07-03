@@ -263,7 +263,7 @@ def parse_base():
         elif 'n' in answer:
             print("No spreadsheet created.")
 
-    print("Done parsing all items!")
+    print("Done parsing all items!")  # eyekeeper I need to return to whatever called parse.py or something.
 
 
 def parseOnTheFly():
