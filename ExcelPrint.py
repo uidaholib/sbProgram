@@ -1,4 +1,5 @@
 import g
+import os
 from pandas import DataFrame
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -14,7 +15,10 @@ sb = pysb.SbSession()
 
 def main():
     #try:
+    PossiblePermissionsIssuesURL = []
     PossiblePermissionsIssuesURL[:] = []
+    MissingDataURL= []
+    MissingDataURL[:] = []
     if g.Exceptions != []:
         for i in g.Exceptions:
             json = sb.get_item(i)
@@ -46,17 +50,17 @@ def main():
                 'Data in Project (GB)', 'Data per File (KB)', 'Running Data Total (GB)',
                 ]]
                 #include these eventually: 'Missing Data?', 'Exceptions/Permissions Issues'
-
+    #if g.MissingData != []:
     df_missing = DataFrame({'Missing Data ID': g.MissingData,
                             'Missing Data URL': MissingDataURL})
-    df_missingOrdered = df_missing({'Missing Data ID', 'Missing Data URL'})
+    df_missing = df_missing[['Missing Data ID', 'Missing Data URL']]
 
-
+    #if g.Exceptions != []:
     df_exceptions = DataFrame({'Exception/Permission Issue ID': g.Exceptions,
                                'Exception/Permission Issue URL':
                                PossiblePermissionsIssuesURL}) #include 'Exception ID': L10Exceptions_IDs, later
-    df_exceptionsOrdered = df_exceptions[['Exception/Permission Issue ID',
-                                          'Exception/Permission Issue URL']] #include 'Exception ID' later
+    df_exceptions = df_exceptions[['Exception/Permission Issue ID',
+                                              'Exception/Permission Issue URL']] #include 'Exception ID' later
 
 
     for r in dataframe_to_rows(dfOrdered, index=False, header=True):
@@ -66,15 +70,13 @@ def main():
         cell.style = 'Pandas'
 
     if MissingDataURL != []:
-        for r in dataframe_to_rows(df_missing, index=False, header=True):
+        for r in dataframe_to_rows(df_missingOrdered, index=False, header=True):
             ws_missing.append(r)
 
         for cell in ws_missing[1]:
             cell.style = 'Pandas'
 
-    if PossiblePermissionsIssuesURL == []:
-        pass
-    elif PossiblePermissionsIssuesURL != []:
+    if g.Exceptions != []:
         for r in dataframe_to_rows(df_exceptionsOrdered, index=False, header=True):
             ws_exceptions.append(r)
 
@@ -88,28 +90,63 @@ def main():
 
     ''')
     print(dfOrdered)
+    if g.Exceptions != [] or g.MissingData != []:
+        print('''
 
+    Items missing data:
+              ''')
+        print(df_missingOrdered)
+        print('''
+
+    Exceptions raised:
+              ''')
+        print(df_exceptionsOrdered)
+        print('''
+    Does that look correct?
+    (Y/N)
+    ''')
+        correct = input("> ").lower()
+        if 'y' in correct:
+            ask(wb)
+        elif 'n' in correct:
+            import editGPY
+            editGPY.main()
+            main()
+
+def ask(wb):
     print ('''
+
     Would you like to save this?)
     (Y / N)''')
     answer = input('> ')
     if 'y' in answer or 'Y' in answer or "yes" in answer or "Yes" in answer:
-        saveExcel(ChosenFiscalYear, wb)
+        print('''
+    Where would you like to save the file? Copy and paste a file path or '''+
+    '''type "Desktop" to save it to the desktop (If you run Linux, you must'''+
+    ''' paste a path).''')
+        answer2 = input("> ").lower()
+        if 'desktop' in answer2:
+            filePath = os.path.expanduser("~/Desktop/")
+            saveExcel(wb, filePath)
+        elif '/' in answer2:
+
     elif 'no' in answer or 'No' in answer or 'n' in answer or 'N' in answer:
         print('''
         Ok, we won't save it.''')
-        import specialtyTasks_working3
-        specialtyTasks_working3.nowWhat()
+        return
 #    except (ValueError, Exception) as e:
 #        print('''
 #    ----------------------------WARNING: Something went wrong in the function "main" in ExcelPrint.py.''')
 #        exit()
 
 
-def saveExcel(ChosenFiscalYear, wb):
+def saveExcel(wb, filePath):
+    ChosenFiscalYear = g.FiscalYear[-1]  # Most recent Fiscal Year.
     print('''
     Would you like to name it something other than "'''+str(ChosenFiscalYear)+
-        ''' Data Metrics.xlsx"?''')
+    ''' Data Metrics.xlsx"?
+    Beware: chosing the same name as an existing file overwrites that file '''+
+    '''without warning.''')
     answer = input('> ')
     if 'y' in answer or 'Y' in answer or "yes" in answer or "Yes" in answer:
         print('''
@@ -118,14 +155,12 @@ def saveExcel(ChosenFiscalYear, wb):
         wb.save(str(name)+".xlsx")
         print('''
     Workbook saved as "'''+str(name)+'''.xlsx" in the working directory.''')
-        import specialtyTasks_working3
-        specialtyTasks_working3.nowWhat()
+        return
     elif 'no' in answer or 'No' in answer or 'n' in answer or 'N' in answer:
         wb.save(str(ChosenFiscalYear)+" Data Metrics.xlsx")
         print('''
     Workbook saved as "'''+str(ChosenFiscalYear)+''' Data Metrics.xlsx" in the working directory.''')
-        import specialtyTasks_working3
-        specialtyTasks_working3.nowWhat()
+        return
 
 
 def clearMemory():
