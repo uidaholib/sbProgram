@@ -24,7 +24,31 @@ def main():
     possibleProjectData[:] = []
     print("parseProjects.py main") # Quantico
     for i in g.projects:
+        global possibleProjectData
+        possibleProjectData[:] = []
         currentProject = i
+        projectJson = sb.get_item(i)
+        try:
+            if "Project" in projectJson["browseCategories"]:
+                print("--Item is a project.")
+
+            else:
+                print("--"+str(project)+" not a project.")
+                print("Quickly parsing "+str(i)+" to determine what it is...")
+                print("======================================================")
+                g.onTheFlyParsing.append(i)
+                import parse
+                parse.parseOnTheFly()
+                continue
+        except KeyError:
+            print("--"+str(project)+" not a project.")
+            print("Quickly parsing "+str(i)+" to determine what it is...")
+            print("======================================================")
+            g.onTheFlyParsing.append(i)
+            import parse
+            parse.parseOnTheFly()
+            print("Back to finding projects...")
+            continue
         getProjectData(possibleProjectData, FYprojects,
                        currentProject, exceptionFound,
                        lookedForShortcutsBefore, lookedForDataBefore)
