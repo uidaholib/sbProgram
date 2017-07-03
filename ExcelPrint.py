@@ -12,47 +12,51 @@ import pysb
 
 sb = pysb.SbSession()
 
-def mainExcel(ChosenFiscalYear, L1Project, L2DataInProject, L3NumSbItemsFound,
-    L5RunningDataTotal, L6NestedData, L7MissingData,
-    L8MissingDataURL, L9Exceptions, L10Exceptions_IDs, CouldNotFindFiles_id,
-    DataHostedElsewhere_id, PossiblePermissionsIssues_id):
+def main():
     #try:
-    PossiblePermissionsIssuesURL = []
-
-    for i in PossiblePermissionsIssues_id:
-        json = sb.get_item(i)
-        PossiblePermissionsIssuesURL.append(json['link']['url'])
+    PossiblePermissionsIssuesURL[:] = []
+    if g.Exceptions != []:
+        for i in g.Exceptions:
+            json = sb.get_item(i)
+            PossiblePermissionsIssuesURL.append(json['link']['url'])
+    if g.MissingData != []:
+        for i in g.MissingData:
+            json = sb.get_item(i)
+            MissingDataURL.append(json['link']['url'])
 
     wb = Workbook()
     ws = wb.active
-    if L8MissingDataURL == []:
-        pass
-    elif L8MissingDataURL != []:
+    if g.MissingData != []:
         ws_missing = wb.create_sheet("Missing", 1) #Inserts a new sheet, named "Missing" in the second position
         #ws_missing.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
-    if PossiblePermissionsIssuesURL == []:
-        pass
-    elif PossiblePermissionsIssuesURL != []:
+    if g.Exceptions != []:
         ws_exceptions = wb.create_sheet("Exceptions", 2) #Inserts a new sheet, named "Exceptions" in the third position
         #ws_exceptions.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
 
 
-    df = DataFrame({'Project': L1Project, 'Data in project (GB)': L2DataInProject,
-                        'Number of SB Items Found': L3NumSbItemsFound, 'Running Data Total (GB)':
-                        L5RunningDataTotal, 'Nested Data?': L6NestedData,
+    df = DataFrame({'ID': g.ID, 'Object Type': g.ObjectType, 'Name': g.Name,
+                    'Fiscal Year': g.FiscalYear, 'Project': g.Project,
+                    'Data in Project (GB)': g.DataInProject,
+                    'Data per File (KB)': g.DataPerFile,
+                    'Running Data Total (GB)': g.RunningDataTotal,
                         })
                         #include these eventually: 'Missing Data?': L7MissingData, 'Exceptions/Permissions Issues': L9Exceptions
 
-    dfOrdered = df[['Project', 'Data in project (GB)', 'Number of SB Items Found',
-                'Running Data Total (GB)', 'Nested Data?',
+    dfOrdered = df[['ID', 'Object Type', 'Name', 'Fiscal Year', 'Project',
+                'Data in Project (GB)', 'Data per File (KB)', 'Running Data Total (GB)',
                 ]]
                 #include these eventually: 'Missing Data?', 'Exceptions/Permissions Issues'
 
-    df_missing = DataFrame({'Missing Data URL': L8MissingDataURL})
+    df_missing = DataFrame({'Missing Data ID': g.MissingData,
+                            'Missing Data URL': MissingDataURL})
+    df_missingOrdered = df_missing({'Missing Data ID', 'Missing Data URL'})
 
 
-    df_exceptions = DataFrame({'Exception/Permission Issue URL': PossiblePermissionsIssuesURL}) #include 'Exception ID': L10Exceptions_IDs, later
-    df_exceptionsOrdered = df_exceptions[['Exception/Permission Issue URL']] #include 'Exception ID' later
+    df_exceptions = DataFrame({'Exception/Permission Issue ID': g.Exceptions,
+                               'Exception/Permission Issue URL':
+                               PossiblePermissionsIssuesURL}) #include 'Exception ID': L10Exceptions_IDs, later
+    df_exceptionsOrdered = df_exceptions[['Exception/Permission Issue ID',
+                                          'Exception/Permission Issue URL']] #include 'Exception ID' later
 
 
     for r in dataframe_to_rows(dfOrdered, index=False, header=True):
@@ -61,9 +65,7 @@ def mainExcel(ChosenFiscalYear, L1Project, L2DataInProject, L3NumSbItemsFound,
     for cell in ws[1]:
         cell.style = 'Pandas'
 
-    if L8MissingDataURL == []:
-        pass
-    elif L8MissingDataURL != []:
+    if MissingDataURL != []:
         for r in dataframe_to_rows(df_missing, index=False, header=True):
             ws_missing.append(r)
 
@@ -100,7 +102,7 @@ def mainExcel(ChosenFiscalYear, L1Project, L2DataInProject, L3NumSbItemsFound,
         specialtyTasks_working3.nowWhat()
 #    except (ValueError, Exception) as e:
 #        print('''
-#    ----------------------------WARNING: Something went wrong in the function "mainExcel" in ExcelPrint.py.''')
+#    ----------------------------WARNING: Something went wrong in the function "main" in ExcelPrint.py.''')
 #        exit()
 
 
