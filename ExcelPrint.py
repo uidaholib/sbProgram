@@ -129,6 +129,12 @@ def ask(wb):
             filePath = os.path.expanduser("~/Desktop/")
             saveExcel(wb, filePath)
         elif '/' in answer2:
+            filePath = answer2
+            saveExcel(wb, filePath)
+        else:
+            print('''
+    That didn't appear to be a path. Please try again.''')
+            ask(wb)
 
     elif 'no' in answer or 'No' in answer or 'n' in answer or 'N' in answer:
         print('''
