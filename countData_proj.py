@@ -36,7 +36,19 @@ def countData(actualData, numFiles):
     filesExist = False
     for data in actualData:
         foundData = False
-        actualDataJson = sb.get_item(data)
+        try:
+            actualDataJson = sb.get_item(data)
+        except Exception:
+            parseFy.exceptionFound = True
+            print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+            import exceptionRaised
+            exceptionRaised.main(data)
+            if exceptionRaised.worked is True:
+                ancestors = sb.get_ancestor_ids(i)
+            elif exceptionRaised.worked is False:
+                continue
+            else:
+                print('Something went wrong. Function: parse (1)')
         #pprint(actualDataJson) #Quantico
         numFiles += 1 #for each file, increase the number of Files by 1.
         facetDictNum = 0
@@ -148,6 +160,8 @@ def countData(actualData, numFiles):
         g.RunningDataTotal.append(g.totalDataCount) #This should add the running total of all data for the fiscal year to a list for exporting to Excel later
 
     else:
+        g.DataInProject.append("None")
+        g.RunningDataTotal.append(g.totalDataCount)
         print('No Files exist in actualData. Current function: countData (3)')
 
     return

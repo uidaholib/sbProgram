@@ -70,14 +70,14 @@ def main():
         cell.style = 'Pandas'
 
     if MissingDataURL != []:
-        for r in dataframe_to_rows(df_missingOrdered, index=False, header=True):
+        for r in dataframe_to_rows(df_missing, index=False, header=True):
             ws_missing.append(r)
 
         for cell in ws_missing[1]:
             cell.style = 'Pandas'
 
     if g.Exceptions != []:
-        for r in dataframe_to_rows(df_exceptionsOrdered, index=False, header=True):
+        for r in dataframe_to_rows(df_exceptions, index=False, header=True):
             ws_exceptions.append(r)
 
         for cell in ws_exceptions[1]:
@@ -101,31 +101,31 @@ def main():
     Exceptions raised:
               ''')
         print(df_exceptionsOrdered)
-        print('''
+    print('''
     Does that look correct?
-    (Y/N)
+    (Y / N)
     ''')
-        correct = input("> ").lower()
-        if 'y' in correct:
-            ask(wb)
-        elif 'n' in correct:
-            import editGPY
-            editGPY.main()
-            main()
+    correct = input("> ").lower()
+    if 'y' in correct:
+        ask(wb)
+    elif 'n' in correct:
+        import editGPY
+        editGPY.main()
+        main()
 
 def ask(wb):
     print ('''
 
-    Would you like to save this?)
+    Would you like to save this?
     (Y / N)''')
-    answer = input('> ')
-    if 'y' in answer or 'Y' in answer or "yes" in answer or "Yes" in answer:
+    answer = input('> ').lower()
+    if 'y' in answer:
         print('''
     Where would you like to save the file? Copy and paste a file path or '''+
     '''type "Desktop" to save it to the desktop (If you run Linux, you must'''+
     ''' paste a path).''')
         answer2 = input("> ").lower()
-        if 'desktop' in answer2:
+        if 'desk' in answer2:
             filePath = os.path.expanduser("~/Desktop/")
             saveExcel(wb, filePath)
         elif '/' in answer2 or '\\' in answer2:
@@ -136,7 +136,7 @@ def ask(wb):
     That didn't appear to be a path. Please try again.''')
             ask(wb)
 
-    elif 'no' in answer or 'No' in answer or 'n' in answer or 'N' in answer:
+    elif 'n' in answer:
         print('''
         Ok, we won't save it.''')
         return
@@ -153,17 +153,22 @@ def saveExcel(wb, filePath):
     ''' Data Metrics.xlsx"?
     Beware: chosing the same name as an existing file overwrites that file '''+
     '''without warning.''')
-    answer = input('> ')
-    if 'y' in answer or 'Y' in answer or "yes" in answer or "Yes" in answer:
+    answer = input('> ').lower()
+    if 'y' in answer or 'other' in answer:
         print('''
     What name would you like to give the Excel file?''')
         name = input('> ')
         wb.save(str(filePath)+str(name)+".xlsx")
         print('''
-    Workbook saved as "'''+str(name)+'''.xlsx" in the working directory.''')
+    Workbook saved as "'''+str(name)+'''.xlsx" in \''''+str(filePath)+'''\'.''')
         return
-    elif 'no' in answer or 'No' in answer or 'n' in answer or 'N' in answer:
+    elif 'no' in answer or 'keep' in answer:
         wb.save(str(filePath)+str(ChosenFiscalYear)+" Data Metrics.xlsx")
         print('''
     Workbook saved as "'''+str(ChosenFiscalYear)+''' Data Metrics.xlsx" in \''''+str(filePath)+'''\'.''')
         return
+    else:
+        print('''
+    I'm sorry, I didn't get that. Please type 'y', 'other', 'n', or 'keep'
+    ''')
+        saveExcel(wb, filePath)

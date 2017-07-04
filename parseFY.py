@@ -3,6 +3,7 @@ import requests
 import json
 import pysb
 import sys
+import time
 
 from pprint import pprint
 
@@ -16,7 +17,7 @@ lookedForShortcutsBefore = False
 lookedForDataBefore = False
 FYprojects = []
 
-
+doubleCheck = None
 firstFYParse = True
 FYdictNum = 0
 
@@ -27,10 +28,29 @@ def main():
     global firstFYParse
     global FYprojects
     global projectDictNumber
+    global doubleCheck
     if firstFYParse is True:
-        projectDictNumber = 11
+        projectDictNumber = 0
         getProjects()
         firstFYParse = False
+    if projectDictNumber = 1000
+        return
+    print('''
+    Firstly, as I go through each project in this Fiscal Year, would you '''+
+    '''like me to double check with you after each project that you want to'''+
+    ''' continue?
+    (Y / N)
+          ''')
+    answer = input("> ").lower()
+    if 'y' in answer:
+        doubleCheck = True
+    elif 'n' in answer:
+        doubleCheck = False
+    else:
+        print("Please type 'y' or 'n'.")
+        main()
+
+
     print(FYprojects)  # Quantico
     # maybe here just do: for i in FY projects, i = currentProject, getProjectData
     # Maybe have it work for each FY and have at the end, would you like to print just this FY to a spreadsheet
@@ -56,6 +76,7 @@ def getProjects():
     except IndexError:
         print("No more fiscal years.")
         FYprojects[:] = []
+        projectDictNumber = 1000
         return
     print("Found g.fiscalYears item.")  # Quantico
     print(i)
@@ -134,6 +155,15 @@ def populateGPYLists(currentProject, currentProjectJson):
     print(g.Project)  # Quantico
     return
 
+def printAllGLists():
+    print(g.ID)  # Quantico
+    print(g.ObjectType)  # Quantico
+    print(g.Name)  # Quantico
+    print(g.FiscalYear)  # Quantico
+    print(g.Project)  # Quantico
+    print(g.DataInProject)  # Quantico
+    print(len(g.DataPerFile)) # Quantico
+    print(g.RunningDataTotal)  # Quantico
 
 def findCurrentProjectFY(currentProject, currentProjectJson):
     currentId = currentProject[:]
@@ -193,10 +223,16 @@ def parse(possibleProjectData, FYprojects, projectItems,
         try:
             ancestors = sb.get_ancestor_ids(i)
         except Exception:
-            if i not in g.Exceptions:
-                g.Exceptions.append(i)
             exceptionFound = True
             print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+            import exceptionRaised
+            exceptionRaised.main(i)
+            if exceptionRaised.worked is True:
+                ancestors = sb.get_ancestor_ids(i)
+            elif exceptionRaised.worked is False:
+                continue  # eyekeeper make sure this continues on to the next i in possibleProjectData.
+            else:
+                print('Something went wrong. Function: parse (1)')
         for item in ancestors:
             if item not in possibleProjectData_Set:
                 possibleProjectData_Set.add(item)
@@ -251,10 +287,16 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                 else:
                     pass
             except Exception:
-                if i not in g.Exceptions:
-                    g.Exceptions.append(i)
                 exceptionFound = True
-                print("--------Hit upon a 404 exception: "+str(i)+" (2)")
+                print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+                import exceptionRaised
+                exceptionRaised.main(i)
+                if exceptionRaised.worked is True:
+                    ancestors = sb.get_ancestor_ids(i)
+                elif exceptionRaised.worked is False:
+                    continue
+                else:
+                    print('Something went wrong. Function: findShortcuts (1.1)')
 
     elif lookedForShortcutsBefore is True:
         pass #something should happen here. eyekeeper
@@ -266,10 +308,16 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
         try:
             allShortcuts += sb.get_shortcut_ids(i)
         except Exception:
-            if i not in g.Exceptions:
-                g.Exceptions.append(i)
             exceptionFound = True
-            print("--------Hit upon a 404 exception: "+str(i)+" (3)")
+            print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+            import exceptionRaised
+            exceptionRaised.main(i)
+            if exceptionRaised.worked is True:
+                ancestors = sb.get_ancestor_ids(i)
+            elif exceptionRaised.worked is False:
+                continue
+            else:
+                print('Something went wrong. Function: findShortcuts (2.2)')
     print(allShortcuts)
     if allShortcuts == []:
         print("No shortcuts in \"Possible Project Data\".")
@@ -327,8 +375,16 @@ def diagnostics(FYprojects, exceptionFound, currentProjectJson):
 
 
 def whatNext(FYprojects, exceptionFound):
-    print("Continue? (Y / N)")
-    answer = input("> ").lower()
+    global doubleCheck
+    printAllGLists()
+    if doubleCheck is True:
+        print("Continue? (Y / N)")
+        answer = input("> ").lower()
+    elif doubleCheck is False:
+        answer = 'y'
+    else:
+        print('Something is wrong. Current function: whatNext()')
+        exit()
     global firstFYParse
     global FYdictNum
     global projectDictNumber

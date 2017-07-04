@@ -9,9 +9,10 @@ from pprint import pprint
 
 sb = pysb.SbSession()
 
-numOfTries = 0
+worked = None
 
 def main(ProblemID):
+    global worked
     print('''
     Process time:
     ''')
@@ -19,23 +20,42 @@ def main(ProblemID):
     print('''
     It looks like we found something that raised a 404 exception. What '''+
     '''would you like to do?
-    1. Try waiting
-    2. Try logging out
-    3. Try loggin in
-    4. Add item to a list of items that raised exceptions to be delt with'''+
+    1. Try waiting 5 minutes (This often solves the problem.)
+    2. Try waiting for user-specified time.
+    3. Try logging out
+    4. Try loggin in
+    5. Add item to a list of items that raised exceptions to be delt with'''+
     ''' later
+    6. Try accessing item again
     (Type number)
     ''')
     answer = input("> ").lower()
     if '1' in answer:
         tryWaiting(ProblemID)
     elif '2' in answer:
-        tryLogOut(ProblemID)
+        tryWaiting2(ProblemID)
     elif '3' in answer:
-        tryLogIn(ProblemID)
+        tryLogOut(ProblemID)
     elif '4' in answer:
-        g.Exceptions.append(ProblemID)
+        tryLogIn(ProblemID)
+    elif '5' in answer:
+        if ProblemID not in g.Exceptions:
+            g.Exceptions.append(ProblemID)
+            print('Item added to the Exceptions List.')
+        else:
+            print("Item already in the Exceptions List.")
+        worked = False
         return
+    elif '6' in answer:
+        try:
+            sb.get_item(ProblemID)
+            print("It worked!")
+            worked = True
+            return
+        except Exception:
+            print('''
+        Looks like that didn't work. Here are your options again.''')
+            main(ProblemID)
     else:
         print('''
     I didn't get that. Please type a number from the list.''')
@@ -43,17 +63,53 @@ def main(ProblemID):
 
 
 def tryWaiting(ProblemID):
-    global numOfTries
-    numOfTries += 1
+    global worked
     print("--------Waiting for 404 to reset...")
-    time.sleep(300)
+    #time.sleep(300)
+    t = 300
+    countdown(t)
     try:
         sb.get_item(ProblemID)
+        print("It worked!")
+        worked = True
         return
     except Exception:
         print('''
-    Looks like that didn't work. Here are your options.''')
+    Looks like that didn't work. Here are your options again.''')
         main(ProblemID)
+
+def tryWaiting2(ProblemID):
+    global worked
+    print('''
+    How long would you like to wait (in minutes)?
+    ''')
+    try:
+        minutes = float(str(input('> ')))
+    except ValueError:
+        print('Please type a number.')
+        tryWaiting2(ProblemID)
+    print("--------Waiting for 404 to reset...")
+    #time.sleep(300)
+    t = int(minutes * 60)
+    countdown(t)
+    try:
+        sb.get_item(ProblemID)
+        print("It worked!")
+        worked = True
+        return
+    except Exception:
+        print('''
+    Looks like that didn't work. Here are your options again.''')
+        main(ProblemID)
+
+def countdown(t): # in seconds
+    for remaining in range(t, 0, -1):
+        sys.stdout.write("\r")
+        sys.stdout.write("{:2d} seconds remaining.".format(remaining))
+        sys.stdout.flush()
+        time.sleep(1)
+    sys.stdout.write("\rComplete!            \n")
+
 
 def again(ProblemID):
     print('''
@@ -72,32 +128,45 @@ def again(ProblemID):
         again(ProblemID)
 
 def tryLogOut(ProblemID):
-    print('''
-    Should we try logging out?
-    (Y / N)
-    ''')
-    answer = input("> ").lower()
-    if 'y' in answer:
-        sb.logout()
+    sb.logout()
+    time.sleep(10)
+    try:
+        sb.get_item(ProblemID)
+        print("It worked!")
+        return
+    except Exception:
+        print('''
+    Looks like that didn't work. Here are your options again.''')
+        main(ProblemID)
+
+def tryLogIn(ProblemID):
+    user = input('Username: ')
+    sb.loginc(user)
+    if sb.is_logged_in():
+        print('''
+    Login Successful''')
         try:
             sb.get_item(ProblemID)
             print("It worked!")
             return
         except Exception:
-            again2(ProblemID)
-    elif 'n' in answer:
-        tryLogOut(ProblemID)
+            print('''
+        Looks like that didn't work. Here are your options again.''')
+            main(ProblemID)
     else:
         print('''
-    Sorry, I didn't get that. Please type 'y' or 'n'.
-              ''')
-        tryLogOut(ProblemID)
+    Could not log you in to ScienceBase''')
+        try:
+            sb.get_item(ProblemID)
+            print("It worked anyway!")
+            return
+        except Exception:
+            print('''
+        Looks like that didn't work. Here are your options again.''')
+            main(ProblemID)
 
-def again2(ProblemID):
-    print('''
-    Logging out did not work.
-    We have tried '''+str(numOfTries)+''' time(s). Try again?
-    (Y / N)''')
-
-
-def addToList(ProblemID):
+if __name__ == '__main__':
+    ProblemID = "561bf56fe4b0cdb063e5837f"
+    main(ProblemID)
+    #t = 300
+    #countdown(t)

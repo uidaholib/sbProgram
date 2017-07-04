@@ -215,6 +215,7 @@ def parse_base():
         answer = input("> ").lower()
         if "y" in answer:
             import ExcelPrint
+            import editGPY
             ExcelPrint.main()
             editGPY.clearMemory()
         elif 'n' in answer:
@@ -237,6 +238,7 @@ def parse_base():
         answer = input("> ").lower()
         if "y" in answer:
             import ExcelPrint
+            import editGPY
             ExcelPrint.main()
             editGPY.clearMemory()
         elif 'n' in answer:
@@ -258,6 +260,7 @@ def parse_base():
         answer = input("> ").lower()
         if "y" in answer:
             import ExcelPrint
+            import editGPY
             ExcelPrint.main()
             editGPY.clearMemory()
         elif 'n' in answer:
