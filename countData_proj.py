@@ -67,16 +67,26 @@ def countData(actualData, numFiles):
                     if foundData is True:
                         filesExist = True
                     elif foundData is not True:
-                        if 'Folder' in actualDataJson['systemTypes']:
-                            print("----Item is a folder. No attached files.")
-                        else:
+                        try:
+                            if 'Folder' in actualDataJson['systemTypes']:
+                                print("----Item is a folder. No attached files.")
+                            else:
+                                print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
+                                forDataPerFile_1.append('[Missing]')
+                                if data not in g.MissingData:
+                                    g.MissingData.append(actualDataJson['id'])
+                                else:
+                                    print("---------Something went wrong. Current"+
+                                          " Function: countData (1)")
+                                    print(str(data)+" already in g.MissingData.")
+                        except KeyError:
                             print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
                             forDataPerFile_1.append('[Missing]')
                             if data not in g.MissingData:
                                 g.MissingData.append(actualDataJson['id'])
                             else:
                                 print("---------Something went wrong. Current"+
-                                      " Function: countData (1)")
+                                      " Function: countData (2)")
                                 print(str(data)+" already in g.MissingData.")
                          #if we get a KeyError, it's ok. Keep calm and carry on.
 
@@ -97,9 +107,19 @@ def countData(actualData, numFiles):
                 if foundData is True:
                     filesExist = True
                 elif foundData is not True:
-                    if 'Folder' in actualDataJson['systemTypes']:
-                        print("----Item is a folder. No attached files.")
-                    else:
+                    try:
+                        if 'Folder' in actualDataJson['systemTypes']:
+                            print("----Item is a folder. No attached files.")
+                        else:
+                            print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
+                            forDataPerFile_1.append('[Missing]')
+                            if data not in g.MissingData:
+                                g.MissingData.append(actualDataJson['id'])
+                            else:
+                                print("---------Something went wrong. Current"+
+                                      " Function: countData (2)")
+                                print(str(data)+" already in g.MissingData.")
+                    except KeyError:
                         print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
                         forDataPerFile_1.append('[Missing]')
                         if data not in g.MissingData:
