@@ -39,7 +39,8 @@ def countData(actualData, numFiles):
         try:
             actualDataJson = sb.get_item(data)
         except Exception:
-            parseFy.exceptionFound = True
+            import parseFY
+            parseFY.exceptionFound = True
             print("--------Hit upon a 404 exception: "+str(i)+" (1)")
             import exceptionRaised
             exceptionRaised.main(data)
@@ -48,7 +49,7 @@ def countData(actualData, numFiles):
             elif exceptionRaised.worked is False:
                 continue
             else:
-                print('Something went wrong. Function: parse (1)')
+                print('Something went wrong. Function: countData (1)')
         #pprint(actualDataJson) #Quantico
         numFiles += 1 #for each file, increase the number of Files by 1.
         facetDictNum = 0
@@ -171,10 +172,12 @@ def doneCountingFY():
     totalkData = g.totalFYData*1000000 #this tells us how many kilobytes we have from bytes
     totalmData = totalkData/1000 #this tells us how many megabytes we have from kilobytes
     totalgData = totalmData/1000 #this tells us how many gigabytes we have from megabytes
-
+    number = len(g.FiscalYear)
+    for i in range(0, number):
+        totalFYDataList.append(g.totalFYData)
     r = g.FiscalYear[-1]  # r is the last reported fiscal year. Most recent list item.
     print('''
-    In total, I found '''+str(g.totalFYData)+''' bytes of data in '''+str(r)+
+    In total, I found '''+str(g.totalFYData)+''' gigabytes of data in '''+str(r)+
     '''.
 
     This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
