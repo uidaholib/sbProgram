@@ -161,16 +161,17 @@ def chooseFiscalYear(r):
         val = int(float(answer))
         f = val-1
         folder = []  # This has to be a list to parse correctly
+        folder[:] = []
         folder.append(r[f])
-        g.itemsToBeParsed.append(r[f])
-        doubleCheckFY(r, folder)
+        #g.itemsToBeParsed.append(r[f])
+        doubleCheckFY(r, folder, f)
 
     except ValueError:
         print("That's not a number. Let's try this again.")
         chooseFiscalYear(r)
 
 
-def doubleCheckFY(old_r, folder):
+def doubleCheckFY(old_r, folder, f):
     """This function confirms the fiscal year choice from the previous function.
     If confirmed, it calls the parse.py script to begin parsing the data. If
     unconfirmed, it calls chooseFiscalYear() again.
@@ -185,11 +186,8 @@ def doubleCheckFY(old_r, folder):
     ''')
     answer = input('> ').lower()
     if 'yes' in answer or 'y' in answer:
-        print("What I'm sending over: ")  # Quantico
-        print(folder)  # Quantico
-        print(g.itemsToBeParsed)
-        import parse
-        parse.main()
+        g.itemsToBeParsed.append(old_r[f])
+        another(old_r, folder)
     elif 'no' in answer or 'n' in answer:
         print('''
     Ok, let's try this again.''')
@@ -198,7 +196,27 @@ def doubleCheckFY(old_r, folder):
         print('''
     Sorry, I didn't understand that. Try typing 'Yes' or 'No' or the first''' +
               ''' letter of your answer.''')
-        doubleCheckFY(old_r, folder)
+        doubleCheckFY(r, folder, f)
+
+def another(r, folder):
+    print('''
+    Would you like to add another fiscal year to be parsed?
+    (Y / N)
+    ''')
+    answer = input("> ").lower()
+    if 'y' in answer:
+        chooseFiscalYear(r)
+    elif 'n' in answer:
+        print("What I'm sending over: ")  # Quantico
+        print(folder)  # Quantico
+        print(g.itemsToBeParsed)
+        import parse
+        parse.main()
+    else:
+        print('''
+    Sorry, I didn't understand that. Try typing 'Yes' or 'No' or the first''' +
+              ''' letter of your answer.''')
+        another(r, folder)
 
 
 if __name__ == '__main__':
