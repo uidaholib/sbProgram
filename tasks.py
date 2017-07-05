@@ -51,6 +51,8 @@ def main():
     What task would you like to perform?
     1. Count ScienceBase data
     2. Edit an item (Not yet supported)
+    3. Download one or multiple items (Not yet supported)
+    4. Upload one or multiple items (Not yet supported)
     ''')
     answer = input('> ').lower()
     if '1' in answer or 'count' in answer or 'data' in answer:
