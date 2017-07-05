@@ -80,6 +80,7 @@ def getProjects():
     global FYdictNum
     try:
         i = g.fiscalYears[FYdictNum]
+        print(i)  # Quantico
     except IndexError:
         print("No more fiscal years.")
         FYprojects[:] = []
@@ -206,7 +207,20 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
             currentId = parentId[:]  # this makes a slice that is the whole list.
             json = sb.get_item(currentId)
             parentId = json['parentId']
-            children = sb.get_child_ids(currentId)
+            try:
+                children = sb.get_child_ids(currentId)
+            except Exception:
+                import parseFY
+                parseFY.exceptionFound = True
+                print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+                import exceptionRaised
+                exceptionRaised.main(data)
+                if exceptionRaised.worked is True:
+                    children = sb.get_child_ids(currentId)
+                elif exceptionRaised.worked is False:
+                    continue
+                else:
+                    print('Something went wrong. Function: findCurrentProjectFY (1)')
             child = children[0]
             childJson = sb.get_item(child)
             print("Not a Fiscal Year.")
@@ -277,7 +291,9 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                     elif shortcuts != []:
                         lookedForShortcutsBefore = True
                         foundShortcutsThisTime = True
-                        possibleProjectData += shortcuts
+                        for i in shortcuts:
+                            if i not in possibleProjectData:
+                                possibleProjectData += i
                         print("We found some shortcuts and added them to the " +
                               "Possible Project Data:")
                         print(shortcuts)
@@ -325,12 +341,16 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                 continue
             else:
                 print('Something went wrong. Function: findShortcuts (2.2)')
-    print(allShortcuts)
+    print("All shortcuts:")  # Quantico
+    print(allShortcuts)  # Quantico
     if allShortcuts == []:
         print("No shortcuts in \"Possible Project Data\".")
     elif allShortcuts != []:
-        foundShortcutsThisTime = True
-        possibleProjectData += allShortcuts
+
+        for i in allShortcuts:
+            if i not in possibleProjectData:
+                foundShortcutsThisTime = True
+                possibleProjectData += i
         print("We found some shortcuts and added them to the Possible Project "
               + "Data:")
         print(possibleProjectData)
@@ -397,11 +417,14 @@ def whatNext(FYprojects, exceptionFound):
     global firstFYParse
     global FYdictNum
     global projectDictNumber
+    global lookedForShortcutsBefore
+    global lookedForDataBefore
     if 'y' in answer:
         if projectDictNumber >= len(FYprojects):
             print("You have finished one Fiscal Year. No more available Projects.")
             import countData_proj
             countData_proj.doneCountingFY()
+            excel()
             firstFYParse = True
             FYdictNum += 1
             lookedForShortcutsBefore = False
@@ -421,6 +444,26 @@ def whatNext(FYprojects, exceptionFound):
     else:
         print("Please type an 'N' or 'Y'.")
         whatNext(FYprojects, exceptionFound)
+
+def excel():
+    print("""
+    Would you like to create an Excel Spreadsheet with all parsed data """+
+    """currently in memory before continuing on? If you choose no, all """+
+    """information gathered will continue to be compiled and will be """+
+    """available to be included in a final spreadsheet at the end of """+
+    """the process or to be used to create a speadsheet after each """+
+    """subsequent Fiscal Year, Project, or Item that was originally """+
+    """selected to be parsed is parsed.
+
+    (Y / N)""")
+    answer = input("> ").lower()
+    if "y" in answer:
+        import ExcelPrint
+        import editGPY
+        ExcelPrint.main()
+        editGPY.clearMemory()
+    elif 'n' in answer:
+        print("No spreadsheet created.")
 
 
 if __name__ == '__main__':
