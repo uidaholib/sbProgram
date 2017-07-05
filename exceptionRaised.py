@@ -18,8 +18,9 @@ def main(ProblemID):
     ''')
     print(time.process_time())
     print('''
-    It looks like we found something that raised a 404 exception. What '''+
-    '''would you like to do?
+    It looks like we found something that raised a 404 exception. This '''+
+    '''is usually caused when too many requests are made of a server in too'''+
+    ''' short of a time. What would you like to do?
     1. Try waiting 5 minutes (This often solves the problem.)
     2. Try waiting for user-specified time.
     3. Try logging out
