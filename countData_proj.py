@@ -168,7 +168,7 @@ def countData(actualData, numFiles):
 
 
 def doneCountingFY():
-    totalkData = g.totalFYData/1000 #this tells us how many kilobytes we have from bytes
+    totalkData = g.totalFYData*1000000 #this tells us how many kilobytes we have from bytes
     totalmData = totalkData/1000 #this tells us how many megabytes we have from kilobytes
     totalgData = totalmData/1000 #this tells us how many gigabytes we have from megabytes
 
