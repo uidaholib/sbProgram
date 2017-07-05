@@ -91,7 +91,7 @@ def searchGET(search, totalSearchURL):
     The server gave me this status code: '''+str(r.status_code))
 
     parsed_r = r.json()
-    #pprint(parsed_r) #Quantico
+    # pprint(parsed_r) #Quantico
 
     total = parsed_r['total']
     print('''
@@ -109,7 +109,7 @@ def searchGET(search, totalSearchURL):
                 try:
                     print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
                                                     ['title']))
-                    searchResults[titles] = (parsed_r['items'][titles]['link']
+                    searchResults.insert(titles, parsed_r['items'][titles]['link']
                                              ['url'])
                     titles += 1
                     num += 1
@@ -122,7 +122,7 @@ def searchGET(search, totalSearchURL):
                 try:
                     print(str(num)+'. (File)'+str(parsed_r['items'][titles]
                                                   ['title']))
-                    searchResults[titles] = (parsed_r['items'][titles]['link']
+                    searchResults.insert(titles, parsed_r['items'][titles]['link']
                                              ['url'])
                     titles += 1
                     num += 1
@@ -135,7 +135,7 @@ def searchGET(search, totalSearchURL):
                 try:
                     print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
                                                      ['title']))
-                    searchResults[titles] = (parsed_r['items'][titles]['link']
+                    searchResults.insert(titles, parsed_r['items'][titles]['link']
                                              ['url'])
                     titles += 1
                     num += 1
@@ -153,7 +153,7 @@ def searchGET(search, totalSearchURL):
                 try:
                     print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
                                                     ['title']))
-                    searchResults[titles] = (parsed_r['items'][titles]['link']
+                    searchResults.insert(titles, parsed_r['items'][titles]['link']
                                              ['url'])
                     titles += 1
                     num += 1
@@ -166,7 +166,7 @@ def searchGET(search, totalSearchURL):
                 try:
                     print(str(num)+'. (File)'+str(parsed_r['items'][titles]
                                                   ['title']))
-                    searchResults[titles] = (parsed_r['items'][titles]['link']
+                    searchResults.insert(titles, parsed_r['items'][titles]['link']
                                              ['url'])
                     titles += 1
                     num += 1
@@ -179,7 +179,7 @@ def searchGET(search, totalSearchURL):
                 try:
                     print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
                                                      ['title']))
-                    searchResults[titles] = (parsed_r['items'][titles]['link']
+                    searchResults.insert(titles, parsed_r['items'][titles]['link']
                                              ['url'])
                     titles += 1
                     num += 1
@@ -187,34 +187,35 @@ def searchGET(search, totalSearchURL):
                     print(str(num)+'. (Unknown) [Title Unprintable]')
                     titles += 1
                     num += 1
-    #print searchResults #Quantico
-    nowWhat(parsed_r, total, page)
+    # print(searchResults) #Quantico
+    nowWhat(parsed_r, total, page, searchResults)
 
 
 
-def nowWhat(parsed_r, total, page): #EXAMINE LATER
+def nowWhat(parsed_r, total, page, searchResults): #EXAMINE LATER
+
     if sb.is_logged_in():
         if total > 20:
             print('''
     Now what would you like to do?
     1. Search again
-    2. Get more info about a result
+    2. Get more info about a result (Not yet supported)
     3. Go back to log in
     4. See more results (if total results > 20)
     5. Go back a page of results (if available)
-    6. Count Data in a result
-    7. Edit a result
+    6. Count Data in a result (Not yet supported)
+    7. Edit a result (Not yet supported)
     (Type number)
         ''')
     elif not sb.is_logged_in():
         print('''
     Now what would you like to do?
     1. Search again
-    2. Get more info about a result
+    2. Get more info about a result (Not yet supported)
     3. Go back to log in
     4. See more results (if total results > 20)
     5. Go back a page of results (if available)
-    6. Count Data in a result
+    6. Count Data in a result (Not yet supported)
     (Type number)
     ''')
     answer = input('> ')
@@ -238,7 +239,7 @@ def nowWhat(parsed_r, total, page): #EXAMINE LATER
         print('''
     I don't understand what you meant. Please type a number provided.
     ''')
-        nowWhat(parsed_r, total, page)
+        nowWhat(parsed_r, total, page, searchResults)
 
 def investigateResult(parsed_r):
     print('''
@@ -296,7 +297,7 @@ def more(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
                                                         ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -309,7 +310,7 @@ def more(parsed_r, total, page):
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
                                                       ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -322,7 +323,7 @@ def more(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
                                                          ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -339,7 +340,7 @@ def more(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
                                                         ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -352,7 +353,7 @@ def more(parsed_r, total, page):
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
                                                       ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -365,7 +366,7 @@ def more(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
                                                          ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -374,15 +375,15 @@ def more(parsed_r, total, page):
                         titles += 1
                         num += 1
         #print searchResults #Quantico
-        nowWhat(parsed_r, total, page)
+        nowWhat(parsed_r, total, page, searchResults)
     elif morePages is False:
         print('''
     I'm sorry, there don't appear to be any more items''')
-        nowWhat(parsed_r, total, page)
+        nowWhat(parsed_r, total, page, searchResults)
     else:
         '''
     Whoops. Something went wrong.'''
-        nowWhat(parsed_r, total, page)
+        nowWhat(parsed_r, total, page, searchResults)
 
 
 def back(parsed_r, total, page):
@@ -423,7 +424,7 @@ def back(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
                                                         ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -436,7 +437,7 @@ def back(parsed_r, total, page):
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
                                                       ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -449,7 +450,7 @@ def back(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
                                                          ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -466,7 +467,7 @@ def back(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Folder)'+str(parsed_r['items'][titles]
                                                         ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -479,7 +480,7 @@ def back(parsed_r, total, page):
                     try:
                         print(str(num)+'. (File)'+str(parsed_r['items'][titles]
                                                       ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -492,7 +493,7 @@ def back(parsed_r, total, page):
                     try:
                         print(str(num)+'. (Unknown)'+str(parsed_r['items'][titles]
                                                          ['title']))
-                        searchResults[titles] = (parsed_r['items'][titles]['link']
+                        searchResults.insert(titles, parsed_r['items'][titles]['link']
                                                  ['url'])
                         titles += 1
                         num += 1
@@ -501,16 +502,16 @@ def back(parsed_r, total, page):
                         titles += 1
                         num += 1
         #print searchResults #Quantico
-        nowWhat(parsed_r, total, page)
+        nowWhat(parsed_r, total, page, searchResults)
     elif morePages is False:
         print('''
     Sorry, you are already on the first 20 results, there are no more before this.''')
-        nowWhat(parsed_r, total, page)
+        nowWhat(parsed_r, total, page, searchResults)
 
     else:
         '''
     Whoops. Something went wrong.'''
-        nowWhat(parsed_r, total, page)
+        nowWhat(parsed_r, total, page, searchResults)
 
 
 def editResult(parsed_r):
