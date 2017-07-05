@@ -30,6 +30,8 @@ def main():
 
     wb = Workbook()
     ws = wb.active
+    ws.title = "Report"
+    
     if g.MissingData != []:
         ws_missing = wb.create_sheet("Missing", 1) #Inserts a new sheet, named "Missing" in the second position
         #ws_missing.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
@@ -95,12 +97,12 @@ def main():
 
     Items missing data:
               ''')
-        print(df_missingOrdered)
+        print(df_missing)
         print('''
 
     Exceptions raised:
               ''')
-        print(df_exceptionsOrdered)
+        print(df_exceptions)
     print('''
     Does that look correct?
     (Y / N)
