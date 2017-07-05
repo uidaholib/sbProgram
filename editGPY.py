@@ -17,11 +17,15 @@ def clearMemory():
     """later?""")
     answer2 = input("> ").lower()
     if 'clear' in answer2 or 'empty' in answer2 or 'y' in answer2:
-        g.itemsToBeParsed[:] = []
-        g.items[:] = []
-        g.projects[:] = []
-        g.fiscalYears[:] = []
-        g.onTheFlyParsing[:] = []
+        g.ID[:] = []
+        g.ObjectType[:] = []
+        g.Name[:] = []
+        g.FiscalYear[:] = []
+        g.Project[:] = []
+        g.DataInProject[:] = []
+        g.DataPerFile[:] = []
+        g.totalFYData = 0
+        runningDataToo()
         print("""
     Memory Cleared.""")
         return
@@ -31,3 +35,17 @@ def clearMemory():
         return
     else:
         clearMemory()
+
+def runningDataToo():
+    print('''
+    Would you also like to reset the Running Total Data?
+    (Y / N)
+    ''')
+    answer = input("> ").lower()
+    if 'y' in answer:
+        g.RunningDataTotal[:] = []
+        print("Running Total Data reset.")
+    elif 'n' in answer:
+        print("Running Total Data kept.")
+    else:
+        print("I didn't get that. Please ")
