@@ -19,6 +19,7 @@ FYprojects = []
 
 doubleCheck = None
 firstFYParse = True
+veryFirstFYParse = True
 FYdictNum = 0
 
 def main():
@@ -29,26 +30,31 @@ def main():
     global FYprojects
     global projectDictNumber
     global doubleCheck
+    global veryFirstFYParse
     if firstFYParse is True:
         projectDictNumber = 0
         getProjects()
+        if veryFirstFYParse is True:
+            print('''
+            Firstly, as I go through each project in this Fiscal Year, would you '''+
+            '''like me to double check with you after each project that you want to'''+
+            ''' continue?
+            (Y / N)
+                  ''')
+            answer = input("> ").lower()
+            if 'y' in answer:
+                doubleCheck = True
+            elif 'n' in answer:
+                doubleCheck = False
+            else:
+                print("Please type 'y' or 'n'.")
+                main()
+            veryFirstFYParse = False
         firstFYParse = False
-    if projectDictNumber = 1000
+    if projectDictNumber is 1000:
         return
-    print('''
-    Firstly, as I go through each project in this Fiscal Year, would you '''+
-    '''like me to double check with you after each project that you want to'''+
-    ''' continue?
-    (Y / N)
-          ''')
-    answer = input("> ").lower()
-    if 'y' in answer:
-        doubleCheck = True
-    elif 'n' in answer:
-        doubleCheck = False
-    else:
-        print("Please type 'y' or 'n'.")
-        main()
+
+
 
 
     print(FYprojects)  # Quantico
@@ -67,6 +73,7 @@ def main():
 
 def getProjects():
     global possibleProjectData
+    global projectDictNumber
     possibleProjectData[:] = []
     global FYprojects
     FYprojects[:] = []
@@ -362,7 +369,9 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
 
 
 def diagnostics(FYprojects, exceptionFound, currentProjectJson):
-    print("There appear to have been exceptions raised for the following items:")
+    print("There appear to have been exceptions raised during the parsing "+
+          "process. Here is the list of IDs for items that raised exceptions "+
+          "that were not solved:")
     print(g.Exceptions)
     print('''
 
@@ -397,7 +406,7 @@ def whatNext(FYprojects, exceptionFound):
             FYdictNum += 1
             lookedForShortcutsBefore = False
             lookedForDataBefore = False
-            totalFYData = 0
+            g.totalFYData = 0
             main()
         elif projectDictNumber < len(FYprojects):
             print("Ok, let\'s start on project "+str(projectDictNumber+1) +
