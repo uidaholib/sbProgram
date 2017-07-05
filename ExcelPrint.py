@@ -31,7 +31,7 @@ def main():
     wb = Workbook()
     ws = wb.active
     ws.title = "Report"
-    
+
     if g.MissingData != []:
         ws_missing = wb.create_sheet("Missing", 1) #Inserts a new sheet, named "Missing" in the second position
         #ws_missing.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
@@ -44,12 +44,14 @@ def main():
                     'Fiscal Year': g.FiscalYear, 'Project': g.Project,
                     'Data in Project (GB)': g.DataInProject,
                     'Data per File (KB)': g.DataPerFile,
+                    'Fiscal Year Total Data (GB)': g.totalFYData
                     'Running Data Total (GB)': g.RunningDataTotal,
                         })
                         #include these eventually: 'Missing Data?': L7MissingData, 'Exceptions/Permissions Issues': L9Exceptions
 
     dfOrdered = df[['ID', 'Object Type', 'Name', 'Fiscal Year', 'Project',
-                'Data in Project (GB)', 'Data per File (KB)', 'Running Data Total (GB)',
+                'Data in Project (GB)', 'Data per File (KB)',
+                'Fiscal Year Total Data (GB)', 'Running Data Total (GB)',
                 ]]
                 #include these eventually: 'Missing Data?', 'Exceptions/Permissions Issues'
     #if g.MissingData != []:
