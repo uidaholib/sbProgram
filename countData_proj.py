@@ -45,7 +45,7 @@ def countData(actualData, numFiles):
             import exceptionRaised
             exceptionRaised.main(data)
             if exceptionRaised.worked is True:
-                ancestors = sb.get_ancestor_ids(i)
+                actualDataJson = sb.get_item(data)
             elif exceptionRaised.worked is False:
                 continue
             else:
@@ -174,7 +174,7 @@ def doneCountingFY():
     totalgData = totalmData/1000 #this tells us how many gigabytes we have from megabytes
     number = len(g.FiscalYear)
     for i in range(0, number):
-        totalFYDataList.append(g.totalFYData)
+        g.totalFYDataList.append(g.totalFYData)
     r = g.FiscalYear[-1]  # r is the last reported fiscal year. Most recent list item.
     print('''
     In total, I found '''+str(g.totalFYData)+''' gigabytes of data in '''+str(r)+

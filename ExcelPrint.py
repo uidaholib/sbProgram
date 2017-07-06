@@ -44,7 +44,7 @@ def main():
                     'Fiscal Year': g.FiscalYear, 'Project': g.Project,
                     'Data in Project (GB)': g.DataInProject,
                     'Data per File (KB)': g.DataPerFile,
-                    'Fiscal Year Total Data (GB)': g.totalFYData
+                    'Fiscal Year Total Data (GB)': g.totalFYData,
                     'Running Data Total (GB)': g.RunningDataTotal,
                         })
                         #include these eventually: 'Missing Data?': L7MissingData, 'Exceptions/Permissions Issues': L9Exceptions
