@@ -208,7 +208,7 @@ def another(r, folder):
         chooseFiscalYear(r)
     elif 'n' in answer:
         print("What I'm sending over: ")  # Quantico
-        print(folder)  # Quantico
+        # print(folder)  # Quantico
         print(g.itemsToBeParsed)
         import parse
         parse.main()
