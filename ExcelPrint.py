@@ -166,7 +166,7 @@ def saveExcel(wb, filePath):
         print('''
     Workbook saved as "'''+str(name)+'''.xlsx" in \''''+str(filePath)+'''\'.''')
         return
-    elif 'no' in answer or 'keep' in answer:
+    elif 'n' in answer or 'keep' in answer:
         wb.save(str(filePath)+str(ChosenFiscalYear)+" Data Metrics.xlsx")
         print('''
     Workbook saved as "'''+str(ChosenFiscalYear)+''' Data Metrics.xlsx" in \''''+str(filePath)+'''\'.''')
