@@ -40,6 +40,7 @@ totalSearchURL = ''
 
 def search():
     if sb.is_logged_in(): # if user is logged in. Same as if sb.is_logged_in == True
+    # This isn't working. After signing in it goes straight to public. Eyekepper.
         print('''
         Great, let's privately search ScienceBase.
         Do you want to search the NWCSC folder, or the SWCSC folder?''')
