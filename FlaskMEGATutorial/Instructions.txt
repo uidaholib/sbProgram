@@ -1,0 +1,86 @@
+Instructions using : https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
+
+
+First, create a virtual environment in the project directory:
+
+==============================================================================
+++++
+# cd to project directory. (Make directory if you need to)
+#Powershell:
+$ New-Item c:\PATH\[DIRECTORY NAME] -type directory
+#Mac Terminal:
+$ mkdir [Directory Name]
+#OR (for multiple)
+$ mkdir -p parentdir/childdir/etc
+
+#Create the virtual environment
+$ virtualenv [new virtual environment directory name]
+++++
+==============================================================================
+
+
+
+The reason for this is to  create a folder in the current directory which will
+  contain the Python executable files, and a copy of the pip library which you
+  can use to install other packages. The name of the virtual environment (in
+  this case, it was my_project) can be anything; omitting the name will place
+  the files in the current directory instead.
+
+Virtual env: http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/
+
+Next, activate the virtual environment:
+
+NOTE: in Powershell, you may have to run it as an administrator and use:
+$ set-executionpolicy RemoteSigned
+to allow it to run scripts.
+
+
+==============================================================================
+++++
+#Powershell:
+$ [new virtual environment directory name]/Scripts/activate.ps1
+#Terminal
+$ source [new virtual environment directory name]/bin/activate
+++++
+==============================================================================
+
+If you are on Linux, OS X or Cygwin, install flask and extensions by entering the following commands, one after another:
+
+==============================================================================
+++++
+$ pip install flask
+$ pip install flask-login
+$ pip install flask-openid
+$ pip install flask-mail
+$ pip install flask-sqlalchemy
+$ pip install sqlalchemy-migrate
+$ pip install flask-whooshalchemy
+$ pip install flask-wtf
+$ pip install flask-babel
+$ pip install guess_language
+$ pip install flipflop
+$ pip install coverage
+++++
+==============================================================================
+
+If you are on Windows the commands are slightly different:
+==============================================================================
+++++
+$ py -m pip install flask
+$ py -m pip install flask-login
+$ py -m pip install flask-openid
+$ py -m pip install flask-mail
+$ py -m pip install flask-sqlalchemy
+$ py -m pip install sqlalchemy-migrate
+$ py -m pip install flask-whooshalchemy
+$ py -m pip install flask-wtf
+$ py -m pip install flask-babel
+$ py -m pip install guess_language
+$ py -m pip install flipflop
+$ py -m pip install coverage
+++++
+==============================================================================
+These commands will download and install all the packages that we will use for our application.
+
+
+$env:FLASK_APP = "flaskr"
