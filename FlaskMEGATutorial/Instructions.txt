@@ -44,6 +44,10 @@ $ source [new virtual environment directory name]/bin/activate
 ++++
 ==============================================================================
 
+NOTE: To deactivate the virtualenv, type:
+$ deactivate
+
+
 If you are on Linux, OS X or Cygwin, install flask and extensions by entering the following commands, one after another:
 
 ==============================================================================
@@ -80,7 +84,36 @@ $ py -m pip install flipflop
 $ py -m pip install coverage
 ++++
 ==============================================================================
-These commands will download and install all the packages that we will use for our application.
+These commands will download and install all the packages that we will use for
+  our application.
+
+
+You now have a sub-folder inside your microblog folder that is populated
+  with a Python interpreter and the Flask framework and extensions that we will
+  use for this application. Now it's time to write our first web application!
+
+Now make some more directories in your application directory:
+==============================================================================
+++++
+#Mac Terminal example:
+$ mkdir app
+$ mkdir app/static
+$ mkdir app/templates
+$ mkdir tmp
+
+#Powershell example:
+$ New-Item PATH\[APP DIRECTORY NAME]\app\static -type directory
+$ New-Item PATH\[APP DIRECTORY NAME]\app\templates -type directory
+$ New-Item PATH\tmp -type directory
+++++
+==============================================================================
+
+The app folder will be where we will put our application package. The static
+  sub-folder is where we will store static files like images, javascripts, and
+  cascading style sheets. The templates sub-folder is obviously where our
+  templates will go.
+
+
 
 
 $env:FLASK_APP = "flaskr"
