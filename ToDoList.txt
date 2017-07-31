@@ -1,0 +1,12 @@
+
+
+To Do on MACRO:
+* Figure out global exceptions
+* Check out why, after logging in, it wants to publically search
+* empty exceptions sheet has: "    
+      Exceptions raised:
+
+      Empty DataFrame
+      Columns: [Exception/Permission Issue ID, Exception/Permission Issue URL]
+      Index: []
+      "
