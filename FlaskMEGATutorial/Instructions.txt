@@ -104,7 +104,9 @@ $ python3 -m pip freeze > requirements.txt
 ==============================================================================
 
 NOTE: if you are using another computer as well, perhaps with git, you can now
-  use the requirements.txt file to create a virtual environment:
+  use the requirements.txt file to create an identical virtual environment:
+
+First, create a virtual environment like above, activate it, and run this:
 
 ==============================================================================
 ++++
@@ -132,6 +134,10 @@ __pycache__/
 ++++
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+This makes it so that git will not track the virtual environment folder. All
+  anyone should need is the requirements.txt file anyway. It's inefficient to
+  send someone an entire installation of python and the libraries anyway. Also,
+  it won't work across operating systems.
 
 Now it's time to write our first web application!
 
@@ -198,5 +204,54 @@ def index():
 This view is actually pretty simple, it just returns a string, to be displayed
   on the client's web browser. The two route decorators above the function
   create the mappings from URLs / and /index to this function.
+
+The final step to have a fully working web application is to create a script
+  that starts up the development web server with our application. Let's call
+  this script run.py, and put it in the root folder:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++
+#!flask/bin/python
+from app import app
+app.run(debug=True)
+++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The script simply imports the app variable from our app package and invokes its
+  run method to start the server. Remember that the app variable holds the
+  Flask instance that we created it above.
+
+To start the app you just run this script. On OS X, Linux and Cygwin you have
+  to indicate that this is an executable file before you can run it:
+
+NOTE: haven't tried this. Not sure it's necessary. Could maybe run it the same
+  way as windows? In virtual environment, call python [script].py?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++
+$ chmod a+x run.py
+#Then the script can simply be executed as follows:
+$ ./run.py
+++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On Windows the process is a bit different. There is no need to indicate the
+  file is executable. Instead you have to run the script as an argument to the
+  Python interpreter from the virtual environment:
+
+==============================================================================
+++++
+#Within the virtualenv...
+$ py -3 run.py
+++++
+==============================================================================
+
+After the server initializes it will listen on port 5000 waiting for
+  connections. Now open up your web browser and enter the following URL in the
+  address field:
+http://localhost:5000 OR http://localhost:5000/index
+
+
+
+
 
 $env:FLASK_APP = "flaskr"
