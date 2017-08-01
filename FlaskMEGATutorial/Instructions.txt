@@ -90,7 +90,50 @@ These commands will download and install all the packages that we will use for
 
 You now have a sub-folder inside your microblog folder that is populated
   with a Python interpreter and the Flask framework and extensions that we will
-  use for this application. Now it's time to write our first web application!
+  use for this application.
+
+Now it's a good idea to create a "requirements.txt" file with all the
+  requirements of your virtual environment.
+==============================================================================
+++++
+#Powershell: create File
+$ py -3 -m pip freeze > requirements.txt
+#Terminal: create File
+$ python3 -m pip freeze > requirements.txt
+++++
+==============================================================================
+
+NOTE: if you are using another computer as well, perhaps with git, you can now
+  use the requirements.txt file to create a virtual environment:
+
+==============================================================================
+++++
+$ pip install -r requirements.txt
+++++
+==============================================================================
+
+
+Now, if using git, go into the .gitignore file in your root git directory and
+  add the virtual environment directory like this:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++
+/[PATH to env directory from git root]/
+++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For example, mine currently looks like this:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+/FlaskMEGATutorial/Env/            <-- here it is
+++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Now it's time to write our first web application!
 
 Now make some more directories in your application directory:
 ==============================================================================
