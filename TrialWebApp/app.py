@@ -25,7 +25,7 @@ def index():
     NWCSC_FYs_OrderedDict = {}
     SWCSC_FYs_OrderedDict = {}
     # NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
-    NWCSC_FYs = ("ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8", )  # Delete later
+    NWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
     #print(NWCSC_FYs)
     NWCSC_FYs_Dict = {}
     TitleNum = 2018  # Delete later
@@ -50,7 +50,7 @@ def index():
 
 
     # SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
-    SWCSC_FYs = ("ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8", )  # Delete later
+    SWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
     print(SWCSC_FYs)
     SWCSC_FYs_Dict = {}
     TitleNum = 2018  # Delete later
