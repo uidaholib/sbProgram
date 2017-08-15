@@ -3,10 +3,12 @@
 To Do on MACRO:
 * Figure out global exceptions
 * Check out why, after logging in, it wants to publically search
-* empty exceptions sheet has: "    
+* empty exceptions sheet has: "
       Exceptions raised:
 
       Empty DataFrame
       Columns: [Exception/Permission Issue ID, Exception/Permission Issue URL]
       Index: []
       "
+* 'g.[something]' is a special flask object. May have to change g.py to something else and update everything.
+-- OR "from flask import g as [whatever I want to call it]" so I don't have to change any of the code.

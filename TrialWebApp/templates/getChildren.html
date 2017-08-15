@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Please enter an SB ID</h1>
+<br>
+<form action="" method="post">
+  <input type="text" placeholder="SB ID" name="sb_id" value="{{request.form.sb_id }}">
+  <input class="btn btn-default" type="submit" value="Find children">
+</form>
+
+{% endblock %}

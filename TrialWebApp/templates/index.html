@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Welcome to SB MACRO</h1>
+<br>
+<p>This program can be used to count the data present in one or multiple fiscal years in the NWCSC or SWCSC folders on ScienceBase.</p>
+<br>
+<h2>Choose the center and fiscal year(s) in which you want the data counted:</h2>
+<h3>Northwest CSC</h3>
+<form action="count-data" method="post" name="FY-Select">
+  <br>
+  {% for key in sortNW: %}
+  <input type="checkbox" value="{{value}}" name="checks"> {{key}}<br>
+  {% endfor %}
+  <br>
+  <br>
+  <br>
+  <h3>Southwest CSC</h3>
+  <br>
+  {% for key in sortSW: %}
+  <input type="checkbox" value="{{value}}" name="checks"> {{key}}<br>
+  {% endfor %}
+  <br>
+  <input type="submit" value="Submit">
+</form>
+
+<form action="count-data" method="post" name="FY-Select">
+  <h3> Try again</h3>
+  <br>
+  {% for a in NWCSC_FYs: %}
+  <input type="checkbox" value="{{value}}" name="checks"> {{a}}<br>
+  {% endfor %}
+  <br>
+  <br>
+  <br>
+  <h3>Southwest CSC</h3>
+  <br>
+  {% for key, value in SWCSC_FYs_OrderedDict: %}
+  <input type="checkbox" value="{{value}}" name="checks"> {{key}}<br>
+  {% endfor %}
+  <br>
+  <input type="submit" value="Submit">
+</form>
+{% endblock %}

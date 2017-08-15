@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Welcome to SB MACRO</h1>
+<br>
+<p> Select a fiscal year below to have SB MACRO count all the data in that fiscal year </p>
+<br>
+<h2>Please select a Fiscal Year</h2>
+<br>
+<form action="" method="post">
+  <input type="text" placeholder="SB ID" name="sb_id" value="{{request.form.sb_id }}">
+  <input class="btn btn-default" type="submit" value="Find children">
+</form>
+
+{% endblock %}
