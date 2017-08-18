@@ -19,6 +19,17 @@ app = Flask(__name__)
 # config
 app.secret_key = 'my precious'
 
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    error = None
+    NWCSC_FYs_OrderedDict = get_NW_FYs()
+    SWCSC_FYs_OrderedDict = get_SW_FYs()
+    print("Now local?")
+    print(NWCSC_FYs_OrderedDict)
+    print(SWCSC_FYs_OrderedDict)
+
+    return(render_template('index.html', **locals(), title="Home"))
+
 def get_NW_FYs():
     NWCSC_FYs_OrderedDict = {}
     SWCSC_FYs_OrderedDict = {}
@@ -34,13 +45,25 @@ def get_NW_FYs():
         TitleNum -= 1  # Delete later
 
         NWCSC_FYs_Dict.update({title: ID})
+    print("Original NWCSC_FYs_Dict")
     print(NWCSC_FYs_Dict)
-    return(NWCSC_FYs_Dict)
+    sortNW = sorted(NWCSC_FYs_Dict)
+    #print(sort)
+    NWCSC_FYs_OrderedDict = {}
+    for i in sortNW:
+        NWCSC_FYs_OrderedDict.update({i: NWCSC_FYs_Dict[i]})
+    print("Newly Order NWCSC_FYs_Dict: NWCSC_FYs_OrderedDict")
+    print(NWCSC_FYs_OrderedDict)
+    flash(NWCSC_FYs_OrderedDict)
+    return(NWCSC_FYs_OrderedDict)
+
+
 
 def get_SW_FYs():
     # SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
     SWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
-    print(SWCSC_FYs)
+
+    #print(SWCSC_FYs)
     SWCSC_FYs_Dict = {}
     TitleNum = 2018  # Delete later
     for ID in SWCSC_FYs:
@@ -49,24 +72,17 @@ def get_SW_FYs():
         title = "Fiscal Year "+str(TitleNum)  # Delete later
         TitleNum -= 1  # Delete later
         SWCSC_FYs_Dict.update({title: ID})
+    print("Original SWCSC_FYs")
     print(SWCSC_FYs_Dict)
-
-    return(SWCSC_FYs_Dict)
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    error = None
-    NWCSC_FYs_Dict = get_NW_FYs()
-    SWCSC_FYs_Dict = get_SW_FYs()
-    #NWCSC_FYs_json = json.dumps(NWCSC_FYs_Dict, sort_keys = True, indent = 2)
-    print(NWCSC_FYs_Dict)
-    #SWCSC_FYs_json = json.dumps(SWCSC_FYs_Dict, sort_keys = True, indent = 2)
-    print(SWCSC_FYs_Dict)
-
-    #for title, ID in NWCSC_FYs_json.items:
-    #    print(title)
-
-    return(render_template('index.html', **locals(), title="Home"))
+    sortSW = sorted(SWCSC_FYs_Dict)
+    #print(sort)
+    SWCSC_FYs_OrderedDict = {}
+    for i in sortSW:
+        SWCSC_FYs_OrderedDict.update({i: SWCSC_FYs_Dict[i]})
+    print("Newly Order SWCSC_FYs_Dict: SWCSC_FYs_OrderedDict")
+    print(SWCSC_FYs_OrderedDict)
+    flash(SWCSC_FYs_OrderedDict)
+    return(SWCSC_FYs_OrderedDict)
 
 
 

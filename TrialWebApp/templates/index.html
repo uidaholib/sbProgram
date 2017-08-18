@@ -9,36 +9,19 @@
 <h3>Northwest CSC</h3>
 <form action="count-data" method="post" name="FY-Select">
   <br>
-  {% for key in sortNW: %}
-  <input type="checkbox" value="{{value}}" name="checks"> {{key}}<br>
+  {% for title, ID in NWCSC_FYs_OrderedDict.items(): %}
+      <input type="checkbox" value="{{ID}}" name="checks"> {{title}}<br>
   {% endfor %}
   <br>
   <br>
   <br>
   <h3>Southwest CSC</h3>
   <br>
-  {% for key in sortSW: %}
-  <input type="checkbox" value="{{value}}" name="checks"> {{key}}<br>
+  {% for title, ID in SWCSC_FYs_OrderedDict.items(): %}
+      <input type="checkbox" value="{{ID}}" name="checks"> {{title}}<br>
   {% endfor %}
   <br>
   <input type="submit" value="Submit">
 </form>
 
-<form action="count-data" method="post" name="FY-Select">
-  <h3> Try again</h3>
-  <br>
-  {% for a in NWCSC_FYs: %}
-  <input type="checkbox" value="{{value}}" name="checks"> {{a}}<br>
-  {% endfor %}
-  <br>
-  <br>
-  <br>
-  <h3>Southwest CSC</h3>
-  <br>
-  {% for key, value in SWCSC_FYs_OrderedDict: %}
-  <input type="checkbox" value="{{value}}" name="checks"> {{key}}<br>
-  {% endfor %}
-  <br>
-  <input type="submit" value="Submit">
-</form>
 {% endblock %}
