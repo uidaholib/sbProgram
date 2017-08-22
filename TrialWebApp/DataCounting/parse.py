@@ -61,6 +61,7 @@ def sort_items():
         print("There are no items to be parsed.")
         import start
         start.questionLogin()
+        sys.exit()
     print("""
     Sorting Items...""")
 
@@ -202,27 +203,30 @@ def parse_base():
         import parseFY
         parseFY.main()
         print("--------------Done parsing Fiscal Years.")
-        print("""
-        Would you like to create an Excel Spreadsheet with all parsed data """+
-        """currently in memory before continuing on? If you choose no, all """+
-        """information gathered will continue to be compiled and will be """+
-        """available to be included in a final spreadsheet at the end of """+
-        """the process or to be used to create a speadsheet after each """+
-        """subsequent Fiscal Year, Project, or Item that was originally """+
-        """selected to be parsed is parsed.
+        #print("""
+        #Would you like to create an Excel Spreadsheet with all parsed data """+
+        #"""currently in memory before continuing on? If you choose no, all """+
+        #"""information gathered will continue to be compiled and will be """+
+        #"""available to be included in a final spreadsheet at the end of """+
+        #"""the process or to be used to create a speadsheet after each """+
+        #"""subsequent Fiscal Year, Project, or Item that was originally """+
+        #"""selected to be parsed is parsed.
 
-        (Y / N)""")
-        answer = input("> ").lower()
-        if "y" in answer:
+        #(Y / N)""")
+        if gl.Excel_choice == "One_Excel_for_all_FYs":
             import ExcelPrint
             import editGPY
             ExcelPrint.main()
             editGPY.clearMemory()
-        elif 'n' in answer:
-            print("No spreadsheet created.")
+        elif gl.Excel_choice == "Excel_for_each_FY":
+            pass
+        else:
+            print("Something wrong. No gl.Excel_choice selected.")
+            sys.exit()
+
 
     if gl.projects != []:
-        import parseProjects
+        import parseProjects        # eyekeeper Quantico don't have this working yet
         parseProjects.main()
         print("--------------Done parsing projects.")
         print("""
@@ -244,7 +248,7 @@ def parse_base():
         elif 'n' in answer:
             print("No spreadsheet created.")
     if gl.items != []:
-        import parseItems
+        import parseItems     # eyekeeper Quantico don't have this working yet
         parseItems.main()
         print("--------------Done parsing items.")
         print("""
