@@ -224,6 +224,7 @@ def parse_base():
             pass
         else:
             print("Something wrong. No gl.Excel_choice selected.")
+            flash("Something wrong. No gl.Excel_choice selected.")
             sys.exit()
 
 

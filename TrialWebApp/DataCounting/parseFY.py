@@ -469,6 +469,8 @@ def whatNext(FYprojects, exceptionFound):
     elif projectDictNumber < len(FYprojects):
         print("Ok, let\'s start on project "+str(projectDictNumber+1) +
               " of "+str(len(FYprojects))+".")
+        flash("Ok, let\'s start on project "+str(projectDictNumber+1) +
+              " of "+str(len(FYprojects))+".")
         lookedForShortcutsBefore = False
         lookedForDataBefore = False
 
@@ -479,16 +481,16 @@ def whatNext(FYprojects, exceptionFound):
         whatNext(FYprojects, exceptionFound)
 
 def excel():
-    print("""
-    Would you like to create an Excel Spreadsheet with all parsed data """+
-    """currently in memory before continuing on? If you choose no, all """+
-    """information gathered will continue to be compiled and will be """+
-    """available to be included in a final spreadsheet at the end of """+
-    """the process or to be used to create a speadsheet after each """+
-    """subsequent Fiscal Year, Project, or Item that was originally """+
-    """selected to be parsed is parsed.
+    #print("""
+    #Would you like to create an Excel Spreadsheet with all parsed data """+
+    #"""currently in memory before continuing on? If you choose no, all """+
+    #"""information gathered will continue to be compiled and will be """+
+    #"""available to be included in a final spreadsheet at the end of """+
+    #"""the process or to be used to create a speadsheet after each """+
+    #"""subsequent Fiscal Year, Project, or Item that was originally """+
+    #"""selected to be parsed is parsed.
 
-    (Y / N)""")
+    #(Y / N)""")
     #answer = input("> ").lower()
     if gl.Excel_choice == "Excel_for_each_FY":
         import ExcelPrint
