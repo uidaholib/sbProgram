@@ -1,4 +1,6 @@
-import g
+import gl
+from flask import Flask, render_template, redirect, \
+    url_for, request, session, flash, jsonify
 import os
 from pandas import DataFrame
 from openpyxl import Workbook
@@ -105,17 +107,18 @@ def main():
     Exceptions raised:
               ''')
         print(df_exceptions)
-    print('''
-    Does that look correct?
-    (Y / N)
-    ''')
-    correct = input("> ").lower()
-    if 'y' in correct:
-        ask(wb)
-    elif 'n' in correct:
-        import editGPY
-        editGPY.main()
-        main()
+    #print('''
+    #Does that look correct?
+    #(Y / N)
+    #''')
+    #correct = input("> ").lower()
+    #if 'y' in correct:
+    #    ask(wb)
+    #elif 'n' in correct:
+    #    import editGPY
+    #    editGPY.main()
+    #    main()
+    ask(wb)
 
 def ask(wb):
     print ('''

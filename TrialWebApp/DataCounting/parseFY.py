@@ -1,4 +1,6 @@
 import gl
+from flask import Flask, render_template, redirect, \
+    url_for, request, session, flash, jsonify
 import requests
 import json
 import pysb
@@ -105,6 +107,9 @@ def getProjectData(possibleProjectData, FYprojects,
     if lookedForDataBefore is False:
         populateGPYLists(currentProject, currentProjectJson)
         print("""
+
+        Currently searching '"""+str(currentProjectJson['title'])+"'.")
+        flash("""
 
         Currently searching '"""+str(currentProjectJson['title'])+"'.")
         lookedForDataBefore = True

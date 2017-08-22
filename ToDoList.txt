@@ -12,3 +12,6 @@ To Do on MACRO:
       "
 * 'g.[something]' is a special flask object. May have to change g.py to something else and update everything.
 -- OR "from flask import g as [whatever I want to call it]" so I don't have to change any of the code.
+* Check out ExcelPrint had the ability to call editGPY.py to edit the memory before creating the excel sheet.
+   could be good functionality or not. Need to decide.
+* Figure out how to create a download from the site.
