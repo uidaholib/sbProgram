@@ -3,14 +3,13 @@ from flask import Flask, render_template, redirect, \
     url_for, request, session, flash, jsonify
 from functools import wraps
 from flask import g as g1
-import g
 from pprint import pprint
 import json
 import requests
 import pysb
 
 
-#sb = pysb.SbSession()
+sb = pysb.SbSession()
 
 
 # create the application object
@@ -33,16 +32,16 @@ def index():
 def get_NW_FYs():
     NWCSC_FYs_OrderedDict = {}
     SWCSC_FYs_OrderedDict = {}
-    # NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
-    NWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
+    NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
+    # NWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
     #print(NWCSC_FYs)
     NWCSC_FYs_Dict = {}
-    TitleNum = 2018  # Delete later
+    # TitleNum = 2018  # Delete later
     for ID in NWCSC_FYs:
-        # json = sb.get_item(ID)
-        #title = json['title']
-        title = "Fiscal Year "+str(TitleNum)  # Delete later
-        TitleNum -= 1  # Delete later
+        json = sb.get_item(ID)
+        title = json['title']
+        # title = "Fiscal Year "+str(TitleNum)  # Delete later
+        # TitleNum -= 1  # Delete later
 
         NWCSC_FYs_Dict.update({title: ID})
     print("Original NWCSC_FYs_Dict")
@@ -60,17 +59,17 @@ def get_NW_FYs():
 
 
 def get_SW_FYs():
-    # SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
-    SWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
+    SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
+    # SWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
 
     #print(SWCSC_FYs)
     SWCSC_FYs_Dict = {}
-    TitleNum = 2018  # Delete later
+    # TitleNum = 2018  # Delete later
     for ID in SWCSC_FYs:
-        # json = sb.get_item(ID)
-        # title = json['title']
-        title = "Fiscal Year "+str(TitleNum)  # Delete later
-        TitleNum -= 1  # Delete later
+        json = sb.get_item(ID)
+        title = json['title']
+        # title = "Fiscal Year "+str(TitleNum)  # Delete later
+        # TitleNum -= 1  # Delete later
         SWCSC_FYs_Dict.update({title: ID})
     print("Original SWCSC_FYs")
     print(SWCSC_FYs_Dict)
@@ -98,18 +97,31 @@ def differentThing():
             error = 'Invalid Credentials. Please try again.'
     return(render_template('index.html'))
 
-@app.route('/count_data', methods=['POST'])
+@app.route('/count-data', methods=['POST'])
 def handle_data():
+    import sys
+    sys.path.insert(0, 'C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    import gl, parse, countData_proj
     if request.method == 'POST':
+        flash("Method was POST!")
         for i in request.form:
             print(i)
             flash(i)
     if request.method == 'POST':
-        test = request.form.getlist('FY-Select')
+        test = request.form.getlist('checks')
         print(test)
-        return(redirect('/'))
+        flash(test)
+        gl.Excel_choice = request.form.get("Excel-choice")
+        flash(gl.Excel_choice)
+        print(gl.Excel_choice)
     else:
         return(redirect('/'))
+
+    for i in test:
+        gl.itemsToBeParsed.append(i)
+    parse.main()
+
+
     return(render_template('count-data.html'))
     #your code
 

@@ -21,6 +21,13 @@
       <input type="checkbox" value="{{ID}}" name="checks"> {{title}}<br>
   {% endfor %}
   <br>
+  <label><input type="radio" class="radio radio-inline" value="Excel_for_each_FY" name="Excel-choice" required>Create an Excel File for each Fiscal Year</label>
+  <br>
+  <label><input type="radio" class="radio radio-inline" value="One_Excel_for_all_FYs" name="Excel-choice" required>Combine all reports into one file</label>
+  <br>
+  <input type="file" name="datafile" size="40"  multiple>
+  <input type="directory" id="ctrl" webkitdirectory directory multiple/>
+  <br>
   <input type="submit" value="Submit">
 </form>
 
