@@ -1,3 +1,4 @@
+# eyekeeper Quantico this is not finished in any way, shape or form
 
 def diagnostics(projects, projectDictNumber, exceptionItems, exceptionFound, currentProjectJson):
     print("There appear to have been exceptions raised for the following items:")
