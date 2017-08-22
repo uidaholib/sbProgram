@@ -13,11 +13,11 @@ totalDataCount = 0
 projectDictNumber = 0
 possibleProjectData = []
 exceptionFound = False
-lookedForShortcutsBefore = False
-lookedForDataBefore = False
-FYprojects = []
-
-doubleCheck = None
+#lookedForShortcutsBefore = False       #Taking away all lookedForShortcutsBefore.
+lookedForDataBefore = False                 #Not sure of the purpose if we add only the shortcuts
+FYprojects = []                             # that aren't already in possibleProjectData already.
+                                            # So there's no difference between how we would treat
+doubleCheck = None                          #data if we'd looked before or not.
 firstFYParse = True
 veryFirstFYParse = True
 FYdictNum = 0
@@ -292,25 +292,66 @@ def parse(possibleProjectData, FYprojects, projectItems,
 def findShortcuts(FYprojects, currentProject, exceptionFound,
                   possibleProjectData, projectItems, currentProjectJson,
                   ):
-    global lookedForShortcutsBefore
+    #global lookedForShortcutsBefore
     global lookedForDataBefore
     print("Looking for shortcuts in any items...")
     foundShortcutsThisTime = False
-    if lookedForShortcutsBefore is False:
-        lookedForShortcutsBefore = True
-        for i in projectItems:
-            try:
+    print("Original foundShortcutsThisTime = False")  # Quantico
+    print(foundShortcutsThisTime)  # Quantico
+    #if lookedForShortcutsBefore is False:
+    #    lookedForShortcutsBefore = True
+    for i in projectItems:
+        try:
+            currentProjectItemJson = sb.get_item(i)
+            if currentProjectItemJson['title'] == "Approved DataSets":
+                shortcuts = sb.get_shortcut_ids(i)
+                print("Shortcuts in Approved DataSets:")  # Quantico
+                print(shortcuts)
+                if shortcuts == []:
+                    #lookedForShortcutsBefore = True
+                    print("No shortcuts in \"Approved DataSets\".")
+                elif shortcuts != []:
+                    #lookedForShortcutsBefore = True
+                    foundShortcutsThisTime = True
+                    print("Place 1: foundShortcutsThisTime = True")  # Quantico
+                    print(foundShortcutsThisTime)  # Quantico
+                    for i in shortcuts:
+                        if i not in possibleProjectData:
+                            possibleProjectData.append(i)
+                    print("We found some shortcuts and added them to the " +
+                          "Possible Project Data:")
+                    print(shortcuts)
+                    print('Total Items added:')
+                    print(len(shortcuts))
+                    print("New Possible Project Data:")
+                    print(possibleProjectData)
+                    print("Current Item total:")
+                    print(len(possibleProjectData))
+                else:
+                    print("Something went wrong. Current function: "
+                          + "findShortcuts (1)")
+                    exit()
+            else:
+                pass
+        except Exception:
+            exceptionFound = True
+            print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+            import exceptionRaised
+            exceptionRaised.main(i)
+            if exceptionRaised.worked is True:
                 currentProjectItemJson = sb.get_item(i)
                 if currentProjectItemJson['title'] == "Approved DataSets":
                     shortcuts = sb.get_shortcut_ids(i)
                     print("Shortcuts in Approved DataSets:")  # Quantico
                     print(shortcuts)
                     if shortcuts == []:
-                        lookedForShortcutsBefore = True
+                        #lookedForShortcutsBefore = True
                         print("No shortcuts in \"Approved DataSets\".")
                     elif shortcuts != []:
-                        lookedForShortcutsBefore = True
+                        #lookedForShortcutsBefore = True
                         foundShortcutsThisTime = True
+                        print("Place 2: foundShortcutsThisTime = True")  # Quantico
+                        print(foundShortcutsThisTime)  # Quantico
                         for i in shortcuts:
                             if i not in possibleProjectData:
                                 possibleProjectData.append(i)
@@ -329,51 +370,16 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                         exit()
                 else:
                     pass
-            except Exception:
-                exceptionFound = True
-                print("--------Hit upon a 404 exception: "+str(i)+" (1)")
-                import exceptionRaised
-                exceptionRaised.main(i)
-                if exceptionRaised.worked is True:
-                    currentProjectItemJson = sb.get_item(i)
-                    if currentProjectItemJson['title'] == "Approved DataSets":
-                        shortcuts = sb.get_shortcut_ids(i)
-                        print("Shortcuts in Approved DataSets:")  # Quantico
-                        print(shortcuts)
-                        if shortcuts == []:
-                            lookedForShortcutsBefore = True
-                            print("No shortcuts in \"Approved DataSets\".")
-                        elif shortcuts != []:
-                            lookedForShortcutsBefore = True
-                            foundShortcutsThisTime = True
-                            for i in shortcuts:
-                                if i not in possibleProjectData:
-                                    possibleProjectData.append(i)
-                            print("We found some shortcuts and added them to the " +
-                                  "Possible Project Data:")
-                            print(shortcuts)
-                            print('Total Items added:')
-                            print(len(shortcuts))
-                            print("New Possible Project Data:")
-                            print(possibleProjectData)
-                            print("Current Item total:")
-                            print(len(possibleProjectData))
-                        else:
-                            print("Something went wrong. Current function: "
-                                  + "findShortcuts (1)")
-                            exit()
-                    else:
-                        pass
-                elif exceptionRaised.worked is False:
-                    continue
-                else:
-                    print('Something went wrong. Function: findShortcuts (1.1)')
+            elif exceptionRaised.worked is False:
+                continue
+            else:
+                print('Something went wrong. Function: findShortcuts (1.1)')
 
-    elif lookedForShortcutsBefore is True:
-        pass #something should happen here. eyekeeper
-    else:
-        print("Something went wrong. Current function: findShortcuts (2)")
-        exit()
+#elif lookedForShortcutsBefore is True:
+#    pass #something should happen here. eyekeeper
+#    else:
+#        print("Something went wrong. Current function: findShortcuts (2)")
+#        exit()
     allShortcuts = []
     allShortcuts[:] = []
     for i in possibleProjectData:
@@ -404,9 +410,13 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
         print("No shortcuts in \"Possible Project Data\".")
     elif allShortcuts != []:
         foundShortcutsThisTime = True
+        print("Place 3: foundShortcutsThisTime = True")  # Quantico
+        print(foundShortcutsThisTime)  # Quantico
         for i in allShortcuts:
             if i not in possibleProjectData:
                 foundShortcutsThisTime = True
+                print("Place 4: foundShortcutsThisTime = True")  # Quantico
+                print(foundShortcutsThisTime)  # Quantico
                 possibleProjectData.append(i)
         print("We found some shortcuts and added them to the Possible Project "
               + "Data:")
@@ -474,7 +484,7 @@ def whatNext(FYprojects, exceptionFound):
     global firstFYParse
     global FYdictNum
     global projectDictNumber
-    global lookedForShortcutsBefore
+    #global lookedForShortcutsBefore
     global lookedForDataBefore
     if 'y' in answer:
         if projectDictNumber >= len(FYprojects):
@@ -484,14 +494,14 @@ def whatNext(FYprojects, exceptionFound):
             excel()
             firstFYParse = True
             FYdictNum += 1
-            lookedForShortcutsBefore = False
+            #lookedForShortcutsBefore = False
             lookedForDataBefore = False
             g.totalFYData = 0
             main()
         elif projectDictNumber < len(FYprojects):
             print("Ok, let\'s start on project "+str(projectDictNumber+1) +
                   " of "+str(len(FYprojects))+".")
-            lookedForShortcutsBefore = False
+            #lookedForShortcutsBefore = False
             lookedForDataBefore = False
 
             main()
