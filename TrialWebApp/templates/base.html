@@ -5,15 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="static/custom.css" rel="stylesheet" media="screen">
-    <script type="text/javascript" language="javascript">// <![CDATA[
-        function loading(){
-            $("#loading").show();
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+    </script>
+    <script>
+    $(document).ready(function(){
+        $("#submit").click(function(){
             $("#content").hide();
-        }
-// ]]></script>
+            $("#loading").show();
+        });
+    });
+    </script>
+
   </head>
   <body>
-    <div id="loading"></div>
+
+    <div id="loading">
+      <img src="C:\Users\Taylor\Documents\!USGS\Python\sbProgramGitRepo\TrialWebApp\static\ajax-loader.gif" id="loading">
+    </div>
     <div class="container" id="content">
 
 

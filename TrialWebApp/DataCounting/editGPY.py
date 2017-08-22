@@ -20,14 +20,14 @@ def clearMemory():
     """later?""")
     answer2 = input("> ").lower()
     if 'clear' in answer2 or 'empty' in answer2 or 'y' in answer2:
-        g.ID[:] = []
-        g.ObjectType[:] = []
-        g.Name[:] = []
-        g.FiscalYear[:] = []
-        g.Project[:] = []
-        g.DataInProject[:] = []
-        g.DataPerFile[:] = []
-        g.totalFYData = 0
+        gl.ID[:] = []
+        gl.ObjectType[:] = []
+        gl.Name[:] = []
+        gl.FiscalYear[:] = []
+        gl.Project[:] = []
+        gl.DataInProject[:] = []
+        gl.DataPerFile[:] = []
+        gl.totalFYData = 0
         runningDataToo()
         print("""
     Memory Cleared.""")
@@ -46,7 +46,7 @@ def runningDataToo():
     ''')
     answer = input("> ").lower()
     if 'y' in answer:
-        g.RunningDataTotal[:] = []
+        gl.RunningDataTotal[:] = []
         print("Running Total Data reset.")
     elif 'n' in answer:
         print("Running Total Data kept.")

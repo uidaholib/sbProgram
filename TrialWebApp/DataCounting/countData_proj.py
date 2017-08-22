@@ -190,6 +190,13 @@ def doneCountingFY():
     This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
     ''' megabytes, or '''+str(totalgData)+''' gigabytes.
     ''')
+    flash('''
+    In total, I found '''+str(gl.totalFYData)+''' gigabytes of data in '''+str(r)+
+    '''.
+
+    This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
+    ''' megabytes, or '''+str(totalgData)+''' gigabytes.
+    ''')
     return
 
 

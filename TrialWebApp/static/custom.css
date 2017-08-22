@@ -1,7 +1,14 @@
+div#content {
+    display: none;
+    }
+ 
 div#loading {
-    width: 35px;
-    height: 35px;
-    display: none;
-    background: url(/static/ajax-loader.gif) no-repeat;
-    cursor: wait;
-    }
+    border-color: black;
+    display: block;
+    margin: auto;
+    position: absolute;
+    z-index: 1000;
+    width: 20%;
+    height: auto;
+    cursor: wait;
+    }

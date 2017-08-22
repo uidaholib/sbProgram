@@ -420,6 +420,11 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
             I am done looking through the \''''+str(currentProjectJson['title']) +
                   '''' project folder.''')
             global projectDictNumber
+            flash("Total Data in Project: ")
+            flash(gl.DataInProject[projectDictNumber])
+            flash("Running Total of Data thus far: ")
+            flash(gl.RunningDataTotal[projectDictNumber])
+
             projectDictNumber += 1
             whatNext(FYprojects, exceptionFound)
         elif exceptionFound is True:
@@ -442,8 +447,13 @@ def diagnostics(FYprojects, exceptionFound, currentProjectJson):
 
     I am done looking through the \''''+str(currentProjectJson['title']) +
           '''' project folder.''')
-    # eyekeeper come back to this and add an option to try the exception raising items again.
     global projectDictNumber
+    flash("Total Data in Project: ")
+    flash(gl.DataInProject[projectDictNumber])
+    flash("Running Total of Data thus far: ")
+    flash(gl.RunningDataTotal[projectDictNumber])
+    # eyekeeper come back to this and add an option to try the exception raising items again.
+
     projectDictNumber += 1
     whatNext(FYprojects, exceptionFound)
 
@@ -457,6 +467,10 @@ def whatNext(FYprojects, exceptionFound):
     global lookedForDataBefore
     if projectDictNumber >= len(FYprojects):
         print("You have finished one Fiscal Year. No more available Projects.")
+        flash("You have finished one Fiscal Year. No more available Projects.")
+        flash("""
+        ---------------------------------------------------------------------------------------
+        """)
         import countData_proj
         countData_proj.doneCountingFY()
         excel()
@@ -471,6 +485,9 @@ def whatNext(FYprojects, exceptionFound):
               " of "+str(len(FYprojects))+".")
         flash("Ok, let\'s start on project "+str(projectDictNumber+1) +
               " of "+str(len(FYprojects))+".")
+        flash("""
+        ---------------------------------------------------------------------------------------
+        """)
         lookedForShortcutsBefore = False
         lookedForDataBefore = False
 
