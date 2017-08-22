@@ -15,9 +15,9 @@ possibleProjectData = []
 exceptionFound = False
 lookedForShortcutsBefore = False
 lookedForDataBefore = False
-FYprojects = []                                                   #    Figure out when to print final full excel with everything
-                                                                    # perhaps in parse.py???
-doubleCheck = None
+FYprojects = []
+
+
 firstFYParse = True
 veryFirstFYParse = True
 FYdictNum = 0
@@ -29,21 +29,10 @@ def main():
     global firstFYParse
     global FYprojects
     global projectDictNumber
-    global doubleCheck
     global veryFirstFYParse
     if firstFYParse is True:
         projectDictNumber = 0
         getProjects()
-        if veryFirstFYParse is True:
-            print('''
-            Firstly, as I go through each project in this Fiscal Year, would you '''+
-            '''like me to double check with you after each project that you want to'''+
-            ''' continue?
-            (Y / N)
-                  ''')
-            answer = input("> ").lower()
-
-            veryFirstFYParse = False
         firstFYParse = False
     if projectDictNumber is 1000:
         return
@@ -455,43 +444,31 @@ def diagnostics(FYprojects, exceptionFound, currentProjectJson):
 
 
 def whatNext(FYprojects, exceptionFound):
-    global doubleCheck
     printAllGLists()
-    if doubleCheck is True:
-        print("Continue? (Y / N)")
-        answer = input("> ").lower()
-    elif doubleCheck is False:
-        answer = 'y'
-    else:
-        print('Something is wrong. Current function: whatNext()')
-        exit()
     global firstFYParse
     global FYdictNum
     global projectDictNumber
     global lookedForShortcutsBefore
     global lookedForDataBefore
-    if 'y' in answer:
-        if projectDictNumber >= len(FYprojects):
-            print("You have finished one Fiscal Year. No more available Projects.")
-            import countData_proj
-            countData_proj.doneCountingFY()
-            excel()
-            firstFYParse = True
-            FYdictNum += 1
-            lookedForShortcutsBefore = False
-            lookedForDataBefore = False
-            gl.totalFYData = 0
-            main()
-        elif projectDictNumber < len(FYprojects):
-            print("Ok, let\'s start on project "+str(projectDictNumber+1) +
-                  " of "+str(len(FYprojects))+".")
-            lookedForShortcutsBefore = False
-            lookedForDataBefore = False
+    if projectDictNumber >= len(FYprojects):
+        print("You have finished one Fiscal Year. No more available Projects.")
+        import countData_proj
+        countData_proj.doneCountingFY()
+        excel()
+        firstFYParse = True
+        FYdictNum += 1
+        lookedForShortcutsBefore = False
+        lookedForDataBefore = False
+        gl.totalFYData = 0
+        main()
+    elif projectDictNumber < len(FYprojects):
+        print("Ok, let\'s start on project "+str(projectDictNumber+1) +
+              " of "+str(len(FYprojects))+".")
+        lookedForShortcutsBefore = False
+        lookedForDataBefore = False
 
-            main()
-    elif 'n' in answer or 'N' in answer:
-        print('Goodbye')
-        exit()
+        main()
+
     else:
         print("Please type an 'N' or 'Y'.")
         whatNext(FYprojects, exceptionFound)
