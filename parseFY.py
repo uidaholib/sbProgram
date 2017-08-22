@@ -298,8 +298,8 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
     foundShortcutsThisTime = False
     print("Original foundShortcutsThisTime = False")  # Quantico
     print(foundShortcutsThisTime)  # Quantico
-    #if lookedForShortcutsBefore is False:
-    #    lookedForShortcutsBefore = True
+#if lookedForShortcutsBefore is False:
+#    lookedForShortcutsBefore = True
     for i in projectItems:
         try:
             currentProjectItemJson = sb.get_item(i)
