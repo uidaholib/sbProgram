@@ -296,8 +296,8 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
     global lookedForDataBefore
     print("Looking for shortcuts in any items...")
     foundShortcutsThisTime = False
-    print("Original foundShortcutsThisTime = False")  # Quantico
-    print(foundShortcutsThisTime)  # Quantico
+    #print("Original foundShortcutsThisTime = False")  # Quantico
+    #print(foundShortcutsThisTime)  # Quantico
     if lookedForShortcutsBefore is False:
         lookedForShortcutsBefore = True
         for i in projectItems:
@@ -313,8 +313,8 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                     elif shortcuts != []:
                         lookedForShortcutsBefore = True
                         foundShortcutsThisTime = True
-                        print("Place 1: foundShortcutsThisTime = True")  # Quantico
-                        print(foundShortcutsThisTime)  # Quantico
+                        #print("Place 1: foundShortcutsThisTime = True")  # Quantico
+                        #print(foundShortcutsThisTime)  # Quantico
                         for i in shortcuts:
                             if i not in possibleProjectData:
                                 possibleProjectData.append(i)
@@ -350,8 +350,8 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                         elif shortcuts != []:
                             lookedForShortcutsBefore = True
                             foundShortcutsThisTime = True
-                            print("Place 2: foundShortcutsThisTime = True")  # Quantico
-                            print(foundShortcutsThisTime)  # Quantico
+                            #print("Place 2: foundShortcutsThisTime = True")  # Quantico
+                            #print(foundShortcutsThisTime)  # Quantico
                             for i in shortcuts:
                                 if i not in possibleProjectData:
                                     possibleProjectData.append(i)
@@ -409,14 +409,14 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
     if allShortcuts == []:
         print("No shortcuts in \"Possible Project Data\".")
     elif allShortcuts != []:
-        foundShortcutsThisTime = True
-        print("Place 3: foundShortcutsThisTime = True")  # Quantico
-        print(foundShortcutsThisTime)  # Quantico
+        #foundShortcutsThisTime = True
+        #print("Place 3: foundShortcutsThisTime = True")  # Quantico
+        #print(foundShortcutsThisTime)  # Quantico
         for i in allShortcuts:
             if i not in possibleProjectData:
                 foundShortcutsThisTime = True
-                print("Place 4: foundShortcutsThisTime = True")  # Quantico
-                print(foundShortcutsThisTime)  # Quantico
+                #print("Place 4: foundShortcutsThisTime = True")  # Quantico
+                #print(foundShortcutsThisTime)  # Quantico
                 possibleProjectData.append(i)
         print("We found some shortcuts and added them to the Possible Project "
               + "Data:")

@@ -21,12 +21,12 @@ def main():
     PossiblePermissionsIssuesURL[:] = []
     MissingDataURL= []
     MissingDataURL[:] = []
-    if g.Exceptions != []:
-        for i in g.Exceptions:
+    if gl.Exceptions != []:
+        for i in gl.Exceptions:
             json = sb.get_item(i)
             PossiblePermissionsIssuesURL.append(json['link']['url'])
-    if g.MissingData != []:
-        for i in g.MissingData:
+    if gl.MissingData != []:
+        for i in gl.MissingData:
             json = sb.get_item(i)
             MissingDataURL.append(json['link']['url'])
 
@@ -34,20 +34,20 @@ def main():
     ws = wb.active
     ws.title = "Report"
 
-    if g.MissingData != []:
+    if gl.MissingData != []:
         ws_missing = wb.create_sheet("Missing", 1) #Inserts a new sheet, named "Missing" in the second position
         #ws_missing.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
-    if g.Exceptions != []:
+    if gl.Exceptions != []:
         ws_exceptions = wb.create_sheet("Exceptions", 2) #Inserts a new sheet, named "Exceptions" in the third position
         #ws_exceptions.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
 
 
-    df = DataFrame({'ID': g.ID, 'Object Type': g.ObjectType, 'Name': g.Name,
-                    'Fiscal Year': g.FiscalYear, 'Project': g.Project,
-                    'Data in Project (GB)': g.DataInProject,
-                    'Data per File (KB)': g.DataPerFile,
-                    'Fiscal Year Total Data (GB)': g.totalFYData,
-                    'Running Data Total (GB)': g.RunningDataTotal,
+    df = DataFrame({'ID': gl.ID, 'Object Type': gl.ObjectType, 'Name': gl.Name,
+                    'Fiscal Year': gl.FiscalYear, 'Project': gl.Project,
+                    'Data in Project (GB)': gl.DataInProject,
+                    'Data per File (KB)': gl.DataPerFile,
+                    'Fiscal Year Total Data (GB)': gl.totalFYData,
+                    'Running Data Total (GB)': gl.RunningDataTotal,
                         })
                         #include these eventually: 'Missing Data?': L7MissingData, 'Exceptions/Permissions Issues': L9Exceptions
 
@@ -56,13 +56,13 @@ def main():
                 'Fiscal Year Total Data (GB)', 'Running Data Total (GB)',
                 ]]
                 #include these eventually: 'Missing Data?', 'Exceptions/Permissions Issues'
-    #if g.MissingData != []:
-    df_missing = DataFrame({'Missing Data ID': g.MissingData,
+    #if gl.MissingData != []:
+    df_missing = DataFrame({'Missing Data ID': gl.MissingData,
                             'Missing Data URL': MissingDataURL})
     df_missing = df_missing[['Missing Data ID', 'Missing Data URL']]
 
-    #if g.Exceptions != []:
-    df_exceptions = DataFrame({'Exception/Permission Issue ID': g.Exceptions,
+    #if gl.Exceptions != []:
+    df_exceptions = DataFrame({'Exception/Permission Issue ID': gl.Exceptions,
                                'Exception/Permission Issue URL':
                                PossiblePermissionsIssuesURL}) #include 'Exception ID': L10Exceptions_IDs, later
     df_exceptions = df_exceptions[['Exception/Permission Issue ID',
@@ -82,7 +82,7 @@ def main():
         for cell in ws_missing[1]:
             cell.style = 'Pandas'
 
-    if g.Exceptions != []:
+    if gl.Exceptions != []:
         for r in dataframe_to_rows(df_exceptions, index=False, header=True):
             ws_exceptions.append(r)
 
@@ -96,7 +96,7 @@ def main():
 
     ''')
     print(dfOrdered)
-    if g.Exceptions != [] or g.MissingData != []:
+    if gl.Exceptions != [] or gl.MissingData != []:
         print('''
 
     Items missing data:
@@ -154,7 +154,7 @@ def ask(wb):
 
 
 def saveExcel(wb, filePath):
-    ChosenFiscalYear = g.FiscalYear[-1]  # Most recent Fiscal Year.
+    ChosenFiscalYear = gl.FiscalYear[-1]  # Most recent Fiscal Year.
     print('''
     Would you like to name it something other than "'''+str(ChosenFiscalYear)+
     ''' Data Metrics.xlsx"?

@@ -391,7 +391,7 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
     if allShortcuts == []:
         print("No shortcuts in \"Possible Project Data\".")
     elif allShortcuts != []:
-        foundShortcutsThisTime = True
+        #foundShortcutsThisTime = True
         for i in allShortcuts:
             if i not in possibleProjectData:
                 foundShortcutsThisTime = True

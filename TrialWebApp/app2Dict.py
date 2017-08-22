@@ -7,6 +7,7 @@ from pprint import pprint
 import json
 import requests
 import pysb
+import subprocess
 
 
 sb = pysb.SbSession()
@@ -18,16 +19,6 @@ app = Flask(__name__)
 # config
 app.secret_key = 'my precious'
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    error = None
-    NWCSC_FYs_OrderedDict = get_NW_FYs()
-    SWCSC_FYs_OrderedDict = get_SW_FYs()
-    print("Now local?")
-    print(NWCSC_FYs_OrderedDict)
-    print(SWCSC_FYs_OrderedDict)
-
-    return(render_template('index.html', **locals(), title="Home"))
 
 def get_NW_FYs():
     NWCSC_FYs_OrderedDict = {}
@@ -84,21 +75,21 @@ def get_SW_FYs():
     return(SWCSC_FYs_OrderedDict)
 
 
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    error = None
+    NWCSC_FYs_OrderedDict = get_NW_FYs()
+    SWCSC_FYs_OrderedDict = get_SW_FYs()
+    print("Now local?")
+    print(NWCSC_FYs_OrderedDict)
+    print(SWCSC_FYs_OrderedDict)
 
-@app.route('/differentThing', methods=['POST'])
-def differentThing():
-    if request.method == 'POST':
-        for i in request.form:
-            print(i)
-            flash(i)
-        if request.form['NWFY2011']:
-            print(request.form['NWFY2011'])
-            flash(request.form['NWFY2011'])
-            error = 'Invalid Credentials. Please try again.'
-    return(render_template('index.html'))
+    return(render_template('index.html', **locals(), title="Home"))
+
 
 @app.route('/count-data', methods=['POST'])
 def handle_data():
+
     import sys
     sys.path.insert(0, 'C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     import gl, parse, countData_proj
@@ -119,14 +110,12 @@ def handle_data():
 
     for i in test:
         gl.itemsToBeParsed.append(i)
-    parse.main()
 
+    parse.main()
 
     return(render_template('count-data.html'))
     #your code
 
-# use decorators to link the function to a url
-@app.route('/getChildren', methods=['GET', 'POST'])
 def getChildren():
     error = None
     if request.method == 'POST':

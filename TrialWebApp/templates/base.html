@@ -4,10 +4,17 @@
     <title>Flask Intro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="static/custom.css" rel="stylesheet" media="screen">
+    <script type="text/javascript" language="javascript">// <![CDATA[
+        function loading(){
+            $("#loading").show();
+            $("#content").hide();
+        }
+// ]]></script>
   </head>
   <body>
-
-    <div class="container">
+    <div id="loading"></div>
+    <div class="container" id="content">
 
 
       <!-- child template -->
