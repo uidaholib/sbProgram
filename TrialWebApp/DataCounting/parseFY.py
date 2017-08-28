@@ -170,7 +170,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
         children = sb.get_child_ids(currentId)
     except Exception:
         exceptionFound = True
-        print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+        print("--------Hit upon a 404 exception: "+str(currentId)+" (1)")
         import exceptionRaised
         exceptionRaised.main(i)
         if exceptionRaised.worked is True:
@@ -216,7 +216,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
             except Exception:
                 import parseFY
                 parseFY.exceptionFound = True
-                print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+                print("--------Hit upon a 404 exception: "+str(currentId)+" (1)")
                 import exceptionRaised
                 exceptionRaised.main(data)
                 if exceptionRaised.worked is True:

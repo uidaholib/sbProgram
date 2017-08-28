@@ -43,7 +43,7 @@ def countData(actualData, numFiles):
         except Exception:
             import parseFY
             parseFY.exceptionFound = True
-            print("--------Hit upon a 404 exception: "+str(i)+" (1)")
+            print("--------Hit upon a 404 exception: "+str(data)+" (1)")
             import exceptionRaised
             exceptionRaised.main(data)
             if exceptionRaised.worked is True:
