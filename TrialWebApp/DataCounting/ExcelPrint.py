@@ -1,7 +1,9 @@
 import gl
+import io
 from flask import Flask, render_template, redirect, \
     url_for, request, session, flash, jsonify
 import os
+import pandas
 from pandas import DataFrame
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -127,7 +129,19 @@ def main():
     #    import editGPY
     #    editGPY.main()
     #    main()
-    ask(wb)
+    #ask(wb)
+    download_log(wb)
+
+
+def download_log(wb):
+   output = io.BytesIO()
+   writer = pandas.ExcelWriter(output, engine='xlsxwriter')
+   wb.to_excel(writer, sheet_name='Sheet1')
+   writer.save()
+   output.seek(0)
+   excelDownload=output.read()
+   return send_file(excelDownload,attachment_filename='sbMACRO-output.xlsx',as_attachment=True)
+
 
 def ask(wb):
     print ('''
@@ -160,6 +174,7 @@ def ask(wb):
 #        print('''
 #    ----------------------------WARNING: Something went wrong in the function "main" in ExcelPrint.py.''')
 #        exit()
+
 
 
 def saveExcel(wb, filePath):
