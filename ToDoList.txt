@@ -17,3 +17,7 @@ To Do on MACRO:
 * Figure out how to create a download from the site.
 - - Perhaps it will be some SQL database that would then be used to create an excel file?
 * Why is loading GIF not working???
+* It looks like variables may not reset after the process is done. That could be an issue.
+* Flash messages during loading (or have loading be te project that's being counted)
+* work on passing data to javascript, then using js to display in interesting ways (graphs, etc.)
+- - Or maybe python statistical graphics 
