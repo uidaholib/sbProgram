@@ -103,7 +103,7 @@ def main():
     flash(dfOrdered['Project'])
     flash(dfOrdered['Data in Project (GB)'])
     flash(dfOrdered['Data per File (KB)'])
-    flash(dfOrdered['Fiscal Year Total Data (GB)')
+    flash(dfOrdered['Fiscal Year Total Data (GB)'])
     flash(dfOrdered['Running Data Total (GB)'])
     if gl.Exceptions != [] or gl.MissingData != []:
         print('''
