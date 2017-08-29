@@ -19,7 +19,7 @@ To Do on MACRO:
 * Why is loading GIF not working???
 * It looks like variables may not reset after the process is done. That could be an issue.
 * Flash messages during loading (or have loading be te project that's being counted)
--- Maybe hadd a hidden div that pops up during loading with the flash messages.
+-- Maybe have a hidden div that pops up during loading with the flash messages.
 * work on passing data to javascript, then using js to display in interesting ways (graphs, etc.)
 - - Or maybe python statistical graphics
 * maybe should add a radio button to do both a single FY and all FYs file with excel.
