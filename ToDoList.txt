@@ -15,3 +15,5 @@ To Do on MACRO:
 * Check out ExcelPrint had the ability to call editGPY.py to edit the memory before creating the excel sheet.
    could be good functionality or not. Need to decide.
 * Figure out how to create a download from the site.
+- - Perhaps it will be some SQL database that would then be used to create an excel file?
+* Why is loading GIF not working???
