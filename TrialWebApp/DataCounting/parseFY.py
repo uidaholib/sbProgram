@@ -184,7 +184,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
             print('Something went wrong. Function: findCurrentProjectFY() (2.2)')
     try:
         child = children[0]
-    except KeyError, IndexError:
+    except (KeyError, IndexError) as error:
         print("No children of the current item.")
         currentId = parentId[:]  # this makes a slice that is the whole list.
         json = sb.get_item(currentId)
