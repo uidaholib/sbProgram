@@ -12,3 +12,7 @@ div#content {
     height: 100%;
     cursor: wait;
     }
+
+#download {
+  margin: auto;
+}

@@ -20,15 +20,15 @@ totalFYData = 0
 
 # Lists to be printed to Excel:
 # Project sheet:
-ID = []  # Added
-ObjectType = []  # Added
-Name = []  # Added
-FiscalYear = []  # Added
-Project = []  # Added
-DataInProject = []   # Added
-DataPerFile = []   # Added
-totalFYDataList = []
-RunningDataTotal = []  # Added
+ID = ['IDs']  # Added
+ObjectType = ['Project']  # Added
+Name = ['This is a name']  # Added
+FiscalYear = ['2020']  # Added
+Project = ['Yup']  # Added
+DataInProject = ['39278430']   # Added
+DataPerFile = ["['2023', '39930', '9938']"]   # Added
+totalFYDataList = ['939239549']
+RunningDataTotal = ['9284054289']  # Added
 
 
 # Other sheets

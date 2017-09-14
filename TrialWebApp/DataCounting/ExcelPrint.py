@@ -1,7 +1,7 @@
 import gl
 import io
 from flask import Flask, render_template, redirect, \
-    url_for, request, session, flash, jsonify
+    url_for, request, session, flash, jsonify, send_from_directory, send_file
 import os
 import pandas
 from pandas import DataFrame
@@ -13,6 +13,8 @@ from pprint import pprint
 import requests
 import json
 import pysb
+
+import io  # For the creation of download file in-memory
 
 
 sb = pysb.SbSession()
@@ -76,8 +78,10 @@ def main():
 
     for cell in ws[1]:
         cell.style = 'Pandas'
-
+    WriteMissing = False
+    WriteExceptions = False
     if MissingDataURL != []:
+        WriteMissing = True
         for r in dataframe_to_rows(df_missing, index=False, header=True):
             ws_missing.append(r)
 
@@ -85,6 +89,7 @@ def main():
             cell.style = 'Pandas'
 
     if gl.Exceptions != []:
+        WriteExceptions = True
         for r in dataframe_to_rows(df_exceptions, index=False, header=True):
             ws_exceptions.append(r)
 
@@ -130,18 +135,54 @@ def main():
     #    editGPY.main()
     #    main()
     #ask(wb)
-    download_log(wb)
+    #download_log(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions)
+    #saveExcel(wb)
+    reportDict = createJson(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions)
+    return(reportDict)
 
+def createJson(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions):
+    reportDict = {}
+    print(dfOrdered)
+    report = dfOrdered.to_json()
+    pprint(report)
+    reportDict['report'] = report
+    pprint(reportDict)
+    if WriteMissing:
+        missing = df_missing.to_json()
+        reportDict['missing'] = missing
+    if WriteExceptions:
+        exceptions = df_exceptions.to_json()
+        reportDict['exceptions'] = exceptions
+    return(reportDict)
 
-def download_log(wb):
+def download_log(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions):
    output = io.BytesIO()
    writer = pandas.ExcelWriter(output, engine='xlsxwriter')
-   wb.to_excel(writer, sheet_name='Sheet1')
+   dfOrdered.to_excel(writer, sheet_name='Report')
+   if WriteMissing:
+        df_missing.to_excel(writer, sheet_name='Missing')
+   if WriteExceptions:
+       df_exceptions.to_excel(writer, sheet_name='Exceptions')
    writer.save()
    output.seek(0)
-   excelDownload=output.read()
-   return send_file(excelDownload,attachment_filename='sbMACRO-output.xlsx',as_attachment=True)
+   excelDownload = output.read()
+   print(excelDownload)
+   return send_file(excelDownload, mimetype='application/vnd.ms-excel.sheet.binary.macroenabled.12', attachment_filename = 'sbMACRO-output.xlsx',
+                    as_attachment=True)
 
+def new_download_log(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions):
+   output = io.BytesIO()
+   writer = pandas.ExcelWriter(output, engine='xlsxwriter')
+   dfOrdered.to_excel(writer, sheet_name='Report')
+   if WriteMissing:
+        df_missing.to_excel(writer, sheet_name='Missing')
+   if WriteExceptions:
+       df_exceptions.to_excel(writer, sheet_name='Exceptions')
+   writer.save()
+   output.seek(0)
+   excelDownload = output.read()
+   return send_file(excelDownload, mimetype='application/vnd.ms-excel.sheet.binary.macroenabled.12', attachment_filename = 'sbMACRO-output.xlsx',
+                    as_attachment=True)
 
 def ask(wb):
     print ('''
@@ -175,9 +216,14 @@ def ask(wb):
 #    ----------------------------WARNING: Something went wrong in the function "main" in ExcelPrint.py.''')
 #        exit()
 
+def saveExcel(wb):
+    filepath = "C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/static/"   # Quantico, eyekeeper, must change this in final hosted version.
+    name = 'sbMACRO-output.xlsx'
+    wb.save(filepath+name)
+    print("file saved")
+    return send_from_directory(filepath, name, mimetype='application/vnd.ms-excel.sheet.binary.macroenabled.12', as_attachment=True)
 
-
-def saveExcel(wb, filePath):
+def saveExcel_old(wb, filePath):
     ChosenFiscalYear = gl.FiscalYear[-1]  # Most recent Fiscal Year.
     print('''
     Would you like to name it something other than "'''+str(ChosenFiscalYear)+

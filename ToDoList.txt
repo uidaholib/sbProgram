@@ -24,3 +24,6 @@ To Do on MACRO:
 - - Or maybe python statistical graphics
 * maybe should add a radio button to do both a single FY and all FYs file with excel.
 * Will need to also figure out how to download each file (a zip of all, or each as they come, etc.)
+- - Could instead re-write the ExcelPrint.py to create a new sheet for each fiscal year if they choose that option.
+* Instead of printing to the console, have the program print to a log txt file and save it at the end. It can rewrite it every time. Then we have a log of the most recent stuff.
+- - Also, could have it append to end of file and rewrite every 5 times it has been run or something.
