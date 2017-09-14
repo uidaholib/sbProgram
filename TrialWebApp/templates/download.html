@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="download">
+  <h1>Your file should now appear for download.</h1>
+</div>
+<script type='text/javscript'>
+
+  var report = {{ report|tojson }}
+  report ? console.log('Exists!') : console.log('NOPE!');
+  console.log(report);
+</script>
+
+{% endblock %}
