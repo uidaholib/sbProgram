@@ -1,13 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
+<p>Hello World</p>
 <div id="download">
   <h1>Your file should now appear for download.</h1>
 </div>
-<script type='text/javscript'>
+<div>
+  <p>Here is the test variable: {{ test }} <br>
+  Here is the report: {{ report }}</p>
+  
+</div>
+<div>
+  <p>beginning of script div</p>
+  <script type="text/javascript">
+    console.log("Trying!")
+    var reportDict = {{ reportDict|safe }};
+    var report = reportDict.report;
+    var missing = reportDict.missing;
+    var exceptions = reportDict.exceptions;
+    report ? console.log('Exists!') : console.log('Doesn\'t exist!');
+    console.log(report);
+    console.log("Missing: " + missing);
+    console.log("Exceptions: " + exceptions);
+    function test_func(report) {
+      console.log(report);
+    }
+    test_func(report)
 
-  var report = {{ report|tojson }}
-  report ? console.log('Exists!') : console.log('NOPE!');
-  console.log(report);
-</script>
+  </script>
+
+</div>
+
+
 
 {% endblock %}
