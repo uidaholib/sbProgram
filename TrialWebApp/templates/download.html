@@ -26,7 +26,50 @@
     }
     test_func(report)
 
+    //What I need to do now it this:
+    /*
+    Create a table with all the info in the json dynamically using javascript. 
+
+    Have a button 'download report' that takes the json and creates an excel file (using some library) for download (using file-saverjs)
+    
+    In a div, 
+      if report isn't empty
+        create a column with a heading of the key 'ID'
+          for each item in reports.ID, add it a row and add the contents to the first column
+        create a column with a heading of the key 'Object Type'
+          for each item in reports.ObjectType(?), add the contents to the corresponding row beginning with the second one (first one under the heading.)
+        create a column with a heading of the key 'Name'
+          for each item in reports.Name, add the contents to the corresponding row beginning with the second one (first one under the heading.)
+        create a column with a heading of the key 'Fiscal Year'
+          for each item in reports.FiscalYear(?), add the contents to the corresponding row beginning with the second one (first one under the heading.)
+        create a column with a heading of the key 'Project'
+          for each item in reports.Project, add the contents to the corresponding row beginning with the second one (first one under the heading.)
+        create a column with a heading of the key 'Data in Project (GB)'
+          for each item in reports['Data in Project (GB)'](?), add the contents to the corresponding row beginning with the second one (first one under the heading.)
+        create a column with a heading of the key 'Data per File (KB)'
+          for each item in reports['Data per File (KB)'], add the contents to the corresponding row beginning with the second one (first one under the heading.)
+        create a column with a heading of the key 'Fiscal Year Total Data (GB)'
+          for each item in reports['Fiscal Year total Data (GB)'], add the contents to the corresponding row beginning with the second one (first one under the heading.)
+        create a column with a heading of the key 'Running Data Total (GB)'
+          for each item in reports['Running Data Total (GB)'], add the contents to the corresponding row beginning with the second one (first one under the heading.)
+      if missing doesn't equal 'None'
+        create a new div under the previous div holding the report table
+          create a new table with a header row
+            create a column with the heading of the key 'Missing Data ID'
+              for each item, create a row with the table data equal to the item.
+            create a column with the heading of the key 'Missing Data URL'
+              for each item, create a row with the table data equal to the item.
+      if exceptions doesn't equal 'None'
+        create a new div under the previous div holding either the report table or the missing table
+          create a new table with a header row
+            create a column with the heading of the key 'Exception/Permission Issue ID'
+              for each item, create a row with the table data equal to the item.
+            create a column with the heading of the key 'Exception/Permission Issue URL'
+              for each item, create a row with the table data equal to the item.
+
+
   </script>
+  <p></p>
 
 </div>
 
