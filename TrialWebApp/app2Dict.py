@@ -132,23 +132,18 @@ def getChildren():
 def download_log():
 
     import sys
-    sys.path.insert(0, 'C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    # for Windows:
+    # sys.path.insert(0, 'C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    # For Mac:
+    sys.path.insert(0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     import gl, parse, countData_proj, ExcelPrint
     reportDict = ExcelPrint.main()
-    report = reportDict['report']
-    try:
-        missing = reportDict['missing']
-    except KeyError:
-        missing = None
-    try:
-        exceptions = reportDict['exceptions']
-    except KeyError:
-        exceptions = None
-    print(report)
+    
+    #print(report)
 
-    return(render_template('count-data.html', report=report, missing=missing, exceptions=exceptions))
+    return(render_template('download.html', reportDict=json.dumps(reportDict)))
 
 
 # start the server with the 'run()' method
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
