@@ -1,7 +1,6 @@
 div#content {
     display: none;
     }
- 
 #loading {
     border-color: black;
     display: block;
@@ -12,7 +11,12 @@ div#content {
     height: 100%;
     cursor: wait;
     }
-
 #download {
   margin: auto;
+}
+.Table {
+  border-color: red;
+  width: auto;
+  height: auto;
+  border-width: 5px;
 }
