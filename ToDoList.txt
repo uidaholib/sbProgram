@@ -27,3 +27,9 @@ To Do on MACRO:
 - - Could instead re-write the ExcelPrint.py to create a new sheet for each fiscal year if they choose that option.
 * Instead of printing to the console, have the program print to a log txt file and save it at the end. It can rewrite it every time. Then we have a log of the most recent stuff.
 - - Also, could have it append to end of file and rewrite every 5 times it has been run or something.
+
+
+Security:
+* Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.
+* Understand and implement Sanitization, Validation, and Escaping for web security.
+* Look up making a web app secure. Do those things.
