@@ -50,7 +50,7 @@ def main():
                     'Fiscal Year': gl.FiscalYear, 'Project': gl.Project,
                     'Data in Project (GB)': gl.DataInProject,
                     'Data per File (KB)': gl.DataPerFile,
-                    'Fiscal Year Total Data (GB)': gl.totalFYData,
+                    'Fiscal Year Total Data (GB)': gl.totalFYDataList,
                     'Running Data Total (GB)': gl.RunningDataTotal,
                         }
     print(report_Dict)  # Quantico
