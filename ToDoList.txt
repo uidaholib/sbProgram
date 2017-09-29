@@ -1,6 +1,9 @@
 
 
 To Do on MACRO:
+
+!*Honestly, I should refactor the dataCounting and g1.py scripts to use classes similar to ExcelPrint, rather than lists. But it works now, so it's fine for now.
+
 * Figure out global exceptions
 * Check out why, after logging in, it wants to publically search
 * empty exceptions sheet has: "
