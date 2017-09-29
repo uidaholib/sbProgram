@@ -8,6 +8,7 @@ import json
 import requests
 import pysb
 import subprocess
+import jsonpickle
 
 
 sb = pysb.SbSession()
@@ -19,6 +20,10 @@ app = Flask(__name__)
 # config
 app.secret_key = 'my precious'
 
+
+class JsonTransformer(object):
+    def transform(self, myObject):
+        return jsonpickle.encode(myObject, unpicklable=False)
 
 def get_NW_FYs():
     NWCSC_FYs_OrderedDict = {}
@@ -138,10 +143,18 @@ def download_log():
     sys.path.insert(0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     import gl, parse, countData_proj, ExcelPrint
     reportDict = ExcelPrint.main()
+    FullReportJson = JsonTransformer()
+    FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
+    print("FullReportJson: ")  # Quantico
+    pprint(FullReportJson)  # Quantico
+
     
     #print(report)
 
-    return(render_template('download.html', reportDict=json.dumps(reportDict)))
+    return(render_template('download.html', FullReportJson=FullReportJson))
+
+
+# return(render_template('download.html', reportDict=json.dumps(reportDict)))
 
 
 # start the server with the 'run()' method
