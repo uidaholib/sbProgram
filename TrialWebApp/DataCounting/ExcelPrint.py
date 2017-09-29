@@ -19,6 +19,100 @@ import io  # For the creation of download file in-memory
 
 sb = pysb.SbSession()
 
+class sbItem(object):
+    
+    def __init__(self):
+        self.ID = "No information provided"
+        self.ObjectType = "No information provided"
+        self.name = "No information provided"
+        self.FY = "No information provided"
+        self.project = "No information provided"
+        self.DataInProject = "No information provided"
+        self.DataPerFile = "No information provided"
+        self.totalFYData = "No information provided"
+        self.RunningDataTotal = "No information provided"
+
+    def Print(self):
+        print("""
+        ID: {0}
+        ObjType: {1}
+        Name: {2}
+        FY: {3}
+        Project: {4}
+        DataInProj: {5}
+        DataPerFile: {6}
+        TotalFYdata: {7}
+        RunningTotal: {8}
+        """.format(self.ID, self.ObjectType, self.name, self.FY, self.project, 
+                   self.DataInProject, self.DataPerFile, self.totalFYData, 
+                   self.RunningDataTotal)
+        )
+
+    def toJSON(self):
+        return(json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4))
+
+
+
+class problemSBitem(object):
+
+    def __init__(self):
+        self.ID = "No information provided"
+        self.URL = "No information provided"
+    
+    def toJSON(self):
+        return(json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4))
+
+
+def formatForJson(report_Dict):
+    sbItemList = []
+    numItems = len(report_Dict["ID"])
+    print("numItems")
+    print(numItems)
+    for i in range(0, numItems):
+        x = sbItem()
+        x.ID = report_Dict['ID'][i]
+        x.ObjectType = report_Dict['Object Type'][i]
+        x.name = report_Dict['Name'][i]
+        x.FY = report_Dict['Fiscal Year'][i]
+        x.project = report_Dict['Project'][i]
+        x.DataInProject = report_Dict['Data in Project (GB)'][i]
+        x.DataPerFile = report_Dict['Data per File (KB)'][i]
+        x.totalFYData = report_Dict['Fiscal Year Total Data (GB)'][i]
+        x.RunningDataTotal = report_Dict['Running Data Total (GB)'][i]
+        sbItemList.append(x)
+
+    print("sbItemList: ")
+    print(sbItemList)
+    for i in sbItemList:
+        print("i.Print():")
+        i.Print()
+    return(sbItemList)
+    
+def format_Missing_and_Exceptions(IDlist, URLlist):
+    outputList = []
+    numItems = len(IDlist)
+    for i in range(0, numItems):
+        x = problemSBitem()
+        x.ID = IDlist[i]
+        x.URL = URLlist[i]
+        outputList.append(x)
+    return(outputList)
+
+
+    # for key, value in report_Dict.items():
+    #     print("Key:")  # Quantico
+    #     print(key)  # Quantico
+    #     print("Value:")  # Quantico
+    #     print(value)  # Quantico
+    #     for i in report_Dict[key]:
+    #         print(report_Dict[key])  # Quantico
+    #         print(report_Dict[key][place])  # Quantico
+    #         print("Length:")  # Quantico
+    #         print(len(report_Dict[key]))  # Quantico
+
+
 def main():
     #try:
     PossiblePermissionsIssuesURL = []
@@ -34,15 +128,15 @@ def main():
             json = sb.get_item(i)
             MissingDataURL.append(json['link']['url'])
 
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Report"
+    # wb = Workbook()
+    # ws = wb.active
+    # ws.title = "Report"
 
-    if gl.MissingData != []:
-        ws_missing = wb.create_sheet("Missing", 1) #Inserts a new sheet, named "Missing" in the second position
-        #ws_missing.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
-    if gl.Exceptions != []:
-        ws_exceptions = wb.create_sheet("Exceptions", 2) #Inserts a new sheet, named "Exceptions" in the third position
+    # if gl.MissingData != []:
+    #     ws_missing = wb.create_sheet("Missing", 1) #Inserts a new sheet, named "Missing" in the second position
+    #     #ws_missing.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
+    # if gl.Exceptions != []:
+    #     ws_exceptions = wb.create_sheet("Exceptions", 2) #Inserts a new sheet, named "Exceptions" in the third position
         #ws_exceptions.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
 
 
@@ -53,19 +147,20 @@ def main():
                     'Fiscal Year Total Data (GB)': gl.totalFYDataList,
                     'Running Data Total (GB)': gl.RunningDataTotal,
                         }
+    print("report_Dict:")  # Quantico
     print(report_Dict)  # Quantico
                         #include these eventually: 'Missing Data?': L7MissingData, 'Exceptions/Permissions Issues': L9Exceptions
 
                 #include these eventually: 'Missing Data?', 'Exceptions/Permissions Issues'
-    #if gl.MissingData != []:
-    report_Missing = {'Missing Data ID': gl.MissingData,
-                            'Missing Data URL': MissingDataURL}
+    # #if gl.MissingData != []:
+    # report_Missing = {'Missing Data ID': gl.MissingData,
+    #                         'Missing Data URL': MissingDataURL}
 
-    #if gl.Exceptions != []:
-    report_Exceptions = {'Exception/Permission Issue ID': gl.Exceptions,
-                               'Exception/Permission Issue URL':
-                               PossiblePermissionsIssuesURL} 
-                               #include 'Exception ID': L10Exceptions_IDs, later
+    # #if gl.Exceptions != []:
+    # report_Exceptions = {'Exception/Permission Issue ID': gl.Exceptions,
+    #                            'Exception/Permission Issue URL':
+    #                            PossiblePermissionsIssuesURL} 
+    #                            #include 'Exception ID': L10Exceptions_IDs, later
  #include 'Exception ID' later
 
 
@@ -75,14 +170,19 @@ def main():
     # for cell in ws[1]:
     #     cell.style = 'Pandas'
 
+    print("before report")  # Quantico
+    report = formatForJson(report_Dict)
+    print(report)  # Quantico
 
     reportDict = {}
-    reportDict['report'] = report_Dict
+    reportDict['report'] = report
 
     WriteMissing = None
     WriteExceptions = None
     if MissingDataURL != []:
         WriteMissing = True
+        report_Missing = format_Missing_and_Exceptions(gl.MissingData, 
+                                                       MissingDataURL)
         reportDict['missing'] = report_Missing
     elif MissingDataURL == []:
         WriteMissing = False
@@ -97,6 +197,8 @@ def main():
 
     if gl.Exceptions != []:
         WriteExceptions = True
+        report_Exceptions = format_Missing_and_Exceptions(gl.Exceptions,
+                                                PossiblePermissionsIssuesURL)
         reportDict['exceptions'] = report_Exceptions
     elif gl.Exceptions == []:
         WriteExceptions = False
@@ -151,6 +253,7 @@ def main():
     #download_log(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions)
     #saveExcel(wb)
     # reportDict = createJson(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions)
+    pprint(reportDict)  # Quantico
     return(reportDict)
 
 # def createJson(wb, dfOrdered, df_missing, df_exceptions, WriteMissing, WriteExceptions):
@@ -262,3 +365,7 @@ def main():
 #     I'm sorry, I didn't get that. Please type 'y', 'other', 'n', or 'keep'
 #     ''')
 #         saveExcel(wb, filePath)
+
+
+if __name__ == '__main__':
+    main()
