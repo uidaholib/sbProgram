@@ -20,18 +20,27 @@ totalFYData = 0
 
 # Lists to be printed to Excel:
 # Project sheet:
-ID = ['1', '2', '3', '4']  # Added
-ObjectType = ['Project1', 'Project2', 'Project3', 'Project4']  # Added
-Name = ['Name1', 'Name2', 'Name3', 'Name4']  # Added
-FiscalYear = ['2020', '2020', '2020', '2020']  # Added
-Project = ['Project Name1', 'Project Name2',
-           'Project Name3', 'Project Name4']  # Added
-DataInProject = ['39278430', '39278430', '39278430', '39278430']   # Added
-DataPerFile = ["['2023', '39930', '9938']",
-               "['3536', '5479', '57221']", "['5682', '3984368930', '94658938']", "['34633', '3975437930']"]   # Added
-totalFYDataList = ['939239549', '939239549', '939239549', '939239549']
-RunningDataTotal = ['9284054281', '9284054282',
-                    '9284054283', '9284054284']  # Added
+ID = []  # Added
+ObjectType = []  # Added
+Name = []  # Added
+FiscalYear = []  # Added
+Project = []  # Added
+DataInProject = []   # Added
+DataPerFile = []   # Added
+totalFYDataList = []
+RunningDataTotal = []  # Added
+# ID = ['1', '2', '3', '4']  # Added
+# ObjectType = ['Project1', 'Project2', 'Project3', 'Project4']  # Added
+# Name = ['Name1', 'Name2', 'Name3', 'Name4']  # Added
+# FiscalYear = ['2020', '2020', '2020', '2020']  # Added
+# Project = ['Project Name1', 'Project Name2',
+#            'Project Name3', 'Project Name4']  # Added
+# DataInProject = ['39278430', '39278430', '39278430', '39278430']   # Added
+# DataPerFile = ["['2023', '39930', '9938']",
+#                "['3536', '5479', '57221']", "['5682', '3984368930', '94658938']", "['34633', '3975437930']"]   # Added
+# totalFYDataList = ['939239549', '939239549', '939239549', '939239549']
+# RunningDataTotal = ['9284054281', '9284054282',
+#                     '9284054283', '9284054284']  # Added
 
 
 # Other sheets
