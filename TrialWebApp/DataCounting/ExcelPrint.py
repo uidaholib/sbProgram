@@ -64,6 +64,36 @@ class problemSBitem(object):
         return(json.dumps(self, default=lambda o: o.__dict__, 
             sort_keys=True, indent=4))
 
+def format_to_array_of_arrays_For_Json(report_Dict, sbItemList):
+    report_Array = []
+    heading_Array = ['ID', 'Object Type', 'Name', 'Fiscal Year', 'Project', 'Data in Project(GB)', 'Data per File (KB)', 'Fiscal Year Total Data (GB)', 'Running Data Total(GB)']
+    report_Array.append(heading_Array)
+    # item_Array = []
+    num = 1
+    for i in sbItemList:
+        # item_Array[:] = []
+        report_Array.append([])
+        print("Current item object:")
+        i.Print()
+        print("report_Array new added: {0}".format(report_Array))
+        report_Array[num].append(i.ID)
+        report_Array[num].append(i.ObjectType)
+        report_Array[num].append(i.name)
+        report_Array[num].append(i.FY)
+        report_Array[num].append(i.project)
+        report_Array[num].append(i.DataInProject)
+        report_Array[num].append(i.DataPerFile)
+        report_Array[num].append(i.totalFYData)
+        report_Array[num].append(i.RunningDataTotal)
+        print("report_Array all added: {0}".format(report_Array))
+
+        # report_Array.append(item_Array)
+        print("report_Array after append: {0}".format(report_Array))
+        num += 1
+    print('Here\'s the new report_Array: ')
+    print(report_Array)
+    return(report_Array)
+
 
 def formatForJson(report_Dict):
     sbItemList = []
@@ -88,7 +118,9 @@ def formatForJson(report_Dict):
     for i in sbItemList:
         print("i.Print():")
         i.Print()
-    return(sbItemList)
+    report_Array = format_to_array_of_arrays_For_Json(report_Dict, sbItemList)
+    # return(sbItemList)
+    return(report_Array)
     
 def format_Missing_and_Exceptions(IDlist, URLlist):
     outputList = []
