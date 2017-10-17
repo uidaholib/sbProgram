@@ -96,7 +96,9 @@ def index():
 def handle_data():
 
     import sys
-    sys.path.insert(0, 'C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    sys.path.insert(0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
+    # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
     import gl, parse, countData_proj
     if request.method == 'POST':
         flash("Method was POST!")
@@ -115,7 +117,7 @@ def handle_data():
 
     for i in test:
         gl.itemsToBeParsed.append(i)
-
+    #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
     parse.main()
 
     return(render_template('count-data.html'))
