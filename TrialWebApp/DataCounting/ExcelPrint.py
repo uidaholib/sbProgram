@@ -66,10 +66,10 @@ class problemSBitem(object):
 
 def format_to_array_of_arrays_For_Json(report_Dict, sbItemList):
     report_Array = []
-    heading_Array = ['ID', 'Object Type', 'Name', 'Fiscal Year', 'Project', 'Data in Project(GB)', 'Data per File (KB)', 'Fiscal Year Total Data (GB)', 'Running Data Total(GB)']
-    report_Array.append(heading_Array)
+    # heading_Array = ['ID', 'Object Type', 'Name', 'Fiscal Year', 'Project', 'Data in Project(GB)', 'Data per File (KB)', 'Fiscal Year Total Data (GB)', 'Running Data Total(GB)']
+    # report_Array.append(heading_Array)
     # item_Array = []
-    num = 1
+    num = 0
     for i in sbItemList:
         # item_Array[:] = []
         report_Array.append([])
@@ -118,9 +118,9 @@ def formatForJson(report_Dict):
     for i in sbItemList:
         print("i.Print():")
         i.Print()
-    report_Array = format_to_array_of_arrays_For_Json(report_Dict, sbItemList)
-    # return(sbItemList)
-    return(report_Array)
+    # report_Array = format_to_array_of_arrays_For_Json(report_Dict, sbItemList)
+    return(sbItemList)
+    # return(report_Array)
     
 def format_Missing_and_Exceptions(IDlist, URLlist):
     outputList = []
