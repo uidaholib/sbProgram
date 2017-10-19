@@ -219,7 +219,7 @@ def parse_base():
             import ExcelPrint
             import editGPY
             ExcelPrint.main()
-            editGPY.clearMemory()
+            # editGPY.clearMemory()
         elif gl.Excel_choice == "Excel_for_each_FY":
             pass
         else:

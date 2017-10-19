@@ -19,7 +19,6 @@ lookedForShortcutsBefore = False
 lookedForDataBefore = False
 FYprojects = []
 
-
 firstFYParse = True
 veryFirstFYParse = True
 FYdictNum = 0
@@ -36,7 +35,7 @@ def main():
         projectDictNumber = 0
         getProjects()
         firstFYParse = False
-    if projectDictNumber is 1000:
+    if projectDictNumber == -99999999999999:
         return
 
 
@@ -69,7 +68,7 @@ def getProjects():
     except IndexError:
         print("No more fiscal years.")
         FYprojects[:] = []
-        projectDictNumber = 1000
+        projectDictNumber = -99999999999999
         return
     print("Found gl.fiscalYears item.")  # Quantico
     print(i)
@@ -473,7 +472,7 @@ def whatNext(FYprojects, exceptionFound):
         """)
         import countData_proj
         countData_proj.doneCountingFY()
-        excel()
+        # excel()
         firstFYParse = True
         FYdictNum += 1
         lookedForShortcutsBefore = False
@@ -497,7 +496,7 @@ def whatNext(FYprojects, exceptionFound):
         print("Please type an 'N' or 'Y'.")
         whatNext(FYprojects, exceptionFound)
 
-def excel():
+def excel():        #  Quantico I took this out. 
     #print("""
     #Would you like to create an Excel Spreadsheet with all parsed data """+
     #"""currently in memory before continuing on? If you choose no, all """+
