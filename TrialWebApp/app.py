@@ -49,7 +49,7 @@ def get_NW_FYs():
         NWCSC_FYs_OrderedDict.update({i: NWCSC_FYs_Dict[i]})
     print("Newly Order NWCSC_FYs_Dict: NWCSC_FYs_OrderedDict")
     print(NWCSC_FYs_OrderedDict)
-    flash(NWCSC_FYs_OrderedDict)
+    # flash(NWCSC_FYs_OrderedDict)
     return(NWCSC_FYs_OrderedDict)
 
 
@@ -76,7 +76,7 @@ def get_SW_FYs():
         SWCSC_FYs_OrderedDict.update({i: SWCSC_FYs_Dict[i]})
     print("Newly Order SWCSC_FYs_Dict: SWCSC_FYs_OrderedDict")
     print(SWCSC_FYs_OrderedDict)
-    flash(SWCSC_FYs_OrderedDict)
+    # flash(SWCSC_FYs_OrderedDict)
     return(SWCSC_FYs_OrderedDict)
 
 
@@ -99,18 +99,18 @@ def handle_data():
     sys.path.insert(0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
     # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
-    import gl, parse, countData_proj
+    import gl, parse, countData_proj, ExcelPrint
     if request.method == 'POST':
-        flash("Method was POST!")
+        # flash("Method was POST!")
         for i in request.form:
             print(i)
-            flash(i)
+            # flash(i)
     if request.method == 'POST':
         test = request.form.getlist('checks')
         print(test)
-        flash(test)
+        # flash(test)
         gl.Excel_choice = request.form.get("Excel-choice")
-        flash(gl.Excel_choice)
+        # flash(gl.Excel_choice)
         print(gl.Excel_choice)
     else:
         return(redirect('/'))
@@ -119,8 +119,13 @@ def handle_data():
         gl.itemsToBeParsed.append(i)
     #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
     parse.main()
+    reportDict = ExcelPrint.main()
+    FullReportJson = JsonTransformer()
+    FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
+    print("FullReportJson: ")  # Quantico
+    pprint(FullReportJson)  # Quantico
 
-    return(render_template('count-data.html'))
+    return(render_template('download.html', FullReportJson=FullReportJson))
     #your code
 
 def getChildren():
