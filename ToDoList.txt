@@ -30,6 +30,11 @@ To Do on MACRO:
 - - Could instead re-write the ExcelPrint.py to create a new sheet for each fiscal year if they choose that option.
 * Instead of printing to the console, have the program print to a log txt file and save it at the end. It can rewrite it every time. Then we have a log of the most recent stuff.
 - - Also, could have it append to end of file and rewrite every 5 times it has been run or something.
+* Figure out creating a table per fiscal year or not... Right now parseFY.whatNext() does selection poorly (missing doing one sheet for everything?)
+* Catch and deal with exceptions through the GUI or set a default wait action.
+* Figure out how to reset entire script/wipe memory on a refresh. All variables need reset when it's done, and gl needs cleared when it's started.
+* Would be nice to flash one message at a time about what it's doing so you know it's working during long loading times.
+* MUST deal with if the user does not select a fiscal year.
 
 
 Security:
