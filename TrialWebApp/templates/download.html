@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
+
+<script src="../static/node_modules/file-saverjs/FileSaver.js"></script>
+<script src="../node_modules/tableexport/src/stable/js/tableexport.js"></script>
 
 
 <script type="text/javascript">
-
+//Script for dynamically creating the table
   $(document).ready(function (report) {
     console.log("Trying!")
     var reportDict = {{ FullReportJson|safe }};
@@ -54,8 +57,37 @@
       };
       build_table(report);
     });
-    
+</script>
+<script type="text/javascript">
+//script for downloading table as excel.
+  $(document).ready(function () {
+    $("#btnExport").click(function (e) {
+      e.preventDefault();
 
+      //getting data from our table
+      var data_type = 'data:application/vnd.ms-excel';
+      var table_div = document.getElementById('table_wrapper');
+      var table_html = table_div.outerHTML.replace(/ /g, '%20');
+
+      var table = TableExport(document.getElementById("export-buttons-table"));
+      table.click();
+    });
+  });
+  $(document).ready(function () {
+    $("#btnExport2").click(function (e) {
+      e.preventDefault();
+
+      //getting data from our table
+      var data_type = 'data:application/vnd.ms-excel';
+      var table_div = document.getElementById('table_wrapper');
+      var table_html = table_div.outerHTML.replace(/ /g, '%20');
+
+      var a = document.createElement('a');
+      a.href = data_type + ', ' + table_html;
+      a.download = 'sbMacro_Report' + Math.floor((Math.random() * 9999999) + 1000000) + '.xls';
+      a.click();
+    });
+  });
 
 </script>
 
@@ -65,23 +97,29 @@
   <p>Below is a table showing the results of your query of <a href="http://www.sciencebase.gov" >ScienceBase.gov</a></p>
 </div>
 <div id="container">
-  <table class="table table-bordered table-striped" id="reportTable">
-    <thead>
-      <th>ID</th>
-      <th>Object Type</th>
-      <th>Name</th>
-      <th>Fiscal Year</th>
-      <th>Project</th>
-      <th>Data in Project (GB)</th>
-      <th>Data per File (KB)</th>
-      <th>Total Data in Fiscal Year</th>
-      <th>Running Data Total (GB)</th>
-    </thead>
-    <tbody>
+  <button class="btn wave-effect waves-teal disabled" id="btnExport">Export to Excel (.xlsx)</button>
+  <button class="btn wave-effect waves-teal" id="btnExport2">Export to Excel (.xls)</button>
+  <div id="table_wrapper">
+    <table class="bordered highlight striped centered responsive-table" id="reportTable">
+      <thead>
+        <th>ID</th>
+        <th>Object Type</th>
+        <th>Name</th>
+        <th>Fiscal Year</th>
+        <th>Project</th>
+        <th>Data in Project (GB)</th>
+        <th>Data per File (KB)</th>
+        <th>Total Data in Fiscal Year (GB)</th>
+        <th>Running Data Total (GB)</th>
+      </thead>
+      <tbody>
 
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  </div>
 </div>
+
+
 <!-- <div id="reportDiv">
   <br>
   <br>

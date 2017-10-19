@@ -1,55 +1,131 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Flask Intro</title>
+    <title>sbMACRO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="static/custom.css" rel="stylesheet" media="screen">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen"> -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js">
+    </script>
+    
+    
+    <link href="../static/custom.css" rel="stylesheet" media="screen">
+
+  
    
 
   </head>
-  <body>
-    <script src="static/jquery.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
-    <script src="static/pivot.js"></script>
+<body>
+  <script src="static/jquery.js"></script>
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+  </script> -->
 
-    </script>
-    <script>
-      $(document).ready(function () {
-        $("#loading").hide();
-        $("#submit").click(function () {
-          $("#content").hide();
-          $("#loading").show();
-        });
+  </script>
+  <script>
+    $(document).ready(function () {
+      var $nav = $("#nav");
+      var $content = $("#content");
+      var $loading = $("#loading");
+      $loading.hide();
+      // $("#loading").hide();
+      $("input[type=submit]").on('click', function () {
+      // $("#submit").click(function () {
+        $content.hide();
+        $nav.hide();
+        $loading.show();
+        // $("#loading").show();
+        // setTimeout(function () {
+        //     $('#loading-message').fadeOut('fast');
+        //   }, 500);
+        //$("#loading-message").empty();
+
       });
-    </script>
+    });
+  </script>
 
-    <div id="loading">
-      <h3>Please wait while we contact ScienceBase.gov.</h3>
-      <p>This could take several minutes depending on how much data must be parsed.
-        <br>
-        Maybe do something else while you wait...
-      </p>
-      <img src="https://4.bp.blogspot.com/-QYt9k9dahqQ/WcQBGz6iYVI/AAAAAAAAASI/ppRCm7BIZA4R3WgrC1awv0kRxElu15ojgCK4BGAYYCw/s400/ajax-loader.gif" id="loading">
-    </div>
-    <div class="container" id="content">
-
-
-      <!-- child template -->
-      {% block content %}{% endblock %}
-
-      <!-- errors -->
-      {% if error %}
-        <p class="error"><strong>Error:</strong> {{ error }}</p>
-      {% endif %}
-
+  <div id="loading">
+    <h3>Please wait while we contact ScienceBase.gov.</h3>
+    <p>This could take several minutes depending on how much data must be parsed.
+      <br>
+      Maybe do something else while you wait...
+    </p>
+    <img src="https://4.bp.blogspot.com/-QYt9k9dahqQ/WcQBGz6iYVI/AAAAAAAAASI/ppRCm7BIZA4R3WgrC1awv0kRxElu15ojgCK4BGAYYCw/s400/ajax-loader.gif" id="loading">
+    <div>
       <!-- messages -->
+      {% with messages = get_flashed_messages() %} 
+        {% if messages %}
+          {% for message in messages %}
+            <p id="loading-message">{{ message }}</p>
+          {% endfor %}
+            </ul>
+        {% endif %} 
+      {% endwith %}
+      
       {% for message in get_flashed_messages() %}
-        <br>
-        {{ message }}
-        <br>
-      {% endfor %}
+      <br> {{ message }}
+      <br> {% endfor %}
     </div>
+  </div>
+<!-- Navbar goes here -->
+  <nav id="nav" class="blue darken-4">
+    <div class="nav-wrapper">
+      <a class="brand-logo center">sbMACRO</a>
+    </div>
+  
+  </nav>
 
-  </body>
+<!-- Page Layout here -->
+
+  <div id="content">
+      <!-- Navbar goes here -->
+      
+    <!-- Page Layout here -->
+    <div class="row">
+    
+      <div class="col s12 m4 l2">
+        <!-- Note that "m4 l3" was added -->
+        <!-- Grey navigation panel
+      
+                    This content will be:
+                3-columns-wide on large screens,
+                4-columns-wide on medium screens,
+                12-columns-wide on small screens  -->
+        <div class="collection grey-text text-darken4">
+          <a href="localhost:5000/" class="collection-item teal lighten-1 white-text">Tally Fiscal Years</a>
+          <a href="#!" class="collection-item active amber accent-4">Placeholder</a>
+          <a href="#!" class="collection-item teal lighten-1 white-text">Placeholder</a>
+          <a href="#!" class="collection-item teal lighten-1 white-text">Placeholder</a>
+        </div>
+    
+      </div>
+    
+      <div class="col s12 m8 l9">
+        <!-- Note that "m8 l9" was added -->
+        <!-- Teal page content
+      
+                    This content will be:
+                9-columns-wide on large screens,
+                8-columns-wide on medium screens,
+                12-columns-wide on small screens  -->
+
+        
+        
+          <!-- child template -->
+          {% block content %} {% endblock %}
+        
+          <!-- errors -->
+          <!-- {% if error %}
+                      <p class="error">
+                        <strong>Error:</strong> {{ error }}</p>
+                      {% endif %} -->
+
+    
+      </div>
+    
+    </div>
+  </div>
+
+</body>
 </html>

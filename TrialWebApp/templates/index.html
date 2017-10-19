@@ -1,34 +1,92 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Welcome to SB MACRO</h1>
+<h4>Welcome to SB MACRO</h4>
 <br>
-<p>This program can be used to count the data present in one or multiple fiscal years in the NWCSC or SWCSC folders on ScienceBase.</p>
+<p class="flow-text">This program can be used to count the data present in one or multiple fiscal years in the NWCSC or SWCSC folders on ScienceBase.</p>
+<p class="flow-text">Choose the center and fiscal year(s) in which you want the data counted:</p>
+
+<div class="col s12 m6 l6">
+
+    <div class="card blue-grey lighten-4">
+        <div class="card-content">
+            <span class="card-title">
+                <h4>Northwest CSC</h4>
+            </span>
+            <form action="count-data" method="post" name="FY-Select">
+                {% for title, ID in NWCSC_FYs_OrderedDict.items(): %}
+                <p>
+                    <span class="black-text">
+                        <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" />
+                        <label for={{ID}} class="black-text">{{title}}</label>
+                    </span>
+                </p>
+
+                <!-- <label><input type="checkbox" value="{{ID}}" name="checks"> {{title}}</label><br> -->
+
+                {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="col s12 m6 l6">
+
+    <div class="card blue-grey lighten-4">
+        <div class="card-content">
+            <span class="card-title">
+                <h4>Southwest CSC</h4>
+            </span>
+            <form action="count-data" method="post" name="FY-Select">
+                {% for title, ID in SWCSC_FYs_OrderedDict.items(): %}
+                <p>
+                    <span class="black-text">
+                        <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" />
+                        <label for={{ID}} class="black-text">{{title}}</label>
+                    </span>
+                </p>
+
+                <!-- <label><input type="checkbox" value="{{ID}}" name="checks"> {{title}}</label><br> -->
+
+                {% endfor %}
+        </div>
+    </div>
+</div>
 <br>
-<h2>Choose the center and fiscal year(s) in which you want the data counted:</h2>
-<h3>Northwest CSC</h3>
+
+<!-- <h4>Northwest CSC</h3>
 <form action="count-data" method="post" name="FY-Select">
   <br>
   {% for title, ID in NWCSC_FYs_OrderedDict.items(): %}
-      <label><input type="checkbox" value="{{ID}}" name="checks"> {{title}}</label><br>
-  {% endfor %}
-  <br>
+  <p>
+    <input type="checkbox" id={{ID}} value="{{ID}}" name="checks"/>
+    <label for={{ID}} >{{title}}</label>
+  </p>
+ 
+      <!-- <label><input type="checkbox" value="{{ID}}" name="checks"> {{title}}</label><br> -->
+<!--
+  {% endfor %} -->
+  <!-- <br>
   <br>
   <br>
   <h3>Southwest CSC</h3>
   <br>
   {% for title, ID in SWCSC_FYs_OrderedDict.items(): %}
-      <label><input type="checkbox" value="{{ID}}" name="checks"> {{title}}</label><br>
-  {% endfor %}
+    <p>
+        <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" />
+        <label for={{ID}}>{{title}}</label>
+    </p>
+      <!-- <label><input type="checkbox" value="{{ID}}" name="checks"> {{title}}</label><br> -->
+ <!-- {% endfor %}
+  <br> -->
+  <!-- <label><input type="radio" class="radio radio-inline" value="Excel_for_each_FY" name="Excel-choice" checked="checked">Create an Excel File for each Fiscal Year</label>
   <br>
-  <label><input type="radio" class="radio radio-inline" value="Excel_for_each_FY" name="Excel-choice" checked="checked">Create an Excel File for each Fiscal Year</label>
+  <label><input type="radio" class="radio radio-inline" value="One_Excel_for_all_FYs" name="Excel-choice" >Combine all reports into one file</label> -->
   <br>
-  <label><input type="radio" class="radio radio-inline" value="One_Excel_for_all_FYs" name="Excel-choice" >Combine all reports into one file</label>
+  <br>
   <br>
   <!--<input type="file" name="datafile" size="40"  multiple>
   <input type="directory" id="ctrl" webkitdirectory directory multiple/>-->
   <br>
-  <input type="submit" id="submit" value="Submit" onclick="loading();">
+  <input class="btn waves-effect" type="submit" id="submit" value="Submit" onclick="loading();">
 </form>
 
 {% endblock %}
