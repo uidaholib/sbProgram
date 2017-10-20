@@ -35,6 +35,12 @@ To Do on MACRO:
 * Figure out how to reset entire script/wipe memory on a refresh. All variables need reset when it's done, and gl needs cleared when it's started.
 * Would be nice to flash one message at a time about what it's doing so you know it's working during long loading times.
 * MUST deal with if the user does not select a fiscal year.
+* Fix so you can do multiple fiscal years
+* I wonder if there's a way to speed things up by caching the fiscal years or something and just checking to see if they're different. 
+- - Maybe same for download/table info?
+* Instead of actual query, cache a result for each fiscal year at some point in teh morning. Have advanced ooption to do a hard search, otherwise serve up cached one for each day. Can also be done for projects. 
+- - In this json file, add a new section that puts the time and date that the search was done so we can keep track and make sure it's recent.
+* FIX FISCAL YEAR SELECTION! Why is it always doing 2016?
 
 
 Security:
