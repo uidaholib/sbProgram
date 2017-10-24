@@ -79,6 +79,32 @@ def get_SW_FYs():
     # flash(SWCSC_FYs_OrderedDict)
     return(SWCSC_FYs_OrderedDict)
 
+def hard_search():
+    NWCSC_FYs_OrderedDict = get_NW_FYs()
+    SWCSC_FYs_OrderedDict = get_SW_FYs()
+    import sys
+    # eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    sys.path.insert(
+        0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')
+    # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
+    # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
+    import gl
+    import parse
+    import countData_proj
+    import ExcelPrint
+
+    for i in requestItems:
+        gl.itemsToBeParsed.append(i)
+        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
+    parse.main()
+    reportDict = ExcelPrint.main()
+    FullReportJson = JsonTransformer()
+    FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
+    #need to get the name of whatever the report was created for...
+    ID = #something
+    with open('{0}.json'.format(ID), 'w') as outfile:
+        json.dump(FullReportJson, outfile)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -100,30 +126,57 @@ def handle_data():
     # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
     # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
     import gl, parse, countData_proj, ExcelPrint
+
     if request.method == 'POST':
         # flash("Method was POST!")
         for i in request.form:
             print(i)
             # flash(i)
     if request.method == 'POST':
-        test = request.form.getlist('checks')
-        print(test)
-        # flash(test)
+        hardSearch = request.form.getlist('HardSearch')
+        print("HardSearch:")
+        print(hardSearch)
+        requestItems = request.form.getlist('checks')
+        print(requestItems)
+        # flash(requestItems)
         gl.Excel_choice = request.form.get("Excel-choice")
         # flash(gl.Excel_choice)
         print(gl.Excel_choice)
     else:
         return(redirect('/'))
 
-    for i in test:
-        gl.itemsToBeParsed.append(i)
-    #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
-    parse.main()
-    reportDict = ExcelPrint.main()
+    if hardSearch == []:
+        for ID in requestItems:
+            for root, dirs, files in os.walk("./jsonCache"):
+                for filename in files:  # this looks at each file's name for each item
+                    if ID in filename:
+                        with open(filename) as json_data:
+                        data = json.load(json_data)
+                        print(data)
+                        reportDict['report'] += data['report']
+                        reportDict['date'] += data['date']
+                        requestItems.remove(filename)
+        """For each ID in request items
+            if json of that name exists
+                reportDict['report'] += content of that json report
+                reportDict['date'] += date of that json report
+                remove that item from requestItems
+    elif hardSearch == ['on'] (or maybe) requestItems != []"""
+
+
+        for i in requestItems:
+            gl.itemsToBeParsed.append(i)
+        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
+        parse.main()
+        reportDict = ExcelPrint.main()
     FullReportJson = JsonTransformer()
     FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
-    print("FullReportJson: ")  # Quantico
-    pprint(FullReportJson)  # Quantico
+    #need to get the name of whatever the report was created for...
+    ID = #something
+    with open('{0}.json'.format(ID), 'w') as outfile:
+        json.dump(FullReportJson, outfile)
+    # print("FullReportJson: ")  # Quantico
+    # pprint(FullReportJson)  # Quantico
 
     return(render_template('download.html', FullReportJson=FullReportJson))
     #your code

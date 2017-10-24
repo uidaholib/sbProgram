@@ -144,6 +144,10 @@ def format_Missing_and_Exceptions(IDlist, URLlist):
     #         print("Length:")  # Quantico
     #         print(len(report_Dict[key]))  # Quantico
 
+def getDate():
+    import datetime
+    now = datetime.datetime.now()
+    return now
 
 def main():
     #try:
@@ -208,6 +212,8 @@ def main():
 
     reportDict = {}
     reportDict['report'] = report
+
+    reportDict['Date'] = getDate()
 
     WriteMissing = None
     WriteExceptions = None
