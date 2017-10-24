@@ -41,6 +41,9 @@ To Do on MACRO:
 * Instead of actual query, cache a result for each fiscal year at some point in teh morning. Have advanced ooption to do a hard search, otherwise serve up cached one for each day. Can also be done for projects. 
 - - In this json file, add a new section that puts the time and date that the search was done so we can keep track and make sure it's recent.
 * FIX FISCAL YEAR SELECTION! Why is it always doing 2016?
+* Fix missing and exception lists/reporting in ExcelPrint?
+* Add type of report to ExcelPrint (Fiscal Year, Project, Item)
+* Refactor hard_search vs handle_data in app.py
 
 
 Security:
