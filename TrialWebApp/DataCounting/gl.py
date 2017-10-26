@@ -18,6 +18,7 @@ onTheFlyParsing = []
 totalDataCount = 0
 totalFYData = 0
 
+Current_Item = None
 # Lists to be printed to Excel:
 # Project sheet:
 ID = []  # Added

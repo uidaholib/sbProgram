@@ -21,31 +21,30 @@ FYprojects = []
 
 firstFYParse = True
 veryFirstFYParse = True
-FYdictNum = 0
 
-def main():
+
+def main(fiscalYear):
+    resetGlobals()
+    gl.Current_Item = fiscalYear
     global possibleProjectData
     possibleProjectData[:] = []
     print("parseFY.py main") # Quantico
+    select_project(fiscalYear)
+
+def select_project(fiscalYear):
+    global possibleProjectData
     global firstFYParse
     global FYprojects
     global projectDictNumber
     global veryFirstFYParse
     if firstFYParse is True:
         projectDictNumber = 0
-        getProjects()
+        getProjects(fiscalYear)
         firstFYParse = False
     if projectDictNumber == -99999999999999:
         return
-
-
-
-
     print(FYprojects)  # Quantico
-    # maybe here just do: for i in FY projects, i = currentProject, getProjectData
-    # Maybe have it work for each FY and have at the end, would you like to print just this FY to a spreadsheet
-    # then delete everything if it does, and continue with everything if not.
-    print("dict number: "+str(projectDictNumber))  # Quantico
+    print("Project dict number: "+str(projectDictNumber))  # Quantico
     try:
         currentProject = FYprojects[projectDictNumber]
     except IndexError:
@@ -55,24 +54,35 @@ def main():
                    currentProject, exceptionFound,
                    )
 
-def getProjects():
+def resetGlobals():
+    global totalDataCount
+    totalDataCount = 0
+    global projectDictNumber
+    projectDictNumber = 0
+    global possibleProjectData
+    possibleProjectData[:] = []
+    global exceptionFound
+    exceptionFound = False
+    global lookedForShortcutsBefore
+    lookedForShortcutsBefore = False
+    global lookedForDataBefore
+    lookedForDataBefore = False
+    global FYprojects
+    FYprojects[:] = []
+    global firstFYParse
+    firstFYParse = True
+    global veryFirstFYParse
+    veryFirstFYParse = True
+
+
+def getProjects(fiscalYear):
     global possibleProjectData
     global projectDictNumber
     possibleProjectData[:] = []
     global FYprojects
     FYprojects[:] = []
-    global FYdictNum
-    try:
-        i = gl.fiscalYears[FYdictNum]
-        print(i)  # Quantico
-    except IndexError:
-        print("No more fiscal years.")
-        FYprojects[:] = []
-        projectDictNumber = -99999999999999
-        return
-    print("Found gl.fiscalYears item.")  # Quantico
-    print(i)
-    currentFYprojects = sb.get_child_ids(i)
+    print(fiscalYear)
+    currentFYprojects = sb.get_child_ids(fiscalYear)
     print(currentFYprojects)  # Quantico
     for project in currentFYprojects:
         projectJson = sb.get_item(project)
@@ -90,9 +100,9 @@ def getProjects():
             print("======================================================")
             gl.onTheFlyParsing.append(i)
             import parse
-            parse. parseOnTheFly()
+            parse.parseOnTheFly()
             print("Back to finding projects...")
-            main()
+            main(fiscalYear)
     return FYprojects
 
 
@@ -108,9 +118,9 @@ def getProjectData(possibleProjectData, FYprojects,
         print("""
 
         Currently searching '"""+str(currentProjectJson['title'])+"'.")
-        flash("""
+        # flash("""
 
-        Currently searching '"""+str(currentProjectJson['title'])+"'.")
+        # Currently searching '"""+str(currentProjectJson['title'])+"'.")
         lookedForDataBefore = True
         for i in projectItems:
             currentProjectItemJson = sb.get_item(i)
@@ -131,8 +141,6 @@ def getProjectData(possibleProjectData, FYprojects,
                 print(len(possibleProjectData))
             else:
                 pass
-
-
     parse(possibleProjectData, FYprojects, projectItems,
           currentProject, exceptionFound,
           currentProjectJson)
@@ -217,7 +225,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
                 parseFY.exceptionFound = True
                 print("--------Hit upon a 404 exception: "+str(currentId)+" (1)")
                 import exceptionRaised
-                exceptionRaised.main(data)
+                exceptionRaised.main(currentId)
                 if exceptionRaised.worked is True:
                     children = sb.get_child_ids(currentId)
                 elif exceptionRaised.worked is False:
@@ -419,10 +427,10 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
             I am done looking through the \''''+str(currentProjectJson['title']) +
                   '''' project folder.''')
             global projectDictNumber
-            flash("Total Data in Project: ")
-            flash(gl.DataInProject[projectDictNumber])
-            flash("Running Total of Data thus far: ")
-            flash(gl.RunningDataTotal[projectDictNumber])
+            # flash("Total Data in Project: ")
+            # flash(gl.DataInProject[projectDictNumber])
+            # flash("Running Total of Data thus far: ")
+            # flash(gl.RunningDataTotal[projectDictNumber])
 
             projectDictNumber += 1
             whatNext(FYprojects, exceptionFound)
@@ -447,10 +455,10 @@ def diagnostics(FYprojects, exceptionFound, currentProjectJson):
     I am done looking through the \''''+str(currentProjectJson['title']) +
           '''' project folder.''')
     global projectDictNumber
-    flash("Total Data in Project: ")
-    flash(gl.DataInProject[projectDictNumber])
-    flash("Running Total of Data thus far: ")
-    flash(gl.RunningDataTotal[projectDictNumber])
+    # flash("Total Data in Project: ")
+    # flash(gl.DataInProject[projectDictNumber])
+    # flash("Running Total of Data thus far: ")
+    # flash(gl.RunningDataTotal[projectDictNumber])
     # eyekeeper come back to this and add an option to try the exception raising items again.
 
     projectDictNumber += 1
@@ -460,41 +468,35 @@ def diagnostics(FYprojects, exceptionFound, currentProjectJson):
 def whatNext(FYprojects, exceptionFound):
     printAllGLists()
     global firstFYParse
-    global FYdictNum
     global projectDictNumber
     global lookedForShortcutsBefore
     global lookedForDataBefore
     if projectDictNumber >= len(FYprojects):
         print("You have finished one Fiscal Year. No more available Projects.")
-        flash("You have finished one Fiscal Year. No more available Projects.")
-        flash("""
-        ---------------------------------------------------------------------------------------
-        """)
+        # flash("You have finished one Fiscal Year. No more available Projects.")
+        # flash("""
+        # ---------------------------------------------------------------------------------------
+        # """)
         import countData_proj
         countData_proj.doneCountingFY()
         # excel()
         firstFYParse = True
-        FYdictNum += 1
         lookedForShortcutsBefore = False
         lookedForDataBefore = False
         gl.totalFYData = 0
-        main()
+        return
     elif projectDictNumber < len(FYprojects):
         print("Ok, let\'s start on project "+str(projectDictNumber+1) +
               " of "+str(len(FYprojects))+".")
-        flash("Ok, let\'s start on project "+str(projectDictNumber+1) +
-              " of "+str(len(FYprojects))+".")
-        flash("""
-        ---------------------------------------------------------------------------------------
-        """)
+        # flash("Ok, let\'s start on project "+str(projectDictNumber+1) +
+        #       " of "+str(len(FYprojects))+".")
+        # flash("""
+        # ---------------------------------------------------------------------------------------
+        # """)
         lookedForShortcutsBefore = False
         lookedForDataBefore = False
+        select_project(gl.Current_Item)
 
-        main()
-
-    else:
-        print("Please type an 'N' or 'Y'.")
-        whatNext(FYprojects, exceptionFound)
 
 def excel():        #  Quantico I took this out. 
     #print("""
@@ -522,10 +524,11 @@ def excel():        #  Quantico I took this out.
 
 
 if __name__ == '__main__':
-    gl.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
+    # gl.itemsToBeParsed.append("5006c2c9e4b0abf7ce733f42")
     # gl.itemsToBeParsed.append("5006e94ee4b0abf7ce733f56")
     # gl.itemsToBeParsed.append("55130c4fe4b02e76d75c0755")
     # gl.itemsToBeParsed.append("55e07a67e4b0f42e3d040f3c")
     # gl.itemsToBeParsed.append("58111fafe4b0f497e79892f7")
     # gl.itemsToBeParsed.append("57daef3fe4b090824ffc3226")
-    main()
+    # main(fiscalYear)
+    print("Set __name__ = '__main__' to something...")

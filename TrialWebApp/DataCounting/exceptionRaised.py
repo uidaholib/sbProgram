@@ -10,8 +10,15 @@ from pprint import pprint
 sb = pysb.SbSession()
 
 worked = None
+waitTries = 0
 
 def main(ProblemID):
+    global waitTries
+    waitTries = 0
+    question(ProblemID)
+
+def question(ProblemID):
+    global waitTries
     global worked
     print('''
     Process time:
@@ -30,7 +37,11 @@ def main(ProblemID):
     6. Try accessing item again
     (Type number)
     ''')
-    answer = input("> ").lower()
+    # answer = input("> ").lower()
+    if waitTries < 2:
+        answer = '1'
+    else:
+        answer = '5'
     if '1' in answer:
         tryWaiting(ProblemID)
     elif '2' in answer:
@@ -56,15 +67,17 @@ def main(ProblemID):
         except Exception:
             print('''
         Looks like that didn't work. Here are your options again.''')
-            main(ProblemID)
+            question(ProblemID)
     else:
         print('''
     I didn't get that. Please type a number from the list.''')
-        main(ProblemID)
+        question(ProblemID)
 
 
 def tryWaiting(ProblemID):
+    global waitTries
     global worked
+    waitTries += 1
     print("--------Waiting for 404 to reset...")
     #time.sleep(300)
     t = 300
@@ -77,7 +90,8 @@ def tryWaiting(ProblemID):
     except Exception:
         print('''
     Looks like that didn't work. Here are your options again.''')
-        main(ProblemID)
+        question(ProblemID)
+
 
 def tryWaiting2(ProblemID):
     global worked
@@ -101,7 +115,7 @@ def tryWaiting2(ProblemID):
     except Exception:
         print('''
     Looks like that didn't work. Here are your options again.''')
-        main(ProblemID)
+        question(ProblemID)
 
 def countdown(t): # in seconds
     for remaining in range(t, 0, -1):
@@ -138,7 +152,7 @@ def tryLogOut(ProblemID):
     except Exception:
         print('''
     Looks like that didn't work. Here are your options again.''')
-        main(ProblemID)
+        question(ProblemID)
 
 def tryLogIn(ProblemID):
     user = input('Username: ')
@@ -153,7 +167,7 @@ def tryLogIn(ProblemID):
         except Exception:
             print('''
         Looks like that didn't work. Here are your options again.''')
-            main(ProblemID)
+            question(ProblemID)
     else:
         print('''
     Could not log you in to ScienceBase''')
@@ -164,7 +178,7 @@ def tryLogIn(ProblemID):
         except Exception:
             print('''
         Looks like that didn't work. Here are your options again.''')
-            main(ProblemID)
+            question(ProblemID)
 
 if __name__ == '__main__':
     ProblemID = "561bf56fe4b0cdb063e5837f"

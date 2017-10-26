@@ -157,14 +157,14 @@ def countData(actualData, numFiles):
         'project\'s '+'\'Approved Dataset\' folder, bringing the total data in this project to '+
         str(kData)+' kilobytes, or '+str(mData)+' megabytes, or '+
         str(gData)+' gigabytes.')
-        flash('----I found '+str(numFiles)+' item(s) in this '+
-        'project\'s '+'\'Approved Dataset\' folder, bringing the total data in this project to '+
-        str(kData)+' kilobytes, or '+str(mData)+' megabytes, or '+
-        str(gData)+' gigabytes.')
+        # flash('----I found '+str(numFiles)+' item(s) in this '+
+        # 'project\'s '+'\'Approved Dataset\' folder, bringing the total data in this project to '+
+        # str(kData)+' kilobytes, or '+str(mData)+' megabytes, or '+
+        # str(gData)+' gigabytes.')
         gl.totalDataCount += gData
         gl.totalFYData += gData
         print('----So far, our total data for the fiscal year is '+str(gl.totalFYData)+' gigabytes.')
-        flash('----So far, our total data for the fiscal year is '+str(gl.totalFYData)+' gigabytes.')
+        # flash('----So far, our total data for the fiscal year is '+str(gl.totalFYData)+' gigabytes.')
         gl.RunningDataTotal.append(gl.totalDataCount) #This should add the running total of all data for the fiscal year to a list for exporting to Excel later
 
     else:
@@ -190,13 +190,13 @@ def doneCountingFY():
     This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
     ''' megabytes, or '''+str(totalgData)+''' gigabytes.
     ''')
-    flash('''
-    In total, I found '''+str(gl.totalFYData)+''' gigabytes of data in '''+str(r)+
-    '''.
+    # flash('''
+    # In total, I found '''+str(gl.totalFYData)+''' gigabytes of data in '''+str(r)+
+    # '''.
 
-    This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
-    ''' megabytes, or '''+str(totalgData)+''' gigabytes.
-    ''')
+    # This comes out to '''+str(totalkData)+''' kilobytes, or '''+str(totalmData)+
+    # ''' megabytes, or '''+str(totalgData)+''' gigabytes.
+    # ''')
     return
 
 

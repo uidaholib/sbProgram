@@ -9,6 +9,8 @@ import requests
 import pysb
 import subprocess
 import jsonpickle
+import sys
+import os
 
 
 sb = pysb.SbSession()
@@ -35,7 +37,7 @@ def get_NW_FYs():
     # TitleNum = 2018  # Delete later
     for ID in NWCSC_FYs:
         json = sb.get_item(ID)
-        title = json['title']
+        title = 'NWCSC '+json['title']
         # title = "Fiscal Year "+str(TitleNum)  # Delete later
         # TitleNum -= 1  # Delete later
 
@@ -63,7 +65,7 @@ def get_SW_FYs():
     # TitleNum = 2018  # Delete later
     for ID in SWCSC_FYs:
         json = sb.get_item(ID)
-        title = json['title']
+        title = 'SWCSC '+json['title']
         # title = "Fiscal Year "+str(TitleNum)  # Delete later
         # TitleNum -= 1  # Delete later
         SWCSC_FYs_Dict.update({title: ID})
@@ -80,34 +82,50 @@ def get_SW_FYs():
     return(SWCSC_FYs_OrderedDict)
 
 def hard_search():
+    # To run this function from command line: python -c 'from app import hard_search; hard_search()'
     NWCSC_FYs_OrderedDict = get_NW_FYs()
     SWCSC_FYs_OrderedDict = get_SW_FYs()
     import sys
     # eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
-    sys.path.insert(
-        0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')
+    sys.path.insert(0, './DataCounting')
     # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
     # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
     import gl
     import parse
     import countData_proj
     import ExcelPrint
+    requestItems = []
+    for key, value in SWCSC_FYs_OrderedDict.items():
+        print("{0}: {1} added to requestItems from SWCSC.".format(key, value))
+        requestItems.append(value)
+    for key, value in NWCSC_FYs_OrderedDict.items():
+        print("{0}: {1} added to requestItems from NWCSC.".format(key, value))
+        requestItems.append(value)
+    
+
 
     for i in requestItems:
         gl.itemsToBeParsed.append(i)
         #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
-    parse.main()
-    reportDict = ExcelPrint.main()
-    FullReportJson = JsonTransformer()
-    FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
-    #need to get the name of whatever the report was created for...
-    ID = #something
-    with open('{0}.json'.format(ID), 'w') as outfile:
-        json.dump(FullReportJson, outfile)
+    if gl.itemsToBeParsed != []:
+        parse.main()
+    else:
+        return
+    print("""
+    
+    ===========================================================================
+    
+                    Hard Search is now finished.""")
+    # reportDict = ExcelPrint.main()
+    # FullReportJson = JsonTransformer()
+    # FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    sys.path.insert(0, './DataCounting')
+    import editGPY
+    editGPY.clearMemory()
     error = None
     NWCSC_FYs_OrderedDict = get_NW_FYs()
     SWCSC_FYs_OrderedDict = get_SW_FYs()
@@ -122,7 +140,7 @@ def index():
 def handle_data():
 
     import sys
-    sys.path.insert(0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    sys.path.insert(0, './DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
     # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
     import gl, parse, countData_proj, ExcelPrint
@@ -144,26 +162,32 @@ def handle_data():
         print(gl.Excel_choice)
     else:
         return(redirect('/'))
-
+    reportDict = {}
     if hardSearch == []:
         for ID in requestItems:
             for root, dirs, files in os.walk("./jsonCache"):
                 for filename in files:  # this looks at each file's name for each item
                     if ID in filename:
-                        with open(filename) as json_data:
-                        data = json.load(json_data)
-                        print(data)
-                        reportDict['report'] += data['report']
-                        reportDict['date'] += data['date']
-                        requestItems.remove(filename)
+                        filePath = "./jsonCache/"+filename
+                        with open(filePath) as json_data:
+                            data = json.load(json_data)
+                            print(data)
+                            try:
+                                reportDict['report'] += data['report']
+                            except KeyError:
+                                reportDict['report'] = data['report']
+                            try:
+                                reportDict['date'] += data['date']  # maybe add more things to reportDict??? Identity?
+                            except KeyError:
+                                reportDict['date'] = data['date']
+                            while ID in requestItems:
+                                requestItems.remove(ID)
         """For each ID in request items
             if json of that name exists
                 reportDict['report'] += content of that json report
                 reportDict['date'] += date of that json report
-                remove that item from requestItems
-    elif hardSearch == ['on'] (or maybe) requestItems != []"""
-
-
+                remove that item from requestItems"""
+    if hardSearch == ['on'] or requestItems != []:
         for i in requestItems:
             gl.itemsToBeParsed.append(i)
         #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
@@ -172,7 +196,8 @@ def handle_data():
     FullReportJson = JsonTransformer()
     FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
     #need to get the name of whatever the report was created for...
-    ID = #something
+    ID = gl.Current_Item #THIS IS NOT FINISHED
+
     with open('{0}.json'.format(ID), 'w') as outfile:
         json.dump(FullReportJson, outfile)
     # print("FullReportJson: ")  # Quantico

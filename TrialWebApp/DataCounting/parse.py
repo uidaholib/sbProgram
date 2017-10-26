@@ -23,6 +23,7 @@ def main():
     print("Items to Be Parsed: ")  # Quantico
     print(gl.itemsToBeParsed)  # Quantico
     sort_items()
+    parse_base()
 
 
 def sort_items():
@@ -61,8 +62,8 @@ def sort_items():
 
     if gl.itemsToBeParsed == []:
         print("There are no items to be parsed.")
-        import start
-        start.questionLogin()
+        # import start
+        # start.questionLogin()
         sys.exit()
     print("""
     Sorting Items...""")
@@ -197,13 +198,20 @@ def sort_items():
     # for these it will be something like:
     # for i in projects:
         # i = Project() # which is a class
-    parse_base()
+    return
 
 def parse_base():
 
     if gl.fiscalYears != []:
         import parseFY
-        parseFY.main()
+        import saveJson
+        import editGPY
+        import exceptionRaised
+        for i in gl.fiscalYears:
+            editGPY.clearMemory()
+            parseFY.main(i)
+            saveJson.main()
+            exceptionRaised.main(i)
         print("--------------Done parsing Fiscal Years.")
         #print("""
         #Would you like to create an Excel Spreadsheet with all parsed data """+

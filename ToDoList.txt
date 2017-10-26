@@ -44,7 +44,11 @@ To Do on MACRO:
 * Fix missing and exception lists/reporting in ExcelPrint?
 * Add type of report to ExcelPrint (Fiscal Year, Project, Item)
 * Refactor hard_search vs handle_data in app.py
-
+* When doing 'hard search' add every project folder to a list to create json's from? Or just have a list of big ones to be executed?
+* Perhaps should delete contents of jsonCache folder each time I do the full hard search (but NOT each time the advanced hard search is activated manually)
+* Must find a way to mark the fiscal years in their jsons. Probably under 'identity'
+* when starting Hard Search, should check each item for a matching json, and see if it was done that day, if so, don't do it.
+* should recurse through hard_search() IF there are jsons in jsonCache that have a date['date'] that is not datetime.date.now().
 
 Security:
 * Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.
