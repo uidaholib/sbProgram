@@ -9,3 +9,4 @@ __pycache__/
 *.xlsm
 *.xls
 *.DS_Store
+*node_mod*/
