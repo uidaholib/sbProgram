@@ -49,6 +49,16 @@ To Do on MACRO:
 * Must find a way to mark the fiscal years in their jsons. Probably under 'identity'
 * when starting Hard Search, should check each item for a matching json, and see if it was done that day, if so, don't do it.
 * should recurse through hard_search() IF there are jsons in jsonCache that have a date['date'] that is not datetime.date.now().
+* Why did SWCSC FY 2016 have no data per file, but data in the fiscal year??
+- - I should just double check ALL data.
+* Fix table when there is a lot of data per file...
+* Data in Project and Data per File does not appear correct. Appears to be increasing like a running total of something.
+* Make side bar change color depending on page you are on with jquery
+* Round numbers when placed to table
+* Find cool ways to add to 
+* Add other CSCs
+* DMP editor connection to say whether something has been approved or not.
+- - Query active projects based on time period?? Approved?
 
 Security:
 * Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.
