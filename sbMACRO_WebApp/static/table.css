@@ -1,0 +1,11 @@
+#table_wrapper #reportTable {
+    width: 100% !important;
+    /* background-color: green !important; */
+}
+
+#table_wrapper #reportTable #DataPerFile {
+    max-width: 20vw !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}

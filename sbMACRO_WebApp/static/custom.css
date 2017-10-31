@@ -15,12 +15,7 @@ div#content {
 #download {
   margin: auto;
 }
-.Table {
-  border-color: red;
-  width: auto;
-  height: auto;
-  border-width: 5px;
-}
+
 
 th {
   text-align: center;
