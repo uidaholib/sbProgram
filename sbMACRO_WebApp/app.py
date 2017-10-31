@@ -95,12 +95,13 @@ def hard_search():
     import countData_proj
     import ExcelPrint
     requestItems = []
-    for key, value in SWCSC_FYs_OrderedDict.items():
-        print("{0}: {1} added to requestItems from SWCSC.".format(key, value))
-        requestItems.append(value)
     for key, value in NWCSC_FYs_OrderedDict.items():
         print("{0}: {1} added to requestItems from NWCSC.".format(key, value))
         requestItems.append(value)
+    for key, value in SWCSC_FYs_OrderedDict.items():
+        print("{0}: {1} added to requestItems from SWCSC.".format(key, value))
+        requestItems.append(value)
+    
     
 
 
@@ -163,31 +164,48 @@ def handle_data():
     else:
         return(redirect('/'))
     reportDict = {}
+    reportDict.clear()
+    reportList = []
+    reportList[:] = []
+    dateList = []
+    dateList[:] = []
+    IDsToBeDeleted = []
     if hardSearch == []:
+        print('hardSearch == []')
         for ID in requestItems:
             for root, dirs, files in os.walk("./jsonCache"):
                 for filename in files:  # this looks at each file's name for each item
                     if ID in filename:
+                        IDsToBeDeleted.append(ID)
                         filePath = "./jsonCache/"+filename
                         with open(filePath) as json_data:
                             data = json.load(json_data)
                             print(data)
-                            try:
-                                reportDict['report'] += data['report']
-                            except KeyError:
-                                reportDict['report'] = data['report']
-                            try:
-                                reportDict['date'] += data['date']  # maybe add more things to reportDict??? Identity?
-                            except KeyError:
-                                reportDict['date'] = data['date']
-                            while ID in requestItems:
-                                requestItems.remove(ID)
+                            reportList.append(data['report'])
+                            dateList.append(data['Date'])  # maybe add more things to reportDict??? Identity?
+        reportDict['report'] = reportList
+        reportDict['date'] = dateList
+    for ID in IDsToBeDeleted:
+        while ID in requestItems:
+            requestItems.remove(ID)
         """For each ID in request items
             if json of that name exists
                 reportDict['report'] += content of that json report
                 reportDict['date'] += date of that json report
                 remove that item from requestItems"""
     if hardSearch == ['on'] or requestItems != []:
+        if hardSearch == ['on']:
+            print('hardSearch == [\'on\']')
+        elif requestItems != []:
+            print('requestItems != []')
+            print('requestItems = :')
+            for i in requestItems:
+                print("-- {0}".format(i))
+        else:
+            print('Something else caused quick search to not work.')
+        if requestItems != [] and hardSearch == ['on']:
+            print('IN ADDITION: requestItems != []')
+
         for i in requestItems:
             gl.itemsToBeParsed.append(i)
         #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
