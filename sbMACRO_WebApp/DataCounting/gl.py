@@ -19,8 +19,8 @@ totalDataCount = 0
 totalFYData = 0
 
 Current_Item = None
-# Lists to be printed to Excel:
-# Project sheet:
+# # Lists to be printed to Excel:
+# # Project sheet:
 ID = []  # Added
 ObjectType = []  # Added
 Name = []  # Added
@@ -30,13 +30,14 @@ DataInProject = []   # Added
 DataPerFile = []   # Added
 totalFYDataList = []
 RunningDataTotal = []  # Added
+# For debugging:
 # ID = ['1', '2', '3', '4']  # Added
 # ObjectType = ['Project1', 'Project2', 'Project3', 'Project4']  # Added
 # Name = ['Name1', 'Name2', 'Name3', 'Name4']  # Added
 # FiscalYear = ['2020', '2020', '2020', '2020']  # Added
 # Project = ['Project Name1', 'Project Name2',
 #            'Project Name3', 'Project Name4']  # Added
-# DataInProject = ['39278430', '39278430', '39278430', '39278430']   # Added
+# DataInProject = ['1', '2', '3', '4']   # Added
 # DataPerFile = ["['2023', '39930', '9938']",
 #                "['3536', '5479', '57221']", "['5682', '3984368930', '94658938']", "['34633', '3975437930']"]   # Added
 # totalFYDataList = ['939239549', '939239549', '939239549', '939239549']
