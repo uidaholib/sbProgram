@@ -6,12 +6,13 @@
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
     <link href="static/bootstrap.min.css" rel="stylesheet" media="screen"> -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js">
     </script>
-    
-    
-    <link href="../static/custom.css" rel="stylesheet" media="screen">
+    <!-- <link rel="stylesheet" href="../static/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="../static/custom.css">
+    <link rel="stylesheet" href="../static/table.css">
 
   
    
@@ -91,12 +92,15 @@
                     This content will be:
                 3-columns-wide on large screens,
                 4-columns-wide on medium screens,
-                12-columns-wide on small screens  -->
+                12-columns-wide on small screens  
+              For active one add class="active amber accent-4"-->
+
         <div class="collection grey-text text-darken4">
-          <a href="/" class="collection-item teal lighten-1 white-text">Tally Fiscal Years</a>
-          <a href="#!" class="collection-item active amber accent-4">Placeholder</a>
-          <a href="#!" class="collection-item teal lighten-1 white-text">Placeholder</a>
-          <a href="#!" class="collection-item teal lighten-1 white-text">Placeholder</a>
+          <a href="/" id="Nav-Home" class="collection-item teal lighten-1 white-text"> Home </a>
+          <a href="/" id="Nav-FiscalYear" class="collection-item active amber accent-4 white-text">Fiscal Year Report</a>
+          <a href="#!" id="Nav-Project" class="collection-item teal lighten-1 white-text">Project Report</a>
+          <a href="#!" id="Nav-Item" class="collection-item teal lighten-1 white-text">Item Report</a>
+          <a href="#!" id="Nav-Mixed" class="collection-item teal lighten-1 white-text">Mixed Report</a>
         </div>
     
       </div>

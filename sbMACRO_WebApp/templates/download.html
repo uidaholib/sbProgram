@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
-
+<link rel="stylesheet" href="../static/custom.css">
 <script src="../static/node_modules/file-saverjs/FileSaver.js"></script>
 <script src="../node_modules/tableexport/src/stable/js/tableexport.js"></script>
+
 
 
 <script type="text/javascript">
@@ -48,7 +49,7 @@
           report_data += '<td>' + itemData.FY + '</td>\n';
           report_data += '<td>' + itemData.project + '</td>\n';
           report_data += '<td>' + itemData.DataInProject + '</td>\n';
-          report_data += '<td>' + itemData.DataPerFile + '</td>\n';
+          report_data += '<td id="DataPerFile">' + itemData.DataPerFile + '</td>\n';
           report_data += '<td>' + itemData.totalFYData + '</td>\n';
           report_data += '<td>' + itemData.RunningDataTotal + '</td>\n';
           report_data += '</tr>\n';
