@@ -41,8 +41,8 @@ def select_project(fiscalYear):
         projectDictNumber = 0
         getProjects(fiscalYear)
         firstFYParse = False
-    if projectDictNumber == -99999999999999:
-        return
+    # if projectDictNumber == -99999999999999:
+    #     return
     print(FYprojects)  # Quantico
     print("Project dict number: "+str(projectDictNumber))  # Quantico
     try:
