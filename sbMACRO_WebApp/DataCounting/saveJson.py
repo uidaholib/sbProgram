@@ -133,10 +133,10 @@ def format_Missing_and_Exceptions(IDlist, URLlist):
 
 def getDate():
     import datetime
-    dateinfo = []
+    dateinfo = {}
     now = datetime.datetime.now()
     dateinfo['dateTime'] = now
-    date = datetime.date.now()
+    date = now.strftime("%Y%m%d")
     dateinfo['date'] = date
     return dateinfo
 
@@ -217,7 +217,7 @@ def main():
     ID = gl.Current_Item
     import json
     with open('./jsonCache/{0}.json'.format(ID), 'w') as outfile:
-        json.dump(FullReportJson, outfile, sort_keys=True, indent=4, ensure_ascii=False)
+        outfile.write(FullReportJson)
     pprint(FullReportJson)  # Quantico
 
     return
