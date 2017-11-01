@@ -33,6 +33,7 @@ def main(fiscalYear):
 
 def select_project(fiscalYear):
     global possibleProjectData
+    possibleProjectData[:] = []
     global firstFYParse
     global FYprojects
     global projectDictNumber
@@ -112,7 +113,23 @@ def getProjectData(possibleProjectData, FYprojects,
                    ):
     global lookedForDataBefore
     projectItems = sb.get_child_ids(currentProject)
-    currentProjectJson = sb.get_item(currentProject)
+    try:
+        currentProjectJson = sb.get_item(currentProject)
+    except Exception:
+        import parseFY
+        parseFY.exceptionFound = True
+        print("--------Hit upon a 404 exception: " +
+              str(currentProject) + " (1)")
+        import exceptionRaised
+        exceptionRaised.main(currentProject)
+        if exceptionRaised.worked is True:
+           currentProjectJson = sb.get_item(currentProject)
+        elif exceptionRaised.worked is False:
+            getProjectData(possibleProjectData, FYprojects,
+                           currentProject, exceptionFound,
+                           )
+        else:
+            print('Something went wrong. Function: getProjectData (1)')
     if lookedForDataBefore is False:
         populateGPYLists(currentProject, currentProjectJson)
         print("""
@@ -216,7 +233,22 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
                 print("Not a Fiscal Year.")  # Quantico
         except KeyError:
             currentId = parentId[:]  # this makes a slice that is the whole list.
-            json = sb.get_item(currentId)
+            try:
+                json = sb.get_item(currentId)
+            except Exception:
+                exceptionFound = True
+                print("--------Hit upon a 404 exception: " + str(currentId) + " (2)")
+                import exceptionRaised
+                exceptionRaised.main(currentId)
+                if exceptionRaised.worked is True:
+                    json = sb.get_item(currentId)
+                elif exceptionRaised.worked is False:
+                    findCurrentProjectFY(currentProject, currentProjectJson)
+                    gl.Exceptions.append(currentId)
+                else:
+                    print('Something went wrong. Function: findCurrentProjectFY() (2.3)')
+
+            
             parentId = json['parentId']
             try:
                 children = sb.get_child_ids(currentId)
@@ -374,8 +406,8 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
     for i in possibleProjectData:
         try:
             preShortcuts = sb.get_shortcut_ids(i)
-            print("preShortcuts: ")
-            print(preShortcuts)  # Quantico
+            # print("preShortcuts: ")  # Quantico
+            # print(preShortcuts)  # Quantico
             for item in preShortcuts:
                 if item not in allShortcuts:
                     allShortcuts.append(item)

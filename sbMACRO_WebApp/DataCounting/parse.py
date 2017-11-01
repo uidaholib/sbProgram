@@ -209,9 +209,10 @@ def parse_base():
         import exceptionRaised
         for i in gl.fiscalYears:
             editGPY.clearMemory()
+            editGPY.runningDataToo()
             parseFY.main(i)
             saveJson.main()
-            exceptionRaised.main(i)
+            # exceptionRaised.main(i)
         print("--------------Done parsing Fiscal Years.")
         #print("""
         #Would you like to create an Excel Spreadsheet with all parsed data """+

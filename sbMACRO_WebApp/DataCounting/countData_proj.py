@@ -34,7 +34,10 @@ def countData(actualData, numFiles):
 
     print('Alright, let\'s count all this data') #Quantico
     bData = 0 #For "approved datasets" the bytes = 0 at first
+    
     forDataPerFile_2 = []
+
+    # print("forDataPerFile_2: {0}".format(forDataPerFile_2))  # Quantico
     filesExist = False
     for data in actualData:
         foundData = False
@@ -57,6 +60,7 @@ def countData(actualData, numFiles):
         facetDictNum = 0
         dictNum = 0 #The dictionary place for each attached file is also 0
         forDataPerFile_1 = []
+        # print("forDataPerFile_1: {0}".format(forDataPerFile_1))  # Quantico
         if forDataPerFile_1 != []:
             forDataPerFile_1[:] = []
 
@@ -72,7 +76,7 @@ def countData(actualData, numFiles):
                 try:
                     for z in actualDataJson['facets']:
                         for i in z['files']:
-                            print("Extention size: "+str(i['size']/1000)+ " kilobytes")
+                            # print("Extention size: "+str(i['size']/1000)+ " kilobytes")  # Quantico
                             filesExist = True
                             bData += i['size']
                             thisData = i['size']/1000
@@ -107,12 +111,13 @@ def countData(actualData, numFiles):
 
 
 
-                print('File size: '+str(thisData/1000)+' kilobytes.') #at the end, this prints how many bytes total there are after each file in "approved DataSets"
+                # print('File size: '+str(thisData/1000)+' kilobytes.')  # Quantico
+                # ^ at the end, this prints how many bytes total there are after each file in "approved DataSets"
         except KeyError: #if there is no "files" portion in the json, it causes a KeyError. If we get a KeyError...
             try:
                 for z in actualDataJson['facets']:
                     for i in z['files']:
-                        print("Extention size: "+str(i['size']/1000)+ "kilobytes")
+                        # print("Extention size: "+str(i['size']/1000)+ "kilobytes")  # Quantico
                         filesExist = True
                         bData += i['size']
                         thisData = i['size']/1000
@@ -147,6 +152,8 @@ def countData(actualData, numFiles):
 
 
     gl.DataPerFile.append(str(forDataPerFile_2))
+    print("Here is the data per file added to gl.DataPerFile for this project:\n{0}".format(forDataPerFile_2))
+    print("\n\nHere is gl.DataPerFile:\n{0}".format(gl.DataPerFile))
     if filesExist == True:
         kData = bData/1000 #this tells us how many kilobytes we have from bytes
         mData = kData/1000 #this tells us how many megabytes we have from kilobytes

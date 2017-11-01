@@ -38,21 +38,24 @@
       var arrayLength = report.length;
         for (var i = 0; i < arrayLength; i++) {
           // alert(report[i]);
-          var itemData = report[i];
-          console.log('itemData: ');
-          console.log(itemData);
-          arrayLength2 = itemData.length;
-          report_data += '<tr>\n';
-          report_data += '<td>' + itemData.ID + '</td>\n';
-          report_data += '<td>' + itemData.ObjectType + '</td>\n';
-          report_data += '<td>' + itemData.name + '</td>\n';
-          report_data += '<td>' + itemData.FY + '</td>\n';
-          report_data += '<td>' + itemData.project + '</td>\n';
-          report_data += '<td>' + itemData.DataInProject + '</td>\n';
-          report_data += '<td id="DataPerFile">' + itemData.DataPerFile + '</td>\n';
-          report_data += '<td>' + itemData.totalFYData + '</td>\n';
-          report_data += '<td>' + itemData.RunningDataTotal + '</td>\n';
-          report_data += '</tr>\n';
+          var reportData = report[i];
+          arrayLength2 = reportData.length;
+          for (var z = 0; z < arrayLength2; z++) {
+            var itemData = reportData[z];
+            console.log('itemData: ');
+            console.log(itemData);
+            report_data += '<tr>\n';
+            report_data += '<td>' + itemData.ID + '</td>\n';
+            report_data += '<td>' + itemData.ObjectType + '</td>\n';
+            report_data += '<td>' + itemData.name + '</td>\n';
+            report_data += '<td>' + itemData.FY + '</td>\n';
+            report_data += '<td>' + itemData.project + '</td>\n';
+            report_data += '<td>' + itemData.DataInProject + '</td>\n';
+            report_data += '<td id="DataPerFile">' + itemData.DataPerFile + '</td>\n';
+            report_data += '<td>' + itemData.totalFYData + '</td>\n';
+            report_data += '<td>' + itemData.RunningDataTotal + '</td>\n';
+            report_data += '</tr>\n';
+          }
         }
       $('#reportTable').append(report_data);
       };

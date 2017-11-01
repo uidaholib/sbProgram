@@ -11,6 +11,7 @@ import subprocess
 import jsonpickle
 import sys
 import os
+import datetime
 
 
 sb = pysb.SbSession()
@@ -81,30 +82,21 @@ def get_SW_FYs():
     # flash(SWCSC_FYs_OrderedDict)
     return(SWCSC_FYs_OrderedDict)
 
-def hard_search():
-    # To run this function from command line: python -c 'from app import hard_search; hard_search()'
-    NWCSC_FYs_OrderedDict = get_NW_FYs()
-    SWCSC_FYs_OrderedDict = get_SW_FYs()
+def defined_hard_search():
+    # To run this function from command line: python -c 'from app import defined_hard_search; defined_hard_search()'
+    
     import sys
-    # eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     sys.path.insert(0, './DataCounting')
-    # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
-    # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
     import gl
     import parse
-    import countData_proj
-    import ExcelPrint
+    gl.Excel_choice = "One_Excel_for_all_FYs"
+    answer = None
     requestItems = []
-    for key, value in NWCSC_FYs_OrderedDict.items():
-        print("{0}: {1} added to requestItems from NWCSC.".format(key, value))
-        requestItems.append(value)
-    for key, value in SWCSC_FYs_OrderedDict.items():
-        print("{0}: {1} added to requestItems from SWCSC.".format(key, value))
-        requestItems.append(value)
-    
-    
-
-
+    while answer != 'done':
+        print('Please enter an ID you would like parsed. When done, type \'done\'.')
+        answer = input('sbID: ')
+        if answer != 'done' and answer != None:
+            requestItems.append(answer)
     for i in requestItems:
         gl.itemsToBeParsed.append(i)
         #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
@@ -117,6 +109,65 @@ def hard_search():
     ===========================================================================
     
                     Hard Search is now finished.""")
+            
+
+
+def full_hard_search():
+    # To run this function from command line: python -c 'from app import full_hard_search; full_hard_search()'
+    NWCSC_FYs_OrderedDict = get_NW_FYs()
+    SWCSC_FYs_OrderedDict = get_SW_FYs()
+    import sys
+    # eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    sys.path.insert(0, './DataCounting')
+    # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
+    # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
+    import gl
+    import parse
+    import countData_proj
+    import ExcelPrint
+    gl.Excel_choice = "One_Excel_for_all_FYs"
+    requestItems = []
+    for key, value in SWCSC_FYs_OrderedDict.items():
+        print("{0}: {1} added to requestItems from SWCSC.".format(key, value))
+        requestItems.append(value)
+    for key, value in NWCSC_FYs_OrderedDict.items():
+        print("{0}: {1} added to requestItems from NWCSC.".format(key, value))
+        requestItems.append(value)
+    IDsToBeDeleted = []
+    for root, dirs, files in os.walk("./jsonCache"):
+                for filename in files:  # this looks at each file's name for each item
+                    filePath = "./jsonCache/" + filename
+                    print(filePath)  # Quantico
+                    if filename.endswith(".json"):
+                        with open(filePath) as json_data:
+                            data = json.load(json_data)
+                            dataDate = data['Date']['date']
+                            now = datetime.datetime.now()
+                            currentDate = now.strftime("%Y%m%d")
+                            if currentDate > dataDate:
+                                continue
+                            else:
+                                ID = filename.replace(".json", "")
+                                print("ID from today: {0}".format(ID))  # Quantico
+                                IDsToBeDeleted.append(ID)
+    for ID in IDsToBeDeleted:
+        while ID in requestItems:
+            requestItems.remove(ID)
+                                
+    for i in requestItems:
+        gl.itemsToBeParsed.append(i)
+        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
+    if gl.itemsToBeParsed != []:
+        parse.main()
+    if len(requestItems) == 0:
+        print("""
+    
+    ===========================================================================
+    
+                    Hard Search is now finished.""")
+        exit(0)
+    elif len(requestItems) != 0:
+        full_hard_search()
     # reportDict = ExcelPrint.main()
     # FullReportJson = JsonTransformer()
     # FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)

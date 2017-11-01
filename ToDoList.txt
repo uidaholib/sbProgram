@@ -59,6 +59,8 @@ To Do on MACRO:
 * Add other CSCs
 * DMP editor connection to say whether something has been approved or not.
 - - Query active projects based on time period?? Approved?
+* Change table row hover color to not match the striping
+* Running Fiscal year total is not resetting.
 
 Security:
 * Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.

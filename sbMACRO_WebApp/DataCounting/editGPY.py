@@ -29,10 +29,11 @@ def clearMemory():
         gl.DataInProject[:] = []
         gl.DataPerFile[:] = []
         gl.totalFYData = 0
-        runningDataToo()
+        gl.RunningDataTotal[:] = []
+        # runningDataToo()
         print("""
     Memory Cleared.""")
-        runningDataToo()
+        # runningDataToo()
         return
     elif 'keep' in answer2 or 'save' in answer2 or 'n' in answer2:
         print('''
