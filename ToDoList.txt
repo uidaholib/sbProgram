@@ -5,7 +5,12 @@ To Do on MACRO:
 !*Honestly, I should refactor the dataCounting and g1.py scripts to use classes similar to ExcelPrint, rather than lists. But it works now, so it's fine for now.
 
 * Figure out global exceptions
-* Check out why, after logging in, it wants to publically search
+* Add functionality to parse and display:
+      - projects
+      - items
+      - mixed bag
+  All this should branch from the current functions in parseMain.
+* [CLI] Check out why, after logging in, it wants to publically search
 * empty exceptions sheet has: "
       Exceptions raised:
 
@@ -13,49 +18,47 @@ To Do on MACRO:
       Columns: [Exception/Permission Issue ID, Exception/Permission Issue URL]
       Index: []
       "
-* 'g.[something]' is a special flask object. May have to change g.py to something else and update everything.
--- OR "from flask import g as [whatever I want to call it]" so I don't have to change any of the code.
-* Check out ExcelPrint had the ability to call editGPY.py to edit the memory before creating the excel sheet.
-   could be good functionality or not. Need to decide.
 * Figure out how to create a download from the site.
 - - Perhaps it will be some SQL database that would then be used to create an excel file?
-* Why is loading GIF not working???
+* Fix loading GIF positioning
 * It looks like variables may not reset after the process is done. That could be an issue.
+- - Not sure this is still the case. I think not.
 * Flash messages during loading (or have loading be te project that's being counted)
 -- Maybe have a hidden div that pops up during loading with the flash messages.
 * work on passing data to javascript, then using js to display in interesting ways (graphs, etc.)
 - - Or maybe python statistical graphics
 * maybe should add a radio button to do both a single FY and all FYs file with excel.
-* Will need to also figure out how to download each file (a zip of all, or each as they come, etc.)
+- - Need to make those buttons do something. Currently all goes to one table, Need to make it so that it could create a totally new table with Excel option and everything.
+* Will need to also figure out how to download .xlxs (a zip of all, or each depending on selection, etc.)
 - - Could instead re-write the ExcelPrint.py to create a new sheet for each fiscal year if they choose that option.
 * Instead of printing to the console, have the program print to a log txt file and save it at the end. It can rewrite it every time. Then we have a log of the most recent stuff.
 - - Also, could have it append to end of file and rewrite every 5 times it has been run or something.
-* Figure out creating a table per fiscal year or not... Right now parseFY.whatNext() does selection poorly (missing doing one sheet for everything?)
+* Adding Missing and Exception tables at the end?
 * Catch and deal with exceptions through the GUI or set a default wait action.
+- - We have a default "wait 5 min" action. Satisfactory?
 * Figure out how to reset entire script/wipe memory on a refresh. All variables need reset when it's done, and gl needs cleared when it's started.
+- - Check that this is happening.
 * Would be nice to flash one message at a time about what it's doing so you know it's working during long loading times.
 * MUST deal with if the user does not select a fiscal year.
-* Fix so you can do multiple fiscal years
-* I wonder if there's a way to speed things up by caching the fiscal years or something and just checking to see if they're different. 
-- - Maybe same for download/table info?
-* Instead of actual query, cache a result for each fiscal year at some point in teh morning. Have advanced ooption to do a hard search, otherwise serve up cached one for each day. Can also be done for projects. 
-- - In this json file, add a new section that puts the time and date that the search was done so we can keep track and make sure it's recent.
 * FIX FISCAL YEAR SELECTION! Why is it always doing 2016?
-* Fix missing and exception lists/reporting in ExcelPrint?
-* Add type of report to ExcelPrint (Fiscal Year, Project, Item)
+- - Not still a problem??
+* [CLI] Add types of report to ExcelPrint (Fiscal Year, Project, Item)
 * Refactor hard_search vs handle_data in app.py
 * When doing 'hard search' add every project folder to a list to create json's from? Or just have a list of big ones to be executed?
 * Perhaps should delete contents of jsonCache folder each time I do the full hard search (but NOT each time the advanced hard search is activated manually)
-* Must find a way to mark the fiscal years in their jsons. Probably under 'identity'
+- - Or just do each item if not done that day and overwrite, which is what we do currently
 * when starting Hard Search, should check each item for a matching json, and see if it was done that day, if so, don't do it.
+- - Double check this is working properly
 * should recurse through hard_search() IF there are jsons in jsonCache that have a date['date'] that is not datetime.date.now().
+- - Must have exceptions handled globally to allow this to be useful
 * Why did SWCSC FY 2016 have no data per file, but data in the fiscal year??
 - - I should just double check ALL data.
 * Fix table when there is a lot of data per file...
+- - Add elipses to any large decimal number cell.
 * Data in Project and Data per File does not appear correct. Appears to be increasing like a running total of something.
 * Make side bar change color depending on page you are on with jquery
-* Round numbers when placed to table
-* Find cool ways to add to 
+* Round numbers when placed to table (or add elipses)
+* Find cool ways to display info graphically from table
 * Add other CSCs
 * DMP editor connection to say whether something has been approved or not.
 - - Query active projects based on time period?? Approved?
