@@ -64,6 +64,8 @@ To Do on MACRO:
 - - Query active projects based on time period?? Approved?
 * Change table row hover color to not match the striping
 * Running Fiscal year total is not resetting.
+* Make "Data Per File" more useful?
+
 
 Security:
 * Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.
