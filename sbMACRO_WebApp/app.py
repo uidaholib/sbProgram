@@ -141,7 +141,10 @@ def full_hard_search():
                     if filename.endswith(".json"):
                         with open(filePath) as json_data:
                             data = json.load(json_data)
-                            dataDate = data['Date']['date']
+                            try:    # If, for some reason, date doesn't exist, replace it.
+                                dataDate = data['Date']['date']
+                            except KeyError:
+                                continue
                             now = datetime.datetime.now()
                             currentDate = now.strftime("%Y%m%d")
                             if currentDate > dataDate:

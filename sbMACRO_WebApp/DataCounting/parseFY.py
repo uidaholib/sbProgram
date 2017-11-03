@@ -145,7 +145,21 @@ def getProjectData(possibleProjectData, FYprojects,
             if currentProjectItemJson['title'] == "Approved DataSets":
                 possibleProjectData_Set = set()
                 possibleProjectData_Set.update(possibleProjectData)
-                ancestors = sb.get_ancestor_ids(i)
+                try:
+                    ancestors = sb.get_ancestor_ids(i)
+                except Exception:
+                    exceptionFound = True
+                    print("--------Hit upon a 404 exception: " + str(currentId) + " (22)")
+                    import exceptionRaised
+                    exceptionRaised.main(i)
+                    if exceptionRaised.worked is True:
+                        children = sb.get_child_ids(currentId)
+                    elif exceptionRaised.worked is False:
+                        gl.Exceptions.append(i)
+                        print("-----------ERROR: Could not get project data.")
+                        continue
+                    else:
+                        print('Something went wrong. Function: getProjectData() (2)')
                 for item in ancestors:
                     if item not in possibleProjectData_Set:
                         possibleProjectData_Set.add(item)

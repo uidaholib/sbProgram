@@ -189,6 +189,12 @@ def doneCountingFY():
     number = len(gl.FiscalYear)
     for i in range(0, number):
         gl.totalFYDataList.append(gl.totalFYData)
+
+
+    print("totalFYDataList:")
+    for i in gl.totalFYDataList:
+        print(i, end="")
+    print("\nList length: {0}".format(len(gl.totalFYDataList)))
     r = gl.FiscalYear[-1]  # r is the last reported fiscal year. Most recent list item.
     print('''
     In total, I found '''+str(gl.totalFYData)+''' gigabytes of data in '''+str(r)+

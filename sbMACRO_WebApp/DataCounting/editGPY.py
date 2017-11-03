@@ -29,7 +29,9 @@ def clearMemory():
         gl.DataInProject[:] = []
         gl.DataPerFile[:] = []
         gl.totalFYData = 0
+        gl.totalFYDataList[:] = []
         gl.RunningDataTotal[:] = []
+        gl.totalDataCount = 0  # Uncomment if you want running total for each project rather than total search.
         # runningDataToo()
         print("""
     Memory Cleared.""")
@@ -51,7 +53,9 @@ def runningDataToo():
     answer = 'y'
     if 'y' in answer:
         gl.RunningDataTotal[:] = []
+        gl.totalDataCount = 0  # Uncomment if you want running total for each project rather than total search.
         print("Running Total Data reset.")
+        print("Running Total Data: {0}".format(gl.RunningDataTotal))
         return
     elif 'n' in answer:
         print("Running Total Data kept.")
