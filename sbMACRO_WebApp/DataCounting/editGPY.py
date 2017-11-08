@@ -22,6 +22,7 @@ def clearMemory():
     answer2 = 'clear'
     if 'clear' in answer2 or 'empty' in answer2 or 'y' in answer2:
         gl.ID[:] = []
+        gl.URL[:] = []
         gl.ObjectType[:] = []
         gl.Name[:] = []
         gl.FiscalYear[:] = []

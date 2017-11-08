@@ -18,6 +18,7 @@ class sbItem(object):
     
     def __init__(self):
         self.ID = "No information provided"
+        self.URL = "No information provided"
         self.ObjectType = "No information provided"
         self.name = "No information provided"
         self.FY = "No information provided"
@@ -30,15 +31,16 @@ class sbItem(object):
     def Print(self):
         print("""
         ID: {0}
-        ObjType: {1}
-        Name: {2}
-        FY: {3}
-        Project: {4}
-        DataInProj: {5}
-        DataPerFile: {6}
-        TotalFYdata: {7}
-        RunningTotal: {8}
-        """.format(self.ID, self.ObjectType, self.name, self.FY, self.project, 
+        URL: {1}
+        ObjType: {2}
+        Name: {3}
+        FY: {4}
+        Project: {5}
+        DataInProj: {6}
+        DataPerFile: {7}
+        TotalFYdata: {8}
+        RunningTotal: {9}
+        """.format(self.ID, self.URL, self.ObjectType, self.name, self.FY, self.project, 
                    self.DataInProject, self.DataPerFile, self.totalFYData, 
                    self.RunningDataTotal)
         )
@@ -76,6 +78,7 @@ def format_to_array_of_arrays_For_Json(report_Dict, sbItemList):
         i.Print()
         print("report_Array new added: {0}".format(report_Array))
         report_Array[num].append(i.ID)
+        report_Array[num].append(i.URL)
         report_Array[num].append(i.ObjectType)
         report_Array[num].append(i.name)
         report_Array[num].append(i.FY)
@@ -102,6 +105,7 @@ def formatForJson(report_Dict):
     for i in range(0, numItems):
         x = sbItem()
         x.ID = report_Dict['ID'][i]
+        x.URL = report_Dict['URL'][i]
         x.ObjectType = report_Dict['Object Type'][i]
         x.name = report_Dict['Name'][i]
         x.FY = report_Dict['Fiscal Year'][i]
@@ -165,7 +169,8 @@ def main():
             json = sb.get_item(i)
             MissingDataURL.append(json['link']['url'])
 
-    report_Dict = {'ID': gl.ID, 'Object Type': gl.ObjectType, 'Name': gl.Name,
+    report_Dict = {'ID': gl.ID, 'URL': gl.URL, 'Object Type': gl.ObjectType, 
+                    'Name': gl.Name,
                     'Fiscal Year': gl.FiscalYear, 'Project': gl.Project,
                     'Data in Project (GB)': gl.DataInProject,
                     'Data per File (KB)': gl.DataPerFile,

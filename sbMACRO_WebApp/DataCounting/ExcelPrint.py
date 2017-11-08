@@ -173,7 +173,8 @@ def main():
         #ws_exceptions.sheet_properties.tabColor = "1072BA" #Makes the tab for the sheet red so it draws attention.
 
 
-    report_Dict = {'ID': gl.ID, 'Object Type': gl.ObjectType, 'Name': gl.Name,
+    report_Dict = {'ID': gl.ID, 'URL': gl.URL, 'Object Type': gl.ObjectType, 
+                    'Name': gl.Name,
                     'Fiscal Year': gl.FiscalYear, 'Project': gl.Project,
                     'Data in Project (GB)': gl.DataInProject,
                     'Data per File (KB)': gl.DataPerFile,

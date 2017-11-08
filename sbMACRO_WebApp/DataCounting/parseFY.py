@@ -180,6 +180,8 @@ def getProjectData(possibleProjectData, FYprojects,
 def populateGPYLists(currentProject, currentProjectJson):
     gl.ID.append(currentProject)
     print(gl.ID)  # Quantico
+    gl.URL.append(sb.get_item(currentProject)['link']['url'])
+    print(gl.URL)
     gl.ObjectType.append("Project")
     print(gl.ObjectType)  # Quantico
     gl.Name.append(currentProjectJson["title"])
@@ -192,6 +194,7 @@ def populateGPYLists(currentProject, currentProjectJson):
 
 def printAllGLists():
     print(gl.ID)  # Quantico
+    print(gl.URL)
     print(gl.ObjectType)  # Quantico
     print(gl.Name)  # Quantico
     print(gl.FiscalYear)  # Quantico
