@@ -22,6 +22,7 @@ Current_Item = None
 # # Lists to be printed to Excel:
 # # Project sheet:
 ID = []  # Added
+URL = []
 ObjectType = []  # Added
 Name = []  # Added
 FiscalYear = []  # Added
