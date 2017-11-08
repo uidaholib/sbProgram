@@ -10,56 +10,79 @@
 <script type="text/javascript">
 //Script for dynamically creating the table
   $(document).ready(function (report) {
-    console.log("Trying!")
+    console.log("reportDict:")
     var reportDict = {{ FullReportJson|safe }};
-    var reportStr = reportDict.report;
+    console.log(reportDict);
+    var report = reportDict.report;
+    var reportDate = reportDict.date;
+    console.log('reportDate:');
+    console.log(reportDate);
+    var reportIdentity = reportDict.identity;
+    console.log("reportIdentity:");
+    console.log(reportIdentity);
     var missing = reportDict.missing;
     var exceptions = reportDict.exceptions;
-    reportStr ? console.log('reportStr Exists!') : console.log('Doesn\'t exist!');
-    console.log(reportStr);
+    report ? console.log('reportStr Exists!') : console.log('Doesn\'t exist!');
+    console.log(report);
     console.log("Missing: ");
     console.log(missing);
     console.log("Exceptions: ");
     console.log(exceptions);
-    function test_func(reportStr) {
-      console.log("reportStr: ");
-      console.log(reportStr);
-    }
-    test_func(reportStr);
-
-    var report = reportStr;
-    console.log("report: ");
-    console.log(report);
-    
-    function build_table(report) {
-      console.log("report2: ");
+    function test_func(report) {
+      console.log("Test function activated");
       console.log(report);
+    }
+    test_func(report);
+
+    // var report = reportStr;
+    // console.log("report: ");
+    // console.log(report);
+    
+    function build_table(report, reportDate, reportIdentity) {
+      // console.log("report2: ");
+      // console.log(report);
       var report_data = '';
       var arrayLength = report.length;
         for (var i = 0; i < arrayLength; i++) {
           // alert(report[i]);
           var reportData = report[i];
+          console.log("reportData")
+          console.log(reportData)
+          var reportDateCurr = reportDate[i];
+          console.log("reportDateCurr")
+          console.log(reportDateCurr)
+          var reportIdentityCurr = reportIdentity[i];
+          console.log("reportIdentityCurr")
+          console.log(reportIdentityCurr)
           arrayLength2 = reportData.length;
           for (var z = 0; z < arrayLength2; z++) {
             var itemData = reportData[z];
+            var itemDate = reportDateCurr['dateTime'];
+            var itemCSC = reportIdentityCurr['CSC'];
             console.log('itemData: ');
             console.log(itemData);
+            console.log('itemDate: ');
+            console.log(itemDate);
+            console.log('itemIdentity: ');
+            console.log(itemCSC);
             report_data += '<tr>\n';
-            report_data += '<td>' + itemData.ID + '</td>\n';
-            report_data += '<td>' + itemData.ObjectType + '</td>\n';
-            report_data += '<td>' + itemData.name + '</td>\n';
+            report_data += '<td>' + itemCSC + '</td>\n';
             report_data += '<td>' + itemData.FY + '</td>\n';
+            // report_data += '<td>' + itemData.ID + '</td>\n';
+            report_data += '<td>' + itemData.ObjectType + '</td>\n';
+            report_data += '<td> <a href="' + itemData.URL + '">' + itemData.name + '</a></td>\n';
             report_data += '<td>' + itemData.project + '</td>\n';
-            report_data += '<td>' + itemData.DataInProject + '</td>\n';
-            report_data += '<td id="DataPerFile">' + itemData.DataPerFile + '</td>\n';
-            report_data += '<td>' + itemData.totalFYData + '</td>\n';
-            report_data += '<td>' + itemData.RunningDataTotal + '</td>\n';
+            report_data += '<td id="ElipseDataShort">' + itemData.DataInProject + '</td>\n';
+            report_data += '<td id="ElipseDataLong">' + itemData.DataPerFile + '</td>\n';
+            report_data += '<td id="ElipseDataShort">' + itemData.totalFYData + '</td>\n';
+            report_data += '<td>' + itemDate.slice(0, -7) + '</td>\n';
+            // report_data += '<td id="ElipseDataShort">' + itemData.RunningDataTotal + '</td>\n';
             report_data += '</tr>\n';
           }
         }
       $('#reportTable').append(report_data);
       };
-      build_table(report);
+      build_table(report, reportDate, reportIdentity);
     });
 </script>
 <script type="text/javascript">
@@ -99,6 +122,7 @@
   <h1>sbMACRO Query Results</h1>
   <br>
   <p>Below is a table showing the results of your query of <a href="http://www.sciencebase.gov" >ScienceBase.gov</a></p>
+  
 </div>
 <div id="container">
   <button class="btn wave-effect waves-teal disabled" id="btnExport">Export to Excel (.xlsx)</button>
@@ -106,15 +130,17 @@
   <div id="table_wrapper">
     <table class="bordered highlight striped centered responsive-table" id="reportTable">
       <thead>
-        <th>ID</th>
+        <th>Climate Science Center</th>
+        <th>Fiscal Year</th>
+        <!-- <th>ID</th> -->
         <th>Object Type</th>
         <th>Name</th>
-        <th>Fiscal Year</th>
         <th>Project</th>
         <th>Data in Project (GB)</th>
         <th>Data per File (KB)</th>
         <th>Total Data in Fiscal Year (GB)</th>
-        <th>Running Data Total (GB)</th>
+        <th>Date and Time Retrieved</th>
+        <!-- <th>Running Data Total (GB)</th> -->
       </thead>
       <tbody>
 
