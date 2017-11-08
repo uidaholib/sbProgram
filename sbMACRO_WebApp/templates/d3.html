@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title>D3 Trials</title>
+    <script src="https://d3js.org/d3.v4.js"></script>   
+    <!-- This is from https://www.youtube.com/watch?v=TR39nfAW1dw&index=3&list=PL6il2r9i3BqH9PmbOf5wA5E1wOG3FT22p -->
+</head>
+<body>
+    <script>
+        var canvas = d3.select("body")
+                        .append("svg")
+                        .attr("width", 500)
+                        .attr("height", 500)
+                        .attr("fill", "grey");
+        
+        var circle = canvas.append("circle")
+                            .attr("cx", 250)
+                            .attr("cy", 250)
+                            .attr("r", 50)
+                            .attr("fill", "red");
+    
+    </script>
+</body>
+</html>
