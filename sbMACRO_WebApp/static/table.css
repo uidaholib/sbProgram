@@ -1,11 +1,18 @@
 #table_wrapper #reportTable {
-    width: 100% !important;
-    /* background-color: green !important; */
+    width: 100% ;
+    /* background-color: green ; */
 }
 
-#table_wrapper #reportTable #DataPerFile {
-    max-width: 10vw !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+#table_wrapper #reportTable #ElipseDataLong {
+    max-width: 10vw ;
+    overflow: hidden ;
+    text-overflow: ellipsis ;
+    white-space: nowrap ;
+}
+
+#table_wrapper #reportTable #ElipseDataShort {
+    max-width: 5vw ;
+    overflow: hidden ;
+    text-overflow: ellipsis ;
+    white-space: nowrap ;
 }
