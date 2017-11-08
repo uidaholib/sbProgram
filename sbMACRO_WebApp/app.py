@@ -190,6 +190,11 @@ def index():
 
     return(render_template('index.html', **locals(), title="Home"))
 
+@app.route('/trial', methods=['GET'])
+def dataVis():
+
+    return(render_template('index.html', **locals(), title="Home"))
+
 
 @app.route('/count-data', methods=['POST'])
 def handle_data():
@@ -223,6 +228,8 @@ def handle_data():
     reportList[:] = []
     dateList = []
     dateList[:] = []
+    identityList = []
+    identityList[:] = []
     IDsToBeDeleted = []
     if hardSearch == []:
         print('hardSearch == []')
@@ -237,8 +244,10 @@ def handle_data():
                             print(data)
                             reportList.append(data['report'])
                             dateList.append(data['Date'])  # maybe add more things to reportDict??? Identity?
+                            identityList.append(data['identity'])
         reportDict['report'] = reportList
         reportDict['date'] = dateList
+        reportDict['identity'] = identityList
     for ID in IDsToBeDeleted:
         while ID in requestItems:
             requestItems.remove(ID)
@@ -268,10 +277,10 @@ def handle_data():
     FullReportJson = JsonTransformer()
     FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
     #need to get the name of whatever the report was created for...
-    ID = gl.Current_Item #THIS IS NOT FINISHED
+    # ID = gl.Current_Item #THIS IS NOT FINISHED
 
-    with open('{0}.json'.format(ID), 'w') as outfile:
-        json.dump(FullReportJson, outfile)
+    # with open('{0}.json'.format(ID), 'w') as outfile:
+    #     json.dump(FullReportJson, outfile)
     # print("FullReportJson: ")  # Quantico
     # pprint(FullReportJson)  # Quantico
 
