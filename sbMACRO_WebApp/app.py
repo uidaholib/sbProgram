@@ -193,7 +193,7 @@ def index():
 @app.route('/trial', methods=['GET'])
 def dataVis():
 
-    return(render_template('index.html', **locals(), title="Home"))
+    return(render_template('d3.html', **locals(), title="Trial Page"))
 
 
 @app.route('/count-data', methods=['POST'])
