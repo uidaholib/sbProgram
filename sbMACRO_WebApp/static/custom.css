@@ -24,3 +24,14 @@ th {
 label {
   font-size: 30px;
 }
+
+
+/*from the d3 tutorial at https://scrimba.com/casts/cast-1953*/
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}

@@ -3,16 +3,26 @@
     <title>D3 Trials</title>
     <script src="https://d3js.org/d3.v4.js"></script>   
     <!-- This is from https://www.youtube.com/watch?v=TR39nfAW1dw&index=3&list=PL6il2r9i3BqH9PmbOf5wA5E1wOG3FT22p -->
+    <link rel="stylesheet" href="../static/custom.css">
 </head>
 <body>
-    <script>
+    <!-- <script>
 
         var dataArray = [20, 35, 40, 50]
 
+        var width = 500;
+        var height = 500;
+
+        // var identityScale = d3.scaleLinear();
+
+        var widthScale = d3.scaleLinear();
+        widthScale.domain([0, 60]) //take the largest amount from your data.
+        .range([0, width]); //this is what you want your data converted to be.
+
         var canvas = d3.select("body")
                         .append("svg")
-                        .attr("width", 500)
-                        .attr("height", 500)
+                        .attr("width", width)
+                        .attr("height", height)
                         .attr("fill", "grey");
 
         var bars = canvas.selectAll("rect") // this selects all rectangles on the canvas. There aren't any, so it returns an empty array.
@@ -21,8 +31,10 @@
                     .enter() //returns placeholders for each element that don't have corresponding elements available to them
                         //now for each of these placeholders, we will append a rectangle
                         .append("rect")
-                        .attr("width", function (d) {return d * 10;})//d stands for each element in .data. We multiply it by 10 to make it look nicer.
+                        .attr("width", function (d) { return widthScale(d); }) //this returns the scaled width for each data point
+                        // .attr("width", function (d) {return d * 10;})//d stands for each element in .data. We multiply it by 10 to make it look nicer.
                         .attr("height", 50)
+                        .attr("fill", "red")
                         .attr("y", function (d, i) {return i * 100}); //i is the index for each item in .data
                             //gap will be 50 px because height of element is 50, and 100 - 50 = 50
 
@@ -46,6 +58,24 @@
         //             .attr("stroke-width", 10);
 
     
+    </script> -->
+    
+    <div class="chart">
+    
+    </div>
+    <script>
+    //from https://scrimba.com/casts/cast-1953
+
+    var data = [30, 86, 168, 281, 303, 365];
+
+    d3.select(".chart")
+        .selectAll("div")
+        .data(data)
+            .enter()
+            .append("div")
+            .style("width", function(d) { return d + "px"; })
+            .text(function(d) { return d; });
     </script>
+    
 </body>
 </html>
