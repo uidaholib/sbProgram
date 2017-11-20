@@ -1,7 +1,9 @@
 <html>
 <head>
     <title>D3 Trials</title>
-    <script src="https://d3js.org/d3.v4.js"></script>   
+    <script src="static/jquery.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>  
+    <script src="5006c1e5e4b0abf7ce733f3b.js"></script>
     <!-- This is from https://www.youtube.com/watch?v=TR39nfAW1dw&index=3&list=PL6il2r9i3BqH9PmbOf5wA5E1wOG3FT22p -->
     <link rel="stylesheet" href="../static/custom.css">
 </head>
@@ -63,7 +65,14 @@
     <div class="chart">
     
     </div>
+    <svg class="BarGraph">
+
+    </svg>
+
     <script>
+        console.log(report);
+    </script>
+    <!-- <script>
     //from https://scrimba.com/casts/cast-1953
 
     var data = [30, 86, 168, 281, 303, 365];
@@ -75,7 +84,7 @@
             .append("div")
             .style("width", function(d) { return d + "px"; })
             .text(function(d) { return d; });
-    </script>
+    </script> -->
     
 </body>
 </html>
