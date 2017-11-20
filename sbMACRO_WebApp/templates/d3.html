@@ -3,7 +3,7 @@
     <title>D3 Trials</title>
     <script src="static/jquery.js"></script>
     <script src="https://d3js.org/d3.v4.js"></script>  
-    <script src="5006c1e5e4b0abf7ce733f3b.js"></script>
+    <!-- <script src="5006c1e5e4b0abf7ce733f3b.js"></script> -->
     <!-- This is from https://www.youtube.com/watch?v=TR39nfAW1dw&index=3&list=PL6il2r9i3BqH9PmbOf5wA5E1wOG3FT22p -->
     <link rel="stylesheet" href="../static/custom.css">
 </head>
@@ -70,7 +70,44 @@
     </svg>
 
     <script>
-        console.log(report);
+
+        var svg = d3.select('svg');
+        svg.size();
+        // 1 -- one <svg> element exists
+
+        var rects = svg.selectAll('rect')
+                    .data(sales);
+        var days = [[0, 0, 0, 0], [39255, 23505, 200411, 0]];
+        var sales = days[0];    
+        console.log(days);
+
+        function toggle() {
+        sales = (sales == days[0]) ? days[1] : days[0];
+        update();
+        }
+
+        function update() {
+        var rects = svg.selectAll('rect')
+            .data(sales, function(d, i) { return d.product });
+
+        // When we enter, we add the DOM element
+        // and set up the things that won't change
+        var enterRects = rects.enter()
+            .append('rect')
+            .attr('x', x(0))
+            .attr('y', function(d, i) {
+                return y(d.product);
+            })
+            .attr('height', y.bandwidth())
+
+        // "rects" represents the update selection, we need to
+        // manually merge it with the enter selection to update
+        // all rects at the same time
+        rects.merge(enterRects)
+            .attr('width', function(d, i) {
+            return x(d.count);
+            });
+        };
     </script>
     <!-- <script>
     //from https://scrimba.com/casts/cast-1953
