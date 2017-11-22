@@ -213,6 +213,34 @@
 
         update();
     })();
+
+ var sales = [ { product: 'Hoodie', count: 7 }, { product: 'Jacket', count: 6 }, { product: 'Snuggie', count: 9 }, ]; var
+svg = d3.select('svg'); svg.size(); // 1 -- one
+<svg> element exists var rects = svg.selectAll('rect') .data(sales); rects.size(); // 0 -- no
+    <rect> elements exist yet! var newRects = rects.enter(); // recall that scales are functions that map from // data space to
+        screen space var maxCount = d3.max(sales, function(d, i) { return d.count; }); var x = d3.scaleLinear() .range([0,
+        300]) .domain([0, maxCount]); var y = d3.scaleBand() //changed from scaleOrdinal .rangeRound([0, 75]) //changed from
+        rangeBoundBands .domain(sales.map(function(d, i) { return d.product; })); newRects.append('rect') .attr('x', x(0))
+        .attr('y', function(d, i) { return y(d.product); }) .attr('height', y.bandwidth()) //changed from .rangeBand .attr('width',
+        function(d, i) { return x(d.count); }); //REMOVING ELEMENTS var pop = sales.pop(); // drops the last element console.log(pop);
+        console.log(rects); var rects = rects.data(sales); // join the data again console.log(rects); var rectsToRemove =
+        rects.exit(); console.log(rectsToRemove); rectsToRemove.size() // 1 -- one element is part of the exit selection
+        rectsToRemove.remove(); // instantly removes var sales1 = [ { product: 'Hoodie', count: 7 }, { product: 'Jacket',
+        count: 6 } ]; var sales2 = [ { product: 'Jacket', count: 6 }, // same { product: 'Snuggie', count: 9 } // new ];
+        var rects = svg.selectAll('rect') .data(sales1, function(d, i) { return d.product; } ); rects.enter().append('rect');
+        rects.size(); // 2 -- first join, adds two new elements var nextrects = rects .data(sales2, function(d, i) { return
+        d.product; }); nextrects.exit().size(); // 1 -- one element to remove nextrects.exit().remove(); nextrects.enter().append('rect');
+        // adds one element function toggle() { sales = (sales == days[0]) ? days[1] : days[0]; update(); } function update()
+        { var rects = svg.selectAll('rect') .data(sales, function(d, i) { return d.product }); var enterRects = rects.enter()
+        .append('rect') .attr('x', x(0)) .attr('y', function(d, i) { return y(d.product); }) .attr('height', y.bandwidth())
+        .attr('width', function(d, i) { return x(d.count); }); rects.merge(enterRects) .transition() // NEW .duration(1000)
+        // Also NEW .attr('width', function(d, i) { return x(d.count); }); }; //straight from the site's javascript: (function
+        () { /* Fancy example, smooth transition */ var sales = days[0]; var svg = d3.select('svg'); d3.select('.toggle').on('click',
+        function () { sales = (sales == days[0]) ? days[1] : days[0]; update(); }) function update() { var rects = svg.selectAll('rect')
+        .data(sales, function (d, i) { return d.product }); // When we enter, we add the DOM element // and set up the things
+        that won't change var enterRects = rects.enter() .append('rect') .attr('x', x(0)) .attr('y', function (d, i) { return
+        y(d.product); }) .attr('height', y.bandwidth()) .attr('width', function (d, i) { return x(d.count); }); rects.merge(enterRects).transition()
+        .duration(1000) .attr('width', function (d, i) { return x(d.count); }); }; update(); })();
 </script>
 
 </html>
