@@ -196,6 +196,12 @@ def dataVis():
     return(render_template('d3.html', **locals(), title="Trial Page"))
 
 
+@app.route('/trial2', methods=['GET'])
+def dataVis():
+
+    return(render_template('d3.2.html', **locals(), title="Trial Page"))
+
+
 @app.route('/count-data', methods=['POST'])
 def handle_data():
 
