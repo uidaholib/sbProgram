@@ -197,7 +197,7 @@ def dataVis():
 
 
 @app.route('/trial2', methods=['GET'])
-def dataVis():
+def dataVis2():
 
     return(render_template('d3.2.html', **locals(), title="Trial Page"))
 
