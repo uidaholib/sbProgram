@@ -65,6 +65,12 @@ To Do on MACRO:
 * Change table row hover color to not match the striping
 * Running Fiscal year total is not resetting.
 * Make "Data Per File" more useful?
+* Graphs: Add different colors for different fiscal years?
+* Graphs: Animations: graph filling, pie charts growing to their size, mouse over affects (mouse over bar to see exact data, pie chart for a peak into the data, etc.)
+* Different CSCs but same fiscal year only gives one fiscal year bar in the graph.
+* Different colors for CSC's? Some way to differenciate. Shades for FYs, colors for CSCs?
+* Submit button not working if going back to index any way other than by URL.
+* Create a script to have a json of fiscal years to populate index without contacting sciencebase. Maybe after the hard search, it goes through the jsons and grabs the FYs? Maybe it just checks for a new one at the beginning of the hard search?
 
 
 Security:
