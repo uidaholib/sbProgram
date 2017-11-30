@@ -35,3 +35,7 @@ label {
   margin: 1px;
   color: white;
 }
+
+.bar { /*This is not working for some reason?*/
+  fill: rgb(46, 112, 145) !important;
+}
