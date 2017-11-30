@@ -202,7 +202,7 @@ def dataVis2():
     return(render_template('d3.2.html', **locals(), title="Trial Page"))
 
 
-@app.route('/count-data', methods=['POST'])
+@app.route('/handle_data', methods=['POST'])
 def handle_data():
 
     import sys
@@ -312,7 +312,7 @@ def download_log():
     # for Windows:
     # sys.path.insert(0, 'C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     # For Mac:
-    sys.path.insert(0, '/Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
+    sys.path.insert(0, './DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     import gl, parse, countData_proj, ExcelPrint
     reportDict = ExcelPrint.main()
     FullReportJson = JsonTransformer()
