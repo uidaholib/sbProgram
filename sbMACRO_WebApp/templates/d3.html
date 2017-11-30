@@ -104,18 +104,18 @@
         });
 
 
-    //REMOVING ELEMENTS
-    var pop = sales.pop(); // drops the last element
-    console.log(pop);
-    console.log(rects);
-    var rects = rects.data(sales); // join the data again
-    console.log(rects);
-    var rectsToRemove = rects.exit();
-    console.log(rectsToRemove);
-    rectsToRemove.size()
+    // //REMOVING ELEMENTS
+    // var pop = sales.pop(); // drops the last element
+    // console.log(pop);
+    // console.log(rects);
+    // var rects = rects.data(sales); // join the data again
+    // console.log(rects);
+    // var rectsToRemove = rects.exit();
+    // console.log(rectsToRemove);
+    // rectsToRemove.size()
     // 1 -- one element is part of the exit selection
 
-    rectsToRemove.remove(); // instantly removes
+    // rectsToRemove.remove(); // instantly removes
 
     var sales1 = [
         { product: 'Hoodie', count: 7 },
@@ -174,7 +174,7 @@
 </script>
 
 
-<script>
+<!-- <script>
     //straight from the site's javascript:
 
     (function () {
@@ -218,8 +218,8 @@
     })();
 
  var sales = [ { product: 'Hoodie', count: 7 }, { product: 'Jacket', count: 6 }, { product: 'Snuggie', count: 9 }, ]; var
-svg = d3.select('svg'); svg.size(); // 1 -- one
-<svg> element exists var rects = svg.selectAll('rect') .data(sales); rects.size(); // 0 -- no
+    svg = d3.select('svg'); svg.size(); // 1 -- one
+    <svg> element exists var rects = svg.selectAll('rect') .data(sales); rects.size(); // 0 -- no
     <rect> elements exist yet! var newRects = rects.enter(); // recall that scales are functions that map from // data space to
         screen space var maxCount = d3.max(sales, function(d, i) { return d.count; }); var x = d3.scaleLinear() .range([0,
         300]) .domain([0, maxCount]); var y = d3.scaleBand() //changed from scaleOrdinal .rangeRound([0, 75]) //changed from
@@ -244,7 +244,7 @@ svg = d3.select('svg'); svg.size(); // 1 -- one
         that won't change var enterRects = rects.enter() .append('rect') .attr('x', x(0)) .attr('y', function (d, i) { return
         y(d.product); }) .attr('height', y.bandwidth()) .attr('width', function (d, i) { return x(d.count); }); rects.merge(enterRects).transition()
         .duration(1000) .attr('width', function (d, i) { return x(d.count); }); }; update(); })();
-</script>
+</script> -->
 
 </html>
 </body>
