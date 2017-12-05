@@ -1,3 +1,7 @@
+/* html {
+  font-size: 12pt;
+} */
+
 div#content {
     display: none;
     }
@@ -36,6 +40,64 @@ label {
   color: white;
 }
 
-.bar { /*This is not working for some reason?*/
-  fill: rgb(46, 112, 145) !important;
+.bar {
+  fill: rgb(46, 112, 145);
+  color: rgb(46, 112, 145);
+}
+.bar:hover {
+  fill: rgb(55, 136, 176);
+  color: white;
+}
+
+.bar#NWCSC {
+  fill: rgb(47, 144, 86);
+  color: rgb(47, 144, 86);
+}
+.bar#NWCSC:hover {
+  fill: rgb(18, 188, 86);
+  color: white;
+}
+
+.bar#SWCSC {
+  fill: rgb(0, 170, 255);
+  color: rgb(0, 170, 255);
+}
+.bar#SWCSC:hover {
+  fill: rgb(0, 221, 255);
+  color: white;
+}
+
+
+/*Tool-tips / d3-tips styling:*/
+.d3-tip {
+  line-height: 1;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+
+/* Creates a small triangle extender for the tooltip */
+
+/* .d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+} */
+
+
+/* Style northward tooltips specifically */
+
+.d3-tip.n:after {
+  margin: -2px 0 0 0;
+  top: 100%;
+  left: 0;
 }
