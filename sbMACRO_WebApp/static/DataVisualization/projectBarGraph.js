@@ -72,7 +72,7 @@ function projectBarGraph (reportDict) {
   var svg = d3.select("#wrapper").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-    .append("g")
+      .append("g")
       .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
@@ -80,20 +80,32 @@ function projectBarGraph (reportDict) {
   data.forEach(function(d) {
     d.size = +d.size;
   });
-  // // my version: format data
-  // projectObjArray.forEach(function (d) {
-  //   d.size = +d.size; //not sure what this means or how it formats the data.
-  // });
 
   // Scale the range of the data in the domains
   x.domain([0, d3.max(data, function(d){ return d.size; })])
   y.domain(data.map(function(d) { return d.number; }));
   //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
-  // //My version: scale the range of the data in the domains
-  // x.domain([0, d3.max(projectObjArray, function(d){ return d.size; })])
-  // y.domain(projectObjArray.map(function(d) { return d.number; }));
-  
+  //Adding labels for amount of each bar
+
+  //d3-tip: http://bl.ocks.org/davegotz/bd54b56723c154d25eedde6504d30ad7
+  // Setup the tool tip.  Note that this is just one example, and that many styling options are available.
+  // See original documentation for more details on styling: http://labratrevenge.com/d3-tip/
+    var tool_tip = d3.tip()
+      .attr("class", "d3-tip")
+      .offset([0, 0])
+      .html(function (d) {
+        var rStr = d.size.toString().substring(0, 4);
+        if (parseFloat(rStr) < 0.01) {
+          rStr = "Less than 0.01";
+        } else {
+          rStr = "~"+rStr;
+        }
+        return rStr + "gb";
+      });
+  svg.call(tool_tip);
+
+
 
   // append the rectangles for the bar chart
   svg.selectAll(".bar")
@@ -103,19 +115,9 @@ function projectBarGraph (reportDict) {
       //.attr("x", function(d) { return x(d.sales); })
       .attr("width", function(d) {return x(d.size); } )
       .attr("y", function(d) { return y(d.number); })
-      .attr("height", y.bandwidth());
-
-  // // My version: append the rectangles for the bar chart
-  // svg.selectAll(".bar")
-  //     .data(projectObjArray)
-  //   .enter().append("rect")
-  //     .attr("class", "bar")
-  //     //.attr("x", function(d) { return x(d.sales); })
-  //     .attr("width", function (d) { return x(d.size); })
-  //     .attr("y", function (d, i) {
-  //       return i * (width / projectObjArray.length);
-  //     })
-  //     .attr("height", y.bandwidth());
+      .attr("height", y.bandwidth())
+      .on('mouseover', tool_tip.show)
+      .on('mouseout', tool_tip.hide);
 
   // add the x Axis
   svg.append("g")
@@ -125,6 +127,15 @@ function projectBarGraph (reportDict) {
   // add the y Axis
   svg.append("g")
       .call(d3.axisLeft(y));
+
+  //Adding x axis label
+  svg.append("text")
+    .attr("y", (height + margin.bottom / 2))
+    .attr("x", width)
+    .attr("dy", "1em")
+    .attr("font-size", ".8em")
+    .style("text-anchor", "end")
+    .text("Gigabytes (GB)");
 
   //Adding a title
   svg.append("text")
