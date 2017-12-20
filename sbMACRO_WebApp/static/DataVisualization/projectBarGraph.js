@@ -1,6 +1,7 @@
 
 var createGraphfunc;
-var projectObjArray;
+var NWCSC_projectObjArray;
+var SWCSC_projectObjArray;
 function projectBarGraph (reportDict) {
   // console.log("GRAPH-BUILDING SCRIPT");   //DeBug
   $(document).ready(function () {
@@ -8,7 +9,8 @@ function projectBarGraph (reportDict) {
     
     console.log(reportDict);   //DeBug
     
-  projectObjArray = [];
+  NWCSC_projectObjArray = [];
+  SWCSC_projectObjArray = [];
 
   var createAndAddObject = function (name, size, number, FY, CSC) {
     var project = {};
@@ -24,7 +26,17 @@ function projectBarGraph (reportDict) {
     project.CSC = CSC;
     // console.log("project:");   //DeBug
     // console.log(project);   //DeBug
-    projectObjArray.push(project);
+    if (CSC === "NWCSC")
+    {
+      console.log("NWCSC!");
+      NWCSC_projectObjArray.push(project);
+    }
+    if (CSC === "SWCSC")
+    {
+      console.log("SWCSC!");
+      SWCSC_projectObjArray.push(project);
+    }
+    
     // console.log("!!!!!!!!!!!!array:");   //DeBug
     // console.log(projectObjArray);   //DeBug
   }
@@ -54,15 +66,33 @@ function projectBarGraph (reportDict) {
     }
   }
   iterate(reportDict);
-  console.log("projectObjArray");
-  console.log(projectObjArray);
-  createGraph(projectObjArray);
+  NWCSC_Max = getMaxSize(NWCSC_projectObjArray);
+  SWCSC_Max = getMaxSize(SWCSC_projectObjArray);
+  //Check which size is the max size of all data.
+  if( NWCSC_Max >= SWCSC_Max)
+  {
+    var Max = NWCSC_Max;
+  }
+  else {
+    var Max = SWCSC_Max;
+  }
+  createGraph(NWCSC_projectObjArray, "NWCSC", Max);
+  createGraph(SWCSC_projectObjArray, "SWCSC", Max);
 });
 };
   
+var getMaxSize = function (objArray) {
+  var maxSize = 0;
+  for (var i = 0; i < objArray.length; i++)
+  {
+    // console.log("current size: " + objArray[i].size);    //Debug
+    // console.log("MaxSize: " + maxSize);    //Debug
+    maxSize = objArray[i].size > maxSize ? objArray[i].size : maxSize;
+  }
+  return maxSize;
+}
 
-
-function createGraph (data){
+function createGraph (data, currCSC, DATA_max){
   console.log("In createGraph");
   // var data = projectObjArray;
   // set the dimensions and margins of the graph
@@ -71,6 +101,8 @@ function createGraph (data){
       height = 500 - margin.top - margin.bottom;
       //Should set width and height dynamically
   updateDimensions(data, window.innerWidth, window.innerHeight);
+
+  //Come back to this to change graph layout for small screen sizes
   var breakPoint = 768;
   // set the ranges
   var y = d3.scaleBand()
@@ -98,7 +130,9 @@ function createGraph (data){
   
 
   // Scale the range of the data in the domains
-  x.domain([0, d3.max(data, function(d){ return d.size; })])
+  // x.domain([0, d3.max(data, function(d){ return d.size; })])
+  //Instead of normal ^, we must use max of both datasets for both graphs.
+  x.domain([0, DATA_max]) 
   y.domain(data.map(function(d) { return d.number; }));
   //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
@@ -168,7 +202,7 @@ function createGraph (data){
       .attr("text-anchor", "middle")
       .style("font-size", "20px")
       .style("text-decoration", "underline")
-      .text("ScienceBase Project Size Comparison");
+      .text("ScienceBase Project Size Comparison-- " + currCSC);
 
   //Adding Legend
   var legendRectSize = 18;
@@ -178,16 +212,6 @@ function createGraph (data){
 
   for (var i = 0; i < data.length; i++)
   {
-    if ($.inArray(data[i].CSC, existing_FYs) === -1) {
-      // the value is not in the array
-      existing_FYs.push(data[i].CSC);
-      for (var c = 0; c < data.length; c++) {
-        if ( data[c].CSC === data[i].CSC )
-        {
-          if ($.inArray(data[i].CSC, existing_FYs) === -1) {
-        }
-      }
-    }
     if ($.inArray(data[i].FY, existing_FYs) === -1) {
       // the value is not in the array
       existing_FYs.push(data[i].FY);
@@ -196,21 +220,35 @@ function createGraph (data){
   console.log("existing_FYs");
   console.log(existing_FYs);
   var legend = svg.selectAll('.legend')
-    .data(data)
+    .data(data.filter(function (d) {
+      var index = $.inArray(d.FY, existing_FYs);
+      if (index > -1) {
+        // the value is in the array
+        //remove element from array
+        existing_FYs.splice(index, 1);
+        //use this d:
+        return d;
+      }
+      else {
+        //do nothing (skip this d)
+      }
+    }))
     .enter()
     .append('g')
     .attr('class', 'legend')
-    .attr('id', function (d) {return 'FY'+d.FY;})
+      .attr('id', function (d) {return 'FY' + d.FY})
     .attr('transform', function (d, i) {
-      var height = legendRectSize + legendSpacing;
-      var offset = height * data.length / 2;
-      var horz = -2 * legendRectSize;
-      var vert = i * height - offset;
+      // var height = legendRectSize + legendSpacing;
+      // var offset = height * data.length / 2;
+      // var horz = -2 * legendRectSize;
+      // var vert = i * height - offset;
+      var horz = width * 0.9;
+      var vert = i * 18;
       return 'translate(' + horz + ',' + vert + ')';
     });
 
   legend.append('rect')
-    .attr('class', function (d) { return 'legend ' + d.CSC; })
+    .attr('class', function (d) { return 'legend ' + currCSC; })
     .attr('id', function (d) { return 'FY' + d.FY; })
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)
@@ -219,7 +257,8 @@ function createGraph (data){
   legend.append('text')
     .attr('x', legendRectSize + legendSpacing)
     .attr('y', legendRectSize - legendSpacing)
-    .text(function (d) { return d.FY; });
+    .text(function (d) { return "FY "+d.FY; });
+
 
   //Updating dimensions
   function updateDimensions(data, winWidth, winHeight) {
@@ -231,13 +270,13 @@ function createGraph (data){
     margin.bottom = 30;
 
     width = (winWidth * .75) - margin.left - margin.right;
-    var barRelativeSize = 70 + (20 * data.length)
-    var widthRelativeSize = .7 * width;
+    var barRelativeSize = 70 + (10 * data.length)
+    var widthRelativeSize = .5 * width;
     height = widthRelativeSize > barRelativeSize ? widthRelativeSize : barRelativeSize;
     widthRelativeSize > barRelativeSize ? console.log("widthRelativeSize") : console.log("barRelativeSize");
     if(barRelativeSize > window.innerHeight)
     {
-      height = winHeight*.9;
+      height = winHeight * 0.5;
       console.log("Height = window.innerHeight");
     }
     console.log("End updateDimensions");
@@ -253,6 +292,7 @@ function createGraph (data){
 function catchResize () {
   console.log("Resized1!");
   d3.select("#projectGraph_svg").remove();
+  d3.select("#projectGraph_svg").remove(); //once for each CSC
   projectBarGraph(reportDict);
 
 }
