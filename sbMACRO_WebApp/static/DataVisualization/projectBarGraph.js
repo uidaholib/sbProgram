@@ -298,6 +298,7 @@ function catchResize () {
 }
 // d3.select(window).on('resize', go);
 window.addEventListener('resize', catchResize);
-// addEvent(window, "resize", function (event) {
-//   console.log('resized');
-// });
+addEvent(window, "resize", function (event) {
+  console.log('resized');
+});
+
