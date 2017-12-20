@@ -1,4 +1,6 @@
-  
+
+var createGraphfunc;
+var projectObjArray;
 function projectBarGraph (reportDict) {
   // console.log("GRAPH-BUILDING SCRIPT");   //DeBug
   $(document).ready(function () {
@@ -6,9 +8,9 @@ function projectBarGraph (reportDict) {
     
     console.log(reportDict);   //DeBug
     
-  var projectObjArray = [];
+  projectObjArray = [];
 
-  var createAndAddObject = function (name, size, number) {
+  var createAndAddObject = function (name, size, number, FY, CSC) {
     var project = {};
     project.name = name;
     if (size === "None") {
@@ -18,6 +20,8 @@ function projectBarGraph (reportDict) {
       project.size = size;
     }
     project.number = number.toString();
+    project.FY = FY.substring(3,7);
+    project.CSC = CSC;
     // console.log("project:");   //DeBug
     // console.log(project);   //DeBug
     projectObjArray.push(project);
@@ -26,13 +30,16 @@ function projectBarGraph (reportDict) {
   }
   function iterate(reportDict) {
     var report = reportDict.report;
+    var identity = reportDict.identity;
     var projectNumber = 0
     // console.log("report");   //DeBug
     // console.log(report);   //DeBug
     for (var i = 0; i < report.length; i++) {
       var fiscalYear = report[i];
-      // console.log("fiscalYear:")   //DeBug
-      // console.log(fiscalYear);   //DeBug
+      var FY = identity[i].name;
+      var csc = identity[i].CSC;
+      console.log("FY:")   //DeBug
+      console.log(FY);   //DeBug
       for (var z = 0; z < fiscalYear.length; z++) {
         projectNumber++;
         var projectObj = fiscalYear[z];
@@ -42,22 +49,29 @@ function projectBarGraph (reportDict) {
         var size = projectObj.DataInProject;
         // console.log("data");   //DeBug
         // console.log(data);   //DeBug
-        createAndAddObject(name, size, projectNumber);
+        createAndAddObject(name, size, projectNumber, FY, csc);
       }
     }
   }
   iterate(reportDict);
   console.log("projectObjArray");
   console.log(projectObjArray);
+  createGraph(projectObjArray);
+});
+};
   
 
-  var data = projectObjArray;
+
+function createGraph (data){
+  console.log("In createGraph");
+  // var data = projectObjArray;
   // set the dimensions and margins of the graph
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
       //Should set width and height dynamically
-
+  updateDimensions(data, window.innerWidth, window.innerHeight);
+  var breakPoint = 768;
   // set the ranges
   var y = d3.scaleBand()
             .range([0, height])
@@ -72,6 +86,7 @@ function projectBarGraph (reportDict) {
   var svg = d3.select("#wrapper").append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .attr("id", "projectGraph_svg")
       .append("g")
       .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
@@ -80,6 +95,7 @@ function projectBarGraph (reportDict) {
   data.forEach(function(d) {
     d.size = +d.size;
   });
+  
 
   // Scale the range of the data in the domains
   x.domain([0, d3.max(data, function(d){ return d.size; })])
@@ -89,32 +105,40 @@ function projectBarGraph (reportDict) {
   //Adding labels for amount of each bar
 
   //d3-tip: http://bl.ocks.org/davegotz/bd54b56723c154d25eedde6504d30ad7
-  // Setup the tool tip.  Note that this is just one example, and that many styling options are available.
+  // Setup the tool tip.
   // See original documentation for more details on styling: http://labratrevenge.com/d3-tip/
-    var tool_tip = d3.tip()
-      .attr("class", "d3-tip")
-      .offset([0, 0])
-      .html(function (d) {
-        var rStr = d.size.toString().substring(0, 4);
-        if (parseFloat(rStr) < 0.01) {
-          rStr = "Less than 0.01";
-        } else {
-          rStr = "~"+rStr;
-        }
-        return rStr + "gb";
-      });
+  var tool_tip = d3.tip()
+    .attr("class", "d3-tip")
+    .offset([0, 0])
+    .html(function (d) {
+      var rStr = d.size.toString().substring(0, 4);
+      var rFY = d.FY;
+      var rCSC = d.CSC
+      if (parseFloat(rStr) < 0.01) {
+        rStr = "Less than 0.01";
+      } else {
+        rStr = "~"+rStr;
+      }
+      return "Science Center: " + rCSC + "<br>" + 
+      "Fiscal Year: " + rFY + "<br>" +
+      "Project Number: " + d.number + "<br>" +
+      rStr + "gb";
+    });
   svg.call(tool_tip);
 
 
-
-  // append the rectangles for the bar chart
+  
+  // append the rectangles for the bar svg
   svg.selectAll(".bar")
       .data(data)
     .enter().append("rect")
-      .attr("class", "bar")
+      .attr("class", function (d) { console.log(d.CSC); return "bar "+d.CSC; })
+      // .attr("class", function (d) { console.log(d.CSC); return d.CSC; })
+      .attr("id", function (d) { return "FY"+d.FY; })
       //.attr("x", function(d) { return x(d.sales); })
       .attr("width", function(d) {return x(d.size); } )
       .attr("y", function(d) { return y(d.number); })
+      .attr("data-legend", function (d) {return d.CSC + " FY: " + d.FY})
       .attr("height", y.bandwidth())
       .on('mouseover', tool_tip.show)
       .on('mouseout', tool_tip.hide);
@@ -146,5 +170,94 @@ function projectBarGraph (reportDict) {
       .style("text-decoration", "underline")
       .text("ScienceBase Project Size Comparison");
 
-  })
+  //Adding Legend
+  var legendRectSize = 18;
+  var legendSpacing = 4;
+  
+  var existing_FYs = [];
+
+  for (var i = 0; i < data.length; i++)
+  {
+    if ($.inArray(data[i].CSC, existing_FYs) === -1) {
+      // the value is not in the array
+      existing_FYs.push(data[i].CSC);
+      for (var c = 0; c < data.length; c++) {
+        if ( data[c].CSC === data[i].CSC )
+        {
+          if ($.inArray(data[i].CSC, existing_FYs) === -1) {
+        }
+      }
+    }
+    if ($.inArray(data[i].FY, existing_FYs) === -1) {
+      // the value is not in the array
+      existing_FYs.push(data[i].FY);
+    }
+  }
+  console.log("existing_FYs");
+  console.log(existing_FYs);
+  var legend = svg.selectAll('.legend')
+    .data(data)
+    .enter()
+    .append('g')
+    .attr('class', 'legend')
+    .attr('id', function (d) {return 'FY'+d.FY;})
+    .attr('transform', function (d, i) {
+      var height = legendRectSize + legendSpacing;
+      var offset = height * data.length / 2;
+      var horz = -2 * legendRectSize;
+      var vert = i * height - offset;
+      return 'translate(' + horz + ',' + vert + ')';
+    });
+
+  legend.append('rect')
+    .attr('class', function (d) { return 'legend ' + d.CSC; })
+    .attr('id', function (d) { return 'FY' + d.FY; })
+    .attr('width', legendRectSize)
+    .attr('height', legendRectSize)
+
+
+  legend.append('text')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize - legendSpacing)
+    .text(function (d) { return d.FY; });
+
+  //Updating dimensions
+  function updateDimensions(data, winWidth, winHeight) {
+    console.log("In UPdateDimensions");
+    console.log(data);
+    margin.top = 40;
+    margin.right = winWidth < breakPoint ? 0 : 20;
+    margin.left = winWidth < breakPoint ? 0 : 40;
+    margin.bottom = 30;
+
+    width = (winWidth * .75) - margin.left - margin.right;
+    var barRelativeSize = 70 + (20 * data.length)
+    var widthRelativeSize = .7 * width;
+    height = widthRelativeSize > barRelativeSize ? widthRelativeSize : barRelativeSize;
+    widthRelativeSize > barRelativeSize ? console.log("widthRelativeSize") : console.log("barRelativeSize");
+    if(barRelativeSize > window.innerHeight)
+    {
+      height = winHeight*.9;
+      console.log("Height = window.innerHeight");
+    }
+    console.log("End updateDimensions");
+  }
 }
+
+// var createGraphfunc = createGraph();
+
+// console.log("projectObjArray...");
+// console.log(projectObjArray);
+
+// d3.select(window).on('resize', createGraph(projectObjArray));
+function catchResize () {
+  console.log("Resized1!");
+  d3.select("#projectGraph_svg").remove();
+  projectBarGraph(reportDict);
+
+}
+// d3.select(window).on('resize', go);
+window.addEventListener('resize', catchResize);
+// addEvent(window, "resize", function (event) {
+//   console.log('resized');
+// });
