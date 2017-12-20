@@ -261,3 +261,4 @@ window.addEventListener('resize', catchResize);
 // addEvent(window, "resize", function (event) {
 //   console.log('resized');
 // });
+}
