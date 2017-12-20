@@ -41,32 +41,136 @@ label {
 }
 
 .bar {
-  fill: rgb(46, 112, 145);
-  color: rgb(46, 112, 145);
+  fill: #2e7091;
 }
 .bar:hover {
-  fill: rgb(55, 136, 176);
-  color: white;
+  fill: #3788b0;
 }
 
-.bar#NWCSC {
-  fill: rgb(47, 144, 86);
-  color: rgb(47, 144, 86);
+#NWCSC {
+  fill: #003995;
 }
-.bar#NWCSC:hover {
-  fill: rgb(18, 188, 86);
-  color: white;
+#NWCSC:hover {
+  fill: #353536;
 }
 
-.bar#SWCSC {
-  fill: rgb(0, 170, 255);
-  color: rgb(0, 170, 255);
+#SWCSC {
+  fill: #d5a700;
 }
-.bar#SWCSC:hover {
-  fill: rgb(0, 221, 255);
-  color: white;
+#SWCSC:hover {
+  fill: #353536;
 }
 
+/*For the project graph, color pallet choices*/
+.bar.NWCSC {
+  fill: #2f5390;
+}
+
+.bar.NWCSC:hover {
+  fill: #353536; 
+}
+.NWCSC#FY2011 {
+  fill: #001f54;
+}
+.bar.NWCSC#FY2011:hover {
+  fill: #353536; 
+}
+.NWCSC#FY2012 {
+  fill: #003995;
+}
+.bar.NWCSC#FY2012:hover {
+  fill: #353536; 
+}
+.NWCSC#FY2013 {
+  fill: #0042ad;
+}
+.bar.NWCSC#FY2013:hover {
+  fill: #353536; 
+}
+.NWCSC#FY2014 {
+  fill: #0053d9;
+}
+.bar.NWCSC#FY2014:hover {
+  fill: #353536; 
+}
+.NWCSC#FY2015 {
+  fill: #0062ff;
+}
+.bar.NWCSC#FY2015:hover {
+  fill: #353536; 
+}
+.NWCSC#FY2016 {
+  fill: #4b80cf;
+}
+.bar.NWCSC#FY2016:hover {
+  fill: #353536; 
+}
+.NWCSC#FY2017 {
+  fill: #91b6ed;
+}
+.bar.NWCSC#FY2017:hover {
+  fill: #353536; 
+}
+
+.SWCSC {
+  fill: #5b4000;
+}
+
+.bar.SWCSC:hover {
+  fill: rgb(86, 93, 105);
+}
+
+.SWCSC#FY2011 {
+  fill: #5b4000;
+}
+.bar.SWCSC#FY2011:hover {
+  fill: #353536; 
+}
+
+.SWCSC#FY2012 {
+  fill: #845c00;
+}
+.bar.SWCSC#FY2012:hover {
+  fill: #353536; 
+}
+
+.SWCSC#FY2013 {
+  fill: #b27c00;
+}
+.bar.SWCSC#FY2013:hover {
+  fill: #353536; 
+}
+.SWCSC#FY2014 {
+  fill: #9d7b2d;
+}
+.bar.SWCSC#FY2014:hover {
+  fill: #353536; 
+}
+.SWCSC#FY2015 {
+  fill: #d79806;
+}
+.bar.SWCSC#FY2015:hover {
+  fill: #353536; 
+}
+.SWCSC#FY2016 {
+  fill: #efa700;
+}
+.bar.SWCSC#FY2016:hover {
+  fill: #353536; 
+}
+.SWCSC#FY2017 {
+  fill: #fec339;
+}
+.bar.SWCSC#FY2017:hover {
+  fill: #353536; 
+}
+
+/*For legend: */
+.legend rect {
+  fill: white;
+  /* stroke: black; */
+  opacity: 0.8;
+}
 
 /*Tool-tips / d3-tips styling:*/
 .d3-tip {
