@@ -1,13 +1,13 @@
 
-var createGraphfunc;
+
 var NWCSC_projectObjArray;
 var SWCSC_projectObjArray;
 function projectBarGraph (reportDict) {
   // console.log("GRAPH-BUILDING SCRIPT");   //DeBug
   $(document).ready(function () {
-    console.log("reportDict in second script:");   //DeBug
+    // console.log("reportDict in second script:");   //DeBug
     
-    console.log(reportDict);   //DeBug
+    // console.log(reportDict);   //DeBug
     
   NWCSC_projectObjArray = [];
   SWCSC_projectObjArray = [];
@@ -93,7 +93,7 @@ var getMaxSize = function (objArray) {
 }
 
 function createGraph (data, currCSC, DATA_max){
-  console.log("In createGraph");
+  // console.log("In createGraph");
   // var data = projectObjArray;
   // set the dimensions and margins of the graph
   var margin = {top: 40, right: 20, bottom: 30, left: 40},
@@ -172,7 +172,6 @@ function createGraph (data, currCSC, DATA_max){
       //.attr("x", function(d) { return x(d.sales); })
       .attr("width", function(d) {return x(d.size); } )
       .attr("y", function(d) { return y(d.number); })
-      .attr("data-legend", function (d) {return d.CSC + " FY: " + d.FY})
       .attr("height", y.bandwidth())
       .on('mouseover', tool_tip.show)
       .on('mouseout', tool_tip.hide);
@@ -236,7 +235,7 @@ function createGraph (data, currCSC, DATA_max){
     .enter()
     .append('g')
     .attr('class', 'legend')
-      .attr('id', function (d) {return 'FY' + d.FY})
+    .attr('id', function (d) {return 'FY' + d.FY})
     .attr('transform', function (d, i) {
       // var height = legendRectSize + legendSpacing;
       // var offset = height * data.length / 2;
@@ -259,10 +258,21 @@ function createGraph (data, currCSC, DATA_max){
     .attr('y', legendRectSize - legendSpacing)
     .text(function (d) { return "FY "+d.FY; });
 
+  // var legendBackground = svg.selectAll(".legend-wrapper")
+  // .append('g')
+  // .append("class", "legend-wrapper")
+  // .attr('transform', 'translate(100,100)')
+  // .append("rect")
+  //   .attr("class", "legend-wrapper")
+  //   .attr("x", 10)
+  //   .attr("y", 10)
+  //   .attr("width", 100)
+  //   .attr("height", 100);
+
 
   //Updating dimensions
   function updateDimensions(data, winWidth, winHeight) {
-    console.log("In UPdateDimensions");
+    // console.log("In UPdateDimensions");
     console.log(data);
     margin.top = 40;
     margin.right = winWidth < breakPoint ? 0 : 20;
@@ -273,32 +283,30 @@ function createGraph (data, currCSC, DATA_max){
     var barRelativeSize = 70 + (10 * data.length)
     var widthRelativeSize = .5 * width;
     height = widthRelativeSize > barRelativeSize ? widthRelativeSize : barRelativeSize;
-    widthRelativeSize > barRelativeSize ? console.log("widthRelativeSize") : console.log("barRelativeSize");
+    // widthRelativeSize > barRelativeSize ? console.log("widthRelativeSize") : console.log("barRelativeSize");
     if(barRelativeSize > window.innerHeight)
     {
       height = winHeight * 0.5;
-      console.log("Height = window.innerHeight");
+      // console.log("Height = window.innerHeight");
     }
-    console.log("End updateDimensions");
+    // console.log("End updateDimensions");
   }
 }
 
-// var createGraphfunc = createGraph();
-
-// console.log("projectObjArray...");
-// console.log(projectObjArray);
 
 // d3.select(window).on('resize', createGraph(projectObjArray));
-function catchResize () {
-  console.log("Resized1!");
-  d3.select("#projectGraph_svg").remove();
-  d3.select("#projectGraph_svg").remove(); //once for each CSC
-  projectBarGraph(reportDict);
+// function catchResize () {
+//   console.log("Resized1!");
+//   d3.select("#projectGraph_svg").remove();
+//   d3.select("#projectGraph_svg").remove(); //once for each CSC
+//   projectBarGraph(reportDict);
+//   d3.select("#fyGraphWrapper").remove(); 
+//   FY_BarGraph(reportDict);
 
-}
-// d3.select(window).on('resize', go);
-window.addEventListener('resize', catchResize);
+// }
+// // d3.select(window).on('resize', go);
+// window.addEventListener('resize', catchResize);
 // addEvent(window, "resize", function (event) {
 //   console.log('resized');
 // });
-}
+
