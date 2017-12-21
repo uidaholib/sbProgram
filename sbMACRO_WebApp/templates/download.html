@@ -94,7 +94,19 @@
 <script>  
   var reportDict = {{ FullReportJson | safe }};
   projectBarGraph(reportDict); //from ../static/DataVisualization/projectBarGraph.js
+  $("<br><br>").insertAfter("#wrapper");
   FY_BarGraph(reportDict); //from ../static/DataVisualization/FY_BarGraph.js
+  function catchResize() {
+    console.log("Resized1!");
+    d3.select("#projectGraph_svg").remove();
+    d3.select("#projectGraph_svg").remove(); //once for each CSC
+    projectBarGraph(reportDict);
+    d3.select("#FYGraph_svg").remove();
+    FY_BarGraph(reportDict);
+
+  }
+  // d3.select(window).on('resize', go);
+  window.addEventListener('resize', catchResize);
 </script>
 
 
