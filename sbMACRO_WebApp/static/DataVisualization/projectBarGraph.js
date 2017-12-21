@@ -164,8 +164,11 @@ function createGraph (data, currCSC, DATA_max){
   
   // append the rectangles for the bar svg
   svg.selectAll(".bar")
-      .data(data)
-    .enter().append("rect")
+    .data(data)
+    .enter()
+    // .append("svg:a")
+    //   .attr("xlink:href", "#"+d.number)
+    .append("rect")
       .attr("class", function (d) { console.log(d.CSC); return "bar "+d.CSC; })
       // .attr("class", function (d) { console.log(d.CSC); return d.CSC; })
       .attr("id", function (d) { return "FY"+d.FY; })
@@ -173,6 +176,12 @@ function createGraph (data, currCSC, DATA_max){
       .attr("width", function(d) {return x(d.size); } )
       .attr("y", function(d) { return y(d.number); })
       .attr("height", y.bandwidth())
+      .on('click', function (d) {
+        var id = 'p' + d.number;
+        console.log("Number: "+id+". element: " + document.getElementById(id));
+        
+        document.getElementById(id).scrollIntoView(); 
+      })
       .on('mouseover', tool_tip.show)
       .on('mouseout', tool_tip.hide);
 
