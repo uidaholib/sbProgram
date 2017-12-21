@@ -77,6 +77,7 @@ To Do on MACRO:
 * Add "more info" link to a row on table that pulls from google sheets that gives history of the project. Serve as big pop up window (called modal/dialogue. Use jquery?)
 * Add home splash page.
 * add white background (slightly opaque) legend so you can still see it if there is a big rect.
+* Update colors (perhaps use Materialize color arrays)
 
 
 Security:
