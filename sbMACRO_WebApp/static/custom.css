@@ -20,6 +20,13 @@ div#content {
   margin: auto;
 }
 
+table.highlight tbody tr:hover {
+  background-color: #009688 !important;
+  
+}
+table.highlight tbody tr:hover a {
+  color: #ffffff !important;
+}
 
 th {
   text-align: center;
