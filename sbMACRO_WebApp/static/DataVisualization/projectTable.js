@@ -46,7 +46,7 @@ function buildProjectTable (reportDict) {
           // console.log(itemDate);   //DeBug
           // console.log('itemIdentity: ');   //DeBug
           // console.log(itemCSC);   //DeBug
-          report_data += '<tr>\n';
+          report_data += '<tr id=\"p'+projectNumber+'\">\n';
           report_data += '<td>' + projectNumber + '</td>\n';
           report_data += '<td>' + itemCSC + '</td>\n';
           report_data += '<td>' + itemData.FY + '</td>\n';
