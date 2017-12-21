@@ -71,6 +71,12 @@ To Do on MACRO:
 * Different colors for CSC's? Some way to differenciate. Shades for FYs, colors for CSCs?
 * Submit button not working if going back to index any way other than by URL.
 * Create a script to have a json of fiscal years to populate index without contacting sciencebase. Maybe after the hard search, it goes through the jsons and grabs the FYs? Maybe it just checks for a new one at the beginning of the hard search?
+* Add searching through our data: for projects in the table or something. jquery search table.
+* Remove item report. Not useful. 
+      - Actually, just grey out mixed and item boxes
+* Add "more info" link to a row on table that pulls from google sheets that gives history of the project. Serve as big pop up window (called modal/dialogue. Use jquery?)
+* Add home splash page.
+* add white background (slightly opaque) legend so you can still see it if there is a big rect.
 
 
 Security:
