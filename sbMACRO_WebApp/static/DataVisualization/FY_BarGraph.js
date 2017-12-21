@@ -228,7 +228,7 @@ function createFYGraph (data){
     margin.left = winWidth < breakPoint ? 0 : 50;
     margin.bottom = 30;
 
-    width = (winWidth * .75) - margin.left - margin.right;
+    width = (winWidth * .50) - margin.left - margin.right;
     var barRelativeSize = 70 + (10 * data.length)
     var widthRelativeSize = .5 * width;
     height = widthRelativeSize > barRelativeSize ? widthRelativeSize : barRelativeSize;
