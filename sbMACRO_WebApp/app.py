@@ -176,8 +176,17 @@ def full_hard_search():
     # FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
+    sys.path.insert(0, './DataCounting')
+    import editGPY
+    editGPY.clearMemory()
+    error = None
+    return(render_template('index.html', **locals(), title="Project Data Count"))
+
+
+@app.route('/fiscalYears', methods=['GET', 'POST'])
+def fiscalYearsF():
     sys.path.insert(0, './DataCounting')
     import editGPY
     editGPY.clearMemory()
@@ -188,18 +197,16 @@ def index():
     print(NWCSC_FYs_OrderedDict)
     print(SWCSC_FYs_OrderedDict)
 
-    return(render_template('index.html', **locals(), title="Home"))
-
-@app.route('/trial', methods=['GET'])
-def dataVis():
-
-    return(render_template('d3.html', **locals(), title="Trial Page"))
+    return(render_template('fiscalYears.html', **locals(), title="Home"))
 
 
-@app.route('/trial2', methods=['GET'])
-def dataVis2():
-
-    return(render_template('d3.2.html', **locals(), title="Trial Page"))
+@app.route('/projects', methods=['GET'])
+def projects():
+    sys.path.insert(0, './DataCounting')
+    import editGPY
+    editGPY.clearMemory()
+    error = None
+    return(render_template('projects.html', **locals(), title="Project Data Count"))
 
 
 @app.route('/handle_data', methods=['POST'])
@@ -226,6 +233,9 @@ def handle_data():
         gl.Excel_choice = request.form.get("Excel-choice")
         # flash(gl.Excel_choice)
         print(gl.Excel_choice)
+        fromFY = request.form.get("submitFY")
+        print("fromFY")
+        print(fromFY)
     else:
         return(redirect('/'))
     reportDict = {}
@@ -237,7 +247,42 @@ def handle_data():
     identityList = []
     identityList[:] = []
     IDsToBeDeleted = []
-    if hardSearch == []:
+    if requestItems == [] and gl.Excel_choice == None:  # this means its a project POST request
+        sb_urls = request.form.getlist("SBurls")
+        print("sb_urls")
+        print(sb_urls)
+        requestItems = []
+        for i in sb_urls:
+            try:
+                json1 = sb.get_json(i)
+                # pprint(json)
+                item_id = json1['id']
+                if item_id not in requestItems:
+                    requestItems.append(item_id)
+            except:
+                print("Invalid URL")
+        for ID in requestItems:
+            for root, dirs, files in os.walk("./jsonCache"):
+                for filename in files:  # this looks at each file's name for each item
+                    filePath = "./jsonCache/" + filename
+                    if filename.endswith(".json"):
+                        with open(filePath) as json_data:
+                            data = json.load(json_data)
+                            for i in data['report']:
+                                if i['ID'] == ID:
+                                    IDsToBeDeleted.append(ID)
+                                    matchedProject = i
+                                    print("matchedProject")
+                                    print(matchedProject)
+                                    matchedProjectArr = []
+                                    matchedProjectArr.append(matchedProject)
+                                    reportList.append(matchedProjectArr)
+                                    dateList.append(data['Date'])
+                                    identityList.append(data['identity'])  #this may be wrong
+        reportDict['report'] = reportList
+        reportDict['date'] = dateList
+        reportDict['identity'] = identityList
+    elif hardSearch == []:
         print('hardSearch == []')
         for ID in requestItems:
             for root, dirs, files in os.walk("./jsonCache"):

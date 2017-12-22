@@ -18,6 +18,8 @@
 
 <script>
   var reportDict = {{ FullReportJson| safe }};
+  console.log("reportDict:")
+  console.log(reportDict);
   buildProjectTable(reportDict);
 </script>
 <script type="text/javascript">
@@ -114,5 +116,8 @@
 <!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
 
 
-
+<!-- <script>
+  let currentPage = document.getElementById('Nav-FiscalYear');
+  currentPage.classList.add("currentPage");
+</script> -->
 {% endblock %}

@@ -75,9 +75,26 @@ To Do on MACRO:
 * Remove item report. Not useful. 
       - Actually, just grey out mixed and item boxes
 * Add "more info" link to a row on table that pulls from google sheets that gives history of the project. Serve as big pop up window (called modal/dialogue. Use jquery?)
+- - In dialogue box, have communication history as well as whether or not DMP is approved (all taken from Google sheets)
+- - Perhaps include (using DMP Editor API) amount of data expected vs what we have.
 * Add home splash page.
 * add white background (slightly opaque) legend so you can still see it if there is a big rect.
 * Update colors (perhaps use Materialize color arrays)
+* Add project functionality
+* Perhaps, for projects with really small amounts of data that don't show up on graph, have tool tip automatically show up no matter what with a little arrow pointing to it. Have it pop up just to the right of the axis with an arrow to the left, pointing where the bar would be with the data that's in it.
+- - Then you'd have to add a hover on the tool tip to get more info than just the size. Same as the normal tool tip
+* charts: legends need to change position by size of window. They're getting cut off in small sizes.
+* Change DataPerFile to Number of Files in project
+
+project functionality:
+* Add ability to upload a CSV with a bunch of urls
+* Add ability to delete a url from list
+* Add hard search?
+* Don't create project comparison graphs is only one project is analyzed
+
+
+FiscalYear
+* Make sure only the graphs that are needed are created. Curretly creates both NWCSC and SWCSC even if not necessary.
 
 
 Security:
