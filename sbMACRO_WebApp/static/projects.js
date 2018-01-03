@@ -36,23 +36,23 @@ function gatherProjects () {
             //grab from the beginning to just before the comma as a url
             var url = input.substring(0,comma)
             console.log("url: " + url);
-            if (url.length > 63 && input.length < 67)
+            if (url.length > 63 && url.length < 67)
             {
-                if (input.includes("https://www.sciencebase.gov/catalog/item") === true) {
+                if (url.includes("https://www.sciencebase.gov/catalog/item") === true) {
                     URLarray.push(url)
                 } else {
                     anySkipped = true;
                     amountSkipped++;
                     //if "format" is not in the reasons array, add it.
                     let typeIndex = reasons.indexOf("format");
-                    if (typeIndex = -1) { reasons.push("format"); }
+                    if (typeIndex == -1) { reasons.push("format"); }
                 }
             } else {
                 anySkipped = true;
                 amountSkipped++;
                 //if "length" is not in the reasons array, add it.
                 let typeIndex = reasons.indexOf("length");
-                if ( typeIndex = -1) { reasons.push("length"); }
+                if ( typeIndex == -1) { reasons.push("length"); }
             }
             input = input.substring(comma+1, input.length)
             console.log("new input: " + input)
@@ -73,14 +73,14 @@ function gatherProjects () {
                     amountSkipped++;
                     //if "format" is not in the reasons array, add it.
                     let typeIndex = reasons.indexOf("format");
-                    if (typeIndex = -1) { reasons.push("format"); }
+                    if (typeIndex == -1) { reasons.push("format"); }
                 }            
             } else {
                 anySkipped = true;
                 amountSkipped++;
                 //if "format" is not in the reasons array, add it.
                 let typeIndex = reasons.indexOf("length");
-                if (typeIndex = -1) { reasons.push("length"); }
+                if (typeIndex == -1) { reasons.push("length"); }
             }
             input = '';
         }
@@ -107,7 +107,6 @@ function problemAlert (amountSkipped, reasons, blank){
     let wasORwere;
     if (amountSkipped == 1) { wasORwere = 'was'; }
     else { wasORwere = 'were'; }
-    console.log(wasORwere);
 
     if (reasons.indexOf("length") > -1 && reasons.indexOf("format") > -1) {
         alert(amountSkipped + " of the URL(s) provided did not appear to be either formated correctly or of the correct length and " + wasORwere + " discarded.");
