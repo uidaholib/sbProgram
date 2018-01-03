@@ -85,12 +85,29 @@ To Do on MACRO:
 - - Then you'd have to add a hover on the tool tip to get more info than just the size. Same as the normal tool tip
 * charts: legends need to change position by size of window. They're getting cut off in small sizes.
 * Change DataPerFile to Number of Files in project
+* Create "report" button that brings you to last cached report once one has been created. Greyed out or nonexistant beforehand.
+* Move left nav bar to top banner. 
+
+* Data per File -> Num of Files
+
+* Turn project column into modal link
+
+* Modal info will be created every night with python, saved to jsons, js pulls info from jsons to populate modal.
+
+* Modal Design: 2x2 grid topped by DMP status. Top row: history, pie chart. Bottom row: Potential Products, Recieved Products (do these last).
+
+* Add placeholder pie chart image
+
+* Start collecting all children of each project in an array (names and url)
+
+* get rid of default hard search if id's are not identified.
 
 project functionality:
 * Add ability to upload a CSV with a bunch of urls
 * Add ability to delete a url from list
 * Add hard search?
 * Don't create project comparison graphs is only one project is analyzed
+* Add paragraph or list of objects passed as projects that were not recognized so they know if something they gave wasn't good.
 
 
 FiscalYear
