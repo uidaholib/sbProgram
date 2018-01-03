@@ -8,9 +8,11 @@
     <script src="static/jquery.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js">
-    </script>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
     <!-- <link rel="stylesheet" href="../static/bootstrap.min.css"> -->
     <link rel="stylesheet" href="../static/custom.css">
     <link rel="stylesheet" href="../static/table.css">
@@ -26,25 +28,62 @@
 
   </script>
   <script>
-    $(document).ready(function () {
+
+  $(document).ready(function () {
+    var $nav = $("#nav");
+    var $content = $("#content");
+    var $loading = $("#loading");
+    $loading.hide();
+    // $("#loading").hide();
+    $("input[type=submit]").on('click', function () {
+    // $("#submit").click(function () {
+      $content.hide();
+      $nav.hide();
+      $loading.show();
+      // $("#loading").show();
+      // setTimeout(function () {
+      //     $('#loading-message').fadeOut('fast');
+      //   }, 500);
+      //$("#loading-message").empty();
+
+    });
+  });
+    var showLoading = function () {
       var $nav = $("#nav");
       var $content = $("#content");
       var $loading = $("#loading");
+      $content.hide();
+      $nav.hide();
+      $loading.show();
+    };
+    var DontShowLoading = function () {
+      var $nav = $("#nav");
+      var $content = $("#content");
+      var $loading = $("#loading");
+      $content.show();
+      $nav.show();
       $loading.hide();
-      // $("#loading").hide();
-      $("input[type=submit]").on('click', function () {
-      // $("#submit").click(function () {
-        $content.hide();
-        $nav.hide();
-        $loading.show();
-        // $("#loading").show();
-        // setTimeout(function () {
-        //     $('#loading-message').fadeOut('fast');
-        //   }, 500);
-        //$("#loading-message").empty();
+    };
+    
+  $(document).ready(function () {
+    var $nav = $("#nav");
+    var $content = $("#content");
+    var $loading = $("#loading");
+    $loading.hide();
+    // $("#loading").hide();
+    $("input[type=submit]").on('click', function () {
+    // $("#submit").click(function () {
+      $content.hide();
+      $nav.hide();
+      $loading.show();
+      // $("#loading").show();
+      // setTimeout(function () {
+      //     $('#loading-message').fadeOut('fast');
+      //   }, 500);
+      //$("#loading-message").empty();
 
-      });
     });
+  });
   </script>
 
   <div id="loading">
