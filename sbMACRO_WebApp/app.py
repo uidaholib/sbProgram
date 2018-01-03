@@ -99,7 +99,7 @@ def defined_hard_search():
             requestItems.append(answer)
     for i in requestItems:
         gl.itemsToBeParsed.append(i)
-        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
+        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to report.html.
     if gl.itemsToBeParsed != []:
         parse.main()
     else:
@@ -159,7 +159,7 @@ def full_hard_search():
                                 
     for i in requestItems:
         gl.itemsToBeParsed.append(i)
-        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
+        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to report.html.
     if gl.itemsToBeParsed != []:
         parse.main()
     if len(requestItems) == 0:
@@ -209,7 +209,7 @@ def projects():
     return(render_template('projects.html', **locals(), title="Project Data Count"))
 
 
-@app.route('/handle_data', methods=['POST'])
+@app.route('/report', methods=['POST'])
 def handle_data():
 
     import sys
@@ -323,7 +323,7 @@ def handle_data():
 
         for i in requestItems:
             gl.itemsToBeParsed.append(i)
-        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to download.html.
+        #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to report.html.
         parse.main()
         reportDict = ExcelPrint.main()
     FullReportJson = JsonTransformer()
@@ -336,7 +336,7 @@ def handle_data():
     # print("FullReportJson: ")  # Quantico
     # pprint(FullReportJson)  # Quantico
 
-    return(render_template('download.html', FullReportJson=FullReportJson))
+    return(render_template('report.html', FullReportJson=FullReportJson))
     #your code
 
 def getChildren():
@@ -366,10 +366,10 @@ def download_log():
     
     #print(report)
 
-    return(render_template('download.html', FullReportJson=FullReportJson))
+    return(render_template('report.html', FullReportJson=FullReportJson))
 
 
-# return(render_template('download.html', reportDict=json.dumps(reportDict)))
+# return(render_template('report.html', reportDict=json.dumps(reportDict)))
 
 
 # start the server with the 'run()' method
