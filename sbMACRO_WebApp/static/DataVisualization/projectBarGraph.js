@@ -76,8 +76,43 @@ function projectBarGraph (reportDict) {
   else {
     var Max = SWCSC_Max;
   }
-  createGraph(NWCSC_projectObjArray, "NWCSC", Max);
-  createGraph(SWCSC_projectObjArray, "SWCSC", Max);
+  if (Max > 0)
+  {
+    //if NWSCS_Max is > 0
+    if(NWCSC_Max > 0){
+      //create graph if both NWSCS and SWCSC have at least 1 project and SWCSC_Max is ALSO > 0, or if NWCSC has at least 2 projects
+      if ((NWCSC_projectObjArray.length > 0 
+            && SWCSC_projectObjArray.length > 0
+            && SWCSC_Max > 0)
+        || NWCSC_projectObjArray.length > 1) {
+        createGraph(NWCSC_projectObjArray, "NWCSC", Max);
+      }
+    } else {
+      createNoDataProjGraph("NWCSC");
+    }
+    //if SWSCS_Max is > 0
+    if(SWCSC_Max > 0){
+      //create graph if both SWSCS and NWCSC have at least 1 project and NWCSC_Max is ALSO > 0, or if SWCSC has at least 2 projects
+      if ((SWCSC_projectObjArray.length > 0 
+            && NWCSC_projectObjArray.length > 0
+            && NWCSC_Max > 0)
+        || SWCSC_projectObjArray.length > 1) {
+        createGraph(SWCSC_projectObjArray, "SWCSC", Max);
+      }
+    } else {
+      createNoDataProjGraph("SWCSC");
+    }
+  //else, if the Max of both is not greater than 0, create NoData graphs for both if they have any projects
+  } else {
+    if (NWCSC_projectObjArray.length > 0){
+      createNoDataProjGraph("NWCSC");
+    }
+    if (SWCSC_projectObjArray.length > 0) {
+      createNoDataProjGraph("SWCSC");
+    }
+  }
+  
+  
 });
 };
   
@@ -90,6 +125,89 @@ var getMaxSize = function (objArray) {
     maxSize = objArray[i].size > maxSize ? objArray[i].size : maxSize;
   }
   return maxSize;
+
+
+}
+
+function createNoDataProjGraph(currCSC) {
+  // set the dimensions and margins of the graph
+  var margin = { top: 40, right: 20, bottom: 30, left: 60 },
+    width = 960 - margin.left - margin.right,
+    height = 150 - margin.top - margin.bottom;
+  //Should set width and height dynamically
+  updateFYDimensions(window.innerWidth, window.innerHeight);
+  //Come back to this to change graph layout for small screen sizes
+  var breakPoint = 768;
+  // set the ranges
+  var y = d3.scaleLinear()
+    .range([0, height])
+
+  var x = d3.scaleLinear()
+    .range([0, width]);
+
+  // append the svg object to the body of the page
+  // append a 'group' element to 'svg'
+  // moves the 'group' element to the top left margin
+  var svg = d3.select("#fyGraphWrapper").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .attr("id", "FYGraph_svg")
+    .append("g")
+    .attr("transform",
+    "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+  // Scale the range of the data in the domains
+  x.domain([0, 100])
+  // y.domain(d3.range(data.length));
+  y.domain([0, 100]);
+  //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+
+
+  // append the rectangles for the bar chart
+
+  //Adding x axis label
+  svg.append("text")
+    .attr("y", (.1 * height))
+    .attr("x", (width / 2))
+    .attr("dy", "1em")
+    .attr("font-size", "1.2em")
+    .attr("font-style", "italic")
+    .style("fill", "grey")
+    .style("text-anchor", "middle")
+    .text("Selected " + currCSC + " Projects");
+
+  svg.append("text")
+    .attr("y", (.3 * height))
+    .attr("x", (width / 2))
+    .attr("dy", "1em")
+    .attr("font-size", "1.2em")
+    .attr("font-style", "italic")
+    .style("fill", "grey")
+    .style("text-anchor", "middle")
+    .text("contain no data");
+
+
+  //Adding a title
+  svg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0 - (margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "20px")
+    .style("text-decoration", "underline")
+    .text("ScienceBase Project Size Comparison-- " + currCSC);
+
+  //Updating dimensions
+  function updateFYDimensions(winWidth, winHeight) {
+    margin.top = 40;
+    margin.right = winWidth < breakPoint ? 0 : 20;
+    margin.left = winWidth < breakPoint ? 0 : 50;
+    margin.bottom = 30;
+
+    width = (winWidth * .50) - margin.left - margin.right;
+    height = winHeight * 0.25;
+  }
 }
 
 function createGraph (data, currCSC, DATA_max){
