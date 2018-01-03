@@ -100,10 +100,12 @@
   FY_BarGraph(reportDict); //from ../static/DataVisualization/FY_BarGraph.js
   function catchResize() {
     console.log("Resized1!");
+    var s = d3.selectAll('svg');
+    s.remove();
     d3.select("#projectGraph_svg").remove();
     d3.select("#projectGraph_svg").remove(); //once for each CSC
-    projectBarGraph(reportDict);
     d3.select("#FYGraph_svg").remove();
+    projectBarGraph(reportDict);
     FY_BarGraph(reportDict);
 
   }
