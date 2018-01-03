@@ -13,7 +13,20 @@ function gatherProjects () {
         input = input.replace(' ', '');
     }
     console.log("input w/0 spaces: " + input);
+    let blank = false;
+    
+    
+    let anySkipped = false;
+    let amountSkipped = 0;
+    let reasons = [];
 
+    if (input == '')
+    {
+        blank = true;
+        amountSkipped++;
+        console.log("Blank Entry");
+        problemAlert(amountSkipped, reasons, blank);
+    }
     //extract each url
     while (input != '')
     {
@@ -23,30 +36,98 @@ function gatherProjects () {
             //grab from the beginning to just before the comma as a url
             var url = input.substring(0,comma)
             console.log("url: " + url);
-            URLarray.push(url)
+            if (url.length > 63 && input.length < 67)
+            {
+                if (input.includes("https://www.sciencebase.gov/catalog/item") === true) {
+                    URLarray.push(url)
+                } else {
+                    anySkipped = true;
+                    amountSkipped++;
+                    //if "format" is not in the reasons array, add it.
+                    let typeIndex = reasons.indexOf("format");
+                    if (typeIndex = -1) { reasons.push("format"); }
+                }
+            } else {
+                anySkipped = true;
+                amountSkipped++;
+                //if "length" is not in the reasons array, add it.
+                let typeIndex = reasons.indexOf("length");
+                if ( typeIndex = -1) { reasons.push("length"); }
+            }
             input = input.substring(comma+1, input.length)
             console.log("new input: " + input)
         }
         if (comma === -1 && input != '')
         {
-            //take the whole thing as another url
-            URLarray.push(input);
+            //check that it's close to the right length (~65)
+            if( input.length > 63 && input.length < 67)
+            {
+                if (input.includes("https://www.sciencebase.gov/catalog/item") === true)
+                {
+                    //take the whole thing as another url
+                    console.log("check here:");
+                    console.log("https://www.sciencebase.gov/catalog/item/4f4e476ae4b07f02db47e13b".length);
+                    URLarray.push(input);
+                } else {
+                    anySkipped = true;
+                    amountSkipped++;
+                    //if "format" is not in the reasons array, add it.
+                    let typeIndex = reasons.indexOf("format");
+                    if (typeIndex = -1) { reasons.push("format"); }
+                }            
+            } else {
+                anySkipped = true;
+                amountSkipped++;
+                //if "format" is not in the reasons array, add it.
+                let typeIndex = reasons.indexOf("length");
+                if (typeIndex = -1) { reasons.push("length"); }
+            }
             input = '';
         }
     }
+    
+    if(anySkipped===true)
+    {
+        problemAlert(amountSkipped, reasons, blank);
+    }
     console.log("URLarray");
     console.log(URLarray);
-    createCollection(URLarray);
+    if(URLarray.length > 0){
+        createCollection(URLarray);
+    }
+    
 }
 
+function problemAlert (amountSkipped, reasons, blank){
+    if(blank)
+    {
+        alert("Please add a Science Base Project URL");
+        return;
+    }
+    let wasORwere;
+    if (amountSkipped == 1) { wasORwere = 'was'; }
+    else { wasORwere = 'were'; }
+    console.log(wasORwere);
+
+    if (reasons.indexOf("length") > -1 && reasons.indexOf("format") > -1) {
+        alert(amountSkipped + " of the URL(s) provided did not appear to be either formated correctly or of the correct length and " + wasORwere + " discarded.");
+    } else if (reasons.indexOf("format") > -1) {
+        alert(amountSkipped + " of the URL(s) provided did not appear to be the correct format and " + wasORwere + " discarded.");
+    } else if (reasons.indexOf("length") > -1) {
+        alert(amountSkipped + " of the URL(s) provided did not appear to be of the correct length and " + wasORwere + " discarded.");
+    }
+};
 
 function createCollection (array) {
+    if (array.length === 0) {
+        return;
+    }
     const ul = document.querySelector('ul');
     ul.className = 'collection';//adds the collectin class to the ul's so they look good as a Materialize list
     for (var i = 0; i < array.length; i++)
     {
         const li = document.createElement('li'); //create a list item element
-        li.className = 'collection-item';
+        li.className = 'collection-item SBurls';
         const inputEl = document.createElement('input');
         inputEl.setAttribute("type", "hidden")
         inputEl.setAttribute("name", "SBurls");
@@ -78,3 +159,31 @@ $(document).ready(function () {
         }
     });
 });
+
+function processForm(e) {
+
+    const urls = document.getElementsByClassName("SBurls");
+    console.log(urls);
+
+    if (urls.length > 0) {
+        // You must return true to allow the default form behavior
+        return true;
+    }
+    else {
+        if (e.preventDefault) e.preventDefault();
+        DontShowLoading();
+        alert("Please add a Science Base Project URL");
+        // You must return false to prevent the default form behavior
+        return false;
+    }
+    /* do what you want with the form */
+
+}
+
+
+const form = document.getElementById('Project-Select-Form');
+if (form.attachEvent) {
+    form.attachEvent("submit", processForm);
+} else {
+    form.addEventListener("submit", processForm);
+}
