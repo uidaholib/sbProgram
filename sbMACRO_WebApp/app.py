@@ -247,6 +247,7 @@ def handle_data():
     identityList = []
     identityList[:] = []
     IDsToBeDeleted = []
+    # this is how we deal with projects:
     if requestItems == [] and gl.Excel_choice == None:  # this means its a project POST request
         sb_urls = request.form.getlist("SBurls")
         print("sb_urls")
@@ -354,9 +355,6 @@ def getChildren():
 def download_log():
 
     import sys
-    # for Windows:
-    # sys.path.insert(0, 'C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
-    # For Mac:
     sys.path.insert(0, './DataCounting')  #eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
     import gl, parse, countData_proj, ExcelPrint
     reportDict = ExcelPrint.main()
