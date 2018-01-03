@@ -1,11 +1,25 @@
 
 // Doctored From http://bl.ocks.org/kiranml1/6872226 
 function FY_BarGraph (reportDict) {
-  // console.log("GRAPH-BUILDING SCRIPT");   //DeBug
+
   $(document).ready(function () {
-    // console.log(reportDict);
-    if(reportDict.report.length > 1){
-      // console.log("More than 1 fiscal year chosen!");
+
+    //check that there are multiple FYs
+    let FYs = [];
+    for (let i = 0; i < reportDict.report.length; i++)
+    {
+      let identity = reportDict.identity[i].CSC + reportDict.identity[i].name;
+      console.log(identity);
+      //if "identity" is not in the reasons array, add it.
+      let fyIndex = FYs.indexOf(identity);
+      if (fyIndex == -1) { FYs.push(identity); }
+      console.log(FYs);
+    }
+
+
+    //if there is more than one FY, create the graph.
+    if(FYs.length > 1){
+      console.log("More than 1 fiscal year chosen!");
       
 
       var fyObjArray = [];
@@ -46,11 +60,112 @@ function FY_BarGraph (reportDict) {
       }
 
       getFYsizes(reportDict.report, reportDict.identity);
-  
-      createFYGraph(fyObjArray)
+      
+      const fyMaxSize = getMaxSize(fyObjArray);
+      console.log("fyMaxSize");
+      console.log(fyMaxSize);
+      if (fyMaxSize > 0){
+        createFYGraph(fyObjArray)
+      }
+      else {
+        createNoDataFyGraph();
+      }
+      
     }
     });
 };
+
+var getMaxSize = function (objArray) {
+  var maxSize = 0;
+  for (var i = 0; i < objArray.length; i++) {
+    // console.log("current size: " + objArray[i].size);    //Debug
+    // console.log("MaxSize: " + maxSize);    //Debug
+    maxSize = objArray[i].size > maxSize ? objArray[i].size : maxSize;
+  }
+  return maxSize;
+}
+
+function createNoDataFyGraph() {
+  // set the dimensions and margins of the graph
+  var margin = { top: 40, right: 20, bottom: 30, left: 60 },
+    width = 960 - margin.left - margin.right,
+    height = 150 - margin.top - margin.bottom;
+  //Should set width and height dynamically
+  updateFYDimensions(window.innerWidth, window.innerHeight);
+  //Come back to this to change graph layout for small screen sizes
+  var breakPoint = 768;
+  // set the ranges
+  var y = d3.scaleLinear()
+    .range([0, height])
+
+  var x = d3.scaleLinear()
+    .range([0, width]);
+
+  // append the svg object to the body of the page
+  // append a 'group' element to 'svg'
+  // moves the 'group' element to the top left margin
+  var svg = d3.select("#fyGraphWrapper").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .attr("id", "FYGraph_svg")
+    .append("g")
+    .attr("transform",
+    "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+  // Scale the range of the data in the domains
+  x.domain([0, 100])
+  // y.domain(d3.range(data.length));
+  y.domain([0,100]);
+  //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+
+
+  // append the rectangles for the bar chart
+
+  //Adding x axis label
+  svg.append("text")
+    .attr("y", (.1 * height))
+    .attr("x", (width/2))
+    .attr("dy", "1em")
+    .attr("font-size", "1.2em")
+    .attr("font-style", "italic")
+    .style("fill", "grey")
+    .style("text-anchor", "middle")
+    .text("Selected Fiscal Years");
+
+  svg.append("text")
+    .attr("y", (.3 * height))
+    .attr("x", (width / 2))
+    .attr("dy", "1em")
+    .attr("font-size", "1.2em")
+    .attr("font-style", "italic")
+    .style("fill", "grey")
+    .style("text-anchor", "middle")
+    .text("contain no data");
+
+
+  //Adding a title
+  svg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0 - (margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "20px")
+    .style("text-decoration", "underline")
+    .text("ScienceBase Fiscal Year Data Comparison");
+
+  //Updating dimensions
+  function updateFYDimensions(winWidth, winHeight) {
+    margin.top = 40;
+    margin.right = winWidth < breakPoint ? 0 : 20;
+    margin.left = winWidth < breakPoint ? 0 : 50;
+    margin.bottom = 30;
+
+    width = (winWidth * .50) - margin.left - margin.right;
+    height = winHeight * 0.25;
+  }
+}
+
 
       //Now, building the graph:
 function createFYGraph (data){
@@ -137,7 +252,13 @@ function createFYGraph (data){
   var FYList = data.map(function (obj) {return obj.name});
 
   var yAxis = d3.axisLeft(y)  //);
-    .tickFormat(function (d) { return d.substring(5, 13); });
+    .tickFormat(function (d) { 
+      console.log(d);
+      var output = d.replace(' FY', '');
+      console.log(output);
+      // return d.substring(5, 13); 
+      return output;
+    });
 
   svg.append("g")
     .call(yAxis);
@@ -174,12 +295,12 @@ function createFYGraph (data){
       existing_CSCs.push(data[i].CSC);
     }
   }
-  console.log("existing_CSCs");
-  console.log(existing_CSCs);
+  // console.log("existing_CSCs");
+  // console.log(existing_CSCs);
   var legend = svg.selectAll('.legend')
     .data(data.filter(function (d) {
       var index = $.inArray(d.CSC, existing_CSCs);
-      console.log("index: "+index);
+      // console.log("index: "+index);
       if (index > -1) {
         // the value is in the array
         //remove element from array
@@ -190,8 +311,8 @@ function createFYGraph (data){
       else {
         //do nothing (skip this d)
       }
-      console.log("existing_CSCs2");
-      console.log(existing_CSCs);
+      // console.log("existing_CSCs2");
+      // console.log(existing_CSCs);
     }))
     .enter()
     .append('g')
@@ -225,7 +346,7 @@ function createFYGraph (data){
     // console.log(data);
     margin.top = 40;
     margin.right = winWidth < breakPoint ? 0 : 20;
-    margin.left = winWidth < breakPoint ? 0 : 50;
+    margin.left = winWidth < breakPoint ? 0 : 75;
     margin.bottom = 30;
 
     width = (winWidth * .50) - margin.left - margin.right;
