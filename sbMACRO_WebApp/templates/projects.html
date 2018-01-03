@@ -8,8 +8,12 @@
 <p>Type or paste one or more Science Base Project urls (separated by commas) onto the line below and press "Add" to add them to a running list of projects to be analyzed. Double click an item to delete it. When finished, click "Submit".</p>
 <p>You may also upload a CSV of cells that each contain a Science Base Project url. </p>
 <p>Any incorrect or unrecognized urls will be ignored. </p>
-<br>    
-
+<p>Do you want us to perform a Hard Search for projects we don't recognize? This option should be turned on if you want information of projects created or modified in the last day (we create and cache ScienceBase data every night).</p>
+<br>
+<div class="row">
+    <div></div>
+</div>    
+<br>
 <div class="row">
     <div class="input-field col s6">
         <input placeholder="ScienceBase URL(s)" id="url" type="text" class="validate">
@@ -37,7 +41,7 @@
 
 
 <div class="row">
-    <form class = "col s12" action="{{ url_for('handle_data') }}" method="post" name="Project-Select">
+    <form class = "col s12" action="{{ url_for('handle_data') }}" method="post" name="Project-Select" id="Project-Select-Form">
         <div class="col s2 m2 l2">
             <input class="btn waves-effect" type="submit" id="submitProj" value="Submit" onclick="submit">
         </div>

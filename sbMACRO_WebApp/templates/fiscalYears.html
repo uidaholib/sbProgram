@@ -5,7 +5,7 @@
 <br>
 <p class="flow-text">This program can be used to count the data present in one or multiple fiscal years in the NWCSC or SWCSC folders on ScienceBase.</p>
 <p class="flow-text">Choose the center and fiscal year(s) in which you want the data counted:</p>
-<form action="{{ url_for('handle_data') }}" method="post" name="FY-Select">
+<form action="{{ url_for('handle_data') }}" method="post" name="FY-Select" id="FY-Select-Form">
     <div class="row">
         <div class="col s12 m6 l6">
 
@@ -18,7 +18,7 @@
                         {% for title, ID in NWCSC_FYs_OrderedDict.items(): %}
                         <p>
                             <span class="black-text">
-                                <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" />
+                                <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" class="FY-Checkbox" />
                                 <label for={{ID}} class="black-text">{{title}}</label>
                             </span>
                         </p>
@@ -40,7 +40,7 @@
                         {% for title, ID in SWCSC_FYs_OrderedDict.items(): %}
                         <p>
                             <span class="black-text">
-                                <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" />
+                                <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" class="FY-Checkbox" />
                                 <label for={{ID}} class="black-text">{{title}}</label>
                             </span>
                         </p>
@@ -94,7 +94,7 @@
     </div>
 </form>
 
-
+<script src="../static/fiscalYears.js"></script>
 <script>
     let currentPage = document.getElementById('Nav-FiscalYear');
     currentPage.classList.add("currentPage");
