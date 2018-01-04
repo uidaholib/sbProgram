@@ -10,3 +10,4 @@ __pycache__/
 *.xls
 *.DS_Store
 *node_mod*/
+*.vscode
