@@ -3,6 +3,7 @@
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
 
 <link rel="stylesheet" href="../static/custom.css">
+<link rel="stylesheet" href="../static/modal.css">
 <script src="../static/d3.v4.min.js"></script>
 <script src="../static/node_modules/file-saverjs/FileSaver.js"></script>
 <script src="../node_modules/tableexport/src/stable/js/tableexport.js"></script>
@@ -10,6 +11,7 @@
 <script src="../static/DataVisualization/FY_BarGraph.js"></script>
 <script src="../static/DataVisualization/projectTable.js"></script>
 <script src="../static/DataVisualization/d3-tip.js"></script>
+<script src="../static/reportModal.js"></script>
 
 
 
@@ -78,7 +80,7 @@
         <!-- <th>ID</th> -->
         <th>Object Type</th>
         <th>Name</th>
-        <th>Project</th>
+        <th>More Info</th>
         <th>Data in Project (GB)</th>
         <th>Data per File (KB)</th>
         <th>Total Data in Fiscal Year (GB)</th>
@@ -91,6 +93,44 @@
     </table>
   </div>
 </div>
+
+<!-- The Modal -->
+<div id="BaseModal" class="projModal">
+
+  <!-- Modal content -->
+  <div class="projModal-content">
+    <div class="projModal-header">
+      <span class="close">&times;</span>
+      <h2>Modal Header</h2>
+    </div>
+    <div class="row">
+      <div class="DMProw">
+        <span style="font-size: 3vh">DMP Status: </h6>
+        <div class="DMPstatus DMPstatus_good">Approved</div>
+        <div class="DMPstatus DMPstatus_bad">Incomplete</div>
+        <div class="DMPstatus DMPstatus_neutral">Unknown</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12 m6 l6 projModal_history">
+        <h5>Project History</h5>
+        <p class="history"></p>
+      </div>
+      <div class="col s12 m6 l6">
+        <h5>Project Composition</h5><br>
+        <img src="../static/placeholderPie.jpg">
+      </div>
+    </div>
+    <div class="projModal-body">
+      <p>Some text in the Modal Body</p>
+      <p>Some other text...</p>
+    </div>
+    <div class="projModal-footer">
+      <h3>Modal Footer</h3>
+    </div>
+  </div>
+</div>
+
 
 
 <script>  
