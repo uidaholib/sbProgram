@@ -70,6 +70,7 @@ To Do on MACRO:
 * Create "report" button that brings you to last cached report once one has been created. Greyed out or nonexistant beforehand.
 * Move left nav bar to top banner. 
 * Make it so that FY checkbox list generates from jsons rather than needing to contact sciencebase
+* Have chart titles and such change size depending on screen size (at small sizes, the title is too long for the svg)
 
 * Turn project column into modal link
 - -  "more info" or "history" link to that column on table that pulls from google sheets that gives history of the project. Serve as big pop up window (called modal/dialogue. Use jquery?)
@@ -101,3 +102,7 @@ Security:
 * Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.
 * Understand and implement Sanitization, Validation, and Escaping for web security.
 * Look up making a web app secure. Do those things.
+
+
+To change when hosted:
+* Loading image in base.html needs path changed to one hosted by us on our server (use loadiingimage.gif in static/)
