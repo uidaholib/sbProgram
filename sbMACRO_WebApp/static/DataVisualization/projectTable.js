@@ -37,9 +37,9 @@ function buildProjectTable (reportDict) {
         arrayLength2 = reportData.length;
         for (var z = 0; z < arrayLength2; z++) {
           projectNumber++;
-          var itemData = reportData[z];
-          var itemDate = reportDateCurr['dateTime'];
-          var itemCSC = reportIdentityCurr['CSC'];
+          let itemData = reportData[z];
+          let itemDate = reportDateCurr['dateTime'];
+          let itemCSC = reportIdentityCurr['CSC'];
           // console.log('itemData: ');   //DeBug
           // console.log(itemData);   //DeBug
           // console.log('itemDate: ');   //DeBug
@@ -53,7 +53,7 @@ function buildProjectTable (reportDict) {
           // report_data += '<td>' + itemData.ID + '</td>\n';
           report_data += '<td>' + itemData.ObjectType + '</td>\n';
           report_data += '<td> <a href="' + itemData.URL + '" target="_blank">' + itemData.name + '</a></td>\n';
-          report_data += '<td>' + itemData.project + '</td>\n';
+          report_data += '<td><button class="btn waves-effect waves-light modalbtn" id="modal_' + itemData.ID + '" onclick="displayModal(modal_' + itemData.ID + ')">More Info</button></td>\n';
           report_data += '<td id="ElipseDataShort">' + itemData.DataInProject + '</td>\n';
           report_data += '<td id="ElipseDataLong">' + itemData.DataPerFile + '</td>\n';
           report_data += '<td id="ElipseDataShort">' + itemData.totalFYData + '</td>\n';
@@ -65,5 +65,6 @@ function buildProjectTable (reportDict) {
       $('#reportTable').append(report_data);
     };
     build_table(report, reportDate, reportIdentity);
+    findModalBtns();
   });
 }
