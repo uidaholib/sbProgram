@@ -28,12 +28,12 @@ function projectBarGraph (reportDict) {
     // console.log(project);   //DeBug
     if (CSC === "NWCSC")
     {
-      console.log("NWCSC!");
+
       NWCSC_projectObjArray.push(project);
     }
     if (CSC === "SWCSC")
     {
-      console.log("SWCSC!");
+
       SWCSC_projectObjArray.push(project);
     }
     
@@ -50,8 +50,7 @@ function projectBarGraph (reportDict) {
       var fiscalYear = report[i];
       var FY = identity[i].name;
       var csc = identity[i].CSC;
-      console.log("FY:")   //DeBug
-      console.log(FY);   //DeBug
+
       for (var z = 0; z < fiscalYear.length; z++) {
         projectNumber++;
         var projectObj = fiscalYear[z];
@@ -87,7 +86,7 @@ function projectBarGraph (reportDict) {
         || NWCSC_projectObjArray.length > 1) {
         createGraph(NWCSC_projectObjArray, "NWCSC", Max);
       }
-    } else {
+    } else if (SWCSC_projectObjArray.length > 0){
       createNoDataProjGraph("NWCSC");
     }
     //if SWSCS_Max is > 0
@@ -99,7 +98,7 @@ function projectBarGraph (reportDict) {
         || SWCSC_projectObjArray.length > 1) {
         createGraph(SWCSC_projectObjArray, "SWCSC", Max);
       }
-    } else {
+    } else if (SWCSC_projectObjArray.length > 0){
       createNoDataProjGraph("SWCSC");
     }
   //else, if the Max of both is not greater than 0, create NoData graphs for both if they have any projects
@@ -287,7 +286,9 @@ function createGraph (data, currCSC, DATA_max){
     // .append("svg:a")
     //   .attr("xlink:href", "#"+d.number)
     .append("rect")
-      .attr("class", function (d) { console.log(d.CSC); return "bar "+d.CSC; })
+      .attr("class", function (d) { 
+        return "bar "+d.CSC; 
+      })
       // .attr("class", function (d) { console.log(d.CSC); return d.CSC; })
       .attr("id", function (d) { return "FY"+d.FY; })
       //.attr("x", function(d) { return x(d.sales); })
@@ -296,7 +297,7 @@ function createGraph (data, currCSC, DATA_max){
       .attr("height", y.bandwidth())
       .on('click', function (d) {
         var id = 'p' + d.number;
-        console.log("Number: "+id+". element: " + document.getElementById(id));
+        // console.log("Number: "+id+". element: " + document.getElementById(id));
         
         document.getElementById(id).scrollIntoView(); 
       })
@@ -343,8 +344,7 @@ function createGraph (data, currCSC, DATA_max){
       existing_FYs.push(data[i].FY);
     }
   }
-  console.log("existing_FYs");
-  console.log(existing_FYs);
+
   var legend = svg.selectAll('.legend')
     .data(data.filter(function (d) {
       var index = $.inArray(d.FY, existing_FYs);
@@ -400,7 +400,7 @@ function createGraph (data, currCSC, DATA_max){
   //Updating dimensions
   function updateDimensions(data, winWidth, winHeight) {
     // console.log("In UPdateDimensions");
-    console.log(data);
+
     margin.top = 40;
     margin.right = winWidth < breakPoint ? 0 : 20;
     margin.left = winWidth < breakPoint ? 0 : 40;
