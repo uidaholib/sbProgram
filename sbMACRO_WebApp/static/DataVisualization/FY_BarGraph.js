@@ -9,21 +9,16 @@ function FY_BarGraph (reportDict) {
     for (let i = 0; i < reportDict.report.length; i++)
     {
       let identity = reportDict.identity[i].CSC + reportDict.identity[i].name;
-      console.log(identity);
       //if "identity" is not in the reasons array, add it.
       let fyIndex = FYs.indexOf(identity);
       if (fyIndex == -1) { FYs.push(identity); }
-      console.log(FYs);
     }
 
 
     //if there is more than one FY, create the graph.
     if(FYs.length > 1){
-      console.log("More than 1 fiscal year chosen!");
-      
 
       var fyObjArray = [];
-
 
       function createAndAddFYObject(FYname, FYsize, FYcsc){
         var FY = {};
@@ -62,8 +57,6 @@ function FY_BarGraph (reportDict) {
       getFYsizes(reportDict.report, reportDict.identity);
       
       const fyMaxSize = getMaxSize(fyObjArray);
-      console.log("fyMaxSize");
-      console.log(fyMaxSize);
       if (fyMaxSize > 0){
         createFYGraph(fyObjArray)
       }
@@ -235,7 +228,10 @@ function createFYGraph (data){
     .data(data)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("id", function (d) {console.log(d.CSC); return d.CSC; })
+      .attr("id", function (d) {
+        // console.log(d.CSC); 
+        return d.CSC; 
+      })
       //.attr("x", function(d) { return x(d.sales); })
       .attr("width", function (d) { return x(d.size); })
       .attr("y", function (d,i) { return y(d.name); })
@@ -253,9 +249,9 @@ function createFYGraph (data){
 
   var yAxis = d3.axisLeft(y)  //);
     .tickFormat(function (d) { 
-      console.log(d);
+
       var output = d.replace(' FY', '');
-      console.log(output);
+
       // return d.substring(5, 13); 
       return output;
     });
