@@ -101,15 +101,45 @@
   <div class="projModal-content">
     <div class="projModal-header">
       <span class="close">&times;</span>
-      <h2>Modal Header</h2>
+      <h3>Project Information</h3>
     </div>
-    <div class="row">
-      <div class="DMProw">
-        <span style="font-size: 3vh">DMP Status: </h6>
+    <div class="DMProw">
+      <div class="centered_container">
+        <span style="font-size: 3vh">DMP Status: </span>
         <div class="DMPstatus DMPstatus_good">Approved</div>
         <div class="DMPstatus DMPstatus_bad">Incomplete</div>
-        <div class="DMPstatus DMPstatus_neutral">Unknown</div>
+        <div class="DMPstatus DMPstatus_neutral">Unknown / N/A</div>
       </div>
+    </div>
+
+    <div class="row">
+
+        <div class="centered_container">
+          <span style="font-size: 2vh;">
+            <strong>Title: </strong><br>
+            <span class="title"></span>
+          </span>
+        </div>
+
+    </div>
+    <div class="row">
+
+        <div class="centered_container">
+          <span style="font-size: 2vh;">
+            <strong>Principle Investigator: </strong><br>
+            <span class="PI"></span>
+          </span>
+        </div>
+
+    </div>
+    <div class="row">
+
+        <div class="centered_container">
+          <span style="font-size: 2vh;">
+            <strong>Summary: </strong><br>
+            <span class="summary" id="only_left_par"></span>
+          </span>
+        </div>
     </div>
     <div class="row">
       <div class="col s12 m6 l6 projModal_history">
@@ -118,15 +148,21 @@
       </div>
       <div class="col s12 m6 l6">
         <h5>Project Composition</h5><br>
-        <img src="../static/placeholderPie.jpg">
+        <img src="../static/placeholderPiee.jpg">
       </div>
     </div>
-    <div class="projModal-body">
-      <p>Some text in the Modal Body</p>
-      <p>Some other text...</p>
+    <div class="row">
+      <div class="col s12 m6 l6 projModal_potential_products">
+        <h5>Potential Products</h5>
+        <p class="potential_products"></p>
+      </div>
+      <div class="col s12 m6 l6 projModal_products_recieved">
+        <h5>Products Recieved</h5>
+        <p class="products_recieved"></p>
+      </div>
     </div>
     <div class="projModal-footer">
-      <h3>Modal Footer</h3>
+      <h3>sbMACRO</h3>
     </div>
   </div>
 </div>
