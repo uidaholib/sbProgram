@@ -13,5 +13,5 @@ __pycache__/
 *.vscode
 env
 env2
-env/*
+env/pip*
 env2/*
