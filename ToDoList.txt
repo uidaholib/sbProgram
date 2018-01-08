@@ -106,3 +106,6 @@ Security:
 
 To change when hosted:
 * Loading image in base.html needs path changed to one hosted by us on our server (use loadiingimage.gif in static/)
+
+
+Should make a google account for sbMacro as well as get the sheets api credentials for it so it can be accessed by an account that won't be changed that is for the program.
