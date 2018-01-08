@@ -194,8 +194,8 @@ def fiscalYearsF():
     NWCSC_FYs_OrderedDict = get_NW_FYs()
     SWCSC_FYs_OrderedDict = get_SW_FYs()
     print("Now local?")
-    print(NWCSC_FYs_OrderedDict)
-    print(SWCSC_FYs_OrderedDict)
+    # print(NWCSC_FYs_OrderedDict)
+    # print(SWCSC_FYs_OrderedDict)
 
     return(render_template('fiscalYears.html', **locals(), title="Home"))
 
@@ -273,8 +273,8 @@ def handle_data():
                                 if i['ID'] == ID:
                                     IDsToBeDeleted.append(ID)
                                     matchedProject = i
-                                    print("matchedProject")
-                                    print(matchedProject)
+                                    # print("matchedProject")
+                                    # print(matchedProject)
                                     matchedProjectArr = []
                                     matchedProjectArr.append(matchedProject)
                                     reportList.append(matchedProjectArr)
@@ -293,7 +293,7 @@ def handle_data():
                         filePath = "./jsonCache/"+filename
                         with open(filePath) as json_data:
                             data = json.load(json_data)
-                            print(data)
+                            # print(data)
                             reportList.append(data['report'])
                             dateList.append(data['Date'])  # maybe add more things to reportDict??? Identity?
                             identityList.append(data['identity'])
@@ -326,6 +326,13 @@ def handle_data():
         #  Need parse.main() to return reportDict of everything from ExcelPrint.py, jasontransform it, and pass that to report.html.
         parse.main()
         reportDict = ExcelPrint.main()
+
+    #now we need to add all project-specific info for modals to reportDict
+    projectDict = createProjectList(reportDict)
+
+    reportDict['projects'] = projectDict
+
+ 
     FullReportJson = JsonTransformer()
     FullReportJson = JsonTransformer.transform(FullReportJson, reportDict)
     #need to get the name of whatever the report was created for...
@@ -338,6 +345,26 @@ def handle_data():
 
     return(render_template('report.html', FullReportJson=FullReportJson))
     #your code
+
+def createProjectList(reportDict):
+    projectDict = {}
+    for FY in reportDict['report']:
+        for proj in FY:
+            project_id = proj['ID']
+            projFolder = './jsonCache/Projects'
+            for the_file in os.listdir(projFolder):
+                file_path = os.path.join(projFolder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        if file_path.endswith(project_id + ".json"):
+                            projectJson = json.load(open(file_path))
+                            projectDict[project_id] = projectJson
+                except Exception as e:
+                    print("Error: " + e)
+    return(projectDict)
+
+
+    
 
 def getChildren():
     error = None
