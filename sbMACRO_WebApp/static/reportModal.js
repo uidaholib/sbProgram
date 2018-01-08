@@ -39,9 +39,12 @@ var displayModal = function (elem) {
     modal.style.display = "block";
 }
 function createModal(id) {
+    let project_id = id.replace("modal_", '');
 
+    let projectDict = reportDict['projects'][project_id];
+    let modal_id = id + "_div";
     let BaseModal = document.getElementById("BaseModal");
-    let newModal = $("<div></div>").attr("id", id+"_div").addClass("projModal");
+    let newModal = $("<div></div>").attr("id", modal_id).addClass("projModal");
     // let newModal = $("<div></div>");
     let basicModalContent = $('#BaseModal').html();
     // console.log(basicModalContent);
@@ -54,23 +57,57 @@ function createModal(id) {
     // When the user clicks on <span> (x), close the modal
     // Get the <span> element that closes the modal
     // var span = document.getElementsByClassName("close");
-    var span = $('#' + id + "_div").find('.close');
+    var span = $('#' + modal_id).find('.close');
     // console.log(span);
     span.on("click", function () {
         // closeModal(id + "_div");
         console.log("close");
-        let modal = document.getElementById(id + "_div");
+        let modal = document.getElementById(modal_id);
         modal.style.display = "none";
     });
-    // console.log(span);
-    // for(var i = 0; i < span.length; i++)
-    // {
-    //     span[i].onclick = function callCloseModal(){
-    //         closeModal(id+"_div");
-    //     };
-    // }
-    
 
+    // add project title
+    var title = $('#' + modal_id).find('.title');
+    title.text(projectDict['title']).wrap('<a href="' + projectDict['URL']+'" target="_blank"></a>');
+
+    //add PI
+    for (let i = 0; i < projectDict['contacts'].length; i++){
+        if (projectDict['contacts'][i]['type'] === "Principal Investigator")
+        {
+            var PI = $('#' + modal_id).find('.PI');
+            PI.text(projectDict['contacts'][i]['name'])
+                .wrap('<a href="mailto:' + projectDict['contacts'][i]['email'] + '"></a>');
+        }
+    }
+
+    // add summary
+    var summary = $('#' + modal_id).find('.summary');
+    summary.text(projectDict['summary']);
+
+    // add history
+    var history = $('#' + modal_id).find('.history');
+    history.text(projectDict['history']);
+
+
+    // add potential products
+    var PotentialProd = $('#' + modal_id).find('.potential_products');
+    PotentialProd.text(projectDict['Potential_Products']);
+
+    // add products recieved
+    var ProdRecieved = $('#' + modal_id).find('.products_recieved');
+    ProdRecieved.text(projectDict['Received_Products']);    
+    
+    // Display DMP status
+    if(projectDict['DMP'] === "Approved")
+    {
+        $("#"+modal_id).find(".DMPstatus_good").css("display", "inline-block");
+    } else if (projectDict['DMP'] === "None" || projectDict['DMP'] === "none" || projectDict['DMP'] === "n/a") {
+        $("#" + modal_id).find(".DMPstatus_neutral").css("display", "inline-block");
+    } else if (projectDict['DMP'] === "Project not currently tracked by Data Steward") {
+        $("#" + modal_id).find(".DMPstatus_neutral").css("display", "inline-block");
+    } else {
+        $("#" + modal_id).find(".DMPstatus_bad").css("display", "inline-block");
+    }
 }
 
 // When the user clicks anywhere outside of the modal, close it
