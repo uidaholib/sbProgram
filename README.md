@@ -71,6 +71,8 @@ Some necessary libraries come pre-installed on python and have not been included
 
 NOTE: pysb may need to be installed manually. To install pysb manually, follow instructions here: https://my.usgs.gov/bitbucket/projects/SBE/repos/pysb/browse
 
+If the Google Sheets API python module doesn't install, try: `python -m pip install --upgrade google-api-python-client`
+
 ### Installing
 Simply install all libraries and python 3 before running the program in your favorite command line/terminal program.
 
