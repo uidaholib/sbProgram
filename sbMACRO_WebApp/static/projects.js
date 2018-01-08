@@ -62,6 +62,12 @@ function gatherProjects () {
             //check that it's close to the right length (~65)
             if( input.length > 63 && input.length < 67)
             {
+                //change to correct url format (folder->item) if necessary
+                if (input.includes("https://www.sciencebase.gov/catalog/folder") === true)
+                {
+                    input.replace("https://www.sciencebase.gov/catalog/folder", "https://www.sciencebase.gov/catalog/item")
+                }
+                //check that it has the right format
                 if (input.includes("https://www.sciencebase.gov/catalog/item") === true)
                 {
                     //take the whole thing as another url
