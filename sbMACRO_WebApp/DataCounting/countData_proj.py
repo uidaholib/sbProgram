@@ -12,12 +12,12 @@ sb = pysb.SbSession()
 
 
 
-def main(actualData):
+def main(currentProject, actualData):
     numFiles = 0 # starting number of files in Approved Datasets is 0
-    countData(actualData, numFiles)
+    countData(currentProject, actualData, numFiles)
 
 
-def countData(actualData, numFiles):
+def countData(currentProject, actualData, numFiles):
         #this function counts the data in "actualData" that was populated in checkChildrenIteration
         #first it set's the amount of data to 0, then it creates the emty array forDataPerFile_2
         #Then it goes through each item in actualData and tries to get the item data
@@ -39,6 +39,9 @@ def countData(actualData, numFiles):
 
     # print("forDataPerFile_2: {0}".format(forDataPerFile_2))  # Quantico
     filesExist = False
+    #create the project id key to find project item data in gl.ProjItems. The key leads to a list of all items in the project.
+    gl.ProjItems[currentProject] = []
+    projItemList = gl.ProjItems[currentProject]
     for data in actualData:
         foundData = False
         try:
@@ -47,14 +50,42 @@ def countData(actualData, numFiles):
             import parseFY
             parseFY.exceptionFound = True
             print("--------Hit upon a 404 exception: "+str(data)+" (1)")
-            import exceptionRaised
-            exceptionRaised.main(data)
-            if exceptionRaised.worked is True:
-                actualDataJson = sb.get_item(data)
-            elif exceptionRaised.worked is False:
-                continue
-            else:
-                print('Something went wrong. Function: countData (1)')
+            parseFY.exceptionLoop(data)
+            actualDataJson = sb.get_item(data)
+            # old exception handling:
+            # import exceptionRaised
+            # exceptionRaised.main(data)
+            # if exceptionRaised.worked is True:
+            #     actualDataJson = sb.get_item(data)
+            # elif exceptionRaised.worked is False:
+            #     continue
+            # else:
+            #     print('Something went wrong. Function: countData (1)')
+        # We create an item object/dictionary
+        Item = {}
+        #For each item, we take the name and url and add it to a list of items filed under the project id key.
+        Item['url'] = actualDataJson['link']['url']
+        Item['id'] = actualDataJson['id']
+        Item['name'] = actualDataJson['title']
+        Item['hasChildren'] = actualDataJson['hasChildren']
+        if 'browseTypes' in actualDataJson:
+            Item['browseTypes'] = actualDataJson['browseTypes']
+        else:
+            Item['browseTypes'] = "None provided by ScienceBase"
+        if 'systemTypes' in actualDataJson:
+            Item['systemType'] = actualDataJson['systemTypes']
+        else:
+            Item['systemType'] = "None provided by ScienceBase"
+        if 'dates' in actualDataJson:
+            Item['dates'] = actualDataJson['dates']
+        else:
+            Item['dates'] = "None provided by ScienceBase"
+
+
+
+
+        #then we add the item to the projItemList
+        projItemList.append(Item)
         #pprint(actualDataJson) #Quantico
         numFiles += 1 #for each file, increase the number of Files by 1.
         facetDictNum = 0
@@ -66,6 +97,8 @@ def countData(actualData, numFiles):
 
         try:
             for z in actualDataJson['files']: #I try looking at each item in 'approved datasets' and seeing if it has any files attached, if not, I say there aren't any
+                gl.NumOfFiles += 1
+                gl.ProjFiles.append(z)
                 filesExist = True
                 bData += actualDataJson['files'][dictNum]['size'] #this adds the size of the file to bData. It cycles through each file in the dataset folder.
                 thisData = actualDataJson['files'][dictNum]['size']/1000
@@ -76,6 +109,8 @@ def countData(actualData, numFiles):
                 try:
                     for z in actualDataJson['facets']:
                         for i in z['files']:
+                            gl.NumOfFiles += 1
+                            gl.ProjFiles.append(i)
                             # print("Extention size: "+str(i['size']/1000)+ " kilobytes")  # Quantico
                             filesExist = True
                             bData += i['size']
@@ -100,7 +135,7 @@ def countData(actualData, numFiles):
                                     print(str(data)+" already in gl.MissingData.")
                         except KeyError:
                             print("----No files in "+str(actualDataJson['id'])) #we print this if we get a KeyError
-                            forDataPerFile_1.append('[Missing]')
+                            forDataPerFile_1.append(['Missing'])
                             if data not in gl.MissingData:
                                 gl.MissingData.append(actualDataJson['id'])
                             else:
@@ -118,6 +153,8 @@ def countData(actualData, numFiles):
                 for z in actualDataJson['facets']:
                     for i in z['files']:
                         # print("Extention size: "+str(i['size']/1000)+ "kilobytes")  # Quantico
+                        gl.NumOfFiles += 1
+                        gl.ProjFiles.append(i)
                         filesExist = True
                         bData += i['size']
                         thisData = i['size']/1000
@@ -151,7 +188,7 @@ def countData(actualData, numFiles):
         forDataPerFile_2.append(forDataPerFile_1) #This should add a string representing the sizes of each item in the project to a list for exporting to Excel later
 
 
-    gl.DataPerFile.append(str(forDataPerFile_2))
+    gl.DataPerFile.append(forDataPerFile_2)
     print("Here is the data per file added to gl.DataPerFile for this project:\n{0}".format(forDataPerFile_2))
     print("\n\nHere is gl.DataPerFile:\n{0}".format(gl.DataPerFile))
     if filesExist == True:
