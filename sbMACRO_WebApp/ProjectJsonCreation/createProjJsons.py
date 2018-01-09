@@ -63,6 +63,8 @@ def createProjFile(GSheet, currFY, proj):
     projIdentity['FY'] = proj['FY']
     projJson['title'] = proj["name"]
     projJson['URL'] = proj['URL']
+    projJson['Files'] = proj['ProjectFileDict']
+    projJson['Items'] = proj['ProjectItems']
     sbProjJson = sb.get_item(projID)
     # pprint(sbProjJson)
     projJson['summary'] = sbProjJson['summary']
