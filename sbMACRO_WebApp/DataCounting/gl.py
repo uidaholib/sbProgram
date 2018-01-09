@@ -31,6 +31,11 @@ DataInProject = []   # Added
 DataPerFile = []   # Added
 totalFYDataList = []
 RunningDataTotal = []  # Added
+
+ProjFileDict = {}
+NumOfFiles = 0
+ProjFiles = []
+ProjItems = {}
 # For debugging:
 # ID = ['1', '2', '3', '4']  # Added
 # ObjectType = ['Project1', 'Project2', 'Project3', 'Project4']  # Added
