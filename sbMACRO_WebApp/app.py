@@ -29,15 +29,29 @@ class JsonTransformer(object):
         return jsonpickle.encode(myObject, unpicklable=False)
 
 def get_NW_FYs():
-    NWCSC_FYs_OrderedDict = {}
-    SWCSC_FYs_OrderedDict = {}
-    NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
-    # NWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
+    # NWCSC_FYs_OrderedDict = {}
+    # SWCSC_FYs_OrderedDict = {}
+    try:
+        NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
+    except Exception:
+        import parseFY
+        print("----------Exception Raised in get_NW_FYs (1)")
+        parseFY.exceptionLoop("4f8c64d2e4b0546c0c397b46")
+        NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
+
+
     #print(NWCSC_FYs)
     NWCSC_FYs_Dict = {}
     # TitleNum = 2018  # Delete later
     for ID in NWCSC_FYs:
-        json = sb.get_item(ID)
+        try:
+            json = sb.get_item(ID)
+        except Exception:
+            import parseFY
+            print("----------Exception Raised in get_NW_FYs (2)")
+            parseFY.exceptionLoop(ID)
+            json = sb.get_item(ID)
+
         title = 'NWCSC '+json['title']
         # title = "Fiscal Year "+str(TitleNum)  # Delete later
         # TitleNum -= 1  # Delete later
@@ -58,14 +72,26 @@ def get_NW_FYs():
 
 
 def get_SW_FYs():
-    SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
+    try:
+        SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
+    except Exception:
+        import parseFY
+        print("----------Exception Raised in get_SW_FYs (1)")
+        parseFY.exceptionLoop("4f8c6580e4b0546c0c397b4e")
+        NWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
     # SWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
 
     #print(SWCSC_FYs)
     SWCSC_FYs_Dict = {}
     # TitleNum = 2018  # Delete later
     for ID in SWCSC_FYs:
-        json = sb.get_item(ID)
+        try:
+            json = sb.get_item(ID)
+        except Exception:
+            import parseFY
+            print("----------Exception Raised in get_SW_FYs (2)")
+            parseFY.exceptionLoop(ID)
+            json = sb.get_item(ID)
         title = 'SWCSC '+json['title']
         # title = "Fiscal Year "+str(TitleNum)  # Delete later
         # TitleNum -= 1  # Delete later
@@ -86,7 +112,10 @@ def defined_hard_search():
     # To run this function from command line: python -c 'from app import defined_hard_search; defined_hard_search()'
     
     import sys
-    sys.path.insert(0, './DataCounting')
+    scriptDir = os.path.dirname(os.path.realpath(
+         __file__))  # absolute path to this file
+    #join the script path with the DataCounting directory to get to the files there and insert it into the system path. Now you can import your python files.
+    sys.path.insert(0, os.path.join(scriptDir, "DataCounting/"))
     import gl
     import parse
     gl.Excel_choice = "One_Excel_for_all_FYs"
@@ -94,8 +123,17 @@ def defined_hard_search():
     requestItems = []
     while answer != 'done':
         print('Please enter an ID you would like parsed. When done, type \'done\'.')
+        
+        if len(requestItems) == 0:
+            pass
+        else:
+            print("Currently in line:")
+            print("------------------")
+            for i in requestItems:
+                print(i)
+            print("------------------")
         answer = input('sbID: ')
-        if answer != 'done' and answer != None:
+        if (answer != 'done') and (answer != None) and (answer not in requestItems):
             requestItems.append(answer)
     for i in requestItems:
         gl.itemsToBeParsed.append(i)
@@ -118,9 +156,15 @@ def full_hard_search():
     SWCSC_FYs_OrderedDict = get_SW_FYs()
     import sys
     # eyekeeper: THIS WILL NEED CHANGED WHEN IT GOES ELSEWHERE
-    sys.path.insert(0, './DataCounting')
+    # sys.path.insert(0, './DataCounting')
     # Dev Windows path: C:/Users/Taylor/Documents/!USGS/Python/sbProgramGitRepo/TrialWebApp/DataCounting
     # Dev MacOS path: /Users/taylorrogers/Documents/#Coding/sbProgram/TrialWebApp/DataCounting
+    scriptDir = os.path.dirname(os.path.realpath(__file__))  # absolute path to app.py
+    print(scriptDir)
+    #join the script path with the DataCounting directory to get to the files there and insert it into the system path. Now you can import your python files.
+    print(os.path.join(scriptDir, "DataCounting/"))
+    sys.path.insert(0, os.path.join(scriptDir, "DataCounting/"))
+    # sys.path.insert(0, './DataCounting')
     import gl
     import parse
     import countData_proj
@@ -148,10 +192,12 @@ def full_hard_search():
                             continue
                         now = datetime.datetime.now()
                         currentDate = now.strftime("%Y%m%d")
+
                         if currentDate > dataDate:
                             continue
                         else:
-                            ID = filename.replace(".json", "")
+                            continue # uncomment if you want to do all FYs regardless of when they were last done
+                            ID = the_file.replace(".json", "")
                             print("ID from today: {0}".format(ID))  # Quantico
                             IDsToBeDeleted.append(ID)
             else:
