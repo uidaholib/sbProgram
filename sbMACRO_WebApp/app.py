@@ -134,25 +134,30 @@ def full_hard_search():
         print("{0}: {1} added to requestItems from NWCSC.".format(key, value))
         requestItems.append(value)
     IDsToBeDeleted = []
-    for root, dirs, files in os.walk("./jsonCache"):
-                for filename in files:  # this looks at each file's name for each item
-                    filePath = "./jsonCache/" + filename
-                    print(filePath)  # Quantico
-                    if filename.endswith(".json"):
-                        with open(filePath) as json_data:
-                            data = json.load(json_data)
-                            try:    # If, for some reason, date doesn't exist, replace it.
-                                dataDate = data['Date']['date']
-                            except KeyError:
-                                continue
-                            now = datetime.datetime.now()
-                            currentDate = now.strftime("%Y%m%d")
-                            if currentDate > dataDate:
-                                continue
-                            else:
-                                ID = filename.replace(".json", "")
-                                print("ID from today: {0}".format(ID))  # Quantico
-                                IDsToBeDeleted.append(ID)
+    fyFolder = "./jsonCache"
+    for the_file in os.listdir(fyFolder):
+        filePath = os.path.join(fyFolder, the_file)
+        try:
+            if os.path.isfile(filePath):
+                if filePath.endswith(".json"):
+                    with open(filePath) as json_data:
+                        data = json.load(json_data)
+                        try:    # If, for some reason, date doesn't exist, replace it.
+                            dataDate = data['Date']['date']
+                        except KeyError:
+                            continue
+                        now = datetime.datetime.now()
+                        currentDate = now.strftime("%Y%m%d")
+                        if currentDate > dataDate:
+                            continue
+                        else:
+                            ID = filename.replace(".json", "")
+                            print("ID from today: {0}".format(ID))  # Quantico
+                            IDsToBeDeleted.append(ID)
+            else:
+                print("Not a file")
+        except Exception as e:
+            print("Exception: " + e)
     for ID in IDsToBeDeleted:
         while ID in requestItems:
             requestItems.remove(ID)
@@ -263,40 +268,49 @@ def handle_data():
             except:
                 print("Invalid URL")
         for ID in requestItems:
-            for root, dirs, files in os.walk("./jsonCache"):
-                for filename in files:  # this looks at each file's name for each item
-                    filePath = "./jsonCache/" + filename
-                    if filename.endswith(".json"):
-                        with open(filePath) as json_data:
-                            data = json.load(json_data)
-                            for i in data['report']:
-                                if i['ID'] == ID:
-                                    IDsToBeDeleted.append(ID)
-                                    matchedProject = i
-                                    # print("matchedProject")
-                                    # print(matchedProject)
-                                    matchedProjectArr = []
-                                    matchedProjectArr.append(matchedProject)
-                                    reportList.append(matchedProjectArr)
-                                    dateList.append(data['Date'])
-                                    identityList.append(data['identity'])  #this may be wrong
+            fyFolder = "./jsonCache"
+            for the_file in os.listdir(fyFolder):
+                filePath = os.path.join(fyFolder, the_file)
+                try:
+                    if os.path.isfile(filePath):
+                        if filePath.endswith(".json"):
+                            with open(filePath) as json_data:
+                                data = json.load(json_data)
+                                for i in data['report']:
+                                    if i['ID'] == ID:
+                                        IDsToBeDeleted.append(ID)
+                                        matchedProject = i
+                                        # print("matchedProject")
+                                        # print(matchedProject)
+                                        matchedProjectArr = []
+                                        matchedProjectArr.append(matchedProject)
+                                        reportList.append(matchedProjectArr)
+                                        dateList.append(data['Date'])
+                                        identityList.append(data['identity'])  #this may be wrong
+                except Exception as e:
+                    print("Exception :" + e)
         reportDict['report'] = reportList
         reportDict['date'] = dateList
         reportDict['identity'] = identityList
     elif hardSearch == []:
         print('hardSearch == []')
         for ID in requestItems:
-            for root, dirs, files in os.walk("./jsonCache"):
-                for filename in files:  # this looks at each file's name for each item
-                    if ID in filename:
-                        IDsToBeDeleted.append(ID)
-                        filePath = "./jsonCache/"+filename
-                        with open(filePath) as json_data:
-                            data = json.load(json_data)
-                            # print(data)
-                            reportList.append(data['report'])
-                            dateList.append(data['Date'])  # maybe add more things to reportDict??? Identity?
-                            identityList.append(data['identity'])
+            fyFolder = "./jsonCache"
+            for the_file in os.listdir(fyFolder):
+                filePath = os.path.join(fyFolder, the_file)
+                if ID in the_file:
+                    IDsToBeDeleted.append(ID)
+                    try:
+                        if os.path.isfile(filePath):
+                            if filePath.endswith(".json"):
+                                with open(filePath) as json_data:
+                                    data = json.load(json_data)
+                                    # print(data)
+                                    reportList.append(data['report'])
+                                    dateList.append(data['Date'])  # maybe add more things to reportDict??? Identity?
+                                    identityList.append(data['identity'])
+                    except Exception as e:
+                        Print("Exception " + e)
         reportDict['report'] = reportList
         reportDict['date'] = dateList
         reportDict['identity'] = identityList
