@@ -70,7 +70,15 @@ def sort_items():
 
     # print(gl.itemsToBeParsed)  # Quantico
     for i in gl.itemsToBeParsed:
-        itemsToBeParsed_json = sb.get_item(i)
+        
+        try:
+            itemsToBeParsed_json = sb.get_item(i)
+        except Exception:
+            import parseFY
+            exceptionFound = True
+            print("--------Hit upon a 404 exception: parse.sort_items (1)")
+            parseFY.exceptionLoop(i)
+            itemsToBeParsed_json = sb.get_item(i)
         # pprint(itemsToBeParsed_json)  #Quantico
         print("Place: 1")  # Quantico
 
@@ -78,7 +86,15 @@ def sort_items():
             print("Place: 1.1")  # Quantico
             print("Item is a CSC folder.")  # Quantico
             gl.itemsToBeParsed.remove(i)
-            cscChildren = sb.get_child_ids(i)
+
+            try:
+                cscChildren = sb.get_child_ids(i)
+            except Exception:
+                import parseFY
+                exceptionFound = True
+                print("--------Hit upon a 404 exception: parse.sort_items (1)")
+                parseFY.exceptionLoop(i)
+                cscChildren = sb.get_child_ids(i)
             for year in cscChildren:
                 if year not in gl.fiscalYears:
                     gl.fiscalYears.append(year)
@@ -102,10 +118,26 @@ def sort_items():
                 # print("Place: 3")  # Quantico
             elif itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                 # print("Place: 4")  # Quantico
-                children = sb.get_child_ids(i)
 
+                # children = sb.get_child_ids(i)
+                try:
+                    children = sb.get_child_ids(i)
+                except Exception:
+                    import parseFY
+                    exceptionFound = True
+                    print("--------Hit upon a 404 exception: parse.sort_items (1)")
+                    parseFY.exceptionLoop(i)
+                    children = sb.get_child_ids(i)
                 for child in children:
-                    exampleChild_json = sb.get_item(child)
+                    
+                    try:
+                        exampleChild_json = sb.get_item(child)
+                    except Exception:
+                        import parseFY
+                        exceptionFound = True
+                        print("--------Hit upon a 404 exception: parse.sort_items (1)")
+                        parseFY.exceptionLoop(child)
+                        exampleChild_json = sb.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
                             # print("Place: 5")  # Quantico
@@ -147,10 +179,24 @@ def sort_items():
         except KeyError:
             if itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                 # print("Place: 4")  # Quantico
-                children = sb.get_child_ids(i)
+                try:
+                    children = sb.get_child_ids(i)
+                except Exception:
+                    import parseFY
+                    exceptionFound = True
+                    print("--------Hit upon a 404 exception: parse.sort_items (1)")
+                    parseFY.exceptionLoop(i)
+                    children = sb.get_child_ids(i)
 
                 for child in children:
-                    exampleChild_json = sb.get_item(child)
+                    try:
+                        exampleChild_json = sb.get_item(child)
+                    except Exception:
+                        import parseFY
+                        exceptionFound = True
+                        print("--------Hit upon a 404 exception: parse.sort_items (2)")
+                        parseFY.exceptionLoop(child)
+                        exampleChild_json = sb.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
                             # print("Place: 5.2")  # Quantico
@@ -235,52 +281,55 @@ def parse_base():
             print("Something wrong. No gl.Excel_choice selected.")
             flash("Something wrong. No gl.Excel_choice selected.")
             sys.exit()
+    else:
+        # get rid of this and uncomment the code below if/when project and item hard search is implemented.
+        print("Cannot parse items that are not fiscal years yet")
 
 
-    if gl.projects != []:
-        import parseProjects        # eyekeeper Quantico don't have this working yet
-        parseProjects.main()
-        print("--------------Done parsing projects.")
-        print("""
-        Would you like to create an Excel Spreadsheet with all parsed data """+
-        """currently in memory before continuing on? If you choose no, all """+
-        """information gathered will continue to be compiled and will be """+
-        """available to be included in a final spreadsheet at the end of """+
-        """the process or to be used to create a speadsheet after each """+
-        """subsequent Fiscal Year, Project, or Item that was originally """+
-        """selected to be parsed is parsed.
+    # if gl.projects != []:
+    #     import parseProjects        # eyekeeper Quantico don't have this working yet
+    #     parseProjects.main()
+    #     print("--------------Done parsing projects.")
+    #     print("""
+    #     Would you like to create an Excel Spreadsheet with all parsed data """+
+    #     """currently in memory before continuing on? If you choose no, all """+
+    #     """information gathered will continue to be compiled and will be """+
+    #     """available to be included in a final spreadsheet at the end of """+
+    #     """the process or to be used to create a speadsheet after each """+
+    #     """subsequent Fiscal Year, Project, or Item that was originally """+
+    #     """selected to be parsed is parsed.
 
-        (Y / N)""")
-        answer = input("> ").lower()
-        if "y" in answer:
-            import ExcelPrint
-            import editGPY
-            ExcelPrint.main()
-            editGPY.clearMemory()
-        elif 'n' in answer:
-            print("No spreadsheet created.")
-    if gl.items != []:
-        import parseItems     # eyekeeper Quantico don't have this working yet
-        parseItems.main()
-        print("--------------Done parsing items.")
-        print("""
-        Would you like to create an Excel Spreadsheet with all parsed data """+
-        """currently in memory before continuing on? If you choose no, all """+
-        """information gathered will continue to be compiled and will be """+
-        """available to be included in a final spreadsheet at the end of """+
-        """the process or to be used to create a speadsheet after each """+
-        """subsequent Fiscal Year, Project, or Item that was originally """+
-        """selected to be parsed is parsed.
+    #     (Y / N)""")
+    #     answer = input("> ").lower()
+    #     if "y" in answer:
+    #         import ExcelPrint
+    #         import editGPY
+    #         ExcelPrint.main()
+    #         editGPY.clearMemory()
+    #     elif 'n' in answer:
+    #         print("No spreadsheet created.")
+    # if gl.items != []:
+    #     import parseItems     # eyekeeper Quantico don't have this working yet
+    #     parseItems.main()
+    #     print("--------------Done parsing items.")
+    #     print("""
+    #     Would you like to create an Excel Spreadsheet with all parsed data """+
+    #     """currently in memory before continuing on? If you choose no, all """+
+    #     """information gathered will continue to be compiled and will be """+
+    #     """available to be included in a final spreadsheet at the end of """+
+    #     """the process or to be used to create a speadsheet after each """+
+    #     """subsequent Fiscal Year, Project, or Item that was originally """+
+    #     """selected to be parsed is parsed.
 
-        (Y / N)""")
-        answer = input("> ").lower()
-        if "y" in answer:
-            import ExcelPrint
-            import editGPY
-            ExcelPrint.main()
-            editGPY.clearMemory()
-        elif 'n' in answer:
-            print("No spreadsheet created.")
+    #     (Y / N)""")
+    #     answer = input("> ").lower()
+    #     if "y" in answer:
+    #         import ExcelPrint
+    #         import editGPY
+    #         ExcelPrint.main()
+    #         editGPY.clearMemory()
+    #     elif 'n' in answer:
+    #         print("No spreadsheet created.")
 
     print("Done parsing all items!")  # eyekeeper I need to return to whatever called parse.py or something.
 
