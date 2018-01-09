@@ -101,8 +101,8 @@ def parseValues(values):
             # print(headerVal)
             # print(valVal)
             newSheet[projID][headerVal] = valVal
-
-    # print(newSheet)
+    print("new Sheet:")
+    print(newSheet)
     with open('GoogleSheet.json', 'w') as sheet:
         json.dump(newSheet, sheet)
 
