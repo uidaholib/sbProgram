@@ -27,6 +27,8 @@ class sbItem(object):
         self.DataPerFile = "No information provided"
         self.totalFYData = "No information provided"
         self.RunningDataTotal = "No information provided"
+        self.ProjectItems = "No information provided"
+        self.ProjectFileDict = "No information provided"
 
     def Print(self):
         print("""
@@ -40,9 +42,12 @@ class sbItem(object):
         DataPerFile: {7}
         TotalFYdata: {8}
         RunningTotal: {9}
-        """.format(self.ID, self.URL, self.ObjectType, self.name, self.FY, self.project, 
-                   self.DataInProject, self.DataPerFile, self.totalFYData, 
-                   self.RunningDataTotal)
+        ProjectItems: {10}
+        ProjectFiles: {11}
+        """.format(self.ID, self.URL, self.ObjectType, self.name, self.FY, 
+                    self.project, self.DataInProject, self.DataPerFile, 
+                    self.totalFYData, self.RunningDataTotal, self.ProjectItems, 
+                    self.ProjectFileDict)
         )
 
     def toJSON(self):
@@ -66,6 +71,9 @@ class problemSBitem(object):
             sort_keys=True, indent=4))
 
 def format_to_array_of_arrays_For_Json(report_Dict, sbItemList):
+    """
+    This function is no longer used
+    """
     report_Array = []
     # heading_Array = ['ID', 'Object Type', 'Name', 'Fiscal Year', 'Project', 'Data in Project(GB)', 'Data per File (KB)', 'Fiscal Year Total Data (GB)', 'Running Data Total(GB)']
     # report_Array.append(heading_Array)
@@ -104,7 +112,8 @@ def formatForJson(report_Dict):
     print(numItems)
     for i in range(0, numItems):
         x = sbItem()
-        x.ID = report_Dict['ID'][i]
+        projID = report_Dict['ID'][i]
+        x.ID = projID
         x.URL = report_Dict['URL'][i]
         x.ObjectType = report_Dict['Object Type'][i]
         x.name = report_Dict['Name'][i]
@@ -114,6 +123,8 @@ def formatForJson(report_Dict):
         x.DataPerFile = report_Dict['Data per File (KB)'][i]
         x.totalFYData = report_Dict['Fiscal Year Total Data (GB)'][i]
         x.RunningDataTotal = report_Dict['Running Data Total (GB)'][i]
+        x.ProjectItems = report_Dict['ProjectItems'][projID]
+        x.ProjectFileDict = report_Dict['ProjectFileDict'][projID]
         sbItemList.append(x)
 
     print("sbItemList: ")
@@ -145,8 +156,22 @@ def getDate():
     return dateinfo
 
 def getCSC(Current_Item):
-    NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
-    SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
+    # NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
+    try:
+        NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
+    except Exception:
+        import parseFY
+        print("--------Hit upon a 404 exception: saveJson.getCSC (1)")
+        parseFY.exceptionLoop("4f8c64d2e4b0546c0c397b46")
+        NWCSC_FYs = sb.get_child_ids("4f8c64d2e4b0546c0c397b46")
+    # SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
+    try:
+        SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
+    except Exception:
+        import parseFY
+        print("--------Hit upon a 404 exception: saveJson.getCSC (2)")
+        parseFY.exceptionLoop("4f8c6580e4b0546c0c397b4e")
+        SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
     if Current_Item in NWCSC_FYs:
         return("NWCSC")
     elif Current_Item in SWCSC_FYs:
@@ -176,12 +201,14 @@ def main():
                     'Data per File (KB)': gl.DataPerFile,
                     'Fiscal Year Total Data (GB)': gl.totalFYDataList,
                     'Running Data Total (GB)': gl.RunningDataTotal,
+                    'ProjectItems': gl.ProjItems,
+                    'ProjectFileDict': gl.ProjFileDict
                         }
-    print("report_Dict:")  # Quantico
-    print(report_Dict)  # Quantico
-    print("before report")  # Quantico
+    # # print("report_Dict:")  # Quantico
+    # # print(report_Dict)  # Quantico
+    # # print("before report")  # Quantico
     report = formatForJson(report_Dict)
-    print(report)  # Quantico
+    # # print(report)  # Quantico
 
     reportDict = {}
     identity = {}
@@ -223,6 +250,7 @@ def main():
     import json
     with open('./jsonCache/{0}.json'.format(ID), 'w') as outfile:
         outfile.write(FullReportJson)
+    print("finished FullReportJson:")
     pprint(FullReportJson)  # Quantico
 
     return
