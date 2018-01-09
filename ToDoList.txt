@@ -111,3 +111,4 @@ To change when hosted:
 Should make a google account for sbMacro as well as get the sheets api credentials for it so it can be accessed by an account that won't be changed that is for the program.
 
 Should make project numbers on graph y-axis clickable to bring you to project in table, so you can skip to projects with little to no data easily.
+
