@@ -196,7 +196,7 @@ def full_hard_search():
                         if currentDate > dataDate:
                             continue
                         else:
-                            continue # uncomment if you want to do all FYs regardless of when they were last done
+                            # continue # uncomment if you want to do all FYs regardless of when they were last done
                             ID = the_file.replace(".json", "")
                             print("ID from today: {0}".format(ID))  # Quantico
                             IDsToBeDeleted.append(ID)
