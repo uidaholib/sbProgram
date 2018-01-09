@@ -86,7 +86,9 @@ function createModal(id) {
 
     // add history
     var history = $('#' + modal_id).find('.history');
-    history.text(projectDict['history']);
+    let histText = projectDict['history'];
+    histText = histText.replace(/(?:\r\n|\r|\n)/g, '<br />'); //replaces newline character (\n) with html equivalent (<br />)
+    history.html(histText);
 
 
     // add potential products
