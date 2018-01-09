@@ -68,9 +68,21 @@ def createProjFile(GSheet, currFY, proj):
     projJson['summary'] = sbProjJson['summary']
     projJson['contacts'] = sbProjJson['contacts']
     try:
-        projJson['history'] = GSheet[projID]['History']
-        projJson['DMP'] = GSheet[projID]['DMP Status']
-        projJson['Potential_Products'] = GSheet[projID]['Expected Products']
+        gHistory = GSheet[projID]['History']
+        if gHistory.isspace(): # checks if the string has any characters other than blank space. If true (only whitespace exists), default text is added, otherwise, the text is added.
+            projJson['history'] = "No data steward history provided"
+        else:
+            projJson['history'] = gHistory
+        gDMP = GSheet[projID]['DMP Status']
+        if gDMP.isspace():  # checks if the string has any characters other than blank space. If true (only whitespace exists), default text is added, otherwise, the text is added.
+            projJson['DMP'] = "No DMP status provided"
+        else:
+            projJson['DMP'] = gDMP
+        gPProducts= GSheet[projID]['Expected Products']
+        if gPProducts.isspace():  # checks if the string has any characters other than blank space. If true (only whitespace exists), default text is added, otherwise, the text is added.
+            projJson['Potential_Products'] = "No DMP status provided"
+        else:
+            projJson['Potential_Products'] = gPProducts
     except KeyError as e:
         projJson['history'] = "Project not currently tracked by Data Steward"
         projJson['DMP'] = "Project not currently tracked by Data Steward"
@@ -105,8 +117,6 @@ def createProjFile(GSheet, currFY, proj):
             # projJson['Potential_Products'] = GoogleSheetJson[projID]['Expected Products']
             
     #         save as projID + ".json"
-
-
 
 
 
