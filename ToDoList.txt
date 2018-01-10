@@ -112,3 +112,7 @@ Should make a google account for sbMacro as well as get the sheets api credentia
 
 Should make project numbers on graph y-axis clickable to bring you to project in table, so you can skip to projects with little to no data easily.
 
+
+Limit the amount of sb queries as much as possible. 
+- - For example, when iterating through possible project data looking for shortcuts, make an array of every item that's been checked and only check an item in possible project data for shortcuts if it's not in the "checked" array.
+
