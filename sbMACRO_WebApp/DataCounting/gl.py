@@ -32,9 +32,9 @@ DataPerFile = []   # Added
 totalFYDataList = []
 RunningDataTotal = []  # Added
 
-ProjFileDict = {}
-NumOfFiles = 0
-ProjFiles = []
+
+
+ProjFiles = {}
 ProjItems = {}
 # For debugging:
 # ID = ['1', '2', '3', '4']  # Added
