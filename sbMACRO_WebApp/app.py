@@ -78,7 +78,7 @@ def get_SW_FYs():
         import parseFY
         print("----------Exception Raised in get_SW_FYs (1)")
         parseFY.exceptionLoop("4f8c6580e4b0546c0c397b4e")
-        NWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
+        SWCSC_FYs = sb.get_child_ids("4f8c6580e4b0546c0c397b4e")
     # SWCSC_FYs = ["ID1", "ID2", "ID3", "ID4", "ID5", "ID6", "ID7", "ID8"]  # Delete later
 
     #print(SWCSC_FYs)
