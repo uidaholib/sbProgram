@@ -91,7 +91,12 @@ def getProjects(fiscalYear):
     global FYprojects
     FYprojects[:] = []
     print(fiscalYear)
-    currentFYprojects = sb.get_child_ids(fiscalYear)
+    try:
+        currentFYprojects = sb.get_child_ids(fiscalYear)
+    except Exception:
+        exceptionFound = True
+        exceptionLoop(fiscalYear)
+        currentFYprojects = sb.get_child_ids(fiscalYear)
     print(currentFYprojects)  # Quantico
     for project in currentFYprojects:
         projectJson = sb.get_item(project)
@@ -489,15 +494,17 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
 
         import countData_proj
         countData_proj.main(currentProject, possibleProjectData)
+        print("gl.ProjFiles: (2)")
+        print(gl.ProjFiles)
         #Now we collect all Project file info in ProjectFileDict:
-        gl.ProjFileDict[currentProject] = {}
-        currProj = gl.ProjFileDict[currentProject]
-        currProj['Num_Of_Files'] = gl.NumOfFiles
-        currProj['Project_Files'] = gl.ProjFiles
+        # gl.ProjFileDict[currentProject] = {}
+        # currProj = gl.ProjFileDict[currentProject]
+        # currProj['Num_Of_Files'] = gl.NumOfFiles
+        # currProj['Project_Files'] = gl.ProjFiles
+        print("""=================================================================
+                Here is projFiles as it currently stands: """)
+        print(gl.ProjFiles)
 
-        #then we reset all global project file values:
-        gl.NumOfFiles = 0
-        gl.ProjFiles[:] = []
         print("""=================================================================
                 Here is projItems as it currently stands: """)
         print(gl.ProjItems)
