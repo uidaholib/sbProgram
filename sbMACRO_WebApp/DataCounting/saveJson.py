@@ -28,7 +28,7 @@ class sbItem(object):
         self.totalFYData = "No information provided"
         self.RunningDataTotal = "No information provided"
         self.ProjectItems = "No information provided"
-        self.ProjectFileDict = "No information provided"
+        self.ProjectFiles = "No information provided"
 
     def Print(self):
         print("""
@@ -47,7 +47,7 @@ class sbItem(object):
         """.format(self.ID, self.URL, self.ObjectType, self.name, self.FY, 
                     self.project, self.DataInProject, self.DataPerFile, 
                     self.totalFYData, self.RunningDataTotal, self.ProjectItems, 
-                    self.ProjectFileDict)
+                    self.ProjectFiles)
         )
 
     def toJSON(self):
@@ -124,7 +124,7 @@ def formatForJson(report_Dict):
         x.totalFYData = report_Dict['Fiscal Year Total Data (GB)'][i]
         x.RunningDataTotal = report_Dict['Running Data Total (GB)'][i]
         x.ProjectItems = report_Dict['ProjectItems'][projID]
-        x.ProjectFileDict = report_Dict['ProjectFileDict'][projID]
+        x.ProjectFiles = report_Dict['ProjectFileDict'][projID]
         sbItemList.append(x)
 
     print("sbItemList: ")
@@ -202,7 +202,7 @@ def main():
                     'Fiscal Year Total Data (GB)': gl.totalFYDataList,
                     'Running Data Total (GB)': gl.RunningDataTotal,
                     'ProjectItems': gl.ProjItems,
-                    'ProjectFileDict': gl.ProjFileDict
+                    'ProjectFileDict': gl.ProjFiles
                         }
     # # print("report_Dict:")  # Quantico
     # # print(report_Dict)  # Quantico
