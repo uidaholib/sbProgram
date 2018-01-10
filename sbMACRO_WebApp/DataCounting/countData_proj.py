@@ -39,10 +39,19 @@ def countData(currentProject, actualData, numFiles):
 
     # print("forDataPerFile_2: {0}".format(forDataPerFile_2))  # Quantico
     filesExist = False
-    #create the project id key to find project item data in gl.ProjItems. The key leads to a list of all items in the project.
-    gl.ProjItems[currentProject] = []
-    projItemList = gl.ProjItems[currentProject]
+    
+    # create a list to track items
+    projItemList = []
+    # create a variable to track item count
+    projItemCount = 0
+    # create a list to track files
+    projFileList = []
+    # create a variable to track file count
+    projFileCount = 0
+    print("gl.ProjFiles: (1)")
+    print(gl.ProjFiles)
     for data in actualData:
+        
         foundData = False
         try:
             actualDataJson = sb.get_item(data)
@@ -61,6 +70,9 @@ def countData(currentProject, actualData, numFiles):
             #     continue
             # else:
             #     print('Something went wrong. Function: countData (1)')
+            
+        # each "data" is an item in the "Approved Datasets" folder, so for each one, add one to our count.
+        projItemCount += 1 # each "data" is an item in the "Approved Datasets" folder, so for each one, add one to our count.
         # We create an item object/dictionary
         Item = {}
         #For each item, we take the name and url and add it to a list of items filed under the project id key.
@@ -97,8 +109,15 @@ def countData(currentProject, actualData, numFiles):
 
         try:
             for z in actualDataJson['files']: #I try looking at each item in 'approved datasets' and seeing if it has any files attached, if not, I say there aren't any
-                gl.NumOfFiles += 1
-                gl.ProjFiles.append(z)
+                # for each file, increase projFileCount by one
+                projFileCount += 1
+                print("projFileCount: 1")
+                print(projFileCount)
+
+                # for each file, add it to the files list
+                projFileList.append(z)
+                print("projFileList: 1")
+                print(projFileList[-1])
                 filesExist = True
                 bData += actualDataJson['files'][dictNum]['size'] #this adds the size of the file to bData. It cycles through each file in the dataset folder.
                 thisData = actualDataJson['files'][dictNum]['size']/1000
@@ -109,9 +128,15 @@ def countData(currentProject, actualData, numFiles):
                 try:
                     for z in actualDataJson['facets']:
                         for i in z['files']:
-                            gl.NumOfFiles += 1
-                            gl.ProjFiles.append(i)
-                            # print("Extention size: "+str(i['size']/1000)+ " kilobytes")  # Quantico
+                            # for each extension, increase projFileCount by one
+                            projFileCount += 1
+                            print("projFileCount: 2")
+                            print(projFileCount)
+                            # for each extension, add it's file to the files list
+                            projFileList.append(i)
+                            print("projFileList: 2")
+                            print(projFileList[-1])
+                            # print("Extension size: "+str(i['size']/1000)+ " kilobytes")  # Quantico
                             filesExist = True
                             bData += i['size']
                             thisData = i['size']/1000
@@ -152,9 +177,15 @@ def countData(currentProject, actualData, numFiles):
             try:
                 for z in actualDataJson['facets']:
                     for i in z['files']:
-                        # print("Extention size: "+str(i['size']/1000)+ "kilobytes")  # Quantico
-                        gl.NumOfFiles += 1
-                        gl.ProjFiles.append(i)
+                        # print("Extension size: "+str(i['size']/1000)+ "kilobytes")  # Quantico
+                        # for each extension, increase projFileCount by one
+                        projFileCount += 1
+                        print("projFileCount: 3")
+                        print(projFileCount)
+                        # for each extension, add it's file to the files list
+                        projFileList.append(i)
+                        print("projFileList: 3")
+                        print(projFileList[-1])
                         filesExist = True
                         bData += i['size']
                         thisData = i['size']/1000
@@ -215,6 +246,15 @@ def countData(currentProject, actualData, numFiles):
         gl.DataInProject.append("None")
         gl.RunningDataTotal.append(gl.totalDataCount)
         print('No Files exist in actualData. Current function: countData (3)')
+
+    #create the project id key to find project item data in gl.ProjItems. The key leads to an object containing the item count and a list of all items in the project.
+    gl.ProjItems[currentProject] = {}
+    gl.ProjItems[currentProject]['Project_Item_List'] = projItemList
+    gl.ProjItems[currentProject]['Project_Item_Count'] = projItemCount
+    #create the project id key to find project file data in gl.ProjFiles. The key leads to an object containing a file count and a list of all files in the project.
+    gl.ProjFiles[currentProject] = {}
+    gl.ProjFiles[currentProject]['Project_File_List'] = projFileList
+    gl.ProjFiles[currentProject]['Project_File_Count'] = projFileCount
 
     return
 
