@@ -89,11 +89,15 @@ def createProjFile(GSheet, currFY, proj):
         projJson['history'] = "Project not currently tracked by Data Steward"
         projJson['DMP'] = "Project not currently tracked by Data Steward"
         projJson['Potential_Products'] = "Project not currently tracked by Data Steward"
-
+    projJson['Received_Products'] = {}
     try:
-        projJson['Received_Products'] = proj['project_children']
+        projJson['Received_Products']['Items'] = proj['ProjectItems']
     except:
-        projJson['Received_Products'] = "Not yet implemented"
+        projJson['Received_Products']['Items'] = "No Data found"
+    try:
+        projJson['Received_Products']['Files'] = proj['ProjectFiles']
+    except:
+        projJson['Received_Products']['Files'] = "No Data found"
     with open('../jsonCache/Projects/'+projID+'.json', 'w') as sheet:
         json.dump(projJson, sheet)
 
