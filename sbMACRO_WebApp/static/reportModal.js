@@ -93,11 +93,13 @@ function createModal(id) {
 
     // add potential products
     var PotentialProd = $('#' + modal_id).find('.potential_products');
-    PotentialProd.text(projectDict['Potential_Products']);
+    let potProdText = projectDict['Potential_Products']
+    potProdText = potProdText.replace(/(?:\r\n|\r|\n)/g, '<br />'); //replaces newline character (\n) with html equivalent (<br />)
+    PotentialProd.html(potProdText);
 
     // add products recieved
     var ProdRecieved = $('#' + modal_id).find('.products_recieved');
-    ProdRecieved.text(projectDict['Received_Products']);    
+    ProdRecieved.text(projectDict['Received_Products']);
     
     // Display DMP status
     if(projectDict['DMP'] === "Approved")
