@@ -55,7 +55,7 @@ function buildProjectTable (reportDict) {
           report_data += '<td> <a href="' + itemData.URL + '" target="_blank">' + itemData.name + '</a></td>\n';
           report_data += '<td><button class="btn waves-effect waves-light modalbtn" id="modal_' + itemData.ID + '" onclick="displayModal(modal_' + itemData.ID + ')">More Info</button></td>\n';
           report_data += '<td id="ElipseDataShort">' + itemData.DataInProject + '</td>\n';
-          report_data += '<td id="ElipseDataLong">' + itemData.DataPerFile + '</td>\n';
+          report_data += '<td id="ElipseDataLong">' + itemData.ProjectFiles.Project_File_Count + '</td>\n';
           report_data += '<td id="ElipseDataShort">' + itemData.totalFYData + '</td>\n';
           report_data += '<td>' + itemDate.slice(0, -7) + '</td>\n';
           // report_data += '<td id="ElipseDataShort">' + itemData.RunningDataTotal + '</td>\n';
