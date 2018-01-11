@@ -36,58 +36,48 @@ function gatherProjects () {
             //grab from the beginning to just before the comma as a url
             var url = input.substring(0,comma)
             console.log("url: " + url);
-            if (url.length > 63 && url.length < 67)
-            {
-                if (url.includes("https://www.sciencebase.gov/catalog/item") === true) {
-                    URLarray.push(url)
-                } else {
-                    anySkipped = true;
-                    amountSkipped++;
-                    //if "format" is not in the reasons array, add it.
-                    let typeIndex = reasons.indexOf("format");
-                    if (typeIndex == -1) { reasons.push("format"); }
-                }
+            //change to correct url format (folder->item) if necessary
+            if (url.includes("https://www.sciencebase.gov/catalog/folder")) {
+                url = url.replace("https://www.sciencebase.gov/catalog/folder", "https://www.sciencebase.gov/catalog/item")
+            }
+            if (url.includes("https://www.sciencebase.gov/catalog/item")) {
+                URLarray.push(url)
             } else {
                 anySkipped = true;
+                console.log("Skipped 1");
                 amountSkipped++;
-                //if "length" is not in the reasons array, add it.
-                let typeIndex = reasons.indexOf("length");
-                if ( typeIndex == -1) { reasons.push("length"); }
+                //if "format" is not in the reasons array, add it.
+                let typeIndex = reasons.indexOf("format");
+                if (typeIndex == -1) { reasons.push("format"); }
             }
             input = input.substring(comma+1, input.length)
             console.log("new input: " + input)
         }
         if (comma === -1 && input != '')
         {
-            //check that it's close to the right length (~65)
-            if( input.length > 63 && input.length < 67)
+            //change to correct url format (folder->item) if necessary
+            if (input.includes("https://www.sciencebase.gov/catalog/folder"))
+
             {
-                //change to correct url format (folder->item) if necessary
-                if (input.includes("https://www.sciencebase.gov/catalog/folder") === true)
-                {
-                    input.replace("https://www.sciencebase.gov/catalog/folder", "https://www.sciencebase.gov/catalog/item")
-                }
-                //check that it has the right format
-                if (input.includes("https://www.sciencebase.gov/catalog/item") === true)
-                {
-                    //take the whole thing as another url
-                    console.log("check here:");
-                    console.log("https://www.sciencebase.gov/catalog/item/4f4e476ae4b07f02db47e13b".length);
-                    URLarray.push(input);
-                } else {
-                    anySkipped = true;
-                    amountSkipped++;
-                    //if "format" is not in the reasons array, add it.
-                    let typeIndex = reasons.indexOf("format");
-                    if (typeIndex == -1) { reasons.push("format"); }
-                }            
+
+                input = input.replace("https://www.sciencebase.gov/catalog/folder", "https://www.sciencebase.gov/catalog/item")
+            }
+            //check that it has the right format
+            if (input.includes("https://www.sciencebase.gov/catalog/item"))
+            {
+                //take the whole thing as another url
+                // console.log("check here:");
+                // console.log("https://www.sciencebase.gov/catalog/item/4f4e476ae4b07f02db47e13b".length);
+                URLarray.push(input);
             } else {
                 anySkipped = true;
+                console.log("Skipped 2");
+                console.log(input);
                 amountSkipped++;
                 //if "format" is not in the reasons array, add it.
-                let typeIndex = reasons.indexOf("length");
-                if (typeIndex == -1) { reasons.push("length"); }
-            }
+                let typeIndex = reasons.indexOf("format");
+                if (typeIndex == -1) { reasons.push("format"); }
+            }            
             input = '';
         }
     }
