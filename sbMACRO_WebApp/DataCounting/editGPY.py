@@ -34,10 +34,9 @@ def clearMemory():
         gl.RunningDataTotal[:] = []
         gl.totalDataCount = 0  # Uncomment if you want running total for each project rather than total search.
 
-        gl.NumOfFiles = 0
         gl.ProjItems.clear()
-        gl.ProjFiles[:] = []
-        gl.ProjFileDict.clear()
+        gl.ProjFiles.clear()
+
         # runningDataToo()
         print("""
     Memory Cleared.""")
