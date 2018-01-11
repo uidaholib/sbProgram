@@ -90,10 +90,18 @@ def createProjFile(GSheet, currFY, proj):
         projJson['DMP'] = "Project not currently tracked by Data Steward"
         projJson['Potential_Products'] = "Project not currently tracked by Data Steward"
     projJson['Received_Products'] = {}
+    projJson['Received_Products']['Items'] = {}
     try:
-        projJson['Received_Products']['Items'] = proj['ProjectItems']
+        projJson['Received_Products']['Items']['Project_Item_List'] = []
+        for i in proj['ProjectItems']['Project_Item_List']:
+            if i['systemType'] != ["folder"] and i['systemType'] != ["Folder"]:
+                projJson['Received_Products']['Items']['Project_Item_List'].append(i)
+        projJson['Received_Products']['Items']['Project_Item_Count'] = len(
+            projJson['Received_Products']['Items']['Project_Item_List'])
+
     except:
-        projJson['Received_Products']['Items'] = "No Data found"
+        projJson['Received_Products']['Items']['Project_Item_Count'] = 0
+        projJson['Received_Products']['Items']['Project_Item_List'] = []
     try:
         projJson['Received_Products']['Files'] = proj['ProjectFiles']
     except:
