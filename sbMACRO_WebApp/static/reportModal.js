@@ -99,7 +99,25 @@ function createModal(id) {
 
     // add products recieved
     var ProdRecieved = $('#' + modal_id).find('.products_recieved');
-    ProdRecieved.text(projectDict['Received_Products']);
+    let prodRecList = projectDict['Received_Products']['Items']['Project_Item_List']
+    let html = "";
+    for(let i = 0; i < prodRecList.length; i++)
+    {
+        // console.log(prodRecList[i]["name"]);
+        if (prodRecList[i]["name"]){
+            let item_name = prodRecList[i]["name"]
+
+            html += '<a href="' + prodRecList[i]["url"] + '" target="_blank">'
+                + (i+1) + '. '
+                + prodRecList[i]["name"] + '</a><br>'
+        }
+    }
+    if(html != ""){
+        ProdRecieved.html(html);
+    } else {
+        ProdRecieved.html("No Science Base Items found.");
+    }
+    
     
     // Display DMP status
     if(projectDict['DMP'] === "Approved")
