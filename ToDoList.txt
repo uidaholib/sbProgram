@@ -116,3 +116,5 @@ Should make project numbers on graph y-axis clickable to bring you to project in
 Limit the amount of sb queries as much as possible. 
 - - For example, when iterating through possible project data looking for shortcuts, make an array of every item that's been checked and only check an item in possible project data for shortcuts if it's not in the "checked" array.
 
+
+In projects part of reportDict, we have duplicates of items, potential items, recieved items, etc.
