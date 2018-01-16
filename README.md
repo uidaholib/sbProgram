@@ -1,17 +1,15 @@
 # sbMACRO
 
-This is a program and web app meant to work with the SciencBase.gov REST API to gnerate reports useful for USGS CSC Data Managers. The program can do things like count data, determine DMP status, find Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects in the Northwest and Southwest Climate Science Center directories on ScienceBase.gov, and generate a report based on the selection provided combined with data found in the combined Data Manager Google Sheets spreadsheet.
+This is a program and web app meant to work with the SciencBase.gov REST API to generate reports useful for USGS CSC Data Managers. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects in the Northwest and Southwest Climate Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
 
 
 Entire commit history and contributor history can be found here: https://github.com/uidaholib/sbProgram
 
 ## Getting Started
 
-Make sure you have python installed and that you know how to install python libraries.
-
 ### Prerequisites
 
-[Python 3.6](https://www.python.org/downloads/) is required to run this program.
+[Python 3.6](https://www.python.org/downloads/) is required to run this program. The program is currently best used on a recent version of Google Chrome.
 
 
 Libraries you need to install to run sbMACRO Web App:
@@ -72,12 +70,12 @@ python app.py
 
 The program should be up and running!
 
-Go to your favorite browser and type in
+Go to your favorite browser (while in development, sbMACRO works best on Google Chrome) and type in
 ```
 http://localhost:5000/
 ```
 
-You can now interact with the sbMACRO Web Application
+You can then interact with the sbMACRO Web Application.
 
 ## Built With
 ScienceBase API,
