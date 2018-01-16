@@ -61,7 +61,7 @@ Creating a virtual environment is highly recommended so you do not affect your g
 
 ## Deployment
 
-The simplest way to deploy the program is to clone the *TrialWebApp* directory to your local machine, open your favorite command line/terminal program, cd into the directory into which you cloned TrialWebApp,and install the prerequisites/dependencies as shown above. 
+The simplest way to deploy the program is to clone the *TrialWebApp* directory to your local machine, open your favorite command line/terminal program, cd into the directory into which you cloned *TrialWebApp*,and install the prerequisites/dependencies as shown above. 
 
 Once you have the program installed (and your virtual environment is activated if applicable), run app.py
 ```
@@ -89,7 +89,7 @@ Javascript
 
 ## Authors
 
-* **Taylor Rogers** - *Initial work* - [Capt.Rogers](https://gitlab.com/Capt.Rogers) and [trogers1](https://github.com/trogers1)
+* **Taylor Rogers** - *Initial work* - [Capt.Rogers](https://gitlab.com/Capt.Rogers) as well as [trogers1](https://github.com/trogers1)
 
 
 
