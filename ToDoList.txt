@@ -118,3 +118,11 @@ Limit the amount of sb queries as much as possible.
 
 
 In projects part of reportDict, we have duplicates of items, potential items, recieved items, etc.
+
+
+Missing data flags/when data is at GDP
+- Make sure we're correctly IDing this
+    - Look for links to GDP
+    - Look for items with no files (except .xml (!!))
+
+Update README
