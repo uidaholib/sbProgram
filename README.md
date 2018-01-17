@@ -52,7 +52,7 @@ NOTE: pysb may need to be installed manually. To install pysb manually, follow i
 
 If the Google Sheets API python module doesn't install, try: `python -m pip install --upgrade google-api-python-client`
 
-The project is also mid-development, so if you have trouble, or `requirements.txt` is not up to date, create an issue on our GitHub page or [contact us](trogers@uidaho.edu).
+The project is also mid-development, so if you have trouble, or `requirements.txt` is not up to date, create an issue on our GitHub page or [contact us](<trogers@uidaho.edu>).
 
 ### Installing
 Simply install all libraries and python 3 before running the program in your favorite command line/terminal program.
