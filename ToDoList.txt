@@ -1,128 +1,96 @@
-
-
-To Do on MACRO:
-
-!*Honestly, I should refactor the dataCounting and g1.py scripts to use classes similar to ExcelPrint, rather than lists. But it works now, so it's fine for now.
-
-* Figure out global exceptions
-* Add functionality to parse and display:
-      - projects
-      - items
-      - mixed bag
-  All this should branch from the current functions in parseMain.
-* [CLI] Check out why, after logging in, it wants to publically search
-* empty exceptions sheet has: "
+General To Do on sbMACRO:
+Honestly, I should refactor the dataCounting and gl.py scripts to use classes similar to ExcelPrint, rather than lists. But it works now, so it's fine for now.
+ Figure out global exception handling
+(this is turning out to be possibly unnecessary unless we care about item-specific info)--Add functionality to parse and display:
+projects
+ items
+mixed bag
+  	All this should branch from the current functions in parse.py.
+[CLI] Check out why, after logging in, it wants to publically search
+[CLI] empty exceptions sheet has: "
       Exceptions raised:
-
       Empty DataFrame
       Columns: [Exception/Permission Issue ID, Exception/Permission Issue URL]
       Index: []
       "
-* Figure out how to create a download from the site.
-- - Perhaps it will be some SQL database that would then be used to create an excel file?
-* Fix loading GIF positioning
-* It looks like variables may not reset after the process is done. That could be an issue.
-- - Not sure this is still the case. I think not.
-* Flash messages during loading (or have loading be te project that's being counted)
--- Maybe have a hidden div that pops up during loading with the flash messages.
-* work on passing data to javascript, then using js to display in interesting ways (graphs, etc.)
-* maybe should add a radio button to do both a single FY and all FYs file with excel.
-- - Need to make those buttons do something. Currently all goes to one table, Need to make it so that it could create a totally new table with Excel option and everything.
-* Will need to also figure out how to download .xlxs (a zip of all, or each depending on selection, etc.)
-- - Could instead re-write the ExcelPrint.py to create a new sheet for each fiscal year if they choose that option.
-* Instead of printing to the console, have the program print to a log txt file and save it at the end. It can rewrite it every time. Then we have a log of the most recent stuff.
-- - Also, could have it append to end of file and rewrite every 5 times it has been run or something.
-* Adding Missing and Exception tables at the end?
-- - Or add a column with missing/exception urls
-* Catch and deal with exceptions through the GUI or set a default wait action.
-- - We have a default "wait 5 min" action. Satisfactory?
-* Figure out how to reset entire script/wipe memory on a refresh. All variables need reset when it's done, and gl needs cleared when it's started.
-- - Check that this is happening.
-* [CLI] Add types of report to ExcelPrint (Fiscal Year, Project, Item)
-* Refactor hard_search vs handle_data in app.py
-* When doing 'hard search' add every project folder to a list to create json's from? Or just have a list of big ones to be executed?
-* Perhaps should delete contents of jsonCache folder each time I do the full hard search (but NOT each time the advanced hard search is activated manually)
-- - Or just do each item if not done that day and overwrite, which is what we do currently
-* when starting Hard Search, should check each item for a matching json, and see if it was done that day, if so, don't do it.
-- - Double check this is working properly
-* should recurse through hard_search() IF there are jsons in jsonCache that have a date['date'] that is not datetime.date.now().
-- - Must have exceptions handled globally to allow this to be useful
-* Why did SWCSC FY 2016 have no data per file, but data in the fiscal year??
-- - I should just double check ALL data.
-* Round numbers when placed to table (or add elipses)
-* Find cool ways to display info graphically from table
-* Add other CSCs
-* DMP editor connection to say whether something has been approved or not.
-- - Query active projects based on time period?? Approved?
-* Make "Data Per File" more useful?
-* Graphs: Animations: graph filling, pie charts growing to their size, mouse over affects (mouse over bar to see exact data, pie chart for a peak into the data, etc.)
-* Different colors for CSC's? Some way to differenciate. Shades for FYs, colors for CSCs?
-* Submit button not working if going back to index any way other than by URL.
-* Add searching through our data: for projects in the table or something.
-- - jquery search table.
-* Improve home page--give it a purpose.
-* add white background (slightly opaque) legend so you can still see it if there is a big rect.
-* Update colors in graphs (perhaps use Materialize color options)
-* Perhaps, for projects with really small amounts of data that don't show up on graph, have tool tip automatically show up no matter what with a little arrow pointing to it. Have it pop up just to the right of the axis with an arrow to the left, pointing where the bar would be with the data that's in it.
-- - Then you'd have to add a hover on the tool tip to get more info than just the size. Same as the normal tool tip
-* charts: legends need to change position by size of window. They're getting cut off in small sizes.
-* Change DataPerFile to Number of Files in project (Data per File->Num of Files)
-* Create "report" button that brings you to last cached report once one has been created. Greyed out or nonexistant beforehand.
-* Move left nav bar to top banner. 
-* Make it so that FY checkbox list generates from jsons rather than needing to contact sciencebase
-* Have chart titles and such change size depending on screen size (at small sizes, the title is too long for the svg)
-
-* Turn project column into modal link
-- -  "more info" or "history" link to that column on table that pulls from google sheets that gives history of the project. Serve as big pop up window (called modal/dialogue. Use jquery?)
-- - In dialogue box, have communication history as well as whether or not DMP is approved (all taken from Google sheets)
-- - Perhaps include (using DMP Editor API) amount of data expected vs what we have.
-- - Modal Design: 2x2 grid topped by DMP status. Top row: history, pie chart. Bottom row: Potential Products, Recieved Products (do these last).
-
-* Modal info will be created every night with python, saved to jsons, js pulls info from jsons to populate modal.
-
-* Add catch for sciencebase urls that are not FYs, projects, or items.
-- - Maybe also make it so that Hard search doesn't automatically start?
-- - If doesn't start, there should be a list... ie Add paragraph or list of objects passed as projects that were not recognized so they know if something they gave wasn't good. Same for FYs?
-
-* Add placeholder pie chart image
-
-* Start collecting all children of each project in an array (names and url)
-
-project functionality:
-* Add ability to upload a CSV with a bunch of urls
-* Add hard search?
-* Don't create project comparison graphs is only one project is analyzed
-* Add paragraph or list of objects passed as projects that were not recognized so they know if something they gave wasn't good.
-
-FiscalYear
-* Make sure only the graphs that are needed are created. Curretly creates both NWCSC and SWCSC even if not necessary.
-
-
-Security:
-* Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.
-* Understand and implement Sanitization, Validation, and Escaping for web security.
-* Look up making a web app secure. Do those things.
-
-
-To change when hosted:
-* Loading image in base.html needs path changed to one hosted by us on our server (use loadiingimage.gif in static/)
-
-
-Should make a google account for sbMacro as well as get the sheets api credentials for it so it can be accessed by an account that won't be changed that is for the program.
-
+Figure out how to create a download from the site.
+Perhaps it will be some SQL database that would then be used to create an excel file?
+We have a .xls file, but it throws a warning when downloaded and opened. We should figure out how to generate a .xlsx file so no warning is generated
+Fix loading GIF positioning
+It looks like variables may not reset after the process is done. That could be an issue.
+Not sure this is still the case. I think not.
+Flash messages during loading (or have loading be te project that's being counted)
+Maybe have a hidden div that pops up during loading with the flash messages.
+work on passing data to javascript, then using js to display in interesting ways (graphs, etc.)
+maybe should add a radio button to do both a single FY and all FYs file with excel.
+Need to make those buttons do something. Currently all goes to one table. Need to make it so that it could create a totally new table with Excel option and everything.
+May also just remove these and create reports from user input separately. This is likely the best option.
+Instead of printing to the console, have the program print to a log txt file and save it at the end. It can rewrite it every time or at a specific time interval. Then we have a log of the most recent stuff.
+Also, could have it append to end of file and rewrite every 5 times it has been run or something.
+Adding Missing and Exception tables at the end?
+Or add a column with missing/exception urls
+Or some sort of flag with the urls in the modal
+Catch and deal with exceptions other than our default wait action?
+We have a default "wait 5 min" action. Satisfactory?
+Figure out how to reset entire script/wipe memory on a refresh. All variables need reset when it's done, and gl needs cleared when it's started.
+Check that this is happening.
+[CLI] Add types of report to ExcelPrint (Fiscal Year, Project, Item)
+Refactor hard_search vs handle_data in app.py
+Perhaps should delete contents of jsonCache folder each time I do the full hard search (but NOT each time the advanced hard search is activated manually--this is what we don’t support right now. Manually activated hard search won’t do a hard search if it was done already that day.)
+Why did SWCSC FY 2016 have no data per file, but data in the fiscal year??
+Doesn’t happen anymore, but I should just double check ALL data to make sure sbMACRO is working like we think it is.
+Find cool ways to display info graphically from table
+Add other CSCs
+DMP editor connection/ScienceBase Working directory connection to say whether something has been approved or not.
+Query active projects based on time period?? Approved?
+Make "Data Per File" more useful?
+Graphs: 
+Animations: graph filling, pie charts growing to their size, mouse over affects (mouse over bar to see exact data, pie chart for a peak into the data, etc.)
+Different colors for CSC's? Some way to differenciate. Shades for FYs, colors for CSCs?
+add white background (slightly opaque) legend so you can still see it if there is a big rect.
+Update colors in graphs (perhaps use Materialize color options)
+Perhaps, for projects with really small amounts of data that don't show up on graph, have tool tip automatically show up no matter what with a little arrow pointing to it. Have it pop up just to the right of the axis with an arrow to the left, pointing where the bar would be with the data that's in it.
+Then you'd have to add a hover on the tool tip to get more info than just the size. Same as the normal tool tip
+legends need to change position by size of window. They're getting cut off in small sizes.
+Have chart titles and such change size depending on screen size (at small sizes, the title is too long for the svg)
 Should make project numbers on graph y-axis clickable to bring you to project in table, so you can skip to projects with little to no data easily.
-
-
+Submit button not working sometimes if pressed too quickly, not in the right spot, if going back to index any way other than by URL, etc. Figure this out.
+Add searching through our data: for projects in the table or something.
+jQuery search table.
+Improve home page--give it a purpose.
+Create "report" button that brings you to last cached report once one has been created. Greyed out or nonexistant beforehand.
+Move left nav bar to top banner. 
+Make it so that FY checkbox list generates from jsons rather than needing to contact sciencebase
+Modals:
+Perhaps include (using DMP Editor API) amount of data expected vs what we have.
+Add real pie charts to modals
+Change loading screen to say something like “If you selected Hard Search, you’ll have to wait a while. Otherwise, you data should appear shortly”
+Add catch for sciencebase urls that are not FYs, projects, or items depending on when each is needed.
+Maybe also make it so that Hard search doesn't automatically start?
+If doesn't start, there should be a list... ie Add paragraph or list of objects passed as projects that were not recognized so they know if something they gave wasn't good. Same for FYs?
 Limit the amount of sb queries as much as possible. 
-- - For example, when iterating through possible project data looking for shortcuts, make an array of every item that's been checked and only check an item in possible project data for shortcuts if it's not in the "checked" array.
-
-
+For example, when iterating through possible project data looking for shortcuts, make an array of every item that's been checked and only check an item in possible project data for shortcuts if it's not in the "checked" array.
 In projects part of reportDict, we have duplicates of items, potential items, recieved items, etc.
-
-
 Missing data flags/when data is at GDP
-- Make sure we're correctly IDing this
-    - Look for links to GDP
-    - Look for items with no files (except .xml (!!))
-
+Make sure we're correctly IDing this
+Look for links to GDP
+Look for items with no files (except .xml (!!))
 Update README
+Should make a google account for sbMacro as well as get the sheets api credentials for it so it can be accessed by an account that won't be changed that is for the program.
+Project functionality:
+Add ability to upload a CSV with a bunch of urls
+Add hard search?
+Don't create project comparison graphs if only one project is analyzed
+This may be done
+Add paragraph or list of objects passed as projects that were not recognized so they know if something they gave wasn't good.
+Fiscal Year functionality
+Make sure only the graphs that are needed are created. Curretly creates both NWCSC and SWCSC even if not necessary.
+Security:
+Should be using JSON.parse, and should always escape HTML anything that is being printed on the browser.
+Understand and implement Sanitization, Validation, and Escaping for web security.
+Look up making a web app secure. Do those things.
+To change when hosted:
+Loading image in base.html needs path changed to one hosted by us on our server (use loadiingimage.gif in static/)
+
+If just SWCSC 2012 is selected, I noticed that the empty "selected FYs have no data" default graph for NWCSC is shown for some reason.
+Find out why ExcelPrint is used in app.py
