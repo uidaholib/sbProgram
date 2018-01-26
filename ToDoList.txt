@@ -93,4 +93,4 @@ To change when hosted:
 Loading image in base.html needs path changed to one hosted by us on our server (use loadiingimage.gif in static/)
 
 If just SWCSC 2012 is selected, I noticed that the empty "selected FYs have no data" default graph for NWCSC is shown for some reason.
-Find out why ExcelPrint is used in app.py
+
