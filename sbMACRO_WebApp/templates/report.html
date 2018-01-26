@@ -19,7 +19,7 @@
 
 
 <script>
-  var reportDict = {{ FullReportJson| safe }};
+  var reportDict = {{ full_report_json | safe }};
   console.log("reportDict:")
   console.log(reportDict);
   buildProjectTable(reportDict);
@@ -170,7 +170,7 @@
 
 
 <script>  
-  var reportDict = {{ FullReportJson | safe }};
+  var reportDict = {{ full_report_json | safe }};
   projectBarGraph(reportDict); //from ../static/DataVisualization/projectBarGraph.js
   $("<br><br>").insertAfter("#wrapper");
   FY_BarGraph(reportDict); //from ../static/DataVisualization/FY_BarGraph.js
