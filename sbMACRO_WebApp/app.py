@@ -1,6 +1,5 @@
 """This module controls data, json scraping, and page rendering for sbMACRO"""
 
-# import the Flask class from the flask module
 import sys
 import os
 from pprint import pprint
