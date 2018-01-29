@@ -1,14 +1,16 @@
-import gl
-from flask import Flask, render_template, redirect, \
-    url_for, request, session, flash, jsonify
-import requests
-import json
-import pysb
+"""This module sorts ScienceBase ids and sends them to appropriate modules"""
 import sys
+import os
+import pysb  # pylint: disable=wrong-import-order
 
-from pprint import pprint
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting/"))
+import gl  # pylint: disable=C0413
+import parseFY  # pylint: disable=C0413
+import saveJson  # pylint: disable=E0401,C0413,C0410,C0411
+import edit_gpy  # pylint: disable=E0401,C0413,C0410,C0411,W0611
 
-sb = pysb.SbSession()
+SB = pysb.SbSession()
 
 
 def main():
@@ -21,7 +23,7 @@ def main():
                                 parsed.
     """
     print("Items to Be Parsed: ")  # Quantico
-    print(gl.itemsToBeParsed)  # Quantico
+    print(gl.items_to_be_parsed)  # Quantico
     sort_items()
     parse_base()
 
@@ -60,7 +62,7 @@ def sort_items():
     """
 
 
-    if gl.itemsToBeParsed == []:
+    if gl.items_to_be_parsed == []:
         print("There are no items to be parsed.")
         # import start
         # start.questionLogin()
@@ -68,33 +70,30 @@ def sort_items():
     print("""
     Sorting Items...""")
 
-    # print(gl.itemsToBeParsed)  # Quantico
-    for i in gl.itemsToBeParsed:
-        
+    # print(gl.items_to_be_parsed)  # Quantico
+    for i in gl.items_to_be_parsed:
         try:
-            itemsToBeParsed_json = sb.get_item(i)
-        except Exception:
-            import parseFY
+            itemsToBeParsed_json = SB.get_item(i)
+        except Exception:  # pylint: disable=W0703
             exceptionFound = True
             print("--------Hit upon a 404 exception: parse.sort_items (1)")
             parseFY.exceptionLoop(i)
-            itemsToBeParsed_json = sb.get_item(i)
+            itemsToBeParsed_json = SB.get_item(i)
         # pprint(itemsToBeParsed_json)  #Quantico
         print("Place: 1")  # Quantico
 
         if 'CSC' in itemsToBeParsed_json['title']:
             print("Place: 1.1")  # Quantico
             print("Item is a CSC folder.")  # Quantico
-            gl.itemsToBeParsed.remove(i)
+            gl.items_to_be_parsed.remove(i)
 
             try:
-                cscChildren = sb.get_child_ids(i)
-            except Exception:
-                import parseFY
+                cscChildren = SB.get_child_ids(i)
+            except Exception:  # pylint: disable=W0703
                 exceptionFound = True
                 print("--------Hit upon a 404 exception: parse.sort_items (1)")
                 parseFY.exceptionLoop(i)
-                cscChildren = sb.get_child_ids(i)
+                cscChildren = SB.get_child_ids(i)
             for year in cscChildren:
                 if year not in gl.fiscalYears:
                     gl.fiscalYears.append(year)
@@ -119,25 +118,23 @@ def sort_items():
             elif itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                 # print("Place: 4")  # Quantico
 
-                # children = sb.get_child_ids(i)
+                # children = SB.get_child_ids(i)
                 try:
-                    children = sb.get_child_ids(i)
-                except Exception:
-                    import parseFY
+                    children = SB.get_child_ids(i)
+                except Exception:  # pylint: disable=W0703
                     exceptionFound = True
                     print("--------Hit upon a 404 exception: parse.sort_items (1)")
                     parseFY.exceptionLoop(i)
-                    children = sb.get_child_ids(i)
+                    children = SB.get_child_ids(i)
                 for child in children:
                     
                     try:
-                        exampleChild_json = sb.get_item(child)
-                    except Exception:
-                        import parseFY
+                        exampleChild_json = SB.get_item(child)
+                    except Exception:  # pylint: disable=W0703
                         exceptionFound = True
                         print("--------Hit upon a 404 exception: parse.sort_items (1)")
                         parseFY.exceptionLoop(child)
-                        exampleChild_json = sb.get_item(child)
+                        exampleChild_json = SB.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
                             # print("Place: 5")  # Quantico
@@ -180,23 +177,21 @@ def sort_items():
             if itemsToBeParsed_json["hasChildren"] == True:  #Seeing if it is a FY
                 # print("Place: 4")  # Quantico
                 try:
-                    children = sb.get_child_ids(i)
-                except Exception:
-                    import parseFY
+                    children = SB.get_child_ids(i)
+                except Exception:  # pylint: disable=W0703
                     exceptionFound = True
                     print("--------Hit upon a 404 exception: parse.sort_items (1)")
                     parseFY.exceptionLoop(i)
-                    children = sb.get_child_ids(i)
+                    children = SB.get_child_ids(i)
 
                 for child in children:
                     try:
-                        exampleChild_json = sb.get_item(child)
-                    except Exception:
-                        import parseFY
+                        exampleChild_json = SB.get_item(child)
+                    except Exception:  # pylint: disable=W0703
                         exceptionFound = True
                         print("--------Hit upon a 404 exception: parse.sort_items (2)")
                         parseFY.exceptionLoop(child)
-                        exampleChild_json = sb.get_item(child)
+                        exampleChild_json = SB.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
                             # print("Place: 5.2")  # Quantico
@@ -249,88 +244,14 @@ def sort_items():
 def parse_base():
 
     if gl.fiscalYears != []:
-        import parseFY
-        import saveJson
-        import edit_gpy
-        import exceptionRaised
         for i in gl.fiscalYears:
             edit_gpy.clear_memory()
-            edit_gpy.runningDataToo()
             parseFY.main(i)
             saveJson.main()
-            # exceptionRaised.main(i)
         print("--------------Done parsing Fiscal Years.")
-        #print("""
-        #Would you like to create an Excel Spreadsheet with all parsed data """+
-        #"""currently in memory before continuing on? If you choose no, all """+
-        #"""information gathered will continue to be compiled and will be """+
-        #"""available to be included in a final spreadsheet at the end of """+
-        #"""the process or to be used to create a speadsheet after each """+
-        #"""subsequent Fiscal Year, Project, or Item that was originally """+
-        #"""selected to be parsed is parsed.
-
-        #(Y / N)""")
-        if gl.Excel_choice == "One_Excel_for_all_FYs":
-            import ExcelPrint
-            import edit_gpy
-            ExcelPrint.main()
-            # edit_gpy.clear_memory()
-        elif gl.Excel_choice == "Excel_for_each_FY":
-            pass
-        else:
-            print("Something wrong. No gl.Excel_choice selected.")
-            flash("Something wrong. No gl.Excel_choice selected.")
-            sys.exit()
     else:
         # get rid of this and uncomment the code below if/when project and item hard search is implemented.
         print("Cannot parse items that are not fiscal years yet")
-
-
-    # if gl.projects != []:
-    #     import parseProjects        # eyekeeper Quantico don't have this working yet
-    #     parseProjects.main()
-    #     print("--------------Done parsing projects.")
-    #     print("""
-    #     Would you like to create an Excel Spreadsheet with all parsed data """+
-    #     """currently in memory before continuing on? If you choose no, all """+
-    #     """information gathered will continue to be compiled and will be """+
-    #     """available to be included in a final spreadsheet at the end of """+
-    #     """the process or to be used to create a speadsheet after each """+
-    #     """subsequent Fiscal Year, Project, or Item that was originally """+
-    #     """selected to be parsed is parsed.
-
-    #     (Y / N)""")
-    #     answer = input("> ").lower()
-    #     if "y" in answer:
-    #         import ExcelPrint
-    #         import edit_gpy
-    #         ExcelPrint.main()
-    #         edit_gpy.clear_memory()
-    #     elif 'n' in answer:
-    #         print("No spreadsheet created.")
-    # if gl.items != []:
-    #     import parseItems     # eyekeeper Quantico don't have this working yet
-    #     parseItems.main()
-    #     print("--------------Done parsing items.")
-    #     print("""
-    #     Would you like to create an Excel Spreadsheet with all parsed data """+
-    #     """currently in memory before continuing on? If you choose no, all """+
-    #     """information gathered will continue to be compiled and will be """+
-    #     """available to be included in a final spreadsheet at the end of """+
-    #     """the process or to be used to create a speadsheet after each """+
-    #     """subsequent Fiscal Year, Project, or Item that was originally """+
-    #     """selected to be parsed is parsed.
-
-    #     (Y / N)""")
-    #     answer = input("> ").lower()
-    #     if "y" in answer:
-    #         import ExcelPrint
-    #         import edit_gpy
-    #         ExcelPrint.main()
-    #         edit_gpy.clear_memory()
-    #     elif 'n' in answer:
-    #         print("No spreadsheet created.")
-
     print("Done parsing all items!")  # eyekeeper I need to return to whatever called parse.py or something.
 
 
@@ -345,23 +266,23 @@ def parseOnTheFly():
     for i in gl.items:
         oldgItems.append(i)
 
-    if gl.onTheFlyParsing == []:
+    if gl.on_the_fly_parsing == []:
         print("There are no items to be parsed.")
         return
     print("""
     Sorting Items...""")
 
-    print(gl.onTheFlyParsing)  # Quantico
+    print(gl.on_the_fly_parsing)  # Quantico
 
-    for i in gl.onTheFlyParsing:
-        onTheFlyParsing_json = sb.get_item(i)
+    for i in gl.on_the_fly_parsing:
+        onTheFlyParsing_json = SB.get_item(i)
         # pprint(onTheFlyParsing_json)  # Quantico
         print("Place: 1")  # Quantico
         if 'CSC' in onTheFlyParsing_json['title']:
             print("Place: 1.1")  # Quantico
             print("Item is a CSC folder.")  # Quantico
-            gl.onTheFlyParsing.remove(i)
-            cscChildren = sb.get_child_ids(i)
+            gl.on_the_fly_parsing.remove(i)
+            cscChildren = SB.get_child_ids(i)
             for year in cscChildren:
                 if year not in gl.fiscalYears:
                     gl.fiscalYears.append(year)
@@ -384,10 +305,10 @@ def parseOnTheFly():
                 print("Place: 3")  # Quantico
             elif onTheFlyParsing_json["hasChildren"] == True:  #Seeing if it is a FY
                 print("Place: 4")  # Quantico
-                children = sb.get_child_ids(i)
+                children = SB.get_child_ids(i)
 
                 for child in children:
-                    exampleChild_json = sb.get_item(child)
+                    exampleChild_json = SB.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
                             print("Place: 5")  # Quantico
@@ -429,10 +350,10 @@ def parseOnTheFly():
         except KeyError:
             if onTheFlyParsing_json["hasChildren"] == True:  #Seeing if it is a FY
                 print("Place: 4")  # Quantico
-                children = sb.get_child_ids(i)
+                children = SB.get_child_ids(i)
 
                 for child in children:
-                    exampleChild_json = sb.get_item(child)
+                    exampleChild_json = SB.get_item(child)
                     try:
                         if "Project" in exampleChild_json["browseCategories"]:
                             print("Place: 5.2")  # Quantico
@@ -502,7 +423,7 @@ def question(oldgItems, oldgProjects, oldgFiscalYears):
         gl.fiscalYears = oldgFiscalYears
         gl.projects = oldgProjects
         gl.items = oldgItems
-        gl.onTheFlyParsing[:] = []
+        gl.on_the_fly_parsing[:] = []
         print("Done. Didn't keep changes")
         print("======================================================")
         print(gl.fiscalYears)  # Quantico
@@ -510,7 +431,7 @@ def question(oldgItems, oldgProjects, oldgFiscalYears):
         print(gl.items)  # Quantico
         return
     elif "new" in answer:
-        gl.onTheFlyParsing[:] = []
+        gl.on_the_fly_parsing[:] = []
         print("Done. Kept Changes.")
         print("======================================================")
         return
@@ -527,4 +448,4 @@ if __name__ == '__main__':
 
     main()
 
-sb.logout()
+SB.logout()
