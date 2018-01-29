@@ -97,3 +97,7 @@ If just SWCSC 2012 is selected, I noticed that the empty "selected FYs have no d
 Completely remove Excel_Choice from front and back end. 
 
 Remove ExcelPrint file.
+
+After refactoring: 
+      - hand check some data
+      - check that all functionality is working
