@@ -251,11 +251,11 @@ def parse_base():
     if gl.fiscalYears != []:
         import parseFY
         import saveJson
-        import editGPY
+        import edit_gpy
         import exceptionRaised
         for i in gl.fiscalYears:
-            editGPY.clearMemory()
-            editGPY.runningDataToo()
+            edit_gpy.clear_memory()
+            edit_gpy.runningDataToo()
             parseFY.main(i)
             saveJson.main()
             # exceptionRaised.main(i)
@@ -272,9 +272,9 @@ def parse_base():
         #(Y / N)""")
         if gl.Excel_choice == "One_Excel_for_all_FYs":
             import ExcelPrint
-            import editGPY
+            import edit_gpy
             ExcelPrint.main()
-            # editGPY.clearMemory()
+            # edit_gpy.clear_memory()
         elif gl.Excel_choice == "Excel_for_each_FY":
             pass
         else:
@@ -303,9 +303,9 @@ def parse_base():
     #     answer = input("> ").lower()
     #     if "y" in answer:
     #         import ExcelPrint
-    #         import editGPY
+    #         import edit_gpy
     #         ExcelPrint.main()
-    #         editGPY.clearMemory()
+    #         edit_gpy.clear_memory()
     #     elif 'n' in answer:
     #         print("No spreadsheet created.")
     # if gl.items != []:
@@ -325,9 +325,9 @@ def parse_base():
     #     answer = input("> ").lower()
     #     if "y" in answer:
     #         import ExcelPrint
-    #         import editGPY
+    #         import edit_gpy
     #         ExcelPrint.main()
-    #         editGPY.clearMemory()
+    #         edit_gpy.clear_memory()
     #     elif 'n' in answer:
     #         print("No spreadsheet created.")
 
