@@ -599,9 +599,9 @@ def excel():        #  Quantico I took this out.
     #answer = input("> ").lower()
     if gl.Excel_choice == "Excel_for_each_FY":
         import ExcelPrint
-        import editGPY
+        import edit_gpy
         ExcelPrint.main()
-        editGPY.clearMemory()
+        edit_gpy.clear_memory()
     elif gl.Excel_choice == "One_Excel_for_all_FYs":
         pass
     else:
