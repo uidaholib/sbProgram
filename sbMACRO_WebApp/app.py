@@ -16,93 +16,101 @@ import jsonpickle  # pylint: disable=E0401
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting/"))
-import gl, parse, parseFY, saveJson  # pylint: disable=E0401,C0413,C0410
+import gl, parse, parseFY, saveJson  # pylint: disable=E0401,C0413,C0410,C0411
+import edit_gpy  # pylint: disable=E0401,C0413,C0410,C0411,W0611
 
 SB = pysb.SbSession()
 
 
 # create the application object
-app = Flask(__name__)
+app = Flask(__name__)  # pylint: disable=C0103
 
 # config
 app.secret_key = 'my precious'
 
 
-class JsonTransformer(object):
-    def transform(self, myObject):
-        return jsonpickle.encode(myObject, unpicklable=False)
+class JsonTransformer(object):  # pylint: disable=R0903
+    """Class for transforming complicated python objects to JSON"""
+    def transform(self, my_object):  # pylint: disable=R0201
+        """JsonTransformer Class Method for transforming objects to JSON"""
+        return jsonpickle.encode(my_object, unpicklable=False)
 
-def get_FYs(CSC_id=None):
+def get_fiscal_years(csc_id=None):
     """Create a sorted dict of fiscal years from NWCSC and return it.
-    
-    Arguments:
-        CSC_id -- the sciencebase id to be parsed (default None)
-    """
-    if CSC_id == None:
-        print("No id passed to get_FYs")
-        return
-    try:
-        FYs = SB.get_child_ids(CSC_id)
-    except Exception:  # pylint: disable=W0703
-        print("----------Exception Raised in get_FYs (1)")
-        parseFY.exceptionLoop("4f8c64d2e4b0546c0c397b46")
-        FYs = SB.get_child_ids("4f8c64d2e4b0546c0c397b46")
 
-    FYs_Dict = {}
-    for ID in FYs:
+    Arguments:
+        csc_id -- the sciencebase id to be parsed (default None)
+    Returns:
+       fiscal_years_dict_ordered -- ordered dict of ScienceBase fiscal year ids
+    Raises:
+        ValueError: if no argument passed to csc_id
+    """
+    if csc_id is None:
+        print("No id passed to get_fiscal_years")
+        raise ValueError
+    try:
+        fiscal_years = SB.get_child_ids(csc_id)
+    except Exception:  # pylint: disable=W0703
+        print("----------Exception Raised in get_fiscal_years (1)")
+        parseFY.exceptionLoop(csc_id)
+        fiscal_years = SB.get_child_ids(csc_id)
+
+    fiscal_years_dict = {}
+    for sb_id in fiscal_years:
         try:
-            json_ = SB.get_item(ID)
+            json_ = SB.get_item(sb_id)
         except Exception:  # pylint: disable=W0703
-            print("----------Exception Raised in get_FYs (2)")
-            parseFY.exceptionLoop(ID)
-            json_ = SB.get_item(ID)
+            print("----------Exception Raised in get_fiscal_years (2)")
+            parseFY.exceptionLoop(sb_id)
+            json_ = SB.get_item(sb_id)
 
         title = 'NWCSC '+json_['title']
 
-        FYs_Dict.update({title: ID})
-    print("Original FYs_Dict")
-    print(FYs_Dict)
-    sortNW = sorted(FYs_Dict)
-    FYs_OrderedDict = {}
-    for i in sortNW:
-        FYs_OrderedDict.update({i: FYs_Dict[i]})
-    print("Newly Order FYs_Dict: FYs_OrderedDict")
-    print(FYs_OrderedDict)
-    return FYs_OrderedDict
+        fiscal_years_dict.update({title: sb_id})
+    print("Original fiscal_years_dict")
+    print(fiscal_years_dict)
+    sorted_dict = sorted(fiscal_years_dict)
+    fiscal_years_dict_ordered = {}
+    for i in sorted_dict:
+        fiscal_years_dict_ordered.update({i: fiscal_years_dict[i]})
+    print("Newly Ordered fiscal_years_dict: fiscal_years_dict_ordered")
+    print(fiscal_years_dict_ordered)
+    return fiscal_years_dict_ordered
 
 
 def defined_hard_search():
+    """Perform hard search on specific ids via user-input.
+
+    The function first prompts the user for a ScienceBase id.
+    Then, once done, the ids are placed into gl.items_to_be_parsed, and
+    parse.main() is called to begin the hard search. This ends with new jsons
+    being created and saved for whatever fiscal years were designated.
+    """
     # To run this function from command line:
     # python -c 'from app import defined_hard_search; defined_hard_search()'
 
-    # absolute path to this file:
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    # join the script path with the DataCounting directory to get to the files
-    # there and insert it into the system path.
-    # Now you can import your python files.
-    sys.path.insert(0, os.path.join(script_dir, "DataCounting/"))
     gl.Excel_choice = "One_Excel_for_all_FYs"
     answer = None
-    requestItems = []
+    request_items = []
     while answer != 'done':
         print('Please enter an ID you would like parsed. '
               + 'When done, type \'done\'.')
-        if len(requestItems) == 0:
+        if not request_items:  # if request_items is empty (false)
             pass
         else:
             print("Currently in line:")
             print("------------------")
-            for i in requestItems:
+            for i in request_items:
                 print(i)
             print("------------------")
         answer = input('sbID: ')
         if ((answer != 'done')
                 and (answer != None)
-                and (answer not in requestItems)):
-            requestItems.append(answer)
-    for i in requestItems:
-        gl.itemsToBeParsed.append(i)
-    if gl.itemsToBeParsed != []:
+                and (answer not in request_items)):
+            request_items.append(answer)
+    for i in request_items:
+        gl.items_to_be_parsed.append(i)
+    if gl.items_to_be_parsed != []:
         parse.main()  # pylint: disable=E1101
     else:
         return
@@ -114,10 +122,21 @@ def defined_hard_search():
 
 
 def full_hard_search():
+    """Perform hard search on any ids older than 1 day.
+
+    The function calls get_fiscal_years on all desired CSCs to get ordered
+    dictionaries of each CSC's fiscal years. All fiscal year IDs are added to
+    the request_items list. Then, it  parses the appropriate fiscal year's
+    json file (if it exists) to see if any of those fiscal years have been
+    hard search that day. If so, it removes them from the list. The list is
+    used to populate gl.items_to_be_parsed before calling parse.main(). This
+    ends with new jsons being created and saved for whatever fiscal years were
+    designated.
+    """
     # To run this function from command line:
     # python -c 'from app import full_hard_search; full_hard_search()'
-    NWCSC_FYs_OrderedDict = get_FYs("4f8c64d2e4b0546c0c397b46")
-    SWCSC_FYs_OrderedDict = get_FYs("4f8c6580e4b0546c0c397b4e")
+    nwcsc_fys_ordered_dict = get_fiscal_years("4f8c64d2e4b0546c0c397b46")
+    swcsc_fys_ordered_dict = get_fiscal_years("4f8c6580e4b0546c0c397b4e")
     # absolute path to app.py:
     script_dir = os.path.dirname(os.path.realpath(__file__))
     print(script_dir)
@@ -127,80 +146,83 @@ def full_hard_search():
     print(os.path.join(script_dir, "DataCounting/"))
     sys.path.insert(0, os.path.join(script_dir, "DataCounting/"))
     gl.Excel_choice = "One_Excel_for_all_FYs"
-    requestItems = []
-    for key, value in SWCSC_FYs_OrderedDict.items():
-        print("{0}: {1} added to requestItems from SWCSC.".format(key, value))
-        requestItems.append(value)
-    for key, value in NWCSC_FYs_OrderedDict.items():
-        print("{0}: {1} added to requestItems from NWCSC.".format(key, value))
-        requestItems.append(value)
-    IDsToBeDeleted = []
-    fyFolder = "./jsonCache"
-    for the_file in os.listdir(fyFolder):
-        filePath = os.path.join(fyFolder, the_file)
+    request_items = []
+    request_items[:] = []
+    for key, value in swcsc_fys_ordered_dict.items():
+        print("{0}: {1} added to request_items from SWCSC.".format(key, value))
+        request_items.append(value)
+    for key, value in nwcsc_fys_ordered_dict.items():
+        print("{0}: {1} added to request_items from NWCSC.".format(key, value))
+        request_items.append(value)
+    ids_to_be_deleted = []
+    fiscal_year_folder = "./jsonCache"
+    for the_file in os.listdir(fiscal_year_folder):
+        file_path = os.path.join(fiscal_year_folder, the_file)
         try:
-            if os.path.isfile(filePath):
-                if filePath.endswith(".json"):
-                    with open(filePath) as json_data:
+            if os.path.isfile(file_path):
+                if file_path.endswith(".json"):
+                    with open(file_path) as json_data:
                         data = json.load(json_data)
                         try:  # If date doesn't exist replace it.
-                            dataDate = data['Date']['date']
+                            data_date = data['Date']['date']
                         except KeyError:
                             continue
                         now = datetime.datetime.now()
-                        currentDate = now.strftime("%Y%m%d")
+                        current_date = now.strftime("%Y%m%d")
 
-                        if currentDate > dataDate:
+                        if current_date > data_date:
                             continue
                         else:
-                            # uncomment 'continue' if you want to do all FYs 
+                            # uncomment 'continue' if you want to do all FYs
                             # regardless of when they were last done:
                             # continue
-                            ID = the_file.replace(".json", "")
-                            print("ID from today: {0}".format(ID))  # Quantico
-                            IDsToBeDeleted.append(ID)
+                            fy_id = the_file.replace(".json", "")
+                            print("fy_id from today: {0}".format(fy_id))
+                            # Quantico
+                            ids_to_be_deleted.append(fy_id)
             else:
                 print("Not a file")
-        except Exception as e:  # pylint: disable=W0703
-            print("Exception: " + e)
-    for ID in IDsToBeDeleted:
-        while ID in requestItems:
-            requestItems.remove(ID)
-    for i in requestItems:
-        gl.itemsToBeParsed.append(i)
-    if gl.itemsToBeParsed != []:
+        except Exception as err:  # pylint: disable=W0703
+            print("Exception: " + err)
+    for fy_id in ids_to_be_deleted:
+        while fy_id in request_items:
+            request_items.remove(fy_id)
+    for i in request_items:
+        gl.items_to_be_parsed.append(i)
+    if gl.items_to_be_parsed != []:
         parse.main()  # pylint: disable=E1101
-    if len(requestItems) == 0:
+    if not request_items:
         print("""
 
     ===========================================================================
 
                     Hard Search is now finished.""")
         exit(0)
-    elif len(requestItems) != 0:
+    elif request_items:
         full_hard_search()
     # report_dict = saveJson.main()
     # full_report_json = JsonTransformer()
-    # full_report_json = JsonTransformer.transform(full_report_json, report_dict)
+    # full_report_json = JsonTransformer.transform(
+    #                                       full_report_json, report_dict)
 
 
 @app.route('/', methods=['GET'])
 def index():
-    sys.path.insert(0, './DataCounting')
-    import editGPY  # pylint: disable=E0401
-    editGPY.clearMemory()
+    """Clear gl variables and render the index.html page"""
+    edit_gpy.clear_memory()
     return(render_template('index.html',
-           **locals(),  # pylint: disable=
-           title="Project Data Count"))
+                           **locals(),
+                           title="Project Data Count"))
 
 
 @app.route('/fiscalYears', methods=['GET', 'POST'])
 def fiscal_years_func():
-    sys.path.insert(0, './DataCounting')
-    import editGPY  # pylint: disable=E0401
-    editGPY.clearMemory()
-    NWCSC_FYs_OrderedDict = get_FYs("4f8c64d2e4b0546c0c397b46")
-    SWCSC_FYs_OrderedDict = get_FYs("4f8c6580e4b0546c0c397b4e")  # pylint disable=W0612
+    """Clear gl variables, call get_fiscal_years and render fiscalYears.html
+    """
+    edit_gpy.clear_memory()
+    # pylint: disable=W0612
+    nwcsc_fys_ordered_dict = get_fiscal_years("4f8c64d2e4b0546c0c397b46")
+    swcsc_fys_ordered_dict = get_fiscal_years("4f8c6580e4b0546c0c397b4e")
     print("Now local?")
 
     return render_template('fiscalYears.html', **locals(), title="Home")
@@ -208,98 +230,93 @@ def fiscal_years_func():
 
 @app.route('/projects', methods=['GET'])
 def projects():
-    """Render projects.html page
-    
+    """Clear gl variables and render the projects.html page
+
     The function clears any memory in gl.py and renders the
     projects.html page"""
-    sys.path.insert(0, './DataCounting')
-    import editGPY  # pylint: disable=E0401
-    editGPY.clearMemory()
+    edit_gpy.clear_memory()
     return(render_template('projects.html',
-           **locals(),
-           title="Project Data Count"))
-
+                           **locals(),
+                           title="Project Data Count"))
 
 @app.route('/report', methods=['POST'])
 def handle_data():
-    sys.path.insert(0, './DataCounting')
+    """Find appropriate data in jsons or via hard search, render report.html
+
+    This function pulls the items to be parsed from request.form. Then it
+    determines whether or not a hard search was requested. Then, using a hard
+    search and/or the available jsons, the function creates the appropriate
+    report dictionary (report_dict), which is transformed using jsonpickle to
+    a more json-friendly object and passed to report.html which is rendered.
+    """
     if request.method == 'POST':
         for i in request.form:
             print(i)
     if request.method == 'POST':
-        hardSearch = request.form.getlist('HardSearch')
+        hard_search_choice = request.form.getlist('HardSearch')
         print("HardSearch:")
-        print(hardSearch)
-        requestItems = request.form.getlist('checks')
-        print(requestItems)
+        print(hard_search_choice)
+        request_items = request.form.getlist('checks')
+        print(request_items)
         gl.Excel_choice = request.form.get("Excel-choice")
         print(gl.Excel_choice)
-        fromFY = request.form.get("submitFY")
-        print("fromFY")
-        print(fromFY)
     else:
         return redirect('/')
     report_dict = {}
     report_dict.clear()
-    reportList = []
-    reportList[:] = []
-    dateList = []
-    dateList[:] = []
-    identityList = []
-    identityList[:] = []
-    IDsToBeDeleted = []
+    report_list = []
+    report_list[:] = []
+    date_list = []
+    date_list[:] = []
+    identity_list = []
+    identity_list[:] = []
+    ids_to_be_deleted = []
     # this is how we deal with projects:
-    if requestItems == [] and gl.Excel_choice == None:
+    if not request_items and gl.Excel_choice is None:
         # this means its a project POST request
         report_dict = project_post_request(request, report_dict)
-    elif hardSearch == []:
-        print('hardSearch == []')
-        for ID in requestItems:
-            fyFolder = "./jsonCache"
-            for the_file in os.listdir(fyFolder):
-                filePath = os.path.join(fyFolder, the_file)
-                if ID in the_file:
-                    IDsToBeDeleted.append(ID)
+    elif not hard_search_choice:  # if hard_search_choice is empty
+        print('hard_search_choice == []')
+        for sb_id in request_items:
+            fiscal_year_folder = "./jsonCache"
+            for the_file in os.listdir(fiscal_year_folder):
+                file_path = os.path.join(fiscal_year_folder, the_file)
+                if sb_id in the_file:
+                    ids_to_be_deleted.append(sb_id)
                     try:
-                        if os.path.isfile(filePath):
-                            if filePath.endswith(".json"):
-                                with open(filePath) as json_data:
+                        if os.path.isfile(file_path):
+                            if file_path.endswith(".json"):
+                                with open(file_path) as json_data:
                                     data = json.load(json_data)
                                     # print(data)
-                                    reportList.append(data['report'])
-                                    dateList.append(data['Date'])
+                                    report_list.append(data['report'])
+                                    date_list.append(data['Date'])
                                     # maybe add more things to report_dict???
                                     # Or Identity?
-                                    identityList.append(data['identity'])
-                    except Exception as e:  # pylint: disable=W0703
-                        print("Exception " + e)
-        report_dict['report'] = reportList
-        report_dict['date'] = dateList
-        report_dict['identity'] = identityList
-    for ID in IDsToBeDeleted:
-        while ID in requestItems:
-            requestItems.remove(ID)
-        """For each ID in request items
-            if json of that name exists
-                report_dict['report'] += content of that json report
-                report_dict['date'] += date of that json report
-                remove that item from requestItems"""
-    if hardSearch == ['on'] or requestItems != []:
-        if hardSearch == ['on']:
-            print('hardSearch == [\'on\']')
-        elif requestItems != []:
-            print('requestItems != []')
-            print('requestItems = :')
-            for i in requestItems:
+                                    identity_list.append(data['identity'])
+                    except Exception as err:  # pylint: disable=W0703
+                        print("Exception " + err)
+        report_dict['report'] = report_list
+        report_dict['date'] = date_list
+        report_dict['identity'] = identity_list
+    for sb_id in ids_to_be_deleted:
+        while sb_id in request_items:
+            request_items.remove(sb_id)
+    if hard_search_choice == ['on'] or request_items != []:
+        if hard_search_choice == ['on']:
+            print('hard_search_choice == [\'on\']')
+        elif request_items != []:
+            print('request_items != []')
+            print('request_items = :')
+            for i in request_items:
                 print("-- {0}".format(i))
         else:
             print('Something else caused quick search to not work.')
-        if requestItems != [] and hardSearch == ['on']:
-            print('IN ADDITION: requestItems != []')
+        if request_items != [] and hard_search_choice == ['on']:
+            print('IN ADDITION: request_items != []')
 
-        for i in requestItems:
-            gl.itemsToBeParsed.append(i)
-        #  Need parse.main() to return report_dict of everything from saveJson.py, jasontransform it, and pass that to report.html.
+        for i in request_items:
+            gl.items_to_be_parsed.append(i)
         parse.main()  # pylint: disable=E1101
         report_dict = saveJson.main()
 
@@ -312,7 +329,7 @@ def handle_data():
     full_report_json = JsonTransformer()
     full_report_json = JsonTransformer.transform(full_report_json, report_dict)
     # need to get the name of whatever the report was created for...
-    # ID = gl.Current_Item #THIS IS NOT FINISHED
+    # sb_id = gl.current_item #THIS IS NOT FINISHED
 
     print(full_report_json)
     print("full_report_json")
@@ -329,57 +346,57 @@ def project_post_request(request_, report_dict):
         request -- the request passed to handle_data() from flask
         report_dict -- the dictionary being formed by the function
     """
-    reportList = []
-    reportList[:] = []
-    dateList = []
-    dateList[:] = []
-    identityList = []
-    identityList[:] = []
-    IDsToBeDeleted = []
+    report_list = []
+    report_list[:] = []
+    date_list = []
+    date_list[:] = []
+    identity_list = []
+    identity_list[:] = []
+    ids_to_be_deleted = []
     sb_urls = request_.form.getlist("SBurls")
     print("sb_urls")
     print(sb_urls)
-    requestItems = []
+    request_items = []
     for i in sb_urls:
         try:
             json1 = SB.get_json(i)
             item_id = json1['id']
-            if item_id not in requestItems:
-                requestItems.append(item_id)
-        except:
+            if item_id not in request_items:
+                request_items.append(item_id)
+        except Exception:  # pylint: disable=W0703
             print("Invalid URL")
-    for ID in requestItems:
-        fyFolder = "./jsonCache"
-        for the_file in os.listdir(fyFolder):
-            filePath = os.path.join(fyFolder, the_file)
+    for sb_id in request_items:
+        fiscal_year_folder = "./jsonCache"
+        for the_file in os.listdir(fiscal_year_folder):
+            file_path = os.path.join(fiscal_year_folder, the_file)
             try:
-                if os.path.isfile(filePath):
-                    if filePath.endswith(".json"):
-                        with open(filePath) as json_data:
+                if os.path.isfile(file_path):
+                    if file_path.endswith(".json"):
+                        with open(file_path) as json_data:
                             data = json.load(json_data)
                             for i in data['report']:
-                                if i['ID'] == ID:
-                                    IDsToBeDeleted.append(ID)
-                                    matchedProject = i
-                                    # print("matchedProject")
-                                    # print(matchedProject)
-                                    matchedProjectArr = []
-                                    matchedProjectArr.append(
-                                                        matchedProject)
-                                    reportList.append(matchedProjectArr)
-                                    dateList.append(data['Date'])
-                                    identityList.append(data['identity'])
+                                if i['ID'] == sb_id:
+                                    ids_to_be_deleted.append(sb_id)
+                                    matched_project = i
+                                    # print("matched_project")
+                                    # print(matched_project)
+                                    matched_project_list = []
+                                    matched_project_list.append(
+                                        matched_project)
+                                    report_list.append(matched_project_list)
+                                    date_list.append(data['Date'])
+                                    identity_list.append(data['identity'])
                                     # ^this may be wrong
-            except Exception as e:
-                print("Exception :" + e)
-    report_dict['report'] = reportList
-    report_dict['date'] = dateList
-    report_dict['identity'] = identityList
+            except Exception as err:  # pylint: disable=W0703
+                print("Exception :" + err)
+    report_dict['report'] = report_list
+    report_dict['date'] = date_list
+    report_dict['identity'] = identity_list
     return report_dict
 
 def create_project_list(report_dict):
     """Create and return a dictionary of project data
-    
+
     Using the fiscal years it finds in report_dict, this
     function parses the Project Jsons to collect project
     data and include that data in a dictionary before returning
@@ -387,9 +404,12 @@ def create_project_list(report_dict):
 
     Arguments:
         report_dict -- dictionary containing pertinent fiscal years
+    Returns:
+        project_dict -- dictionary containing project information for the
+                        projects in the fiscal years in report_dict
     """
     project_dict = {}
-    for year in report_dict['report']:  # pylint: disable=too-many-nested-blocks
+    for year in report_dict['report']:
         for proj in year:
             project_id = proj['ID']
             project_folder = './jsonCache/Projects'
@@ -408,16 +428,15 @@ def create_project_list(report_dict):
 @app.route('/download_log', methods=['GET'])
 def download_log():
     """Render report.html page
-    
+
     The function takes formats report_dict and passes it to report.html"""
-    sys.path.insert(0, './DataCounting')
     report_dict = saveJson.main()
     full_report_json = JsonTransformer()
     full_report_json = JsonTransformer.transform(full_report_json, report_dict)
     print("full_report_json: ")  # Quantico
     pprint(full_report_json)  # Quantico
 
-    return(render_template('report.html', full_report_json=full_report_json))
+    return render_template('report.html', full_report_json=full_report_json)
 
 
 
