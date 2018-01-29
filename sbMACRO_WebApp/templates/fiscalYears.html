@@ -15,7 +15,7 @@
                         <h4>Northwest CSC</h4>
                     </span>
                     
-                        {% for title, ID in NWCSC_FYs_OrderedDict.items(): %}
+                        {% for title, ID in nwcsc_fys_ordered_dict.items(): %}
                         <p>
                             <span class="black-text">
                                 <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" class="FY-Checkbox" />
@@ -37,7 +37,7 @@
                         <h4>Southwest CSC</h4>
                     </span>
                     <!-- <form action="count-data" method="post" name="FY-Select"> -->
-                        {% for title, ID in SWCSC_FYs_OrderedDict.items(): %}
+                        {% for title, ID in swcsc_fys_ordered_dict.items(): %}
                         <p>
                             <span class="black-text">
                                 <input type="checkbox" id={{ID}} value="{{ID}}" name="checks" class="FY-Checkbox" />
