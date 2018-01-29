@@ -94,3 +94,6 @@ Loading image in base.html needs path changed to one hosted by us on our server 
 
 If just SWCSC 2012 is selected, I noticed that the empty "selected FYs have no data" default graph for NWCSC is shown for some reason.
 
+Completely remove Excel_Choice from front and back end. 
+
+Remove ExcelPrint file.
