@@ -1,6 +1,5 @@
-"This module contains the method for editing the gl.py variables"
+"""This module contains the method for editing the gl.py variables."""
 
-# import the Flask class from the flask module
 import sys
 import os
 

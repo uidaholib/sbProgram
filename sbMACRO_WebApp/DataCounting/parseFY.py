@@ -1,13 +1,17 @@
-import gl
-from flask import Flask, render_template, redirect, \
-    url_for, request, session, flash, jsonify
-import requests
-import json
-import pysb
-import sys
-import time
+"""Find all items in each fiscal year.
 
-from pprint import pprint
+This module takes a list of fiscal years and finds the items within them
+and sends those items to countData_proj.py to be counted.
+"""
+
+import sys
+import os
+import pysb  # pylint: disable=wrong-import-order
+
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting/"))
+import gl, parse  # pylint: disable=E0401,C0413,C0410,C0411
+
 
 sb = pysb.SbSession()
 
@@ -110,10 +114,10 @@ def getProjects(fiscalYear):
                 print("browseCategories = "+str(projectJson["browseCategories"]))
         except KeyError:
             print("--"+str(project)+" not a project.")
-            print("Quickly parsing "+str(i)+" to determine what it is...")
+            print("Quickly parsing "+str(project)+" to determine what it "
+                  + "is...")
             print("======================================================")
-            gl.onTheFlyParsing.append(i)
-            import parse
+            gl.on_the_fly_parsing.append(project)
             parse.parseOnTheFly()
             print("Back to finding projects...")
             main(fiscalYear)
@@ -179,7 +183,7 @@ def getProjectData(possibleProjectData, FYprojects,
                     # if exceptionRaised.worked is True:
                     #     children = sb.get_child_ids(currentId)
                     # elif exceptionRaised.worked is False:
-                    #     gl.Exceptions.append(i)
+                    #     gl.exceptions.append(i)
                     #     print("-----------ERROR: Could not get project data.")
                     #     continue
                     # else:
@@ -196,7 +200,7 @@ def getProjectData(possibleProjectData, FYprojects,
                 print(len(possibleProjectData))
             else:
                 pass
-    parse(possibleProjectData, FYprojects, projectItems,
+    parse_data(possibleProjectData, FYprojects, projectItems,
           currentProject, exceptionFound,
           currentProjectJson)
 
@@ -206,26 +210,26 @@ def populateGPYLists(currentProject, currentProjectJson):
     print(gl.ID)  # Quantico
     gl.URL.append(sb.get_item(currentProject)['link']['url'])
     print(gl.URL)
-    gl.ObjectType.append("Project")
-    print(gl.ObjectType)  # Quantico
-    gl.Name.append(currentProjectJson["title"])
-    print(gl.Name)  # Quantico
+    gl.object_type.append("Project")
+    print(gl.object_type)  # Quantico
+    gl.name.append(currentProjectJson["title"])
+    print(gl.name)  # Quantico
     findCurrentProjectFY(currentProject, currentProjectJson)
-    print(gl.FiscalYear)  # Quantico
-    gl.Project.append("Self")
-    print(gl.Project)  # Quantico
+    print(gl.fiscal_year)  # Quantico
+    gl.project.append("Self")
+    print(gl.project)  # Quantico
     return
 
 def printAllGLists():
     print(gl.ID)  # Quantico
     print(gl.URL)
-    print(gl.ObjectType)  # Quantico
-    print(gl.Name)  # Quantico
-    print(gl.FiscalYear)  # Quantico
-    print(gl.Project)  # Quantico
-    print(gl.DataInProject)  # Quantico
-    print(len(gl.DataPerFile)) # Quantico
-    print(gl.RunningDataTotal)  # Quantico
+    print(gl.object_type)  # Quantico
+    print(gl.name)  # Quantico
+    print(gl.fiscal_year)  # Quantico
+    print(gl.project)  # Quantico
+    print(gl.data_in_project)  # Quantico
+    print(len(gl.data_per_file)) # Quantico
+    print(gl.running_data_total)  # Quantico
 
 def findCurrentProjectFY(currentProject, currentProjectJson):
     currentId = currentProject[:]
@@ -246,7 +250,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
         # elif exceptionRaised.worked is False:
         #     FY = "Exception Raised: Could not find Fiscal Year"
         #     print("Exception Raised: Could not find Fiscal Year.")
-        #     gl.FiscalYear.append(FY)
+        #     gl.fiscal_year.append(FY)
         #     return
         # else:
         #     print('Something went wrong. Function: findCurrentProjectFY() (2.2)')
@@ -324,7 +328,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
                 # elif exceptionRaised.worked is False:
                 #     continue
                 # else:
-                #     print('Something went wrong. Function: parse (1)')
+                #     print('Something went wrong. Function: parse_data (1)')
 
             print("Not a Fiscal Year.")
             continue
@@ -332,13 +336,13 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
             control = False
     FY = json['title'].replace(" Projects", "")
     print("appending \'"+str(json['title'])+'\' as '+str(FY))  # Quantico
-    gl.FiscalYear.append(FY)
+    gl.fiscal_year.append(FY)
     return
 
     #do a "while" loop here. Something like, while the children of the current thing are NOT projects...
-    #and when they are, take the ['title'] and append that to gl.FiscalYear and return
+    #and when they are, take the ['title'] and append that to gl.fiscal_year and return
 
-def parse(possibleProjectData, FYprojects, projectItems,
+def parse_data(possibleProjectData, FYprojects, projectItems,
           currentProject, exceptionFound,
           currentProjectJson):
     possibleProjectData_Set = set()
@@ -358,7 +362,7 @@ def parse(possibleProjectData, FYprojects, projectItems,
             # elif exceptionRaised.worked is False:
             #     continue  # eyekeeper make sure this continues on to the next i in possibleProjectData.
             # else:
-            #     print('Something went wrong. Function: parse (1)')
+            #     print('Something went wrong. Function: parse_data (1)')
         for item in ancestors:
             if item not in possibleProjectData_Set:
                 possibleProjectData_Set.add(item)
@@ -494,20 +498,20 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
 
         import countData_proj
         countData_proj.main(currentProject, possibleProjectData)
-        print("gl.ProjFiles: (2)")
-        print(gl.ProjFiles)
+        print("gl.project_files: (2)")
+        print(gl.project_files)
         #Now we collect all Project file info in ProjectFileDict:
         # gl.ProjFileDict[currentProject] = {}
         # currProj = gl.ProjFileDict[currentProject]
         # currProj['Num_Of_Files'] = gl.NumOfFiles
-        # currProj['Project_Files'] = gl.ProjFiles
+        # currProj['Project_Files'] = gl.project_files
         print("""=================================================================
                 Here is projFiles as it currently stands: """)
-        print(gl.ProjFiles)
+        print(gl.project_files)
 
         print("""=================================================================
                 Here is projItems as it currently stands: """)
-        print(gl.ProjItems)
+        print(gl.project_items)
 
         if exceptionFound is False:
             print('''
@@ -515,9 +519,9 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                   '''' project folder.''')
             global projectDictNumber
             # flash("Total Data in Project: ")
-            # flash(gl.DataInProject[projectDictNumber])
+            # flash(gl.data_in_project[projectDictNumber])
             # flash("Running Total of Data thus far: ")
-            # flash(gl.RunningDataTotal[projectDictNumber])
+            # flash(gl.running_data_total[projectDictNumber])
             projectDictNumber += 1
             whatNext(FYprojects, exceptionFound)
 
@@ -536,16 +540,16 @@ def diagnostics(FYprojects, exceptionFound, currentProjectJson):
     print("There appear to have been exceptions raised during the parsing "+
           "process. Here is the list of IDs for items that raised exceptions "+
           "that were not solved:")
-    print(gl.Exceptions)
+    print(gl.exceptions)
     print('''
 
     I am done looking through the \''''+str(currentProjectJson['title']) +
           '''' project folder.''')
     global projectDictNumber
     # flash("Total Data in Project: ")
-    # flash(gl.DataInProject[projectDictNumber])
+    # flash(gl.data_in_project[projectDictNumber])
     # flash("Running Total of Data thus far: ")
-    # flash(gl.RunningDataTotal[projectDictNumber])
+    # flash(gl.running_data_total[projectDictNumber])
     # eyekeeper come back to this and add an option to try the exception raising items again.
 
     projectDictNumber += 1
@@ -584,29 +588,6 @@ def whatNext(FYprojects, exceptionFound):
         lookedForDataBefore = False
         select_project(gl.Current_Item)
 
-
-def excel():        #  Quantico I took this out. 
-    #print("""
-    #Would you like to create an Excel Spreadsheet with all parsed data """+
-    #"""currently in memory before continuing on? If you choose no, all """+
-    #"""information gathered will continue to be compiled and will be """+
-    #"""available to be included in a final spreadsheet at the end of """+
-    #"""the process or to be used to create a speadsheet after each """+
-    #"""subsequent Fiscal Year, Project, or Item that was originally """+
-    #"""selected to be parsed is parsed.
-
-    #(Y / N)""")
-    #answer = input("> ").lower()
-    if gl.Excel_choice == "Excel_for_each_FY":
-        import ExcelPrint
-        import edit_gpy
-        ExcelPrint.main()
-        edit_gpy.clear_memory()
-    elif gl.Excel_choice == "One_Excel_for_all_FYs":
-        pass
-    else:
-        print("Something wrong. No gl.Excel_choice selected.")
-        sys.exit()
 
 
 

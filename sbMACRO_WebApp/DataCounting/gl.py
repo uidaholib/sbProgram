@@ -1,12 +1,12 @@
 # pylint: disable=C0103
-"""This module contains variables that need accessed by all modules in the
-ScienceBase MACRO program.
+"""Variables for access by all modules in the ScienceBase MACRO program.
 
 This module contains empty lists to be populated with all ScienceBase items,
 projects, and Fiscal Years to be accessed from all other modules via
 "gl.items","gl.projects", "gl.FiscalYears" and gl.items_to_be_parsed. It also
 contains the total data count, and the variables needed to print data counting
-info to excel."""
+info to excel.
+"""
 
 items_to_be_parsed = []
 items = []

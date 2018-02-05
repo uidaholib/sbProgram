@@ -1,4 +1,4 @@
-"""This module controls data, json scraping, and page rendering for sbMACRO"""
+"""This module controls data, json scraping, and page rendering for sbMACRO."""
 
 import sys
 import os
@@ -29,20 +29,25 @@ app.secret_key = 'my precious'
 
 
 class JsonTransformer(object):  # pylint: disable=R0903
-    """Class for transforming complicated python objects to JSON"""
+    """Class for transforming complicated python objects to JSON."""
+
     def transform(self, my_object):  # pylint: disable=R0201
-        """JsonTransformer Class Method for transforming objects to JSON"""
+        """Class Method for transforming objects to JSON."""
         return jsonpickle.encode(my_object, unpicklable=False)
+
 
 def get_fiscal_years(csc_id=None):
     """Create a sorted dict of fiscal years from NWCSC and return it.
 
     Arguments:
         csc_id -- the sciencebase id to be parsed (default None)
+
     Returns:
        fiscal_years_dict_ordered -- ordered dict of ScienceBase fiscal year ids
+
     Raises:
         ValueError: if no argument passed to csc_id
+
     """
     if csc_id is None:
         print("No id passed to get_fiscal_years")
@@ -53,7 +58,6 @@ def get_fiscal_years(csc_id=None):
         print("----------Exception Raised in get_fiscal_years (1)")
         parseFY.exceptionLoop(csc_id)
         fiscal_years = SB.get_child_ids(csc_id)
-
     fiscal_years_dict = {}
     for sb_id in fiscal_years:
         try:
@@ -62,9 +66,7 @@ def get_fiscal_years(csc_id=None):
             print("----------Exception Raised in get_fiscal_years (2)")
             parseFY.exceptionLoop(sb_id)
             json_ = SB.get_item(sb_id)
-
         title = 'NWCSC '+json_['title']
-
         fiscal_years_dict.update({title: sb_id})
     print("Original fiscal_years_dict")
     print(fiscal_years_dict)
@@ -199,15 +201,11 @@ def full_hard_search():
         exit(0)
     elif request_items:
         full_hard_search()
-    # report_dict = saveJson.main()
-    # full_report_json = JsonTransformer()
-    # full_report_json = JsonTransformer.transform(
-    #                                       full_report_json, report_dict)
 
 
 @app.route('/', methods=['GET'])
 def index():
-    """Clear gl variables and render the index.html page"""
+    """Clear gl variables and render the index.html page."""
     edit_gpy.clear_memory()
     return(render_template('index.html',
                            **locals(),
@@ -216,8 +214,7 @@ def index():
 
 @app.route('/fiscalYears', methods=['GET', 'POST'])
 def fiscal_years_func():
-    """Clear gl variables, call get_fiscal_years and render fiscalYears.html
-    """
+    """Clear gl variables, call get_fiscal_years, render fiscalYears.html."""
     edit_gpy.clear_memory()
     # pylint: disable=W0612
     nwcsc_fys_ordered_dict = get_fiscal_years("4f8c64d2e4b0546c0c397b46")
@@ -229,18 +226,20 @@ def fiscal_years_func():
 
 @app.route('/projects', methods=['GET'])
 def projects():
-    """Clear gl variables and render the projects.html page
+    """Clear gl variables and render the projects.html page.
 
     The function clears any memory in gl.py and renders the
-    projects.html page"""
+    projects.html page.
+    """
     edit_gpy.clear_memory()
     return(render_template('projects.html',
                            **locals(),
                            title="Project Data Count"))
 
+
 @app.route('/report', methods=['POST'])
 def handle_data():
-    """Find appropriate data in jsons or via hard search, render report.html
+    """Find appropriate data in jsons or via hard search, render report.html.
 
     This function pulls the items to be parsed from request.form. Then it
     determines whether or not a hard search was requested. Then, using a hard
@@ -335,7 +334,7 @@ def handle_data():
     return render_template('report.html', full_report_json=full_report_json)
 
 def project_post_request(request_, report_dict):
-    """Uses local jsons to populate report_dict and returns it
+    """Use local jsons to populate report_dict and returns it.
 
     Creates several lists and dictionaries, and, using the requests form to
     determine which projects to look for, it parses the project jsons and adds
@@ -394,7 +393,7 @@ def project_post_request(request_, report_dict):
     return report_dict
 
 def create_project_list(report_dict):
-    """Create and return a dictionary of project data
+    """Create and return a dictionary of project data.
 
     Using the fiscal years it finds in report_dict, this
     function parses the Project Jsons to collect project
@@ -426,9 +425,10 @@ def create_project_list(report_dict):
 
 @app.route('/download_log', methods=['GET'])
 def download_log():
-    """Render report.html page
+    """Render report.html page.
 
-    The function takes formats report_dict and passes it to report.html"""
+    The function takes formats report_dict and passes it to report.html.
+    """
     report_dict = saveJson.main()
     full_report_json = JsonTransformer()
     full_report_json = JsonTransformer.transform(full_report_json, report_dict)
