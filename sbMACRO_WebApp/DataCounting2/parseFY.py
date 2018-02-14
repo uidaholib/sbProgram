@@ -15,25 +15,29 @@ import gl, parse  # pylint: disable=E0401,C0413,C0410,C0411
 
 sb = pysb.SbSession()
 
-totalDataCount = 0
-projectDictNumber = 0
-possibleProjectData = []
-exceptionFound = False
-lookedForShortcutsBefore = False
-lookedForDataBefore = False
-FYprojects = []
-
-firstFYParse = True
-veryFirstFYParse = True
 
 
-def main(fiscalYear):
-    resetGlobals()
-    gl.Current_Item = fiscalYear
-    global possibleProjectData
-    possibleProjectData[:] = []
-    print("parseFY.py main") # Quantico
-    select_project(fiscalYear)
+def main(fiscal_year_id):
+    fiscal_year = gl.sb_fiscal_year(fiscal_year_id)
+    fiscal_year.Print()
+    total_data_count = 0
+    project_index_number = 0
+    project_items[:] = []
+    exception_found = False
+    looked_for_shortcuts_before = False
+    looked_for_data_before = False
+    fy_projects = []
+    first_fy_parse = True
+    very_first_fy_parse = True
+    project_items = getProjects()
+
+# def main(fiscalYear):
+#     resetGlobals()
+#     gl.Current_Item = fiscalYear
+#     global project_items
+#     project_items[:] = []
+#     print("parseFY.py main") # Quantico
+#     select_project(fiscalYear)
 
 def exceptionLoop(item):
     import exceptionRaised
@@ -44,71 +48,71 @@ def exceptionLoop(item):
         exceptionLoop(item)
 
 def select_project(fiscalYear):
-    global possibleProjectData
-    possibleProjectData[:] = []
-    global firstFYParse
-    global FYprojects
-    global projectDictNumber
-    global veryFirstFYParse
-    if firstFYParse is True:
-        projectDictNumber = 0
+    global project_items
+    project_items[:] = []
+    global first_fy_parse
+    global fy_projects
+    global project_index_number
+    global very_first_fy_parse
+    if first_fy_parse is True:
+        project_index_number = 0
         getProjects(fiscalYear)
-        firstFYParse = False
-    # if projectDictNumber == -99999999999999:
+        first_fy_parse = False
+    # if project_index_number == -99999999999999:
     #     return
-    print(FYprojects)  # Quantico
-    print("Project dict number: "+str(projectDictNumber))  # Quantico
+    print(fy_projects)  # Quantico
+    print("Project dict number: "+str(project_index_number))  # Quantico
     try:
-        currentProject = FYprojects[projectDictNumber]
+        currentProject = fy_projects[project_index_number]
     except IndexError:
         return
     print("currentProject: "+str(currentProject))  # Quantico
-    getProjectData(possibleProjectData, FYprojects,
-                   currentProject, exceptionFound,
+    getProjectData(project_items, fy_projects,
+                   currentProject, exception_found,
                    )
 
 def resetGlobals():
-    global totalDataCount
-    totalDataCount = 0
-    global projectDictNumber
-    projectDictNumber = 0
-    global possibleProjectData
-    possibleProjectData[:] = []
-    global exceptionFound
-    exceptionFound = False
-    global lookedForShortcutsBefore
-    lookedForShortcutsBefore = False
-    global lookedForDataBefore
-    lookedForDataBefore = False
-    global FYprojects
-    FYprojects[:] = []
-    global firstFYParse
-    firstFYParse = True
-    global veryFirstFYParse
-    veryFirstFYParse = True
+    global total_data_count
+    total_data_count = 0
+    global project_index_number
+    project_index_number = 0
+    global project_items
+    project_items[:] = []
+    global exception_found
+    exception_found = False
+    global looked_for_shortcuts_before
+    looked_for_shortcuts_before = False
+    global looked_for_data_before
+    looked_for_data_before = False
+    global fy_projects
+    fy_projects[:] = []
+    global first_fy_parse
+    first_fy_parse = True
+    global very_first_fy_parse
+    very_first_fy_parse = True
 
 
 def getProjects(fiscalYear):
-    global possibleProjectData
-    global projectDictNumber
-    possibleProjectData[:] = []
-    global FYprojects
-    FYprojects[:] = []
+    global project_items
+    global project_index_number
+    project_items[:] = []
+    global fy_projects
+    fy_projects[:] = []
     print(fiscalYear)
     try:
         currentFYprojects = sb.get_child_ids(fiscalYear)
     except Exception:
-        exceptionFound = True
+        exception_found = True
         exceptionLoop(fiscalYear)
         currentFYprojects = sb.get_child_ids(fiscalYear)
     print(currentFYprojects)  # Quantico
     for project in currentFYprojects:
         projectJson = sb.get_item(project)
         try:
-            if "Project" in projectJson["browseCategories"] and project not in FYprojects:
+            if "Project" in projectJson["browseCategories"] and project not in fy_projects:
                 print("--Item is a project.")
-                FYprojects.append(project)
-            elif "Project" in projectJson["browseCategories"] and project in FYprojects:
+                fy_projects.append(project)
+            elif "Project" in projectJson["browseCategories"] and project in fy_projects:
                 print("--Item already parsed.")
             else:
                 print("browseCategories = "+str(projectJson["browseCategories"]))
@@ -121,19 +125,19 @@ def getProjects(fiscalYear):
             parse.parseOnTheFly()
             print("Back to finding projects...")
             main(fiscalYear)
-    return FYprojects
+    return fy_projects
 
 
 
-def getProjectData(possibleProjectData, FYprojects,
-                   currentProject, exceptionFound,
+def getProjectData(project_items, fy_projects,
+                   currentProject, exception_found,
                    ):
-    global lookedForDataBefore
+    global looked_for_data_before
     projectItems = sb.get_child_ids(currentProject)
     try:
         currentProjectJson = sb.get_item(currentProject)
     except Exception:
-        exceptionFound = True
+        exception_found = True
         exceptionLoop(currentProject)
         currentProjectJson = sb.get_item(currentProject)
 
@@ -145,12 +149,12 @@ def getProjectData(possibleProjectData, FYprojects,
         # if exceptionRaised.worked is True:
         #    currentProjectJson = sb.get_item(currentProject)
         # elif exceptionRaised.worked is False:
-        #     getProjectData(possibleProjectData, FYprojects,
-        #                    currentProject, exceptionFound,
+        #     getProjectData(project_items, fy_projects,
+        #                    currentProject, exception_found,
         #                    )
         # else:
         #     print('Something went wrong. Function: getProjectData (1)')
-    if lookedForDataBefore is False:
+    if looked_for_data_before is False:
         populateGPYLists(currentProject, currentProjectJson)
         print("""
 
@@ -158,22 +162,22 @@ def getProjectData(possibleProjectData, FYprojects,
         # flash("""
 
         # Currently searching '"""+str(currentProjectJson['title'])+"'.")
-        lookedForDataBefore = True
+        looked_for_data_before = True
         for i in projectItems:
             try:
                 currentProjectItemJson = sb.get_item(i)
             except Exception:
-                exceptionFound = True
+                exception_found = True
                 exceptionLoop(i)
                 currentProjectItemJson = sb.get_item(i)
             print(currentProjectItemJson['title'])
             if currentProjectItemJson['title'] == "Approved DataSets":
                 possibleProjectData_Set = set()
-                possibleProjectData_Set.update(possibleProjectData)
+                possibleProjectData_Set.update(project_items)
                 try:
                     ancestors = sb.get_ancestor_ids(i)
                 except Exception:
-                    exceptionFound = True
+                    exception_found = True
                     print("--------Hit upon a 404 exception: " + str(i) + " (22)")
                     exceptionLoop(i)
                     ancestors = sb.get_ancestor_ids(i)
@@ -191,17 +195,17 @@ def getProjectData(possibleProjectData, FYprojects,
                 for item in ancestors:
                     if item not in possibleProjectData_Set:
                         possibleProjectData_Set.add(item)
-                        possibleProjectData.append(item)
+                        project_items.append(item)
                     else:
                         pass
                 print('First look at Possible Project Data:')
-                print(possibleProjectData)
+                print(project_items)
                 print('Total Items:')
-                print(len(possibleProjectData))
+                print(len(project_items))
             else:
                 pass
-    parse_data(possibleProjectData, FYprojects, projectItems,
-          currentProject, exceptionFound,
+    parse_data(project_items, fy_projects, projectItems,
+          currentProject, exception_found,
           currentProjectJson)
 
 
@@ -238,7 +242,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
     try:
         children = sb.get_child_ids(currentId)
     except Exception:
-        exceptionFound = True
+        exception_found = True
         print("--------Hit upon a 404 exception: "+str(currentId)+" (1)")
         exceptionLoop(currentId)
         children = sb.get_child_ids(currentId)
@@ -266,7 +270,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
     try:
         childJson = sb.get_item(child)
     except Exception:
-        exceptionFound = True
+        exception_found = True
         print("--------Hit upon a 404 exception: " + str(child) + " (1)")
         exceptionLoop(child)
         childJson = sb.get_item(child)
@@ -290,7 +294,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
             try:
                 json = sb.get_item(currentId)
             except Exception:
-                exceptionFound = True
+                exception_found = True
                 print("--------Hit upon a 404 exception: " + str(currentId) + " (2)")
                 exceptionLoop(currentId)
                 json = sb.get_item(currentId)
@@ -301,7 +305,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
             try:
                 children = sb.get_child_ids(currentId)
             except Exception:
-                exceptionFound = True
+                exception_found = True
                 print("--------Hit upon a 404 exception: "+str(currentId)+" (1)")
                 exceptionLoop(currentId)
                 children = sb.get_child_ids(currentId)
@@ -317,7 +321,7 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
             try:
                 childJson = sb.get_item(child)
             except Exception:
-                exceptionFound = True
+                exception_found = True
                 print("--------Hit upon a 404 exception: " + str(child) + " (1)")
                 exceptionLoop(child)
                 childJson = sb.get_item(child)
@@ -342,16 +346,16 @@ def findCurrentProjectFY(currentProject, currentProjectJson):
     #do a "while" loop here. Something like, while the children of the current thing are NOT projects...
     #and when they are, take the ['title'] and append that to gl.fiscal_year and return
 
-def parse_data(possibleProjectData, FYprojects, projectItems,
-          currentProject, exceptionFound,
+def parse_data(project_items, fy_projects, projectItems,
+          currentProject, exception_found,
           currentProjectJson):
     possibleProjectData_Set = set()
-    for i in possibleProjectData:
-        possibleProjectData_Set.update(possibleProjectData)
+    for i in project_items:
+        possibleProjectData_Set.update(project_items)
         try:
             ancestors = sb.get_ancestor_ids(i)
         except Exception:
-            exceptionFound = True
+            exception_found = True
             print("--------Hit upon a 404 exception: "+str(i)+" (1)")
             exceptionLoop(i)
             ancestors = sb.get_ancestor_ids(i)
@@ -360,42 +364,42 @@ def parse_data(possibleProjectData, FYprojects, projectItems,
             # if exceptionRaised.worked is True:
             #     ancestors = sb.get_ancestor_ids(i)
             # elif exceptionRaised.worked is False:
-            #     continue  # eyekeeper make sure this continues on to the next i in possibleProjectData.
+            #     continue  # eyekeeper make sure this continues on to the next i in project_items.
             # else:
             #     print('Something went wrong. Function: parse_data (1)')
         for item in ancestors:
             if item not in possibleProjectData_Set:
                 possibleProjectData_Set.add(item)
-                possibleProjectData.append(item)
+                project_items.append(item)
             elif item in possibleProjectData_Set:
                 pass
             else:
                 print("Something went wrong. Current function: "
                       + "getProjectData (1)")
     print('Double checked Possible Project Data:')
-    print(possibleProjectData)
+    print(project_items)
     print('Total Items:')
-    print(len(possibleProjectData))
+    print(len(project_items))
 
-    findShortcuts(FYprojects, currentProject, exceptionFound,
-                  possibleProjectData, projectItems, currentProjectJson,
+    findShortcuts(fy_projects, currentProject, exception_found,
+                  project_items, projectItems, currentProjectJson,
                   )
 
 
-def findShortcuts(FYprojects, currentProject, exceptionFound,
-                  possibleProjectData, projectItems, currentProjectJson,
+def findShortcuts(fy_projects, currentProject, exception_found,
+                  project_items, projectItems, currentProjectJson,
                   ):
-    global lookedForShortcutsBefore
-    global lookedForDataBefore
+    global looked_for_shortcuts_before
+    global looked_for_data_before
     print("Looking for shortcuts in any items...")
     foundShortcutsThisTime = False
-    if lookedForShortcutsBefore is False:
-        lookedForShortcutsBefore = True
+    if looked_for_shortcuts_before is False:
+        looked_for_shortcuts_before = True
         for i in projectItems:
             try:
                 currentProjectItemJson = sb.get_item(i)
             except Exception:
-                exceptionFound = True
+                exception_found = True
                 print("--------Hit upon a 404 exception: " + str(i) + " (1)")
                 exceptionLoop(i)
                 currentProjectItemJson = sb.get_item(i)
@@ -403,30 +407,30 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                 try:
                     shortcuts = sb.get_shortcut_ids(i)
                 except Exception:
-                    exceptionFound = True
+                    exception_found = True
                     print("--------Hit upon a 404 exception: " + str(i) + " (1)")
                     exceptionLoop(i)
                     shortcuts = sb.get_shortcut_ids(i)
                 print("Shortcuts in Approved DataSets:")  # Quantico
                 print(shortcuts)
                 if shortcuts == []:
-                    lookedForShortcutsBefore = True
+                    looked_for_shortcuts_before = True
                     print("No shortcuts in \"Approved DataSets\".")
                 elif shortcuts != []:
-                    lookedForShortcutsBefore = True
+                    looked_for_shortcuts_before = True
                     foundShortcutsThisTime = True
                     for i in shortcuts:
-                        if i not in possibleProjectData:
-                            possibleProjectData.append(i)
+                        if i not in project_items:
+                            project_items.append(i)
                     print("We found some shortcuts and added them to the " +
                             "Possible Project Data:")
                     print(shortcuts)
                     print('Total Items added:')
                     print(len(shortcuts))
                     print("New Possible Project Data:")
-                    print(possibleProjectData)
+                    print(project_items)
                     print("Current Item total:")
-                    print(len(possibleProjectData))
+                    print(len(project_items))
                 else:
                     print("Something went wrong. Current function: "
                             + "findShortcuts (1)")
@@ -438,18 +442,18 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                 # else:
                 #     print('Something went wrong. Function: findShortcuts (1.1)')
 
-    elif lookedForShortcutsBefore is True:
+    elif looked_for_shortcuts_before is True:
         pass #something should happen here. eyekeeper
     else:
         print("Something went wrong. Current function: findShortcuts (2)")
         exit()
     allShortcuts = []
     allShortcuts[:] = []
-    for i in possibleProjectData:
+    for i in project_items:
         try:
             preShortcuts = sb.get_shortcut_ids(i)
         except Exception:
-            exceptionFound = True
+            exception_found = True
             print("--------Hit upon a 404 exception: " + str(i) + " (1)")
             exceptionLoop(i)
             preShortcuts = sb.get_shortcut_ids(i)
@@ -477,27 +481,27 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
     elif allShortcuts != []:
         #foundShortcutsThisTime = True
         for i in allShortcuts:
-            if i not in possibleProjectData:
+            if i not in project_items:
                 foundShortcutsThisTime = True
-                possibleProjectData.append(i)
+                project_items.append(i)
         print("We found some shortcuts and added them to the Possible Project "
               + "Data:")
-        print(possibleProjectData)
+        print(project_items)
         print('Total Items:')
-        print(len(possibleProjectData))
+        print(len(project_items))
     else:
         print("Something went wrong. Current function: findShortcuts (3)")
         exit()
 
     if foundShortcutsThisTime is True:
         print("-------- Found shortcuts this time!")
-        getProjectData(possibleProjectData, FYprojects, currentProject, exceptionFound,
+        getProjectData(project_items, fy_projects, currentProject, exception_found,
                            )
     elif foundShortcutsThisTime is False:
         print("-------- Didn't find any Shortcuts this time!") # Quantico
 
         import countData_proj
-        countData_proj.main(currentProject, possibleProjectData)
+        countData_proj.main(currentProject, project_items)
         print("gl.project_files: (2)")
         print(gl.project_files)
         #Now we collect all Project file info in ProjectFileDict:
@@ -513,20 +517,20 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
                 Here is projItems as it currently stands: """)
         print(gl.project_items)
 
-        if exceptionFound is False:
+        if exception_found is False:
             print('''
             I am done looking through the \''''+str(currentProjectJson['title']) +
                   '''' project folder.''')
-            global projectDictNumber
+            global project_index_number
             # flash("Total Data in Project: ")
-            # flash(gl.data_in_project[projectDictNumber])
+            # flash(gl.data_in_project[project_index_number])
             # flash("Running Total of Data thus far: ")
-            # flash(gl.running_data_total[projectDictNumber])
-            projectDictNumber += 1
-            whatNext(FYprojects, exceptionFound)
+            # flash(gl.running_data_total[project_index_number])
+            project_index_number += 1
+            whatNext(fy_projects, exception_found)
 
-        elif exceptionFound is True:
-            diagnostics(FYprojects, exceptionFound, currentProjectJson)
+        elif exception_found is True:
+            diagnostics(fy_projects, exception_found, currentProjectJson)
     else:
         print('Something went wrong. Current function: findShortcuts (4)')
 
@@ -536,7 +540,7 @@ def findShortcuts(FYprojects, currentProject, exceptionFound,
 
 
 
-def diagnostics(FYprojects, exceptionFound, currentProjectJson):
+def diagnostics(fy_projects, exception_found, currentProjectJson):
     print("There appear to have been exceptions raised during the parsing "+
           "process. Here is the list of IDs for items that raised exceptions "+
           "that were not solved:")
@@ -545,24 +549,24 @@ def diagnostics(FYprojects, exceptionFound, currentProjectJson):
 
     I am done looking through the \''''+str(currentProjectJson['title']) +
           '''' project folder.''')
-    global projectDictNumber
+    global project_index_number
     # flash("Total Data in Project: ")
-    # flash(gl.data_in_project[projectDictNumber])
+    # flash(gl.data_in_project[project_index_number])
     # flash("Running Total of Data thus far: ")
-    # flash(gl.running_data_total[projectDictNumber])
+    # flash(gl.running_data_total[project_index_number])
     # eyekeeper come back to this and add an option to try the exception raising items again.
 
-    projectDictNumber += 1
-    whatNext(FYprojects, exceptionFound)
+    project_index_number += 1
+    whatNext(fy_projects, exception_found)
 
 
-def whatNext(FYprojects, exceptionFound):
+def whatNext(fy_projects, exception_found):
     printAllGLists()
-    global firstFYParse
-    global projectDictNumber
-    global lookedForShortcutsBefore
-    global lookedForDataBefore
-    if projectDictNumber >= len(FYprojects):
+    global first_fy_parse
+    global project_index_number
+    global looked_for_shortcuts_before
+    global looked_for_data_before
+    if project_index_number >= len(fy_projects):
         print("You have finished one Fiscal Year. No more available Projects.")
         # flash("You have finished one Fiscal Year. No more available Projects.")
         # flash("""
@@ -571,21 +575,21 @@ def whatNext(FYprojects, exceptionFound):
         import countData_proj
         countData_proj.doneCountingFY()
         # excel()
-        firstFYParse = True
-        lookedForShortcutsBefore = False
-        lookedForDataBefore = False
+        first_fy_parse = True
+        looked_for_shortcuts_before = False
+        looked_for_data_before = False
         gl.totalFYData = 0
         return
-    elif projectDictNumber < len(FYprojects):
-        print("Ok, let\'s start on project "+str(projectDictNumber+1) +
-              " of "+str(len(FYprojects))+".")
-        # flash("Ok, let\'s start on project "+str(projectDictNumber+1) +
-        #       " of "+str(len(FYprojects))+".")
+    elif project_index_number < len(fy_projects):
+        print("Ok, let\'s start on project "+str(project_index_number+1) +
+              " of "+str(len(fy_projects))+".")
+        # flash("Ok, let\'s start on project "+str(project_index_number+1) +
+        #       " of "+str(len(fy_projects))+".")
         # flash("""
         # ---------------------------------------------------------------------------------------
         # """)
-        lookedForShortcutsBefore = False
-        lookedForDataBefore = False
+        looked_for_shortcuts_before = False
+        looked_for_data_before = False
         select_project(gl.Current_Item)
 
 

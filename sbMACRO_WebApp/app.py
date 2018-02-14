@@ -14,9 +14,13 @@ from flask import redirect, request  # pylint: disable=E0401
 import jsonpickle  # pylint: disable=E0401
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting2/"))
+import gl  #, parse, parseFY, saveJson  # pylint: disable=E0401,C0413,C0410,C0411
+# import edit_gpy  # pylint: disable=E0401,C0413,C0410,C0411,W0611
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting/"))
-import gl, parse, parseFY, saveJson  # pylint: disable=E0401,C0413,C0410,C0411
-import edit_gpy  # pylint: disable=E0401,C0413,C0410,C0411,W0611
+print(sys.path)
+import data_main as dmain
 
 SB = pysb.SbSession()
 
@@ -138,15 +142,6 @@ def full_hard_search():
     # python -c 'from app import full_hard_search; full_hard_search()'
     nwcsc_fys_ordered_dict = get_fiscal_years("4f8c64d2e4b0546c0c397b46")
     swcsc_fys_ordered_dict = get_fiscal_years("4f8c6580e4b0546c0c397b4e")
-    # absolute path to app.py:
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    print(script_dir)
-    # Join the script path with the DataCounting directory to get to the
-    # files there and insert it into the system path. Now you can import your
-    # python files.
-    print(os.path.join(script_dir, "DataCounting/"))
-    sys.path.insert(0, os.path.join(script_dir, "DataCounting/"))
-    gl.Excel_choice = "One_Excel_for_all_FYs"
     request_items = []
     request_items[:] = []
     for key, value in swcsc_fys_ordered_dict.items():
@@ -188,10 +183,11 @@ def full_hard_search():
     for fy_id in ids_to_be_deleted:
         while fy_id in request_items:
             request_items.remove(fy_id)
-    for i in request_items:
-        gl.items_to_be_parsed.append(i)
-    if gl.items_to_be_parsed != []:
-        parse.main()  # pylint: disable=E1101
+    # for i in request_items:
+    #     gl.items_to_be_parsed.append(i)
+    if request_items != []:
+        dmain.main(request_items)
+        # parse.main()  # pylint: disable=E1101
     if not request_items:
         print("""
 
