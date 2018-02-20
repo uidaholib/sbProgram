@@ -10,40 +10,58 @@ def main(ProblemID, sb_action):
     t = 300
     countdown(t)
     if sb_action == ".get_item":
+        if __debug__:
+            print("sb_action is '.get_item'")
         try:
             item_json = SB.get_item(ProblemID)
             print("It worked!")
             return item_json
         except Exception:
+            if __debug__:
+                print("Didn't work")
             return False
     elif sb_action == ".get_child_ids":
+        if __debug__:
+            print("sb_action is '.get_child_ids'")
         try:
             item_children = SB.get_child_ids(ProblemID)
             print("It worked!")
             return item_children
         except Exception:
+            if __debug__:
+                print("Didn't work")
             return False
     elif sb_action == ".get_ancestor_ids":
+        if __debug__:
+            print("sb_action is '.get_ancestor_ids'")
         try:
             item_ancestors = SB.get_ancestor_ids(ProblemID)
             print("It worked!")
             return item_ancestors
         except Exception:
+            if __debug__:
+                print("Didn't work")
             return False
     elif sb_action == ".get_shortcut_ids":
+        if __debug__:
+            print("sb_action is '.get_item'")
         try:
             item_shortcuts = SB.get_shortcut_ids(ProblemID)
             print("It worked!")
             return item_shortcuts
         except Exception:
+            if __debug__:
+                print("Didn't work")
             return False
     else:
-        print("Unrecognized sb_action (exception_raised.py main()")
+        assert True, "Unrecognized sb_action in exception_raised.py main()"
         try:
             item = SB.get_item(ProblemID)
             print("It worked!")
             return item
         except Exception:
+            if __debug__:
+                print("Didn't work")
             return False
 
 

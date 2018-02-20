@@ -2,7 +2,7 @@ import sys
 import os
 from pprint import pprint
 import json
-import jsonpickle
+import jsonpickle  # pylint: disable=E0401
 import datetime
 import pysb  # pylint: disable=wrong-import-order
 
@@ -14,7 +14,6 @@ import pysb  # pylint: disable=wrong-import-order
 import gl  # pylint: disable=C0413
 
 SB = pysb.SbSession()
-
 
 def get_fiscal_years(csc_id=None):
     """Create a sorted dict of fiscal years from NWCSC and return it.
@@ -54,21 +53,23 @@ def get_fiscal_years(csc_id=None):
             # json_ = SB.get_item(sb_id)
         title = json_['title'].replace(' Projects', '')
         fiscal_years_dict.update({title: sb_id})
-    print("Original fiscal_years_dict")
-    print(fiscal_years_dict)
+    if __debug__:
+        print("Original fiscal_years_dict")
+        print(fiscal_years_dict)
     sorted_dict = sorted(fiscal_years_dict)
     fiscal_years_dict_ordered = {}
     fiscal_years_dict_ordered['csc'] = csc_title
     fiscal_years_dict_ordered['years'] = {}
     for i in sorted_dict:
         fiscal_years_dict_ordered['years'].update({i: fiscal_years_dict[i]})
-    print("Newly Ordered fiscal_years_dict: fiscal_years_dict_ordered")
-    print(fiscal_years_dict_ordered)
+    if __debug__:
+        print("Newly Ordered fiscal_years_dict: fiscal_years_dict_ordered")
+        print(fiscal_years_dict_ordered)
     return fiscal_years_dict_ordered
 
 
 def defined_hard_search():
-    """Perform hard search on specific ids via user-input.
+    """Perform hard search on specific fiscal years via user-input.
 
     The function first prompts the user for a ScienceBase id.
     Then, once done, the ids are placed into gl.items_to_be_parsed, and
@@ -76,38 +77,111 @@ def defined_hard_search():
     being created and saved for whatever fiscal years were designated.
     """
     # To run this function from command line:
-    # python -c 'from app import defined_hard_search; defined_hard_search()'
+    # python -c 'from data_main import defined_hard_search; defined_hard_search()'
 
-    gl.Excel_choice = "One_Excel_for_all_FYs"
     answer = None
-    fy_obj_list = []
+    fy_id_list = []
     while answer != 'done':
-        print('Please enter an ID you would like parsed. '
+        print('Please enter an Fiscal Year ID you would like parsed. '
               + 'When done, type \'done\'.')
-        if not fy_obj_list:  # if fy_obj_list is empty (false)
+        if not fy_id_list:  # if fy_obj_list is empty (false)
             pass
         else:
             print("Currently in line:")
             print("------------------")
-            for i in fy_obj_list:
+            for i in fy_id_list:
                 print(i)
             print("------------------")
         answer = input('sbID: ')
         if ((answer != 'done')
                 and (answer != None)
-                and (answer not in fy_obj_list)):
-            fy_obj_list.append(answer)
-    for i in fy_obj_list:
-        gl.items_to_be_parsed.append(i)
-    if gl.items_to_be_parsed != []:
-        parse.main()  # pylint: disable=E1101
-    else:
-        return
-    print("""
+                and (answer not in fy_id_list)):
+            fy_id_list.append(answer)
+    fy_obj_list = []
+    fy_obj_list[:] = []  # make double-sure it's empty
+    create_fy_objs(fy_obj_list, fy_id_list)  # Quantico
+    if __debug__:
+        print("fy_obj_list:\n{0}".format(fy_obj_list))
+    check_for_recency(fy_obj_list)
+    if fy_obj_list:
+        for fiscal_year in fy_obj_list:
+            if __debug__:
+                print("""
+            Starting {0} ({1})
+            CSC: {2}
+            ===================================================================
+                """.format(fiscal_year.name, fiscal_year.ID, fiscal_year.csc))
+            try:
+                project_ids = SB.get_child_ids(fiscal_year.ID)
+            except Exception:
+                project_ids = gl.exception_loop(fiscal_year.ID, 
+                                                ".get_child_ids")
+            if __debug__:
+                print("project_ids: \n{0}".format(project_ids))
+            project_obj_list = create_proj_objs(project_ids, fiscal_year)
+            print(project_obj_list)
+            for project in project_obj_list:
+                if __debug__:
+                    print("""
+                Starting Project: 
+                {0} 
+                ID: {1}
+                CSC: {2}
+                Fiscal Year: {3}
+                ---------------------------------------------------------------
+                    """.format(project.name, project.ID, project.csc, 
+                               project.fiscal_year))
+                try:
+                    project_child_ids = SB.get_child_ids(project.ID)
+                except Exception:
+                    project_child_ids = gl.exception_loop(project.ID, 
+                                                          ".get_child_ids")
+                    # project_child_ids = SB.get_child_ids(project.ID)
+                approved_datasets = get_approved_datasets(project, 
+                                                          project_child_ids)
+                try:
+                    proj_ancestors = SB.get_ancestor_ids(
+                                                approved_datasets['id'])
+                except Exception:
+                    proj_ancestors = gl.exception_loop(approved_datasets['id'],
+                                                       ".get_ancestor_ids")
+                project_items = find_all_items(project, 
+                                               fiscal_year, 
+                                               proj_ancestors)
+                for item in project_items:
+                    if __debug__:
+                        print("Adding item...")
+                    project.project_items["Project_Item_List"].append(item)
+                    project.project_items["Project_Item_Count"] += 1
+                    project.data_in_project += item.size/1000000  
+                #==============================================================
+                if __debug__:
+                    print("""
+                ---------------------------------------------------------------
+                |   Project size (in megabytes):                              |
+                |   {0} mb                                                    |
+                ---------------------------------------------------------------
+                           """.format(project.data_in_project))
+                    # item.size is in bytes, we want megabites,
+                    # so divide by 1,000,000
+                fiscal_year.projects.append(project)
+                fiscal_year.total_fy_data += project.data_in_project
+            if __debug__:
+                print("""
+==============================================================================
+||   Fiscal Year size (in megabytes):\t\t\t\t\t||
+||   {0} mb\t\t\t\t\t\t\t||
+==============================================================================
+                      """.format(fiscal_year.total_fy_data))
+            if __debug__:
+                print("Saving Fiscal Year...")
+            save_json(fiscal_year)
+            fy_obj_list.remove(fiscal_year)
 
-    ===========================================================================
-
-                    Hard Search is now finished.""")
+class sb_fy_id(object):
+    def __init__(self, sb_id, csc):
+        self.ID = sb_id
+        self.csc = csc
 
 
 def full_hard_search():
@@ -139,34 +213,49 @@ def full_hard_search():
         swcsc_fiscal_years = gl.exception_loop("4f8c6580e4b0546c0c397b4e", 
                                                ".get_child_ids")
         # swcsc_fiscal_years = SB.get_child_ids("4f8c6580e4b0546c0c397b4e")
+    sb_fy_id_list = []
+    for ID in nwcsc_fiscal_years:
+        obj = sb_fy_id(ID, "NWCSC")
+        sb_fy_id_list.append(obj)
+    for ID in swcsc_fiscal_years:
+        obj = sb_fy_id(ID, "SWCSC")
+        sb_fy_id_list.append(obj)
     fy_obj_list = []
     fy_obj_list[:] = []  # make double-sure it's empty
-    create_fy_objs(fy_obj_list, nwcsc_fiscal_years, "NWCSC")
-    create_fy_objs(fy_obj_list, swcsc_fiscal_years, "SWCSC")
-    print("fy_obj_list:\n{0}".format(fy_obj_list))
+    create_fy_objs(fy_obj_list, sb_fy_id_list)
+    if __debug__:
+        print("fy_obj_list:\n{0}".format(fy_obj_list))
     check_for_recency(fy_obj_list)
     if fy_obj_list:
         for fiscal_year in fy_obj_list:
-            print("""
+            if not fiscal_year:
+                assert False, "FOUND NULL FISCAL YEAR."
+            if __debug__:
+                print("""
             Starting {0} ({1})
             CSC: {2}
             ===================================================================
-            """.format(fiscal_year.name, fiscal_year.ID, fiscal_year.csc))
+                """.format(fiscal_year.name, fiscal_year.ID, fiscal_year.csc))
             try:
                 project_ids = SB.get_child_ids(fiscal_year.ID)
             except Exception:
                 project_ids = gl.exception_loop(fiscal_year.ID, 
                                                 ".get_child_ids")
+            if __debug__:
+                print("project_ids: \n{0}".format(project_ids))
             project_obj_list = create_proj_objs(project_ids, fiscal_year)
             print(project_obj_list)
             for project in project_obj_list:
-                print("""
+                if __debug__:
+                    print("""
                 Starting Project: 
                 {0} 
                 ID: {1}
                 CSC: {2}
+                Fiscal Year: {3}
                 ---------------------------------------------------------------
-                """.format(project.name, project.ID, project.csc))
+                    """.format(project.name, project.ID, project.csc, 
+                               project.fiscal_year))
                 try:
                     project_child_ids = SB.get_child_ids(project.ID)
                 except Exception:
@@ -185,18 +274,41 @@ def full_hard_search():
                                                fiscal_year, 
                                                proj_ancestors)
                 for item in project_items:
-                    print("Adding item...")
+                    if __debug__:
+                        print("Adding item...")
                     project.project_items["Project_Item_List"].append(item)
                     project.project_items["Project_Item_Count"] += 1
-                    project.data_in_project += item.size
+                    project.data_in_project += item.size/1000000  
                 #==============================================================
+                if __debug__:
+                    print("""
+                ---------------------------------------------------------------
+                |   Project size (in megabytes):                              |
+                |   {0} mb                                                    |
+                ---------------------------------------------------------------
+                           """.format(project.data_in_project))
+                    # item.size is in bytes, we want megabites,
+                    # so divide by 1,000,000
                 fiscal_year.projects.append(project)
                 fiscal_year.total_fy_data += project.data_in_project
+            if __debug__:
+                print("""
+==============================================================================
+||   {0} size (in megabytes):\t\t\t\t\t||
+||   {1} mb\t\t\t\t\t\t\t||
+==============================================================================
+                      """.format(fiscal_year.name, fiscal_year.total_fy_data))
+            if __debug__:
                 print("Saving Fiscal Year...")
-                save_json(fiscal_year)
-                fy_obj_list.remove(fiscal_year)
-
-
+            save_json(fiscal_year)
+            if __debug__:
+                print("fy_obj_list before NULLing {0}:\n{1}"
+                      .format(fiscal_year, fy_obj_list))
+            fiscal_year = None
+            if __debug__:
+                print("fy_obj_list after NULLing {0}:\n{1}"
+                      .format(fiscal_year, fy_obj_list))
+            continue
     if not fy_obj_list:
         print("""
 
@@ -204,38 +316,42 @@ def full_hard_search():
 
                     Hard Search is now finished.""")
         exit(0)
-    elif fy_obj_list:
-        full_hard_search()
+    print("WHY AM I HERE???")
+    assert False, "Should never get here!!!!"
 
 
-def create_fy_objs(fy_obj_list, id_list, csc):
+def create_fy_objs(fy_obj_list, id_list):
     for i in id_list:
-        obj = gl.sb_fiscal_year(i, csc)
+        obj = gl.sb_fiscal_year(i.ID, i.csc)
         obj.date = get_date()
         fy_obj_list.append(obj)
-        print("{0} {1}: {2} fy object created and added to fy_obj_list."
-              .format(obj.csc, obj.name, obj.ID))
+        if __debug__:
+            print("{0} {1}: {2} fy object created and added to fy_obj_list."
+                  .format(obj.csc, obj.name, obj.ID))
 
 
 def create_proj_objs(project_ids, fiscal_year):
     fy_projects = []
     proj_obj_list = []
     for project in project_ids:
+        if __debug__:
+            print("Creating project object for {0}".format(project))
         obj = gl.sb_project(project, fiscal_year)
         project_json = obj.sb_json
         try:
             if "Project" in project_json["browseCategories"] \
                     and project not in fy_projects:
-                print("--Item is a project.")
+                if __debug__:
+                    print("--Item is a project.")
                 fy_projects.append(project)
-                obj = gl.sb_project(project_json, fiscal_year)
                 proj_obj_list.append(obj)
             elif "Project" in project_json["browseCategories"] \
                     and project in fy_projects:
-                print("--Item already parsed.")
+                if __debug__:
+                    print("--Item already parsed.")
         except KeyError:
-            print("--{0} not a project. This should be looked into..."
-                  .format(project))
+            assert False, ("--{0} not a project. This should be looked into..."
+                          .format(project))
             print("Discarding {0}...".format(project))
             project_ids.remove(project)
             print("Back to finding projects...")
@@ -256,6 +372,7 @@ def get_approved_datasets(project, project_child_ids):
             break
         else:
             continue
+    assert approved_datasets, "Approved Datasets was not found"
     return approved_datasets
 
 
@@ -268,8 +385,12 @@ def find_all_items(project, fiscal_year, proj_ancestors):
     all_items = find_shortcuts(project_items_ids)
     for item in all_items:
         item_obj = gl.sb_item(item)
-        if not id_in_list(item_obj, project_items):
+        if not id_in_list(project_items, item_obj):
             project_items.append(item_obj)
+    if __debug__:
+        print(
+        """Found these items in find_all_items:
+        {0}""".format(project_items))
     return project_items
     # project_items = find_shortcuts(project_items, )
 
@@ -287,53 +408,89 @@ def find_shortcuts(project_items_ids):
         obj.ancestor_checked = True
         item_obj_list.append(obj)
     item_ids = shortcut_loop(item_obj_list)
+    if __debug__:
+        print(
+        """Found these item_ids in find_shortcuts:
+        {0}""".format(item_ids))
     return item_ids
 
 
 def shortcut_loop(obj_list):
     for obj in obj_list:
-        if not obj.shortcut_checked:
+        if obj.shortcut_checked is False:
+            if __debug__:
+                print("{0} not checked for shortcuts".format(obj.ID))
             try:
                 shortcuts = SB.get_shortcut_ids(obj.ID)
             except Exception:
                 shortcuts = gl.exception_loop(obj.ID, ".get_shortcut_ids")
             if shortcuts:
                 for sb_id in shortcuts:
-                    obj = item_id(sb_id)
-                    obj_list.append(obj)
-        if not obj.ancestor_checked:
+                    new_obj = item_id(sb_id)
+                    if not id_in_list(obj_list, new_obj):
+                        obj_list.append(new_obj)
+            obj.shortcut_checked = True
+            if __debug__:
+                print("{0} has now been checked for shortcuts".format(obj.ID))
+        if obj.ancestor_checked is False:
+            if __debug__:
+                print("{0} not checked for descendents".format(obj.ID))
             try:
                 descendents = SB.get_shortcut_ids(obj.ID)
             except Exception:
                 descendents = gl.exception_loop(obj.ID, ".get_shortcut_ids")
             if descendents:
                 for sb_id in descendents:
-                    obj = item_id(sb_id)
-                    obj_list.append(obj)
+                    new_obj = item_id(sb_id)
+                    if not id_in_list(obj_list, new_obj):
+                        obj_list.append(new_obj)
+            obj.ancestor_checked = True
+            if __debug__:
+                print("{0} has now been checked for descendents"
+                      .format(obj.ID))
     if shortcut_loop_control(obj_list):
         item_id_list = []
         for obj in obj_list:
             if obj.ID not in item_id_list:
                 item_id_list.append(obj.ID)
+        if __debug__:
+            print(
+            """Found these item ids in shortcut_loop:
+            {0}""".format(item_id_list))
         return item_id_list
     else:
+        if __debug__:
+            print("Found shortcuts in shortcut_loop. Looping...")
         shortcut_loop(obj_list)
 
 
 def shortcut_loop_control(obj_list):
     for obj in obj_list:
         if not obj.shortcut_checked:
+            if __debug__:
+                print("{0} not shorcut_checked in loop_control".format(obj.ID))
             return False
         if not obj.ancestor_checked:
+            if __debug__:
+                print("{0} not ancestor_checked in loop_control"
+                      .format(obj.ID))
             return False
+    if __debug__:
+        print("Did not find any items not checked in loop_control.")
+        print("Ending loop...")
     return True
 
 
 def id_in_list(obj_list, sb_object):
-    obj_id = sb_object.ID
-    for sb_object in obj_list:
-        if obj_id == sb_object.ID:
+    if __debug__:
+        print("Checking if sb_object in list...")
+    for sb_objects in obj_list:
+        if sb_object.ID == sb_objects.ID:
+            if __debug__:
+                print("Object in list.")
             return True
+    if __debug__:
+        print("Object not in list")
     return False
 
 
@@ -346,6 +503,8 @@ def get_date():
 
 
 def check_for_recency(fy_obj_list):
+    if __debug__:
+        print("Checking recency...")
     ids_to_be_deleted = []
     app_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                            os.pardir))
@@ -369,9 +528,9 @@ def check_for_recency(fy_obj_list):
                         if current_date > data_date:
                             continue
                         else:
-                            # uncomment 'continue' if you want to do all FYs
-                            # regardless of when they were last done:
-                            # continue
+                            # uncomment 'continue' below if you want to do all 
+                            # FYs regardless of when they were last done:
+                            continue
                             fy_id = the_file.replace(".json", "")
                             print("fy_id from today: {0}".format(fy_id))
                             # Quantico
@@ -392,12 +551,20 @@ class JsonTransformer(object):
 
 
 def save_json(fiscal_year):
+    if __debug__:
+        print("Saving {0} ({1}) as a json..."
+              .format(fiscal_year.name, fiscal_year.ID))
     full_report_json = JsonTransformer()
     full_report_json = JsonTransformer.transform(full_report_json, fiscal_year)
-    with open('./jsonCache/{0}.json'.format(fiscal_year.ID), 'w') as outfile:
+    app_dir = os.path.abspath(os.path.join(
+                              os.path.dirname(__file__), os.pardir))
+    if __debug__:
+        print("Directory in which app resides: {0}".format(app_dir))
+    with open('{0}/jsonCache/{1}.json'.format(app_dir, fiscal_year.ID), 
+              'w') as outfile:
         outfile.write(full_report_json)
     print("finished full_report_json:")
-    pprint(full_report_json)  # Quantico
+    # pprint(full_report_json)  # Quantico
 
     return
 

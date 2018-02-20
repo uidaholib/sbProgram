@@ -19,17 +19,20 @@ class sb_fiscal_year(object):
         try:
             fy_json = SB.get_item(sb_id)
         except Exception:
+            if __debug__:
+                print("Exception Raised when creating Fiscal Year object for"
+                      + " {0}".format(sb_id))
             fy_json = exception_loop(sb_id, ".get_item")
         self.ID = sb_id
         self.URL = fy_json['link']['url']
         self.object_type = "Fiscal Year"
         self.name = fy_json['title'].replace(' Projects', '')
         self.csc = csc
-        self.projects = []
         self.date = None
         self.total_fy_data = 0
         self.exceptions = []
         self.missing = []
+        self.projects = []
         self.sb_json = fy_json
 
     def Print(self, long=False):
@@ -73,6 +76,9 @@ class sb_project(object):
         try:
             proj_json = SB.get_item(proj_id)
         except Exception:
+            if __debug__:
+                print("Exception Raised when creating Project object for"
+                      + " {0}".format(proj_id))
             proj_json = exception_loop(proj_id, ".get_item")
         project_items_specs = {"Project_Item_Count": 0,
                                "Project_Item_List": []}
@@ -86,9 +92,9 @@ class sb_project(object):
         self.csc = fy.csc
         self.data_in_project = 0
         self.data_per_file = None
+        self.total_fy_data = None
         self.project_items = project_items_specs
         self.project_files = project_files_specs
-        self.total_fy_data = None
         self.sb_json = proj_json
 
     def Print(self, long=False):
@@ -135,6 +141,9 @@ class sb_item(object):
         try:
             item_json = SB.get_item(sb_id)
         except Exception:
+            if __debug__:
+                print("Exception Raised when creating Item object for"
+                      + " {0}".format(sb_id))
             item_json = exception_loop(sb_id, ".get_item")
         self.ID = sb_id
         self.URL = item_json['link']['url']
@@ -182,33 +191,33 @@ def exception_loop(item, sb_action):
     elif not result:
         exception_loop(item, sb_action)
 
-items_to_be_parsed = []
-items = []
-projects = []
-fiscalYears = []
-on_the_fly_parsing = []
+# items_to_be_parsed = []
+# items = []
+# projects = []
+# fiscalYears = []
+# on_the_fly_parsing = []
 
-totalDataCount = 0
-total_fy_data = 0
+# totalDataCount = 0
+# total_fy_data = 0
 
-current_item = None
+# current_item = None
 
-ID = []  # Added
-URL = []
-object_type = []  # Added
-name = []  # Added
-fiscal_year = []  # Added
-project = []  # Added
-data_in_project = []   # Added
-data_per_file = []   # Added
-total_fy_data_list = []
-running_data_total = []  # Added
+# ID = []  # Added
+# URL = []
+# object_type = []  # Added
+# name = []  # Added
+# fiscal_year = []  # Added
+# project = []  # Added
+# data_in_project = []   # Added
+# data_per_file = []   # Added
+# total_fy_data_list = []
+# running_data_total = []  # Added
 
-project_files = {}
-project_items = {}
+# project_files = {}
+# project_items = {}
 
-# Other sheets
-missing_data = []
-exceptions = []
+# # Other sheets
+# missing_data = []
+# exceptions = []
 
-Excel_choice = None
+# Excel_choice = None
