@@ -90,13 +90,36 @@ def defined_hard_search():
             print("Currently in line:")
             print("------------------")
             for i in fy_id_list:
-                print(i)
+                print("{0} -- {1}".format(i.ID, i.csc))
             print("------------------")
-        answer = input('sbID: ')
+        answer = input('sbID: ').lower()
+        obj = sb_fy_id(None, None)
+        obj.ID = answer
         if ((answer != 'done')
                 and (answer != None)
-                and (answer not in fy_id_list)):
-            fy_id_list.append(answer)
+                and (not id_in_list(fy_id_list, obj))):
+            print("Id not invalid...")
+            csc = None
+            while(csc != "NWCSC"
+                    and csc != "SWCSC"
+                    and csc != 'UNKNOWN'):
+                if csc == "NWCSC":
+                    print("csc = NWCSC")
+                if csc == "SWCSC":
+                    print("csc = SWCSC")
+                if csc == "UNKNOWN":
+                    print("csc = UNKNOWN")
+                print("Please enter the CSC for the given ID, " 
+                        + "or type 'unknown'.")
+                csc = input('SB CSC: ').upper()
+                print("Input: {0}".format(csc))
+                if csc == 'UNKNOWN':
+                    csc = get_csc_from_fy_id(answer)
+                    if csc == False:
+                        continue
+            obj.csc = csc
+            fy_id_list.append(obj)
+        
     fy_obj_list = []
     fy_obj_list[:] = []  # make double-sure it's empty
     create_fy_objs(fy_obj_list, fy_id_list)  # Quantico
@@ -176,12 +199,80 @@ def defined_hard_search():
             if __debug__:
                 print("Saving Fiscal Year...")
             save_json(fiscal_year)
-            fy_obj_list.remove(fiscal_year)
+            
 
 class sb_fy_id(object):
     def __init__(self, sb_id, csc):
         self.ID = sb_id
         self.csc = csc
+
+
+def debug_parse_projects():
+    # python -c 'from data_main import debug_parse_projects; debug_parse_projects()'
+    project_ID = '1'
+    while len(project_ID) is not 24:
+        print("Please provide a Science Base Project ID.")
+        project_ID = input("Project ID: ")
+    print("Provide a fiscal year ID and CSC, or use Dummy Fiscal Year?")
+    preference = input("> ").lower()
+    if "dum" in preference:
+        # Dummy Fiscal Year:
+        fiscal_year = gl.sb_fiscal_year("50070504e4b0abf7ce733fd7", "SWCSC")
+    else:
+        fy_id = input("Fiscal Year ID: ")
+        fy_csc = input("CSC: ")
+        fiscal_year = gl.sb_fiscal_year(fy_id, fy_csc)
+    
+    project = gl.sb_project(project_ID, fiscal_year)
+    if __debug__:
+        print("""
+    Starting Project: 
+    {0} 
+    ID: {1}
+    CSC: {2}
+    Fiscal Year: {3}
+    ---------------------------------------------------------------
+        """.format(project.name, project.ID, project.csc,
+                    project.fiscal_year))
+    try:
+        project_child_ids = SB.get_child_ids(project.ID)
+    except Exception:
+        project_child_ids = gl.exception_loop(project.ID,
+                                                ".get_child_ids")
+        # project_child_ids = SB.get_child_ids(project.ID)
+    approved_datasets = get_approved_datasets(project,
+                                                project_child_ids)
+    try:
+        proj_ancestors = SB.get_ancestor_ids(
+            approved_datasets['id'])
+    except Exception:
+        proj_ancestors = gl.exception_loop(approved_datasets['id'],
+                                            ".get_ancestor_ids")
+    project_items = find_all_items(project,
+                                    fiscal_year,
+                                    proj_ancestors)
+    for item in project_items:
+        if __debug__:
+            print("Adding item...")
+        project.project_items["Project_Item_List"].append(item)
+        project.project_items["Project_Item_Count"] += 1
+        project.data_in_project += item.size/1000000
+    #==============================================================
+    if __debug__:
+        print("""
+    ---------------------------------------------------------------
+    |   Project size (in megabytes):                              |
+    |   {0} mb                                                    |
+    ---------------------------------------------------------------
+                """.format(project.data_in_project))
+    print("\n\nAnother? (Y / N)")
+    answer = input("> ").lower
+    if 'y' in answer:
+        debug_parse_projects()
+    elif 'n' in answer:
+        exit(0)
+    else:
+        print("Neither answer selected. Program ended.")
 
 
 def full_hard_search():
@@ -320,6 +411,32 @@ def full_hard_search():
     assert False, "Should never get here!!!!"
 
 
+def get_csc_from_fy_id(sb_id):
+    try:
+        fy_json = SB.get_item(sb_id)
+    except Exception:
+        fy_json = gl.exception_loop(sb_id, ".get_item")
+    parent_id = fy_json['parentId']
+    if parent_id:
+        try:
+            parent_json = SB.get_item(parent_id)
+        except Exception:
+            parent_json = gl.exception_loop(parent_id, ".get_item")
+        name = parent_json['title']
+        if 'Southwest' in name:
+            name = name.replace('Southwest ', 'SW')
+            return name
+        elif 'Northwest' in name:
+            name = name.replace('Northwest ', 'NW')
+            return name
+        else:
+            return False
+    else:
+        assert False, "No parent id"
+
+
+
+
 def create_fy_objs(fy_obj_list, id_list):
     for i in id_list:
         obj = gl.sb_fiscal_year(i.ID, i.csc)
@@ -432,6 +549,10 @@ def shortcut_loop(obj_list):
             obj.shortcut_checked = True
             if __debug__:
                 print("{0} has now been checked for shortcuts".format(obj.ID))
+                if shortcuts:
+                    print("----- Shortcuts found")
+                else:
+                    print("----- Shortcuts NOT found")
         if obj.ancestor_checked is False:
             if __debug__:
                 print("{0} not checked for descendents".format(obj.ID))
@@ -448,6 +569,10 @@ def shortcut_loop(obj_list):
             if __debug__:
                 print("{0} has now been checked for descendents"
                       .format(obj.ID))
+                if descendents:
+                    print("----- Descendents found")
+                else:
+                    print("----- Descendents NOT found")
     if shortcut_loop_control(obj_list):
         item_id_list = []
         for obj in obj_list:

@@ -171,25 +171,26 @@ class sb_item(object):
             pass  # No files
         try:
             extentions = item_json["facets"]
-            try:
-                files = item_json["files"]
-                for sb_file in files:
-                    size += sb_file["size"]
-            except KeyError:
-                pass  # No files
+            for extention in extentions:
+                try:
+                    files = extention["files"]
+                    for sb_file in files:
+                        size += sb_file["size"]
+                except KeyError:
+                    pass  # No files
         except KeyError:
             pass  # No extentions
         return size
 
 
 
-def exception_loop(item, sb_action):
+def exception_loop(item_id, sb_action):
     import exception_raised
-    result = exception_raised.main(item, sb_action)
+    result = exception_raised.main(item_id, sb_action)
     if result:
         return result
     elif not result:
-        exception_loop(item, sb_action)
+        exception_loop(item_id, sb_action)
 
 # items_to_be_parsed = []
 # items = []
