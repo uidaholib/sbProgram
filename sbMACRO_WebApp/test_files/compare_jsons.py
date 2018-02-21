@@ -26,12 +26,12 @@ def main():
         difference = old_total_fy_data - new_total_fy_data
         print(
 """
-===============================================================================
+
         Old Total FY Data:              {0}
         New Total FY Data:              {1}
         ------------------------------------------------
         Difference:                     {2}
-===============================================================================
+
               """.format(old_total_fy_data, new_total_fy_data, difference))
 
         # Number (and name?) of Projects check
@@ -39,13 +39,12 @@ def main():
         new_num_projects = len(new_json["projects"])
         difference = old_num_projects - new_num_projects
         print(
-"""\n\n\n
-===============================================================================
+"""\n\n
         Old Number of Projects:              {0}
         New Number of Projects:              {1}
         ------------------------------------------------
         Difference:                          {2}
-===============================================================================
+
               """.format(old_num_projects, new_num_projects, difference))
         # Project size check
         old_projects = old_json["report"]
@@ -62,13 +61,14 @@ def main():
 ===============================================================================
 """)
         for obj in project_comparison_list:
-            print("""\t\t{0}
+            diff = obj.old_size - obj.new_size
+            print("""{0}
             ({1})
         Old Project Size:\t\t\t{2}
         New Project Size:\t\t\t{3}
         ----------------------------------------------------------
         Difference:\t\t\t\t{4}
-        """.format(obj.name, obj.ID, obj.old_size, obj.new_size, (obj.old_size - obj.new_size)))
+        """.format(obj.name, obj.ID, obj.old_size, obj.new_size, diff))
         print("===============================================================================")
         print("\n\nCompleted Check")
 
