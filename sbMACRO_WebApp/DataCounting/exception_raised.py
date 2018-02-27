@@ -6,6 +6,7 @@ SB = pysb.SbSession()
 
 def main(ProblemID, sb_action):
     print("--------Waiting for 404 to reset...")
+    print("ProblemID: {0}".format(ProblemID))
     #time.sleep(300)
     t = 300
     countdown(t)
