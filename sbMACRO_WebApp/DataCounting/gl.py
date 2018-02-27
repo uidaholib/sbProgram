@@ -145,11 +145,14 @@ class sb_item(object):
                 print("Exception Raised when creating Item object for"
                       + " {0}".format(sb_id))
             item_json = exception_loop(sb_id, ".get_item")
+        item_data = self.check_for_files(item_json)
         self.ID = sb_id
         self.URL = item_json['link']['url']
         self.object_type = "Item"
         self.name = item_json['title']
-        self.size = self.check_for_files(item_json)
+        self.size = item_data['size']
+        self.num_files = item_data['num_files']
+        self.file_list = item_data['file_list']
         self.sb_json = item_json
 
     def Print(self):
@@ -162,10 +165,12 @@ class sb_item(object):
         """.format(self.object_type, self.URL, self.ID, self.name))
     
     def check_for_files(self, item_json):
+        file_list = []
         size = 0
         try:
             files = item_json["files"]
             for sb_file in files:
+                file_list.append(sb_file)
                 size += sb_file["size"]
         except KeyError:
             pass  # No files
@@ -175,21 +180,25 @@ class sb_item(object):
                 try:
                     files = extention["files"]
                     for sb_file in files:
+                        file_list.append(sb_file)
                         size += sb_file["size"]
                 except KeyError:
                     pass  # No files
         except KeyError:
             pass  # No extentions
-        return size
-
+        num_files = len(file_list)
+        item_data = {"file_list": file_list, 
+                     "size": size, 
+                     "num_files": num_files}
+        return item_data
 
 
 def exception_loop(item_id, sb_action):
     import exception_raised
     result = exception_raised.main(item_id, sb_action)
-    if result:
+    if result != False:
         return result
-    elif not result:
+    elif result == False:
         exception_loop(item_id, sb_action)
 
 # items_to_be_parsed = []
