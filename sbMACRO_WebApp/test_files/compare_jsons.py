@@ -177,7 +177,6 @@ def find_missing_items(old_items, new_items):
     return
 
 
-
 def find_missing_files(old_files, new_files):
     # First make a list of ids for old files
     old_files_id_list = []
