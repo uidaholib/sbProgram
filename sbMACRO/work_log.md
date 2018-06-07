@@ -1,0 +1,1115 @@
+# sbMACRO complete re-do log #
+
+Credit: much of the changes were inspired by [this fantastic blog series](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world) (the Flask Mega Tutorial).
+
+### Step 1: Basic Configuration ###
+
+We'll start by creating a virtual environment with `virtualenv` using `python3`.
+
+In the working directory for the project...
+
+```bash
+    $ virtualenv -p python3 env
+```
+
+Then enter the virtual environemnt with `source env/bin/activate` on Unix.
+
+Now, install flask using `pip`: `(env) $ python -m pip install flask`
+
+Now, after creating an _app_ directory, we add an `__init__.py` script to make the directory _app_ into a python module.
+
+This script just contains the basics:
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+from app import routes
+```
+
+Now we need a place for all our URL routes and their respective functions to live. So, within the _app_ directory, we create a `routes.py` file.
+
+Here's an example of a simple URL route and route handler function that will live there:
+```python
+from app import app
+
+@app.route('/')
+@app.route('/index')
+def index():
+    return "Hello, World!"
+```
+
+This is the basics of how we handle each URL: we define the URL/route and a function to call that defines how we handle it.
+
+Now we need a top-level script that defines the Flask application instance. This will not go withing _app_, but within our projects working directory. We'll call it `sbmacro.py`.
+```python
+from app import app
+```
+It only takes one line. That means that the Flask application instance, called "app" is call and is a member of the "app" package. 
+
+Now we need to set te FLASK_APP environmental variable in our virtual environment. Make sure you're in the virtual environment and run the `export FLASK_APP=sbmacro.py` command.
+```bash
+    $ export FLASK_APP=sbmacro.py
+```
+
+Now, to run the application, just type `flask run` while in the virtual environment and it will start running (this only works if you can use python modules without the `python -m` prefix. Otherwise, use `python -m flask run`). Since we're on a development environment, Flask will use port 5000 and localhost (which is IP address 127.0.0.1). On a server, it will typically liston on port 443 or maybe 80 (if it doesn't use encryption).
+
+Check the site out in a browser by going to `http://localhost:5000/<route>`
+
+
+### Step 2: Setup Templates ###
+
+You need to have templates set up to display our different routes. 
+
+For this we need a _templates_ directory in our _app_ directory. This will hold a bunch of HTML templates that we will display and adjust for each given route and user.
+
+We can also use the built-in Jinja2 template engine to dynamically fill in parts of your templates that you block off with double braces ("{{...}}"). YOu can also use conditional statements with Jinja within {%...%}. 
+
+Be sure to set up your base-template as well, from which all other templates will inherit their look. This makes it easy to keep the look consistent throughout the site. 
+
+This base template will include {% block content %} {% endblock %} where you want all your other templates' HTML to go. Then, in those templates, you will have {% extends "base.html %} at the top and {% endblock %} at the bottom. This will cause the base.html page to surround the template's HTML.
+
+Here's an example of using Jinja2 to dynamically display content. 
+
+First, the Python script, including passing variables to the HTML and Jinja2:
+app/routes.py:
+```python
+from flask import render_template
+from app import app
+
+@app.route('/')
+@app.route('/index')
+def index():
+    user = {'username': 'Miguel'}
+    posts = [
+        {
+            'author': {'username': 'John'},
+            'body': 'Beautiful day in Portland!'
+        },
+        {
+            'author': {'username': 'Susan'},
+            'body': 'The Avengers movie was so cool!'
+        }
+    ]
+    return render_template('index.html', title='Home', user=user, posts=posts)
+```
+Notice both variables being passed to the html template through render_template().
+
+Now here's the HTML with Jinja2 implementation:
+```html
+<html>
+    <head>
+        {% if title %}
+        <title>{{ title }} - Microblog</title>
+        {% else %}
+        <title>Welcome to Microblog</title>
+        {% endif %}
+    </head>
+    <body>
+        <h1>Hi, {{ user.username }}!</h1>
+        {% for post in posts %}
+        <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
+        {% endfor %}
+    </body>
+</html>
+```
+
+
+### Step 3: Setup Configuration (WTF Forms example) ###
+
+We're going to use the extention Flask-WTF which is just a wrapper around the WTForms package. It is an easy and more secure way to do web forms.
+
+```bash
+    (venv) $ python -m pip install flask-wtf
+```
+
+Now we need to create an easy way to centralize configuration of the various aspects of our Flask app. So we create a `config.py` file in the main directory of the application. In it, we store a Config class object, the start of a configuration class object can be seen here:
+
+`config.py`
+```py
+import os
+
+class Config(object):
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'self-defined-key'
+```
+
+This config class can be used to store all our configuration items, and more can be added as needed. We could even have subclasses of it if different configuration schemes are needed for different parts of the site.
+
+The SECRET_KEY above is an important configuration item for Flask apps. It is often used as a cryptographic key, which is used to generate signatures or tokens. WTF uses it to prevent Cross-Site Request Forgery attacks. The self-defined key used above is fine in development, __but later we'll define the SECRET_KEY environmental variable to make it more secure__.
+
+To make flask use the config object, go back to `app/__init__.py` and add to lines: `from config import Config` and `app.config.from_object(Config)`. The first imports our config object, the second sets the app's configuration using that imported object.
+
+Now, using the configuration and WTForms, we can create a login in a new file `app/forms.py`:
+
+```py
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Sign In')
+```
+
+Using Jinja2, we can add the form we just created to an HTML page (`app/templates/login.html`):
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Sign In</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}
+        </p>
+        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+```
+In `<form>`, "action" gives the URL the form is to be submitted to (if blank, it is submitted to the current URL), and "method" is used to specify the HTTP request method. "post" is used for user experience, as the default, "get", adds all form fields to the URL, which clutters things up, while "post" can submit the form data in the body of the request.
+
+The form.hidden_tag() template argument generates a hidden field that includes a token that is used to protect the form against CSRF attacks. All you need to do to have the form protected is include this hidden field and have the SECRET_KEY variable defined in the Flask configuration. If you take care of these two things, Flask-WTF does the rest for you.
+
+HTML is generated with the `{{ form.<field_name>.label }}` for labels and `{{ form.<field_name> }}` where you want the field. Additional HTML attributes are passed in as arguments (see `password(size=32` above). __This is how you attach CSS classes or IDs to form fields.__
+
+Now, if you created a route for the new form and tried to submit it, it wouldn't work, you must override the default of the route to accept both 'GET' and 'POST' requests. The form processing work can also be done with for.validate_on_submit(), which returns True or False if it passed validation
+
+
+### Step 4: Adding Database support and the Database ###
+
+We want a database, so we need to use the Flask-SQLAlchemy extention, which is a wrapper for the SQLAlchemy package. The package is an Object Relational Mapper or ORM, which allows the app to manage the database using high-level entities such as classes, objects, and methods, instead of tables and SQL.
+
+```bash
+(venv) $ python -m pip install flask-sqlalchemy
+```
+
+The database may also need to change and grow as sbMACRO grows, so we should implement an easy workflow for database migrations. For that, we use the extention Flask-Migrate.
+
+```bash
+(venv) $ python -m pip install flask-migrate
+```
+
+To use a database, you must add the configuration to the Config object:
+
+```py
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+class Config(object):
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'self-defined-key'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'sbmacro.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+```
+
+Then add some of those config handlers to `app/__init__.py`:
+```py
+from flask import Flask
+from config import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+app = Flask(__name__)
+app.config.from_object(Config)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+from app import routes, models
+```
+
+Then, for each model you will create a class object in `app/models.py`. For example, for a user model:
+```py
+from app import db
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), index=True, unique=True)
+    email = db.Column(db.String(120), index=True, unique=True)
+    password_hash = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '<User {}>'.format(self.username)   
+```
+
+But this model may change in the future, so we create a migration repository and strategy using Alembic (which is under the hood of Flask-Migrate). Using this, the database won't have to be created from scratch in order to update it.
+
+For Flask-Migrate to do this, it must maintain a migration repository that stores migration scripts. Whenever a change is made, a script is added to the repository. To apply the migration to the db, the scripts are executed in the order in which they were created.
+
+To create the migration repository:
+```bash
+(venv) $ python -m flask db init
+```
+
+This should create a `migrations` directory with a few files. This is important to backup with the rest of the app. Now let's do our first Database Migration. To create an automatic migration (that compares models to current schema), use `python -m flask db migrate -m <table>`.
+
+```bash
+(venv) $ python -m flask db migrate -m "users table"
+```
+
+This generated a migration script, but did not change the database. To change the database, use the `upgrade()` and `downgrade()` functions. `upgrade()` applies the migration, `downgrade()` removes it. Using these you can migrate the db to any point in its history. 
+
+We want to apply the changes:
+
+```bash
+(venv) $ python -m flask db upgrade
+```
+
+Because we're using SQLite, the `upgrade` command detects if the db exists and creates one if it does not.
+
+Note: Flask-SQLAlchemy uses snake case, so it translates class names to snake case. For example, for a AddressAndPhone model class, the table would be named address_and_phone. To chose a table name yourself, add an attribute nammed __tablename__ to the model class.
+
+Now we need to know our Database Upgrade and Downgrade workflow. Miguel Grinberg describes it well:
+
+```
+Database Upgrade and Downgrade Workflow
+The application is in its infancy at this point, but it does not hurt to discuss what is going to be the database migration strategy going forward. Imagine that you have your application on your development machine, and also have a copy deployed to a production server that is online and in use.
+
+Let's say that for the next release of your app you have to introduce a change to your models, for example a new table needs to be added. Without migrations you would need to figure out how to change the schema of your database, both in your development machine and then again in your server, and this could be a lot of work.
+
+But with database migration support, after you modify the models in your application you generate a new migration script (flask db migrate), you probably review it to make sure the automatic generation did the right thing, and then apply the changes to your development database (flask db upgrade). You will add the migration script to source control and commit it.
+
+When you are ready to release the new version of the application to your production server, all you need to do is grab the updated version of your application, which will include the new migration script, and run flask db upgrade. Alembic will detect that the production database is not updated to the latest revision of the schema, and run all the new migration scripts that were created after the previous release.
+
+As I mentioned earlier, you also have a flask db downgrade command, which undoes the last migration. While you will be unlikely to need this option on a production system, you may find it very useful during development. You may have generated a migration script and applied it, only to find that the changes that you made are not exactly what you need. In this case, you can downgrade the database, delete the migration script, and then generate a new one to replace it.
+```
+
+Now let's add relation-ality to our database. You can have 'foreign keys' which point to the id of a specific User or something that will be related to the new thing being described. Here's an example of a User-Post relation in `models.py`:
+
+```py
+from datetime import datetime
+from app import db
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), index=True, unique=True)
+    email = db.Column(db.String(120), index=True, unique=True)
+    password_hash = db.Column(db.String(128))
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+
+    def __repr__(self):
+        return '<User {}>'.format(self.username)
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self): #tells python how to print a post
+        return '<Post {}>'.format(self.body)
+```
+
+In this example, the Post class represents blog posdts by users. The `timestamp` field is indexed, so we can retrieve posts in chronological order, with a default that is set to the function utcnow (not the result of the function, which would be 'utcnow()'), which means the default is the result of that function whenever the post is created in the database.
+
+The `user_id` field is a foreign key to `user.id` which is the 'id' key in the User model. 
+
+__NOTE: db.relationship() uses the model class name, which db.ForeignKey() uses the database table name, which are often different.__
+
+For the 'one-to-many' relationship of a user to posts, notice that the User model uses `db.relationship()` in the new `posts` field. So, if you had a user stored in the variable 'karen', if you called `karen.posts`, SQlAlchemy will run a db query that returns all posts written by that user. The first arg is the Model class for the 'many' side of the 'one-to-many' relationship. The `backref` arg is the name of the field that will be added to the objects of the "many" class that points back at the "one" object. In this way, `post.author` will return the user who created the post.
+
+Since we updated the application models, a new database migration needs to be generated, then applied:
+```bash
+(venv) $ python -m flask db migrate -m "posts table"
+...
+...
+...
+(venv) $ python -m flask db upgrade
+
+```
+
+<strike>The key here is to migrate each model one at a time in highest one-to-many fashion. It will not work if you try to create migration scripts for a model that doesn't have all dependencies: For example, `User` needs done first, THEN you can migrate `Post`, as `Post` has a foreign key dependency on `User`. So, go in order. You also can't migrate twice in a row without updating. So you must migrate AND update for each model individually if they rely on each other for Foreign Keys. </strike> Actually, just don't use all CAPs for model names.
+
+
+##### Optional: Experiment with the Database #####
+
+If you want to test the database (for example, the user-post instance above), start the python interpreter from within the vm:
+
+```bash
+(venv) $ python
+```
+
+Once inside, import the database instance and the models:
+```py
+>>> from app import db
+>>> from app.models import User, Post
+```
+Then create a new user:
+```py
+>>> u = User(username='john', email='john@example.com')
+>>> db.session.add(u)
+>>> db.session.commit()
+```
+Remember that changes to the database are done within sessions, so you must commit() a session for the changes that have happened since to take effect. If there are problems, you can abort the session and reove the changes stored in it with `db.session.rollback()`. You need sessions so that the db is never left in an inconsistent state.
+
+Add another user, then query all users:
+```py
+>>> u = User(username='susan', email='susan@example.com')
+>>> db.session.add(u)
+>>> db.session.commit()
+>>> users = User.query.all()
+>>>users
+[ User: john, User: susan]
+>>>for u in users:
+...    print(u.id, u.username)
+...
+1. john
+2. susan
+```
+
+So all the models have a `query` attribute that is the entry point to run db queries. The most basic query is the one we just used to get all elements fo that class (`all()`). 
+
+If you know the id of a user, then you can do something like:
+```py
+>>> u = User.query.get(1)
+>>> u
+<User john>
+```
+
+Here you can add a post for a user:
+```py
+>>> u = User.query.get(1)
+>>> p = Post(body='my first post!', author=u)
+>>> db.session.add(p)
+>>> db.session.commit()
+```
+`timestamp` did not need set because of the default. The `user_id` field is populated wiht the `author` argument automatically, instead of dealing with user IDs.
+
+Here are another couple examples:
+```py
+>>> # get all posts written by a user
+>>> u = User.query.get(1)
+>>> u
+<User john>
+>>> posts = u.posts.all()
+>>> posts
+[<Post my first post!>]
+
+>>> # same, but with a user that has no posts
+>>> u = User.query.get(2)
+>>> u
+<User susan>
+>>> u.posts.all()
+[]
+
+>>> # print post author and body for all posts 
+>>> posts = Post.query.all()
+>>> for p in posts:
+...     print(p.id, p.author.username, p.body)
+...
+1 john my first post!
+
+# get all users in reverse alphabetical order
+>>> User.query.order_by(User.username.desc()).all()
+[<User susan>, <User john>]
+```
+
+For help with database queries and functions, check out the [Flask-SQLAlchemy documentation](http://packages.python.org/Flask-SQLAlchemy/index.html). 
+
+But let's undo what we did before continuing to give ourselves a blank slate.
+
+```py
+>>> users = User.query.all()
+>>> for u in users:
+...     db.session.delete(u)
+...
+>>> posts = Post.query.all()
+>>> for p in posts:
+...     db.session.delete(p)
+...
+>>> db.session.commit()
+```
+
+
+### Setting up the Flask Shell for Debugging ###
+
+You may need to use the python interpreter to test things out, for instance, with your database. But having to import everything explicitly is a bummer, so you can use the `python -m flask shell` command to open up an interpreter that pre-imports a lot of things and can be customized to do things like add the database instance and models for the shell session. To do that, add these to the sbmacro.py file:
+```py
+from app import app, db
+from app.models import User, Post
+
+@app.shell_context_processor
+def make_shell_context():
+    return {'db': db, 'User': User, 'Post': Post}
+```
+This will add the function as a shell context function, so it will run when you invoke `python -m flask shell`.
+
+Now you can use the shell to work with things like the database without having to import anything explicitly.
+
+
+
+
+### Creating a User Login Functionality ###
+
+#### Password Hashing ####
+Password hashing and security is implemented with Werkzeug, a core Flask dependency. Here's an example:
+```py
+>>> from werkzeug.security import generate_password_hash
+>>> hash = generate_password_hash('foobar')
+>>> hash
+'pbkdf2:sha256:50000$vT9fkZM8$04dfa35c6476acf7e788a1b5b3c35e217c78dc04539d295f011f01f18cd2175f'
+```
+This works in such a way as to not be reversable and it can hash the same password and return different results. You can verify a password like this:
+```python
+>>> from werkzeug.security import check_password_hash
+>>> check_password_hash(hash, 'foobar')
+True
+>>> check_password_hash(hash, 'barfoo')
+False
+```
+
+All this password verification and hashing logic can be implemented as two new methods in the User model:
+```py
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# ...
+
+class User(db.Model):
+    # ...
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+```
+
+Here's what that would look like:
+```py
+>>> u = User(username='susan', email='susan@example.com')
+>>> u.set_password('mypassword')
+>>> u.check_password('anotherpassword')
+False
+>>> u.check_password('mypassword')
+True
+```
+
+#### Flask-Login ####
+
+Flask-Login is a login extention that tracks if a user is logged in or not and gives you a 'remember me' functionality. We will use it, so install it:
+```bash
+(venv) $ python -m pip install flask-login
+```
+
+As with the other extentions, Flask-Login needs to be created and initialized right after the application instance in `app/__init__.py`:
+```py
+# ...
+from flask_login import LoginManager
+
+app = Flask(__name__)
+# ...
+login = LoginManager(app)
+
+# ...
+```
+
+Flask-Login requires that some properties and methods are implemented on any model that is being used as the login basis. So, for our User model, we need to implement these. The 4 required items are:
+1. is_authenticated: a property that is True if user has valid credentials, and False otherwise.
+2. is_active: True if the user's account is active and False otherwise.
+3. is_anonymous: False for regular users, True for special, anonymous users.
+4. get_id(): returns a unique identifier for the user as a string.
+
+You can either add these yourself fairly easily, or use the provided `mixin` class called `UserMixin` that includes generic implementations that are appropriate for most user model classes. Add it like this:
+
+```py
+# ...
+from flask_login import UserMixin
+
+class User(UserMixin, db.Model):
+    # ...
+```
+
+Flask-Login tracks the logged in user as they go from page to page, but doesn't know about databases, so we need to add a function that loaded the user whenever they visit a page. The function needs to be able to load a user given their ID. Add this to the `app/models.py` module:
+```py
+from app import login
+# ...
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+```
+
+#### Implement logging in ####
+
+Now that we have all the pieces, here's an example of what we need to add to the login route handler so that it actually logs users in:
+```py
+# ...
+from flask_login import current_user, login_user
+from app.models import User
+
+# ...
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return redirect(url_for('login'))
+        login_user(user, remember=form.remember_me.data)
+        return redirect(url_for('index'))
+    return render_template('login.html', title='Sign In', form=form)
+```
+
+Logout is even more simple:
+```py
+# ...
+from flask_login import logout_user
+
+# ...
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+```
+
+Here's a handy thing: Make the Login and Logout buttons visible depending onthe login status. if user.is_anonymous. Add this to base.html:
+```html
+    <div>
+        Microblog:
+        <a href="{{ url_for('index') }}">Home</a>
+        {% if current_user.is_anonymous %}
+        <a href="{{ url_for('login') }}">Login</a>
+        {% else %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
+    </div>
+```
+
+You can also do fancy things like require a login to view certain pages and redirect back to that page once logged in. To see how to do that, visit [Miguel Grinberg's page](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-v-user-logins) on the subject.
+
+But Users cannot yet register themselves, so you cannot add users other than through the flask shell right now... Let's solve that.
+
+#### Adding User Registration ####
+
+First you need a form to add that implements all our new features. Here's an example. It should live in `app/forms.py`:
+```py
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from app.models import User
+
+# ...
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()]) #Email() makes sure it is in the form of an email address. 
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField(
+        'Repeat Password', validators=[DataRequired(), EqualTo('password')])  # EqualTo is another stock validator that makes sure one field is equal to another. 
+    submit = SubmitField('Register')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different username.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is not None:
+            raise ValidationError('Please use a different email address.')
+```
+The methods are interesting here because if they are of the form `validate_<fieldname>`, then WTForms asumes they are custom validators for that field and invokes them in addition to the stock validators. Here, they make sure that the username and email aren't already in the database.
+
+Now you need a template to display all this:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Register</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=64) }}<br>
+            {% for error in form.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(size=32) }}<br>
+            {% for error in form.password2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+```
+
+And this needs linked to near the login form for new users.
+
+Something like this:
+```html
+<p>New User? <a href="{{ url_for('register') }}">Click to Register!</a></p>
+```
+
+And you need to handle the new route in `app/routes.py`:
+```py
+from app import db
+from app.forms import RegistrationForm
+
+# ...
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+```
+
+
+### Allowing users to edit their profiles ###
+
+If you have users, they should be able to change their username or email or password should they need to. So we need to create a profile page and a way to edit their info.
+
+First we add a new route that is dynamic and takes the user's username:
+```py
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = [
+        {'author': user, 'body': 'Test post #1'},
+        {'author': user, 'body': 'Test post #2'}
+    ]
+    return render_template('user.html', user=user, posts=posts)
+```
+Notice the `<username>` in the route. This indicates a dynamic component. That means that flask will accept any text in the part of the URL. This is ok for us because we made it only accessible by logged in users with `@login_required`. Notice also the user of `first_or_404()` which get's the first result from the database for a certain query, or redirects to a 404 error if there are no results.
+
+We'll need a `user.html` template as well to render:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>User: {{ user.username }}</h1>
+    <hr>
+    {% for post in posts %}
+    <p>
+    {{ post.author.username }} says: <b>{{ post.body }}</b>
+    </p>
+    {% endfor %}
+{% endblock %}
+```
+
+Now it will display the user and their 'posts' which we hardcoded in as an example. So we now have a user profile page, but no links to it anywhere, so you'll want to add that to `base.html`. Something like this:
+```html
+    <div>
+      Microblog:
+      <a href="{{ url_for('index') }}">Home</a>
+      {% if current_user.is_anonymous %}
+      <a href="{{ url_for('login') }}">Login</a>
+      {% else %}
+      <a href="{{ url_for('user', username=current_user.username) }}">Profile</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+      {% endif %}
+    </div>
+```
+
+While we are not actually implementing 'posts', it is a good reason to show an example of another useful thing: Jinja2 sub-templates.
+
+The posts are ugly as is, and it would be great to be able to format them uniquely from the rest of the template. So let's create a subtemplate `app/templates/_posts.html`:
+```html
+    <table>
+        <tr valign="top">
+            <td><img src="{{ post.author.avatar(36) }}"></td>
+            <td>{{ post.author.username }} says:<br>{{ post.body }}</td>
+        </tr>
+    </table>
+```
+
+Then, to include this in `user.html`, use Jinja2's `include` statement:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <table>
+        <tr valign="top">
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <td><h1>User: {{ user.username }}</h1></td>
+        </tr>
+    </table>
+    <hr>
+    {% for post in posts %}
+        {% include '_post.html' %}
+    {% endfor %}
+{% endblock %}
+```
+
+It would also be nice to track when the user was last seen. First, add something like this to the User class model:
+```py
+class User(UserMixin, db.Model):
+    #...
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+```
+
+This requires that you migrate and upgrade the database:
+```bash
+(venv) $ python -m flask db migrate -m "Added 'last_seen' to User model"
+(venv) $ python -m flask db upgrade
+```
+
+You can add the new "last_seen" field to the Profile page if you want...
+
+Now, to record the Last Visit Time of a User, you want to record the time whenever that user makes a request from the server. To do that, Flask has a native feature for executing something vefore each request. Add this to `app/routes.py`:
+```py
+from datetime import datetime
+
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
+```
+We can reuse this function for any logic that we want executed before each request.
+
+This is all great, but now we need to make it so that the user can edit their profile to change things like email, password, etc.
+
+First, we need a new WTForm for the profile editing... So, in `app/forms.py` insert something like:
+```py
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Length
+
+# ...
+
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Submit')
+```
+We must also be able to display it, so create a new file `app/templates/edit_profile.html`:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Edit Profile</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.about_me.label }}<br>
+            {{ form.about_me(cols=50, rows=4) }}<br>
+            {% for error in form.about_me.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+```
+
+Now you need a route for this `edit_profile.html`, so add something like this to `app/routes.py`:
+```py
+from app.forms import EditProfileForm
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='Edit Profile',
+                           form=form)
+```
+
+Now we must make sure that the user (and only when they are logged in) can edit their profile by providing them a link in `app/templates/user.html`:
+```html
+{% if user == current_user %}
+<p><a href="{{ url_for('edit_profile') }}">Edit your profile</a></p>
+{% endif %}
+```
+
+
+### Setting Debug Mode: On ###
+
+There are two main ways you can implement this:
+
+1. Set the FLASK_DEBUT environmental variable to one:
+```bash
+(venv) $ export FLASK_DEBUG=1
+```
+2. Add a run script to sbmicro.py at the end like this:
+```py
+if __name__ == "__main__":
+    app.run(debug=True)
+```
+
+If you choose option 1, just run the server like normal (`python -m flask run`) and it should be in debug mode which gives you Stack Traces when it crashes and automatically restarts when you change things. If option 2, just run `python sbmacro.py` and it shoot boot right up.
+
+
+### Custom Error Handling ###
+
+
+#### HTTP Errors ####
+
+Errors must be handled and logged in such a way that the user is not exactly privy to what went wrong (security), they are minimally affected (user experience) and the administrators are aware so as to fix any error or bugs (via alerts and/or logging).
+
+Let's start by handling the common HTTP errors 404 and 500. Create a new file: `app/errors.py`. Note the second return value, which we need to include because the default status code (200) is what we wanted before. 
+
+500 errors occur when there is a database error. Notice the `db.session.rollback()` call. This is becuase a 500 error is generated when a db session had a failure (such as a duplicate username or something), so you want to roll back to a clean slate. 
+
+Now we need to create the corresponding HTML pages that will be called. Here's where you can customize what your user sees when these errors occur.
+
+We could do something simple or more complex. Here are some simple examples for `app/templates/404.html` and `app/templates/500.html`:
+404:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>File Not Found</h1>
+    <p><a href="{{ url_for('index') }}">Back</a></p>
+{% endblock %}
+```
+500:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>An unexpected error has occurred</h1>
+    <p>The administrator has been notified. Sorry for the inconvenience!</p>
+    <p><a href="{{ url_for('index') }}">Back</a></p>
+{% endblock %}
+```
+
+Now you need to import `errors.py` as a module in the application instance (so in `__init__.py`).
+
+```py
+# ...
+
+from app import routes, models, errors
+```
+
+We can test these by turning off debugging if it's on (`FLASK_DEBUG=0`), and trying to change a  username to one that already exists via a "edit profile" page or something. This is still not an elogant way to handle the error, but it's much better than the default.
+
+
+#### Emailing Errors ####
+
+As the app currently stands, the stack trace is printed as it goes to the terminal, meaning that errors would only be found if you were constantly monitoring it. That's fine for now, but certainly not in production. 
+
+One nice way is to have stack traces sent via email to an administrator's email address.
+
+Furstm you add the email server details to the `config.py` file:
+```py
+class Config(object):
+    # ...
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    ADMINS = ['your-email@example.com']
+```
+
+Because Flask is awesome, it already has a `logging` package to write it's logs and send them via email.
+
+So, we need to add a SMTPHandler instance to the new Flask logger object, which is `app.logger`:
+`app/__init__.py`:
+```py
+import logging
+from logging.handlers import SMTPHandler
+
+# ...
+
+if not app.debug:
+    if app.config['MAIL_SERVER']:
+        auth = None
+        if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
+            auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+        secure = None
+        if app.config['MAIL_USE_TLS']:
+            secure = ()
+        mail_handler = SMTPHandler(
+            mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
+            fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+            toaddrs=app.config['ADMINS'], subject='Microblog Failure',
+            credentials=auth, secure=secure)
+        mail_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(mail_handler)
+```
+
+This only works when debugging is not enabled. It creates an SMTPHandler instance, sets the sensitivity level to only log errors instead of warnings, info, or debugging messages, and attaches it to the `app.logger` object from Flask.
+
+Now, we created a temporary gmail for admin logging purposes (ad.sbmacro@gmail.com), and can practice sending emails to there. Here's what needs done to set up a gmail:
+```bash
+export MAIL_SERVER=smtp.googlemail.com
+export MAIL_PORT=587
+export MAIL_USE_TLS=1
+export MAIL_USERNAME=<your-gmail-username>
+export MAIL_PASSWORD=<your-gmail-password>
+```
+
+#### File Logging Errors ####
+
+Keeping track of more types of errors and problems in a rotating file log is also useful. Here's how you add the handler `RotatingFileHandler` to the application logger. 
+`app/__init__.py`:
+```py
+# ...
+from logging.handlers import RotatingFileHandler
+import os
+
+# ...
+
+if not app.debug:
+    # ...
+
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = RotatingFileHandler('logs/microblog.log', maxBytes=10240,
+                                       backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Microblog startup')
+```
+
+
+### Unit Testing the User Model ###
+
+We should get in the habit of created automated tests to make sure the methods we've written work as desired as things continue to change.
+
+Python includes a very useful `unittest` package that makes it easy to write and execute unit tests. Here is how you would use it to write unit tests for the User class in a `tests.py` module:
+`test.py`:
+```py
+from datetime import datetime, timedelta
+import unittest
+from app import app, db
+from app.models import User, Post
+
+class UserModelCase(unittest.TestCase):
+    def setUp(self):
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_password_hashing(self):
+        u = User(username='susan')
+        u.set_password('cat')
+        self.assertFalse(u.check_password('dog'))
+        self.assertTrue(u.check_password('cat'))
+
+    def test_avatar(self):
+        u = User(username='john', email='john@example.com')
+        self.assertEqual(u.avatar(128), ('https://www.gravatar.com/avatar/'
+                                         'd4c74594d841139328695756648b6bd6'
+                                         '?d=identicon&s=128'))
+
+    def test_follow(self):
+        u1 = User(username='john', email='john@example.com')
+        u2 = User(username='susan', email='susan@example.com')
+        db.session.add(u1)
+        db.session.add(u2)
+        db.session.commit()
+        self.assertEqual(u1.followed.all(), [])
+        self.assertEqual(u1.followers.all(), [])
+
+        u1.follow(u2)
+        db.session.commit()
+        self.assertTrue(u1.is_following(u2))
+        self.assertEqual(u1.followed.count(), 1)
+        self.assertEqual(u1.followed.first().username, 'susan')
+        self.assertEqual(u2.followers.count(), 1)
+        self.assertEqual(u2.followers.first().username, 'john')
+
+        u1.unfollow(u2)
+        db.session.commit()
+        self.assertFalse(u1.is_following(u2))
+        self.assertEqual(u1.followed.count(), 0)
+        self.assertEqual(u2.followers.count(), 0)
+
+    def test_follow_posts(self):
+        # create four users
+        u1 = User(username='john', email='john@example.com')
+        u2 = User(username='susan', email='susan@example.com')
+        u3 = User(username='mary', email='mary@example.com')
+        u4 = User(username='david', email='david@example.com')
+        db.session.add_all([u1, u2, u3, u4])
+
+        # create four posts
+        now = datetime.utcnow()
+        p1 = Post(body="post from john", author=u1,
+                  timestamp=now + timedelta(seconds=1))
+        p2 = Post(body="post from susan", author=u2,
+                  timestamp=now + timedelta(seconds=4))
+        p3 = Post(body="post from mary", author=u3,
+                  timestamp=now + timedelta(seconds=3))
+        p4 = Post(body="post from david", author=u4,
+                  timestamp=now + timedelta(seconds=2))
+        db.session.add_all([p1, p2, p3, p4])
+        db.session.commit()
+
+        # setup the followers
+        u1.follow(u2)  # john follows susan
+        u1.follow(u4)  # john follows david
+        u2.follow(u3)  # susan follows mary
+        u3.follow(u4)  # mary follows david
+        db.session.commit()
+
+        # check the followed posts of each user
+        f1 = u1.followed_posts().all()
+        f2 = u2.followed_posts().all()
+        f3 = u3.followed_posts().all()
+        f4 = u4.followed_posts().all()
+        self.assertEqual(f1, [p2, p4, p1])
+        self.assertEqual(f2, [p2, p3])
+        self.assertEqual(f3, [p3, p4])
+        self.assertEqual(f4, [p4])
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
+```
