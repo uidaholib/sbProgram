@@ -2,29 +2,34 @@
 import os
 from datetime import datetime
 import gl
-import pysb
 import jsonpickle  # pylint: disable=E0401
 import fiscal_years
 import projects
 
 
-SB = pysb.SbSession()
-
-
 def full_hard_search():
     """Perform hard search on any ids older than 1 day.
 
-    The function calls get_fiscal_years on all desired CSCs to get ordered
-    dictionaries of each CSC's fiscal years. All fiscal year IDs are added to
-    the fy_obj_list list. Then, it  parses the appropriate fiscal year's
-    json file (if it exists) to see if any of those fiscal years have been
-    hard search that day. If so, it removes them from the list. The list is
-    used to populate gl.items_to_be_parsed before calling parse.main(). This
-    ends with new jsons being created and saved for whatever fiscal years were
-    designated.
+    This function calls get_all_cscs() to populate the fy_obj_list list with
+    fiscal year objects for each of the fiscal years present in each CSC.
+    After checking that those CSCs were not done within the last 24 hrs (using
+    check_for_recency()), it begins the parsing process by calling
+    parse_fiscal_years(), which finds all projects in each fiscal year and
+    each item in each project to create comprehensive json files for each
+    fiscal year in each CSC. All of the above files are turned into nested
+    objects which are printed as json files to the jsonCache directory.
+
+    Raises:
+        Exception -- If something was wrong and fy_obj_list was not cleared by
+                     the end of the process.
+
     """
     # To run this function from command line:
     # python -c 'from data_main import full_hard_search; full_hard_search()'
+    # To run with cProfiler:
+    # python -m cProfile -o ../test_files/profile_output.txt data_main.py
+    # Then cd to test_files and run:
+    # python profiler_datawrangle.py > profiler_report.txt; python profiler_datawrangle2.py
 
     fy_obj_list = fiscal_years.get_all_cscs()
 
@@ -52,6 +57,10 @@ def defined_hard_search():
     are turned into nested objects which are printed as json files to the
     jsonCache directory.
 
+    Raises:
+        Exception -- If something was wrong and fy_obj_list was not cleared by
+                     the end of the process.
+
     """
     # To run this function from command line:
 # python -c 'from data_main import defined_hard_search; defined_hard_search()'
@@ -63,7 +72,16 @@ def defined_hard_search():
         print("fy_obj_list:\n{0}".format(fy_obj_list))
     fiscal_years.check_for_recency(fy_obj_list)
     fiscal_years.parse_fiscal_years(fy_obj_list)
-    return
+    if not fy_obj_list:
+        print("""
+
+    ===========================================================================
+
+                    Defined Hard Search is now finished.""")
+        exit(0)
+    print("WHY AM I HERE???")
+    assert False, "Should never get here!!!!"
+    raise Exception("Something went wrong in full_hard_search()")
 
 
 def debug_projects():

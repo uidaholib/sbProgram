@@ -39,14 +39,17 @@ def main(problem_id, sb_action):
     """
     print("--------Waiting for 404 to reset...")
     print("problem_id: {0}".format(problem_id))
-    seconds = 300
+    seconds = 5
     countdown(seconds)
     if sb_action == ".get_item":
         if __debug__:
             print("sb_action is '.get_item'")
         try:
             item_json = SB.get_item(problem_id)
+            time.sleep(.050)  # Possibly for use to combat exceptions
             print("It worked!")
+            if __debug__:
+                print("Returning: \n{0}".format(item_json))
             return item_json
         except Exception:
             print("Didn't work")
@@ -56,10 +59,12 @@ def main(problem_id, sb_action):
             print("sb_action is '.get_child_ids'")
         try:
             item_children = SB.get_child_ids(problem_id)
+            time.sleep(1)  # Possibly for use to combat exceptions
             print("It worked!")
+            if __debug__:
+                print("Returning: \n{0}".format(item_children))
             return item_children
         except Exception:
-
             print("Didn't work")
             return False
     elif sb_action == ".get_ancestor_ids":
@@ -67,7 +72,10 @@ def main(problem_id, sb_action):
             print("sb_action is '.get_ancestor_ids'")
         try:
             item_ancestors = SB.get_ancestor_ids(problem_id)
+            time.sleep(.050)  # Possibly for use to combat exceptions
             print("It worked!")
+            if __debug__:
+                print("Returning: \n{0}".format(item_ancestors))
             return item_ancestors
         except Exception:
             print("Didn't work")
@@ -77,7 +85,10 @@ def main(problem_id, sb_action):
             print("sb_action is '.get_item'")
         try:
             item_shortcuts = SB.get_shortcut_ids(problem_id)
+            time.sleep(.050)  # Possibly for use to combat exceptions
             print("It worked!")
+            if __debug__:
+                print("Returning: \n{0}".format(item_shortcuts))
             return item_shortcuts
         except Exception:
             print("Didn't work")
@@ -99,5 +110,5 @@ def countdown(seconds): # in seconds
         sys.stdout.write("\r")
         sys.stdout.write("{:2d} seconds remaining.".format(remaining))
         sys.stdout.flush()
-        time.sleep(1)
+        time.sleep(1)  # Possibly for use to combat exceptions
     sys.stdout.write("\rComplete!            \n")

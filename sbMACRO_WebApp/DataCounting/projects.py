@@ -2,6 +2,7 @@
 import gl
 import pysb
 import data_main
+import time
 
 SB = pysb.SbSession()
 
@@ -18,6 +19,10 @@ def parse_project(project):
                    all items and files found within the Approved DataSets
                    folder of the project.
 
+    Raises:
+        Exception -- If Approved Datasets folder was not found but was
+                     expected.
+
     """
     if __debug__:
         print("""
@@ -31,14 +36,20 @@ def parse_project(project):
                    project.fiscal_year))
     try:
         project_child_ids = SB.get_child_ids(project.ID)
+        time.sleep(.050)  # Possibly for use to combat exceptions
     except Exception:  # pylint: disable=W0703
         project_child_ids = gl.exception_loop(project.ID,
                                               ".get_child_ids")
-        # project_child_ids = SB.get_child_ids(project.ID)
     approved_datasets = get_approved_datasets(project_child_ids)
+    if approved_datasets is None and project.ID == "559afce2e4b0b94a64016ffe":
+        return
+    elif approved_datasets is None:
+        raise Exception("Approved Datasets not found in {0}"
+                        .format(project.ID))
     try:
         proj_ancestors = SB.get_ancestor_ids(
             approved_datasets['id'])
+        time.sleep(.050)  # Possibly for use to combat exceptions
     except Exception:  # pylint: disable=W0703
         proj_ancestors = gl.exception_loop(approved_datasets['id'],
                                            ".get_ancestor_ids")
@@ -87,15 +98,17 @@ def get_approved_datasets(project_child_ids):  # pylint: disable=R1710
     for item in project_child_ids:
         try:
             item_json = SB.get_item(item)
+            time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             item_json = gl.exception_loop(item, ".get_item")
+            if item_json is None:
+                raise TypeError
         if item_json['title'] == "Approved DataSets":
             approved_datasets = item_json
             return approved_datasets
         else:
             continue
-    assert approved_datasets, "Approved Datasets was not found"
-    exit(-1)
+    return None
 
 
 class item_id(object):  # pylint: disable=C0103,R0903
@@ -174,6 +187,7 @@ def find_shortcuts(project_items_ids, approved_datasets):
         item_temp_obj_list.append(obj)
     try:
         approved_datasets_shortcuts = SB.get_shortcut_ids(approved_datasets)
+        time.sleep(.050)  # Possibly for use to combat exceptions
     except Exception:  # pylint: disable=W0703
         approved_datasets_shortcuts = gl.exception_loop(approved_datasets,
                                                         ".get_shortcut_ids")
@@ -260,6 +274,7 @@ def check_descendents(obj, obj_list):
         print("{0} not checked for descendents".format(obj.ID))
     try:
         descendents = SB.get_ancestor_ids(obj.ID)
+        time.sleep(.050)  # Possibly for use to combat exceptions
     except Exception:  # pylint: disable=W0703
         descendents = gl.exception_loop(obj.ID, ".get_ancestor_ids")
     if descendents:
@@ -301,6 +316,7 @@ def check_shortcuts(obj, obj_list):
         print("{0} not checked for shortcuts".format(obj.ID))
     try:
         shortcuts = SB.get_shortcut_ids(obj.ID)
+        time.sleep(.050)  # Possibly for use to combat exceptions
     except Exception:  # pylint: disable=W0703
         shortcuts = gl.exception_loop(obj.ID, ".get_shortcut_ids")
     if shortcuts:

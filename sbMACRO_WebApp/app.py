@@ -14,12 +14,13 @@ from flask import redirect, request  # pylint: disable=E0401
 import jsonpickle  # pylint: disable=E0401
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting2/"))
+sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting/"))
+
 import gl  #, parse, parseFY, saveJson  # pylint: disable=E0401,C0413,C0410,C0411
 # import edit_gpy  # pylint: disable=E0401,C0413,C0410,C0411,W0611
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(SCRIPT_DIR, "DataCounting/"))
-print(sys.path)
+
 import data_main as dmain
 
 SB = pysb.SbSession()

@@ -1,6 +1,7 @@
 #pylint: disable=W0703
 """Fiscal Year, Project, and Item class definitions and exception_loop()."""
 import pysb  # pylint: disable=wrong-import-order
+import time
 
 SB = pysb.SbSession()
 
@@ -11,6 +12,7 @@ class SbFiscalYear(object):  # pylint: disable=R0902,R0903
         """Initialize of SbFiscalYear object."""
         try:
             fy_json = SB.get_item(sb_id)
+            time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:
             if __debug__:
                 print("Exception Raised when creating Fiscal Year object for"
@@ -74,6 +76,7 @@ class SbProject(object):  # pylint: disable=R0902,R0903
         """Initialize of SbProject object."""
         try:
             proj_json = SB.get_item(proj_id)
+            time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:
             if __debug__:
                 print("Exception Raised when creating Project object for"
@@ -149,6 +152,7 @@ class SbItem(object):  # pylint: disable=R0902,R0903
         """Initialize SbItem object."""
         try:
             item_json = SB.get_item(sb_id)
+            time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:
             if __debug__:
                 print("Exception Raised when creating Item object for"
@@ -214,7 +218,7 @@ def check_for_files(item_json):
     return item_data
 
 
-def exception_loop(item_id, sb_action):
+def exception_loop(item_id, sb_action):  # pylint: disable=R1710
     """Control loop to handle Exception raised by Science Base.
 
     Arguments:
@@ -229,8 +233,16 @@ def exception_loop(item_id, sb_action):
 
     """
     import exception_raised
+    if __debug__:
+        print("exception_loop item_id: {0}. Action: {1}"
+              .format(item_id, sb_action))
     result = exception_raised.main(item_id, sb_action)
     if result != False:
+        if __debug__:
+            print("Returning: \n{0}".format(result))
         return result
     elif result is False:
-        exception_loop(item_id, sb_action)
+        if __debug__:
+            print("Looping again with {0} and {1}..."
+                  .format(item_id, sb_action))
+        return exception_loop(item_id, sb_action)
