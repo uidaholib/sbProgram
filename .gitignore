@@ -5,6 +5,7 @@ __pycache__/
 /FlaskMEGATutorial/Env/
 /DiscoverFlask/venv/
 /TrialWebApp/env/
+/sbMACRO/venv/
 *.xlsx
 *.xlsm
 *.xls
