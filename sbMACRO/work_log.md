@@ -1020,7 +1020,7 @@ if not app.debug:
 
 We should get in the habit of created automated tests to make sure the methods we've written work as desired as things continue to change.
 
-Python includes a very useful `unittest` package that makes it easy to write and execute unit tests. Here is how you would use it to write unit tests for the User class in a `tests.py` module:
+Python includes a very useful `unittest` package that makes it easy to write and execute unit tests. Here is how you would use it to write unit tests for the User class in a `tests.py` module (particularly if they the User was more complex and we implemented a follower/followed schema for our database):
 `test.py`:
 ```py
 from datetime import datetime, timedelta
@@ -1029,9 +1029,10 @@ from app import app, db
 from app.models import User, Post
 
 class UserModelCase(unittest.TestCase):
+    # setUp and tearDown are special methods that the unit testing framework executes before and after each test respectively.
     def setUp(self):
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-        db.create_all()
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'  # Uses an in-memory SQLite database during the tests.
+        db.create_all()  # creates all the database tables
 
     def tearDown(self):
         db.session.remove()
@@ -1113,3 +1114,14 @@ class UserModelCase(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(verbosity=2)
 ```
+
+Each time a feature is added to the application, a unit test should be added for it. For example, we need to test our ScienceBase algorithms and data tables once added...
+
+The other models only need unit tests created for them when they have methods created within them to test.
+
+To run the entire test suite, use:
+```bash
+(venv) $ python tests.py
+```
+
+
