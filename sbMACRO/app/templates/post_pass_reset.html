@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Reset Password</h1>
+    <p>Check your email for instructions to reset your password. Should you not recieve an email, you may have mis-typed it. If you do not recieve an email, or you are unable to reset the password within 10 minutes, <a href="{{ url_for('reset_password_request') }}">try again</a>.</p>
+{% endblock %}

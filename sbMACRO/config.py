@@ -15,4 +15,4 @@ class Config(object):
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    ADMINS = ['trogers@uidaho.edu']  # Must be changed once hosted. Is a list.
+    ADMINS = ['ad.sbmacro@gmail.com']  # Must be changed once hosted. Is a list.

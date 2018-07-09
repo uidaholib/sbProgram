@@ -71,3 +71,8 @@ class EditProfileForm(FlaskForm):
         else:
             if password2:
                 ValidationError('Please enter password twice')
+
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Account Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')

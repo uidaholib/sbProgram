@@ -938,7 +938,7 @@ As the app currently stands, the stack trace is printed as it goes to the termin
 
 One nice way is to have stack traces sent via email to an administrator's email address.
 
-Furstm you add the email server details to the `config.py` file:
+First you add the email server details to the `config.py` file:
 ```py
 class Config(object):
     # ...
@@ -1125,3 +1125,319 @@ To run the entire test suite, use:
 ```
 
 
+### Email-based Password Resetting ###
+
+We now implement the ability for a user to reset their password via email if they forget it.
+
+Do do this, we install Flask-Mail, which allows us to send emails.
+
+```bash
+(env) $ python -m pip install flask-mail
+```
+
+The password reset links will have a secure token in them. To generate these tokens, I'm going to use JSON Web Tokens, which also have a popular Python package:
+```bash
+(env) $ python -m pip install pyjwt
+```
+
+The Flask-Mail extension is configured from the app.config object. Remember when we added the email configuration for sending ourself an email whenever an error occurred in production? The choice of configuration variables was modeled after Flask-Mail's requirements, so there isn't really any additional work that is needed, the configuration variables are already in the application.
+
+Like most Flask extensions, you need to create an instance right after the Flask application is created. In this case this is an object of class Mail:
+
+`app/__init__.py`: Flask-Mail instance.
+```py
+# ...
+from flask_mail import Mail
+
+app = Flask(__name__)
+# ...
+mail = Mail(app)
+```
+
+Then you can either use a real email address and server, or use the Python one. We will use our gmail account we made for sbmacro admin: ad.sbmacro@gmail.com. Don't forget to make sure these environmental variables are set:
+```bash
+(venv) $ export MAIL_SERVER=smtp.googlemail.com
+(venv) $ export MAIL_PORT=587
+(venv) $ export MAIL_USE_TLS=1
+(venv) $ export MAIL_USERNAME=ad.sbmacro@gmail.com
+(venv) $ export MAIL_PASSWORD=sbMACRO_@dmin1
+```
+
+Remember that the security features in your Gmail account may prevent the application from sending emails through it unless you explicitly allow "less secure apps" access to your Gmail account. You can read about this [here](https://support.google.com/accounts/answer/6010255?hl=en).
+
+From here, we want to set up an email framework that we can use to send emails to users. We'll start by creating a new module `app/email.py` and adding the following:
+```py
+from flask_mail import Message
+from app import mail
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    mail.send(msg)
+```
+
+Now, there's more options. If we want to implement those (such as CC and BCC) check out the [documentation](https://pythonhosted.org/Flask-Mail/).
+
+After creating the email framework, we need to add the ability to request a password reset from the login page. First, we add a link for the user to click:
+`app/templates/login.html`
+```html
+<!-- ... -->
+<p>
+    <a href="{{ url_for('reset_password_request') }}">Forgot Your Password?</a>
+</p>
+```
+
+This link will bring the user to a new form that asks for the email related to the account who's password is to be reset. 
+`app/forms.py`:
+```py
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+```
+
+Then we need to write an html template for the form:
+`app/templates/password_reset.html`:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Reset Password</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=64) }}<br>
+            {% for error in form.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+```
+
+This, of course, means that we need a new view function within the `app/routes.py` module:
+```py
+from app.forms import ResetPasswordRequestForm
+from app.email import send_password_reset_email
+
+#...
+
+@app.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html',
+                           title='Reset Password', form=form)
+```
+
+The `send_password_reset_email()` function doesn't exist yet, but it will. After the email is sent, a flash message is used. In our site, since we don't use flash messages, we redirect to a new page with the information.
+
+Now we need to have a way to create a password reset link. This is the link sent to the user via email. When clicked, a page where the new password can be set is presented to the user. We must make sure that only valid reset links can be used to reset an account's password.
+
+The links will have a _token_. This token will be validated before allowing the password to change, as proof that the user that requested the email has access to the email address on that account. A JSON Web Token (JWT) is a popular token standard that is self-contained. You can send a token to a user in an email, and when the user clicks the link that feeds the token back into the application, it can be verified on its own.
+
+Here's an example for how JWTs work:
+```py
+>>> import jwt
+>>> token = jwt.encode({'a': 'b'}, 'my-secret', algorithm='HS256')
+>>> token
+b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhIjoiYiJ9.dvOo58OBDHiuSHD4uW88nfJikhYAXc_sfUHq1mDi4G0'
+>>> jwt.decode(token, 'my-secret', algorithms=['HS256'])
+{'a': 'b'}
+```
+The `{'a': 'b'}` dictionary is an example payload that is going to be written into the token. To make the token secure, a secret key needs to be provided to be used in creating a cryptographic signature. For this example we have used the string `'my-secret'`, but with the application we'll use the `SECRET_KEY` from the configuration. The `algorithm` argument specifies how the token is to be generated. The `HS256` algorithm is the most widely used.
+
+As you can see the resulting token is a long sequence of characters. But do not think that this is an encrypted token. The contents of the token, including the payload, can be decoded easily by anyone (don't believe it? Copy the above token and then enter it in the [JWT debugger](https://jwt.io/#debugger-io) to see its contents). What makes the token secure is that the payload is signed. If somebody tried to forge or tamper with the payload in a token, then the signature would be invalidated, and to generate a new signature the secret key is needed. When a token is verified, the contents of the payload are decoded and returned back to the caller. If the token's signature was validated, then the payload can be trusted as authentic.
+
+The payload that we're going to use for the password reset tokens is going to have the format `{'reset_password': user_id, 'exp': token_expiration}`. The `exp` field is standard for JWTs and if present it indicates an expiration time for the token. If a token has a valid signature, but it is past its expiration timestamp, then it will also be considered invalid. For the password reset feature, we're going to give these tokens 10 minutes of life.
+
+When the user clicks on the emailed link, the token is going to be sent back to the application as part of the URL, and the first thing the view function that handles this URL will do is to verify it. If the signature is valid, then the user can be identified by the ID stored in the payload. Once the user's identity is known, the application can ask for a new password and set it on the user's account.
+
+Since these tokens belong to users, we're going to write the token generation and verification functions as methods in the User model:
+`app/models.py`:
+```py
+from time import time
+import jwt
+from app import app
+
+class User(UserMixin, db.Model):
+    # ...
+
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, app.config['SECRET_KEY'],
+                            algorithms=['HS256'])['reset_password']
+        except:
+            return
+        return User.query.get(id)
+
+```
+
+The `get_reset_password_token()` function generates the token as a string, and the `decode(utf-8)` is needed because the `jwt.encode()` function returns the token as a byte sequence, which is not as convenient as a string.
+
+The `verify_reset_password_token()` is a static method, which menas that it can be invoked directoy from teh class. A static method is similar to a class method, but it doesn't receive the class as a first argument. This method takes a token and attempts to decode is by invoking PyJWT's `jwt.decode()` function. If it fails (invalid or expired), an exception is raised, and in that case we catch it to prevent the error and then return None to the caller. If the token is valid, then the value of the `reset_password` key from the token's payload is the ID of the user, so we can load the user and return it.
+
+
+Now that we have tokens, we must include the ability to send the password reset email. The `send_password_reset_email()` function relies on the `send_email()` function we wrote above.
+`app/email.py`:
+```py
+from flask import render_template
+from app import app
+
+#...
+
+def send_password_reset_email(user):
+    token = user.get_reset_password_token()
+    send_email('[sbMACRO] Reset Your Password',
+               sender= app.config['ADMINS'][0],
+               recipients=[user.email],
+               text_body=render_template('email/reset_password.txt',
+                                         user=user, token=token),
+               html_body=render_template('email/reset_password.html',
+                                         user=user, token=token))
+```
+
+The cool part here is that the text and HTML content for the emails is generated from templates, just like out web routes, using `render_template()`. The templaces receive the user and the token as argumets, so that a personalized email message can be generated. Here is the text template for the reset password email:
+`app/templates/email/reset_password.txt`:
+```txt
+Hello {{ user.username }},
+
+To reset your password click the following link:
+
+{{ url_for('reset_password', token=token, _external=True) }}
+
+If you have not requested a password reset, you may ignore this email.
+
+Yours,
+
+sbMACRO Devs
+```
+
+And the nicer HTML version of the same email:
+
+`app/templates/email/reset_password.html`:
+```html
+<p>Hello {{ user.username }},</p>
+<p>
+    To reset your password
+    <a href="{{ url_for('reset_password', token=token, _external=True) }}">
+        click here
+    </a>.
+</p>
+<p>Alternatively, you can paste the following link in your browser's address bar:</p>
+<p>{{ url_for('reset_password', token=token, _external=True) }}</p>
+<p>If you have not requested a password reset simply ignore this message.</p>
+<p>Yours,</p>
+<p>sbMACRO Devs</p>
+```
+
+The reset_password route that is referenced in the `url_for()` call in these two email templates does not exist yet, this will be added in a bit. The `_external=True` argument that we included in the `url_for()` calls in both templates is also new. The URLs that are generated by `url_for()` by default are relative URLs, so for example, the `url_for('user', username='susan')` call would return _/user/susan_. This is normally sufficient for links that are generated in web pages, because the web browser takes the remaining parts of the URL from the current page. When sending a URL by email however, that context does not exist, so fully qualified URLs need to be used. When `_external=True` is passed as an argument, complete URLs are generated, so the previous example would return _http://localhost:5000/user/susan_, or the appropriate URL when the application is deployed on a domain name.
+
+Now we need to create a route to reset the user password.
+
+`app/routes.py`: Password reset view function.
+```py
+from app.forms import ResetPasswordForm
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
+```
+
+In this view function we first make sure the user is not logged in, and then we determine who the user is by invoking the token verification method in the User class. This method returns the user if the token is valid, or None if not. If the token is invalid I redirect to the home page.
+
+If the token is valid, then we present the user with a second form, in which the new password is requested. This form is processed in a way similar to previous forms, and as a result of a valid form submission, we invoke the `set_password()` method of User to change the password, and then redirect to the login page, where the user can now login.
+
+Here is the `ResetPasswordForm` class:
+`app/forms.py`:
+```py
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField('Repeat Password', 
+                              validators=[DataRequired(), 
+                              EqualTo('password')])
+    submit = SubmitField('Request Password Reset')
+```
+
+And here is the corresponding HTML template...
+`app/templates/reset_password.html`:
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Reset Your Password</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(size=32) }}<br>
+            {% for error in form.password2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+```
+
+This means that the password reset feature is basically done. We still need to deal with the slowdown from Emails. We need Asynchronous Emails. All the interactions that need to happen when sending an email make the task slow, it usually takes a few seconds to get an email out, and maybe more if the email server of the addressee is slow, or if there are multiple addressees.
+
+So, what we want is for `send_email()` to be asynchronous, meaning that when this function is called, the task fo sending the email is scheduled to happen in the backgorund, freeing the `send_email()` to return immediately so that the application can continue running concurrently with the email being sent.
+
+Python has support for running asynchronous tasks. The `threading` and `multiprocessing` modules can both do this. Starting a background thread for email being sent is much less resource intensive than starting a brand new process, so we're going to go with that approach:
+
+`app/email.py`:
+```py
+from threading import Thread
+# ...
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    Thread(target=send_async_email, args=(app, msg)).start()
+```
+
+The send_async_email function now runs in a background thread, invoked via the Thread() class in the last line of send_email(). With this change, the sending of the email will run in the thread, and when the process completes the thread will end and clean itself up. If you have configured a real email server, you will definitely notice a speed improvement when you press the submit button on the password reset request form.
+
+You probably expected that only the msg argument would be sent to the thread, but as you can see in the code, I'm also sending the application instance. When working with threads there is an important design aspect of Flask that needs to be kept in mind. Flask uses contexts to avoid having to pass arguments across functions. I'm not going to go into a lot of detail on this, but know that there are two types of contexts, the application context and the request context. In most cases, these contexts are automatically managed by the framework, but when the application starts custom threads, contexts for those threads may need to be manually created.
+
+There are many extensions that require an application context to be in place to work, because that allows them to find the Flask application instance without it being passed as an argument. The reason many extensions need to know the application instance is because they have their configuration stored in the app.config object. This is exactly the situation with Flask-Mail. The mail.send() method needs to access the configuration values for the email server, and that can only be done by knowing what the application is. The application context that is created with the with app.app_context() call makes the application instance accessible via the current_app variable from Flask.
