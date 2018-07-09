@@ -39,7 +39,7 @@ class casc(db.Model):
     projects = db.relationship('Project', backref='casc',
                                lazy='dynamic')
     items = db.relationship('Item', backref='casc', lazy='dynamic')
-    files = db.relationship('File', backref='casc', lazy='dynamic')
+    files = db.relationship('SbFile', backref='casc', lazy='dynamic')
     prob_items = db.relationship('ProblemItem', backref='casc',
                                  lazy='dynamic')
 
@@ -57,7 +57,7 @@ class FiscalYear(db.Model):
     projects = db.relationship('Project', backref='fiscal_year',
                                lazy='dynamic')
     items = db.relationship('Item', backref='fiscal_year', lazy='dynamic')
-    files = db.relationship('File', backref='fiscal_year', lazy='dynamic')
+    files = db.relationship('SbFile', backref='fiscal_year', lazy='dynamic')
     prob_items = db.relationship('ProblemItem', backref='fiscal_year',
                                  lazy='dynamic')
 
@@ -78,7 +78,7 @@ class Project(db.Model):
     fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))
     # Relationships:
     items = db.relationship('Item', backref='project', lazy='dynamic')
-    files = db.relationship('File', backref='project', lazy='dynamic')
+    files = db.relationship('SbFile', backref='project', lazy='dynamic')
     prob_items = db.relationship('ProblemItem', backref='project',
                                  lazy='dynamic')
 
@@ -98,10 +98,10 @@ class Item(db.Model):
     fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))
     proj_id = db.Column(db.Integer, db.ForeignKey('project.id'))
     # Relationships:
-    files = db.relationship('File', backref='item', lazy='dynamic')
+    files = db.relationship('SbFile', backref='item', lazy='dynamic')
 
 
-class File(db.Model):
+class SbFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sb_id = db.Column(db.String(32), unique=True)
     url = db.Column(db.String(512), unique=True)
