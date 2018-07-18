@@ -122,11 +122,32 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        return redirect(url_for('pass_request'), title='Reset Password')
-    return render_template('reset_password_request.html', title="Reset Password", form=form)
+        return render_template('post_pass_reset_request.html', title="Reset Password")
+    return render_template(
+        'password_reset_request.html', title="Reset Password", form=form)
 
 
-@app.route('/post_pass_request', methods=['GET', 'POST'])
-def pass_request():
-    return render_template(url_for('post_pass_request'))
+# @app.route('/post_pass_request', methods=['GET', 'POST'])
+# def pass_request():
+#     return render_template('post_pass_reset_request.html', title="Reset Password")
 
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        return render_template(
+            'successful_pass_reset.html', title="Password Reset")
+    return render_template('reset_password.html', title="Password Reset", form=form)
+
+
+# @app.route('/successful_pass_reset', methods=['GET', 'POST'])
+# def successful_pass_reset():
+#     return render_template('successful_pass_reset.html', title="Password Reset")

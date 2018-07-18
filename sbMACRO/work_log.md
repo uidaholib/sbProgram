@@ -2,14 +2,14 @@
 
 Credit: much of the changes were inspired by [this fantastic blog series](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world) (the Flask Mega Tutorial).
 
-### Step 1: Basic Configuration ###
+## Step 1: Basic Configuration ##
 
 We'll start by creating a virtual environment with `virtualenv` using `python3`.
 
 In the working directory for the project...
 
 ```bash
-    $ virtualenv -p python3 env
+    $ virtualenv -p python3 venv
 ```
 
 Then enter the virtual environemnt with `source env/bin/activate` on Unix.
@@ -57,7 +57,7 @@ Now, to run the application, just type `flask run` while in the virtual environm
 Check the site out in a browser by going to `http://localhost:5000/<route>`
 
 
-### Step 2: Setup Templates ###
+## Step 2: Setup Templates ##
 
 You need to have templates set up to display our different routes. 
 
@@ -115,7 +115,7 @@ Now here's the HTML with Jinja2 implementation:
 ```
 
 
-### Step 3: Setup Configuration (WTF Forms example) ###
+## Step 3: Setup Configuration (WTF Forms example) ##
 
 We're going to use the extention Flask-WTF which is just a wrapper around the WTForms package. It is an easy and more secure way to do web forms.
 
@@ -184,7 +184,7 @@ HTML is generated with the `{{ form.<field_name>.label }}` for labels and `{{ fo
 Now, if you created a route for the new form and tried to submit it, it wouldn't work, you must override the default of the route to accept both 'GET' and 'POST' requests. The form processing work can also be done with for.validate_on_submit(), which returns True or False if it passed validation
 
 
-### Step 4: Adding Database support and the Database ###
+## Step 4: Adding Database support and the Database ##
 
 We want a database, so we need to use the Flask-SQLAlchemy extention, which is a wrapper for the SQLAlchemy package. The package is an Object Relational Mapper or ORM, which allows the app to manage the database using high-level entities such as classes, objects, and methods, instead of tables and SQL.
 
@@ -330,7 +330,8 @@ Since we updated the application models, a new database migration needs to be ge
 <strike>The key here is to migrate each model one at a time in highest one-to-many fashion. It will not work if you try to create migration scripts for a model that doesn't have all dependencies: For example, `User` needs done first, THEN you can migrate `Post`, as `Post` has a foreign key dependency on `User`. So, go in order. You also can't migrate twice in a row without updating. So you must migrate AND update for each model individually if they rely on each other for Foreign Keys. </strike> Actually, just don't use all CAPs for model names.
 
 
-##### Optional: Experiment with the Database #####
+### Optional: Experiment with the Database ###
+-----------
 
 If you want to test the database (for example, the user-post instance above), start the python interpreter from within the vm:
 
@@ -430,7 +431,7 @@ But let's undo what we did before continuing to give ourselves a blank slate.
 ```
 
 
-### Setting up the Flask Shell for Debugging ###
+## Setting up the Flask Shell for Debugging ##
 
 You may need to use the python interpreter to test things out, for instance, with your database. But having to import everything explicitly is a bummer, so you can use the `python -m flask shell` command to open up an interpreter that pre-imports a lot of things and can be customized to do things like add the database instance and models for the shell session. To do that, add these to the sbmacro.py file:
 ```py
@@ -448,9 +449,9 @@ Now you can use the shell to work with things like the database without having t
 
 
 
-### Creating a User Login Functionality ###
+## Creating a User Login Functionality ##
 
-#### Password Hashing ####
+### Password Hashing ###
 Password hashing and security is implemented with Werkzeug, a core Flask dependency. Here's an example:
 ```py
 >>> from werkzeug.security import generate_password_hash
@@ -494,7 +495,7 @@ False
 True
 ```
 
-#### Flask-Login ####
+### Flask-Login ###
 
 Flask-Login is a login extention that tracks if a user is logged in or not and gives you a 'remember me' functionality. We will use it, so install it:
 ```bash
@@ -539,7 +540,7 @@ def load_user(id):
     return User.query.get(int(id))
 ```
 
-#### Implement logging in ####
+### Implement logging in ###
 
 Now that we have all the pieces, here's an example of what we need to add to the login route handler so that it actually logs users in:
 ```py
@@ -594,7 +595,7 @@ You can also do fancy things like require a login to view certain pages and redi
 
 But Users cannot yet register themselves, so you cannot add users other than through the flask shell right now... Let's solve that.
 
-#### Adding User Registration ####
+### Adding User Registration ###
 
 First you need a form to add that implements all our new features. Here's an example. It should live in `app/forms.py`:
 ```py
@@ -696,7 +697,7 @@ def register():
 ```
 
 
-### Allowing users to edit their profiles ###
+## Allowing users to edit their profiles ##
 
 If you have users, they should be able to change their username or email or password should they need to. So we need to create a profile page and a way to edit their info.
 
@@ -870,11 +871,11 @@ Now we must make sure that the user (and only when they are logged in) can edit 
 ```
 
 
-### Setting Debug Mode: On ###
+## Setting Debug Mode: On ##
 
 There are two main ways you can implement this:
 
-1. Set the FLASK_DEBUT environmental variable to one:
+1. Set the FLASK_DEBUG environmental variable to one:
 ```bash
 (venv) $ export FLASK_DEBUG=1
 ```
@@ -887,10 +888,10 @@ if __name__ == "__main__":
 If you choose option 1, just run the server like normal (`python -m flask run`) and it should be in debug mode which gives you Stack Traces when it crashes and automatically restarts when you change things. If option 2, just run `python sbmacro.py` and it shoot boot right up.
 
 
-### Custom Error Handling ###
+## Custom Error Handling ##
 
 
-#### HTTP Errors ####
+### HTTP Errors ###
 
 Errors must be handled and logged in such a way that the user is not exactly privy to what went wrong (security), they are minimally affected (user experience) and the administrators are aware so as to fix any error or bugs (via alerts and/or logging).
 
@@ -932,7 +933,7 @@ from app import routes, models, errors
 We can test these by turning off debugging if it's on (`FLASK_DEBUG=0`), and trying to change a  username to one that already exists via a "edit profile" page or something. This is still not an elogant way to handle the error, but it's much better than the default.
 
 
-#### Emailing Errors ####
+### Emailing Errors ###
 
 As the app currently stands, the stack trace is printed as it goes to the terminal, meaning that errors would only be found if you were constantly monitoring it. That's fine for now, but certainly not in production. 
 
@@ -981,14 +982,14 @@ This only works when debugging is not enabled. It creates an SMTPHandler instanc
 
 Now, we created a temporary gmail for admin logging purposes (ad.sbmacro@gmail.com), and can practice sending emails to there. Here's what needs done to set up a gmail:
 ```bash
-export MAIL_SERVER=smtp.googlemail.com
-export MAIL_PORT=587
-export MAIL_USE_TLS=1
-export MAIL_USERNAME=<your-gmail-username>
-export MAIL_PASSWORD=<your-gmail-password>
+(venv) export MAIL_SERVER=smtp.googlemail.com
+(venv) export MAIL_PORT=587
+(venv) export MAIL_USE_TLS=1
+(venv) export MAIL_USERNAME=<your-gmail-username>
+(venv) export MAIL_PASSWORD=<your-gmail-password>
 ```
 
-#### File Logging Errors ####
+### File Logging Errors ###
 
 Keeping track of more types of errors and problems in a rotating file log is also useful. Here's how you add the handler `RotatingFileHandler` to the application logger. 
 `app/__init__.py`:
@@ -1016,7 +1017,7 @@ if not app.debug:
 ```
 
 
-### Unit Testing the User Model ###
+## Unit Testing the User Model ##
 
 We should get in the habit of created automated tests to make sure the methods we've written work as desired as things continue to change.
 
@@ -1125,19 +1126,19 @@ To run the entire test suite, use:
 ```
 
 
-### Email-based Password Resetting ###
+## Email-based Password Resetting ##
 
 We now implement the ability for a user to reset their password via email if they forget it.
 
 Do do this, we install Flask-Mail, which allows us to send emails.
 
 ```bash
-(env) $ python -m pip install flask-mail
+(venv) $ python -m pip install flask-mail
 ```
 
 The password reset links will have a secure token in them. To generate these tokens, I'm going to use JSON Web Tokens, which also have a popular Python package:
 ```bash
-(env) $ python -m pip install pyjwt
+(venv) $ python -m pip install pyjwt
 ```
 
 The Flask-Mail extension is configured from the app.config object. Remember when we added the email configuration for sending ourself an email whenever an error occurred in production? The choice of configuration variables was modeled after Flask-Mail's requirements, so there isn't really any additional work that is needed, the configuration variables are already in the application.
@@ -1436,8 +1437,278 @@ def send_email(subject, sender, recipients, text_body, html_body):
     Thread(target=send_async_email, args=(app, msg)).start()
 ```
 
-The send_async_email function now runs in a background thread, invoked via the Thread() class in the last line of send_email(). With this change, the sending of the email will run in the thread, and when the process completes the thread will end and clean itself up. If you have configured a real email server, you will definitely notice a speed improvement when you press the submit button on the password reset request form.
+The `send_async_email` function now runs in a background thread, invoked via the `Thread()` class in the last line of `send_email()`. With this change, the sending of the email will run in the thread, and when the process completes the thread will end and clean itself up. If you have configured a real email server, you will definitely notice a speed improvement when you press the submit button on the password reset request form.
 
-You probably expected that only the msg argument would be sent to the thread, but as you can see in the code, I'm also sending the application instance. When working with threads there is an important design aspect of Flask that needs to be kept in mind. Flask uses contexts to avoid having to pass arguments across functions. I'm not going to go into a lot of detail on this, but know that there are two types of contexts, the application context and the request context. In most cases, these contexts are automatically managed by the framework, but when the application starts custom threads, contexts for those threads may need to be manually created.
+You probably expected that only the msg argument would be sent to the thread, but as you can see in the code, I'm also sending the application instance. When working with threads there is an important design aspect of Flask that needs to be kept in mind. Flask uses contexts to avoid having to pass arguments across functions. It can be complicated, but know that there are two types of contexts, the application context and the request context. In most cases, these contexts are automatically managed by the framework, but when the application starts custom threads, contexts for those threads may need to be manually created.
 
-There are many extensions that require an application context to be in place to work, because that allows them to find the Flask application instance without it being passed as an argument. The reason many extensions need to know the application instance is because they have their configuration stored in the app.config object. This is exactly the situation with Flask-Mail. The mail.send() method needs to access the configuration values for the email server, and that can only be done by knowing what the application is. The application context that is created with the with app.app_context() call makes the application instance accessible via the current_app variable from Flask.
+There are many extensions that require an application context to be in place to work, because that allows them to find the Flask application instance without it being passed as an argument. The reason many extensions need to know the application instance is because they have their configuration stored in the `app.config` object. This is exactly the situation with Flask-Mail. The `mail.send()` method needs to access the configuration values for the email server, and that can only be done by knowing what the application is. The application context that is created with the with `app.app_context()` call makes the application instance accessible via the `current_app` variable from Flask.
+
+
+## Universal Time Displayed As Local ##
+
+Now, we chose to use UTC time (Coordinated Universal Time), as it is the same around the world and can be changed to the user's local time when displayed, saving trouble with managing a bunch of different time zones on the server side. The easiest way to do this is by converting those UTC times using `Moment.js` and `Flask-Moment`.
+
+`Moment.js` ([found here](http://momentjs.com/)) is a small open-source JavaScript library that takes date and time rendering to another level, as it provides every imaginable formatting option, and then some. And a while ago Miguel Grinberg (author of the [Flask Mega Tutorial](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xii-dates-and-times)) created Flask-Moment, a small Flask extension that makes it very easy to incorporate moment.js into our application.
+
+First, we install Flask-Moment:
+```bash
+(venv) python -m pip install flask-moment
+```
+
+Then add the extention to the application, like usual:
+`app/__init__.py`:
+```py
+#...
+from flask_moment import Moment
+
+app = Flask(__name__)
+#...
+moment = Moment(app)
+```
+
+Because Flask-Moment needs moment.js to function, it must be included in every page. To do that, it needs declared in a `<script>` tag explicitly on every page (or in the `base.html` page), or we can do a fancy super block. <strike>Flask-Moment gives us an easy way to do this by exposing a `moment.include_moment()` function that generates the `<script>` tag.
+
+`app/templates/base.html`
+```html
+...
+
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+{% endblock %}
+```
+
+The `scripts` block here is another block exported by by Flask-Bootstrap's base template.</strike> This requires Flask-Bootstrap, which we do not use. So we will use the first technique by installing moment.js with `npm`:
+
+```bash
+(venv) npm i moment
+```
+
+Then we will add it to `base.html`.
+`app/templates/base.html`:
+```html
+<!-- ... -->
+<body>
+    <script src="../../node_modules/moment/moment.js"></script>
+    <script>
+        moment().format();
+    </script>
+    <!-- ... -->
+</body>
+```
+
+Moment.js makes a `moment` class available to the browser. The first step to render a timestamp is to create an object of this class, passing the desired timestamp in ISO 8601 format.
+
+The ISO 8601 standard format for dates and times is as follows: {{ year }}-{{ month }}-{{ day }}T{{ hour }}:{{ minute }}:{{ second }}{{ timezone }}. We already decided that we were only going to work with UTC timezones, so the last part is always going to be Z, which represents UTC in the ISO 8601 standard.
+
+The `moment` object provides several methods for different rendering options. Below are some of the most common options:
+
+```py
+moment('2017-09-28T21:45:23Z').format('L')
+"09/28/2017"
+moment('2017-09-28T21:45:23Z').format('LL')
+"September 28, 2017"
+moment('2017-09-28T21:45:23Z').format('LLL')
+"September 28, 2017 2:45 PM"
+moment('2017-09-28T21:45:23Z').format('LLLL')
+"Thursday, September 28, 2017 2:45 PM"
+moment('2017-09-28T21:45:23Z').format('dddd')
+"Thursday"
+moment('2017-09-28T21:45:23Z').fromNow()
+"7 hours ago"
+moment('2017-09-28T21:45:23Z').calendar()
+"Today at 2:45 PM"
+```
+
+This example creates a moment object initialized to September 28th 2017 at 9:45pm UTC. You can see that all the options we tried above are rendered in UTC-7, which is the timezone configured on the computer when the commands were entered.
+
+Note how the different methods create different representations. With `format()` you control the format of the output with a format string, similar to the strftime function from Python. The `fromNow()` and `calendar()` methods are interesting because they render the timestamp in relation to the current time, so you get output such as "a minute ago" or "in two hours", etc.
+
+If we were working directly in JavaScript, the above calls return a string that has the rendered timestamp. Then it is up to you to insert this text in the proper place on the page, which unfortunately requires some JavaScript to work with the DOM. The Flask-Moment extension greatly simplifies the use of moment.js by enabling a moment object similar to the JavaScript one in your templates.
+
+Let's look at the timestamp that appears in the profile page. The current `user.html` template lets Python generate a string representation of the time:
+
+`app/templates/user.html`:
+```html
+{% if user.last_seen %}
+    <p>Last seen on: {{ user.last_seen }} </p> 
+{% endif %}
+```
+
+Now, we can now render this timestamp using Flask-Moment as follows:
+
+`app/templates/user.html`:
+```html
+{% if user.last_seen %}
+    <p>Last seen on: {{ moment(user.last_seen).format('LLL') }} </p> 
+{% endif %}
+```
+
+Here, the argument passed to `moment()` is the python `datetime` object that we store in our database. The `moment()` call issued from a template also automatically generates the required JavaScript code to insert the rendered timestamp in the proper place of the DOM.
+
+
+
+## Implementing a Better Structure for the Application ##
+
+When looking at our application as it stands, we can see that there are several subsystems (eg. user authentication, error subsystem, core functionality), but these are so interweaved throughout the application, that the code for the subsystems cannot really be easily isolated to work with or reuse. This isn't ideal. For instance, debugging a particular feature or subsystem is harder if that code is spread throughout several different general files. To do this sort of centralization of code, we can use the _blueprints_ feature of Flask.
+
+Another issue is that the Flask application instance is created as a global variable in `app/__init__.py`, then imported by a lot of modules. This can be a problem if, for example, you are testing the application under different configurations. Because the application is global, there is no way to have more than one instance of it. Instead, it is better to have an _application factory function_ that is called at runtime, accepts a configuration object, and returns a new, pristine application instance. 
+
+However, this requires changes to almost every file in the application. Regardless, we will
+* Refactor application to introduce blueprints for the three subsystems above
+* Create and implement an application factory function
+
+-------------
+
+
+### Blueprints ###
+
+In Flask, a 'blueprint' is a logical structure that represents a subset of the application. A blueprint can include elements such as routes, view functions, forms, templates, and static files. If written in a separate Python package, then you have a component that encasulates the elements related to a specific feature of the application.
+
+From the tutorial:
+```
+The contents of a blueprint are initially in a dormant state. To associate these elements, the blueprint needs to be registered with the application. During the registration, all the elements that were added to the blueprint are passed on to the application. So you can think of a blueprint as a temporary storage for application functionality that helps in organizing your code.
+```
+Good stuff. 
+
+#### Error Handling Blueprint ####
+First, we can start with the Error Handling subsystem. The structure of the blueprint is:
+```
+app/
+    errors/                             <-- blueprint package
+        __init__.py                     <-- blueprint creation
+        handlers.py                     <-- error handlers
+    templates/
+        errors/                         <-- error templates
+            404.html
+            500.html
+    __init__.py                         <-- blueprint registration
+```
+
+What is done then, is that `app/errors.py` is moved into `app/errors/handlers.py` and the error templates are moved to `app/templates/errors` to separate them from other templates. The `render_template()` calls for each of the errors also needs changed to reflect the new template location. After doing that, the blueprint creation needs to be added to `app/__init__.py`, after the application instance is created.
+
+Another option that Flask blueprints provides is the ability to have a separate directory for templates or static files. In the example above, we have an `errors` subdirectory within the `templates` directory. We could also have the templates that belong to a particular blueprint within that blueprint package. For example, to have a `templates` directory within the blueprint package, you would just add `templade_folder='templates` as an argument to the `Blueprint()` constructor. Then they would all be stored in `app/errors/templates` like so:
+```
+app/
+    errors/                             <-- blueprint package
+        __init__.py                     <-- blueprint creation
+        handlers.py                     <-- error handlers
+        templates/                      <-- error templates
+            404.html
+            500.html
+    __init__.py                         <-- blueprint registration
+```
+
+This is the structure that we will use as it keeps the packages more insulated and centralized.
+
+
+The creation of a blueprint is similar to creating an application. It is done in the `__init__.py` module of the blueprint package:
+`app/errors/__init__.py`:
+```py
+from flask import Blueprint
+
+bp = Blueprint('errors', __name__, template_folder='templates')
+
+from app.errors import handlers
+```
+
+The `Blueprint` class takes the name of the blueprint, the name of the base module (typically set to `__name__` like the flash application instance to signify that it is the file that it is currently in), and a few optional arguments (including the `template_folder` argument we provided). After the blueprint object is created, we import the `handlers.py` module, so the error handlers in it are registered with the blueprint. The import is at the bottom to avoid circular dependencies.
+
+In the `handlers.py` module, intead of attaching the error handlers to the application with the old `@app.errorhandler` decorator, we instead use the blueprint's `@bp.app_errorhandler` decorator. We also need to modify the path to the two error templates, since we moved them into the new 'errors' package.
+
+The final step to complete the refactoring of the error handlers is to register the blueprint with the application:
+`app/__init__.py`:
+```py
+app = Flask(__name__)
+
+#...
+
+from app.errors import bp as errors_bp
+app.register_blueprint(errors_bp)
+
+# ...
+
+from app import routes, models  # <-- remove errors from this import!
+```
+
+To register a blueprint, the `register_blueprint()` method of the Flask application instance is used. When a blueprint is registered, any view functions, templates, static files, error handlers, etc. are connected to the application. We put the import of the blueprint right above the app.register_blueprint() to avoid circular dependencies.
+
+
+#### Authentication Blueprint ####
+
+The layout is similar to the Error Handling blueprint. Here is a layout similar to one that we will use:
+```
+app/
+    auth/                               <-- blueprint package
+        __init__.py                     <-- blueprint creation
+        email.py                        <-- authentication emails
+        forms.py                        <-- authentication forms
+        routes.py                       <-- authentication routes
+        templates/                      <-- blueprint templates
+            login.html
+            register.html
+            reset_password_request.html
+            reset_password.html
+    __init__.py                         <-- blueprint registration
+```
+
+From the tutorial:
+```
+To create this blueprint I had to move all the authentication related functionality to new modules I created in the blueprint. This includes a few view functions, web forms, and support functions such as the one that sends password reset tokens by email. I also moved the templates into a [...]directory [within the package] to separate them from the rest of the application, like I did with the error pages.
+```
+
+When defining the different routes for the blueprint, the `@bp.route` decorater was used instead of the previously used `@app.route`. We also have to change the syntax used for the `url_for()` function to build URLs. Normally, the first argument is the view function name, but when a route is defined in a blueprint, this argument must include the blueprint name and the view function name, seperated by a period. For example: `url_for('login')` becomes `url_for('auth.login')`. This must be done for all view functions in the blueprint. 
+
+Then register the `auth` blueprint with the application"
+```py
+#...
+from app.auth import bp as auth_bp
+app.register_blueprint(auth_bp, url_prefix='/auth')
+# ...
+```
+
+Notice here is an example of the optional `url_prefix` argument. This can be provided to add a prefix to any of the view/route URLs. For example, for the /login route, rather than http://localhost:5000/login, it would be http://localhost:5000/auth/login. This is optional. It helps seperate different parts of the application and keep the namespaces clean. 
+
+
+#### Main Application Blueprint ####
+
+This blueprint is the one for the core application logic. The refactoring is basically the same process as the previous blueprints. The name `main` is a good choice for the blueprint, which means that `main.` needs added to each of the view functions as above.
+
+### The Application Factory Pattern ###
+
+Now let's deal with the global application variable issue. To do this, we will create an application factory function called `create_app()` that constructions a Flask application instance and excepts a configuration object as a parameter.
+
+This is what the transformation of `app/__init__.py` looks like:
+```py
+# ...
+db = SQLAlchemy()
+migrate = Migrate()
+login = LoginManager()
+login.login_view = 'auth.login'
+login.login_message = _l('Please log in to access this page.')
+mail = Mail()
+moment = Moment()
+
+
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    login.init_app(app)
+    mail.init_app(app)
+    moment.init_app(app)
+
+    # ... no changes to blueprint registration
+
+    if not app.debug and not app.testing:
+        # ... no changes to logging setup
+
+    return app
+```
+
+Most all of our Flask extentions were initialized by creating an instance of the extension and passing the application as an argument. However, that will no longer be possible when it isn't a global variable any longer. So we initialize the extentions in two phases:
+1. We extention instance is created in the global scope, but given no arguments. The instance is created, but not attached to the applications. 
+2. Once the application instance is created, the extension instances are bound to the new application using the `init_app()` method. 
+
