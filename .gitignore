@@ -11,10 +11,17 @@ __pycache__/
 *.xls
 *.DS_Store
 *node_mod*/
-*.vscode
+*.vscode*
+
+# .env environmental variables file
+.env
+
+# virtual environment folders and files
 env
 env/*
 env2
 env/pip*
 env2/*
 test_files
+venv/
+venv/*
