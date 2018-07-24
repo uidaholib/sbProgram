@@ -1710,5 +1710,377 @@ def create_app(config_class=Config):
 
 Most all of our Flask extentions were initialized by creating an instance of the extension and passing the application as an argument. However, that will no longer be possible when it isn't a global variable any longer. So we initialize the extentions in two phases:
 1. We extention instance is created in the global scope, but given no arguments. The instance is created, but not attached to the applications. 
-2. Once the application instance is created, the extension instances are bound to the new application using the `init_app()` method. 
+2. Once the _application_ instance is created, the extension instances are bound to the new application using the `init_app()` method. 
+
+Most everything else about initialization remains the same, but have been moved into the factory function instead of the global scope. We also includeda new `not app.testing` clause to the conditional that decides if email and file logging should be enabled or not so that we can skip those things during unit tests. The `app.testing` flag is going to be `True` when running unit tests when we set the `TESTING` variable to `True` in the configuration.
+
+So, where do we call the application factory function? The top-level `microblog.py` script is the only module in which the applicaton now exists in the global scope. The other place is `tests.py`, but that will be a different section on Unit Testing.
+
+So, most references to `app` went away with the introductoin of blueprints, but there is still remnants of code that refer to the global `app` variable. Examples include `app/models.py`, and `app/main/routes.py` modules that all reference `app.config`. Luckily, Flask developers tried to make it easy for view functions to access the application instance without having to import it like we have been doing. The `current_app` variable that Flask provides is a special "context" variable that Flask initializes with the application before it dispatches a request. Another such context variable is `g` that is used in the tutorial to store the current locale. These two, along with Flask-Login's `current_user` and a few others are pretty special, because they work like global variables, but are only accessible during the handling of a request, and only in the thread that is handling it.
+
+Therefore, for the above mentioned modules, we just replace `app` with `current_app` and make sure to import `current_app` instead of `app` as well. Things like `app.config` turn in to `current_app.config`. Just find-replace.
+
+`app/email.py` is a bit more complicated:
+```py
+from flask import current_app
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    Thread(target=send_async_email,
+           args=(current_app._get_current_object(), msg)).start()
+```
+
+The real difference here is the passing of `current_app._get_current_object()` as the application instance to `send_async_email()`. The reason we did this is because, if we passed `current_app` to `send_async_email()`, the actual application wouldn't be accesible. That's because `current_app` is a _proxy object_ that dynamically maps to the current application instance, so it would change to nothing once passed to a new Thread. So the we need to access the _real_ application instance that is stored in the proxy object and pass that as the `app` argument. `current_app._get_current_object()` is the way to extract the actual application object.
+
+### Unit Testing Improvements ###
+
+From the tutorial:
+```
+As I hinted in the beginning of this chapter, a lot of the work that I did so far had the goal of improving the unit testing workflow. When you are running unit tests you want to make sure the application is configured in a way that it does not interfere with your development resources, such as your database.
+
+The current version of tests.py resorts to the trick of modifying the configuration after it was applied to the application instance, which is a dangerous practice as not all types of changes will work when done that late. What I want is to have a chance to specify my testing configuration before it gets added to the application.
+```
+
+As of now, the `create_app()` function now accepts a configuration class as an argument. That class is defined in `config.py`. However, the idea is to be able to create an application instance that uses a different configuration simply by passing a new class to the factory function. Here is an example of a test configuration class that would be suitable for unit tests:
+`tests.py`:
+```py
+from config import Config
+
+class TestConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+```
+
+What this is, is a subclass of the Config class that tests `TESTING` to `True` (unnecessary, but possibly useful) and overrides the `SQLALCHEMY_DATABASE_URI` key to force the application to use an in-memory SQLite database.
+
+Remember the `setUp()` and `tearDown()` methods that we used for creating and destroying the appropriate environment for each test to run? We can now use those to create and destroy a brand new application for each test: 
+`tests.py`:
+```py
+class UserModelCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+```
+The new application is stored as `self.app`, but some things won't know that that's the application, such as `db.create_all()`. Do make sure that your app is findable as `current_app`, which is found dynamically, you .`push()` the app context, then `.pop()` it when done (in `tearDown()`) to wipe the slate clean.
+
+FYI (from the tutorial):
+```
+You should also know that the application context is one of two contexts that Flask uses. There is also a request context, which is more specific, as it applies to a request. When a request context is activated right before a request is handled, Flask's request and session variables become available, as well as Flask-Login's current_user.
+```
+
+
+
+### Environmental Variables ###
+
+Our application relies on a lot of environmental variables (including your secret key, email server information, database URL, etc). This can be inconvenient when trying to run it in a new terminal window, or several other situations. 
+
+Commonly, these sort of environmental variables are often stored in a `.env` file in the root directory. The variables are imported when the application starts, meaning they don't need manually set.
+
+Let's install the python package that supports `.env` files:
+```bash
+(venv) $ python -m pip install python-dotenv
+```
+
+Because we use all of the env variables in the `config.py` file, we should import the `.env` file immediately before needing them when the `Config` class is created:
+`config.py`:
+```py
+import os
+from dotenv import load_dotenv
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
+
+class Config(object):
+    # ...
+```
+
+Below is an example `.env` file (not set up for our email preferences). Notice that you don't want to add such a file to source control, or git, or whatever, as it has passwords that are integral to the security of the app:
+```
+SECRET_KEY=a-really-long-and-unique-key-that-nobody-knows
+MAIL_SERVER=localhost
+MAIL_PORT=25
+```
+
+### Requirements File ###
+
+Because our Python in our environment has been extensively modified, it can be hard to remember everything that needs installed to run the app from a clean slate. So, we create a `requirements.txt` file using `pip freeze` to track all of the packages that python has installed and to be able to install them all in one easy command. 
+
+Create the file (needs done whenever Python has anything new installed):
+```bash
+(venv) $ python -m pip freeze > requirements.txt
+```
+
+The `pip freeze` command will dump all the packages that are installed on your virtual environment in the correct format for the `requirements.txt` file. Now, if you need to create the same virtual environment on another machine, instead of installing packages one by one, you can run:
+
+```bash
+(venv) $ python -m pip install -r requirements.txt
+```
+
+## Migrating New Code to New Structure ##
+
+From here, all of the code that we've written throughout this tutorial was slightly different than the actual tutorial. So, we will use the .zip file of the code from after the "Application Structure" chapter, and we will migrate our code into the files and structure they have already created (updating some things along the way).
+
+### Moving and Deleting ###
+
+We start by moving `sbMACRO.db` and `requirements.txt` to the new folder for v1.5. These should replace the current `.db` file and `requirements.txt` file.
+
+We then create a new virtual environment using the new `requirements.txt`:
+```bash
+    $ virtualenv -p python3 venv
+    $ source venv/bin/activate
+    (venv) $ python -m pip install -r requirements.txt
+```
+
+Let's delete the files we don't need:
+* `cli.py`
+* `translate.py`
+
+
+### Moving/Editing Blueprints (templates) ###
+
+We also should move the specific templates for each blueprint into those folders, since we wanted to use that schema:
+* templates/emails/ -> emails/templates/
+* templates/auth/ -> auth/templates/
+* templates/errors/ -> errors/templates/
+
+This, of course, requires that we change the reference to where they are in each `__init__.py` file in each blueprint. In addition, we need to make sure it lives up to our coding standards.
+Example: `auth` blueprint.
+
+Before:
+```py
+from flask import Blueprint
+
+bp = Blueprint('auth', __name__)
+
+from app.auth import routes
+```
+
+After:
+```py
+"""Initialization of the authentication blueprint."""
+from flask import Blueprint
+
+# Create a blueprint for the authentication subsystem. Define template folder.
+bp = Blueprint('auth', __name__, template_folder='templates')
+
+from app.auth import routes
+```
+
+Then we copy the `migrations` directory (and contents) over to the new folder to replace the old one which is incorrect for the new database.
+
+
+### config.py ###
+---
+* Create `dotenv` support (had neglected this earlier)
+    - Create `.env` file
+    - Add `.env` to `.gitignore`
+    - Add self-defined secret key
+* Delete unused Config keys (eg translation-related, or post-related)
+* Add helpful comments from our file
+* Add appropriate coding styling to fit protocol (Docstrings, variable names, etc)
+
+Result:
+```py
+"""Module containing the master configuration class for entire application."""
+import os
+from dotenv import load_dotenv
+
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(BASEDIR, '.env'))
+
+
+class Config(object):
+    """Master configuration class for entire application."""
+
+    SECRET_KEY = os.environ.get(
+        'SECRET_KEY') or 'odm93hj0pGHG[p03i{()UGHH=AKHHAS0D3THTHE900ANN'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(BASEDIR, 'sbmacro.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Email server details:
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
+    # Bolean flag to enable encrypted connections:
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    ADMINS = ['ad.sbmacro@gmail.com'
+             ]  # Must be changed once hosted. Is a list.
+```
+
+
+### sbmacro.py ###
+---
+* Add new db items to return statement
+* Delete `cli.register(app)`
+* Delete `import`s for cli related stuff.
+* Add appropriate code styling to fit protocol (Docstrings, variable names, etc)
+* Add end lines to start app if script is run (`if __name__== "__main__": app.run(debug=True)`)
+
+Result
+```py
+"""Module for app instantiation and shell context creation."""
+from app import create_app, db
+from app.models import User, casc, FiscalYear, Project, Item, SbFile
+from app.models import ProblemItem
+
+app = create_app() # pylint: disable=C0103
+
+
+@app.shell_context_processor
+def make_shell_context():
+    """Define shell context for FLASK_SHELL and import model classes.
+
+    Returns:
+        db -- SQLite database instance.
+        User -- User database model class
+        casc -- casc database model class
+        FiscalYear -- FiscalYear database model class
+        Project -- Project database model class
+        Item -- Item database model class
+        SbFile -- SbFile database model class
+        ProblemItem -- ProblemItem database model class
+
+    """
+    return {
+        'db': db,
+        'User': User,
+        'casc': casc,
+        'FiscalYear': FiscalYear,
+        'Project': Project,
+        'Item': Item,
+        'SbFile': SbFile,
+        'ProblemItem': ProblemItem
+    }
+
+if __name__ == "__main__":
+    app.run(debug=True)
+```
+
+
+### tests.py ###
+---
+* Add `TestConfig` class
+* Add third test to `test_password_hashing(self)`
+* Delete remainder of useless tests (following, posting, avatar, etc.)
+* Add (useless) CascModelCase test.
+
+Result:
+```py
+#!/usr/bin/env python
+"""Module containing application unit tests."""
+from datetime import datetime, timedelta
+import unittest
+from app import create_app, db
+from app.models import User, casc, FiscalYear, Project, Item
+from app.models import SbFile, ProblemItem
+from config import Config
+
+
+class TestConfig(Config):
+    """Master testing configuration, creates in-memory db and sets TESTING."""
+
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+
+
+class UserModelCase(unittest.TestCase):
+    """Test suite for User DB Model."""
+
+    def setUp(self):
+        """Create new app initialization with in memory database."""
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        """Clear in-memory DB and pops the app context off the stack."""
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_password_hashing(self):
+        """Test suite for password hashing."""
+        u = User(username='susan') # pylint: disable=C0103
+        u.set_password('cat')
+        self.assertFalse(u.check_password('car'))
+        self.assertFalse(u.check_password('caT'))
+        self.assertTrue(u.check_password('cat'))
+
+class CascModelCase(unittest.TestCase):
+    """Test suite for CASC DB Model."""
+
+    def setUp(self):
+        """Create new app initialization with in memory database."""
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        """Clear in-memory DB and pops the app context off the stack."""
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
+```
+
+
+----------
+
+### node_modules ###
+
+`node_modules/` needed copied over to the new code folder. 
+
+
+------------
+
+### app/__init__.py ###
+
+* Delete babel and bootstrap `import`s
+* Delete babel and bootstrap initializations
+* Delete `@babel.localeselector` decorator and `get_locale()` function
+* Add appropriate code syling and comments
+* "microblog.log" -> "sbmacro.log"
+* "Microblog startup" -> "sbMACRO startup"
+
+
+### app/email.py ###
+
+* Add appropriate code syling
+* Make sure `args=(app, msg)` is now `args=(current_app._get_current_object(), msg)`
+
+### app/models.py ###
+* Add appropriate code syling and comments
+* Copy over old model fields. 
+* Remove Post class
+* Add classes: CASC, FiscalYear, Project, Item, SbFile, ProblemItem
+
+
+### Auth Subsystem ###
+
+`__init__.py` was already done, so we will move down the list of files:
+* `email.py`
+    - Remove flask_babel `import`
+    - Change "Microblog" -> "sbMACRO"
+
 
