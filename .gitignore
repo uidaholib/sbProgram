@@ -11,7 +11,8 @@ __pycache__/
 *.xls
 *.DS_Store
 *node_mod*/
-*.vscode*
+*.vscode
+*.code-workspace
 
 # .env environmental variables file
 .env
