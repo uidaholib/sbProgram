@@ -1,0 +1,7 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<h1>Successful Password Reset</h1>
+<p>You have successfully reset the password. You may now
+    <a href="{{ url_for('main.login') }}">login</a> with your new credentials.</p>
+{% endblock %}

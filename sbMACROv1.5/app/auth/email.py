@@ -1,10 +1,13 @@
+"""Email creation for authentification subsystem."""
 from flask import render_template, current_app
 from app.email import send_email
 
 
 def send_password_reset_email(user):
+    """Create and send a password reset token url via email."""
     token = user.get_reset_password_token()
-    send_email(_('[sbMACRO] Reset Your Password'),
+    send_email('[sbMACRO] Reset Your Password',
+               # Make sure this is set to appropriate sender email from Config:
                sender=current_app.config['ADMINS'][0],
                recipients=[user.email],
                text_body=render_template('email/reset_password.txt',

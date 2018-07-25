@@ -60,7 +60,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    """Log use out."""
+    """Log user out."""
     logout_user()
     return redirect(url_for('index'))
 

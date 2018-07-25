@@ -2075,12 +2075,111 @@ if __name__ == '__main__':
 * Remove Post class
 * Add classes: CASC, FiscalYear, Project, Item, SbFile, ProblemItem
 
+### Shuffling Templates ###
+
+We hae a lot of different templates for a lot of different systems that need to go to a lot of different places. The new system we are integrating into has a lot that we don't use, and is missing several that we do.
+
+* Delete all templates in new system.
+* Move all old templates to appropriate subsystem `template/` folders.
+
 
 ### Auth Subsystem ###
 
 `__init__.py` was already done, so we will move down the list of files:
+
 * `email.py`
     - Remove flask_babel `import`
     - Change "Microblog" -> "sbMACRO"
+    - Add appropriate code syling and comments
+    - Remove `_()` which we don't use (babel-related)
+    - Update paths to `.txt` and `.html` templates.
+* `forms.py`
+    - Remove babel-related imports
+    - Replace `LoginForm`
+    - Replace `RegistrationForm`
+    - Replace `ResetPasswordRequestForm`
+    - Replace `ResetPasswordForm`
+    - Add appropriate code syling and comments
+* `routes.py`
+    - Remove babel-related imports
+    - Add appropriate code syling and comments
+    - Remove any `_()` and some flash messages (as we don't use flash)
+    - Replace `reset_password_request()`
+    - change validated form `render_template()` to the correct one.
 
 
+### Errors Subsystem ###
+
+Again, `__init__.py` was already done, so we will move down the list of files:
+
+* `handlers.py`
+    - Copy over all handler functions
+    - change `@app.errorhandler()` decorator to `@bp.errorhandler()`
+    - Add appropriate code syling and comments
+
+### Main Subsystem ###
+
+Finally, as we know, `__init__.py` was already done, so we will move down the list of files:
+
+* `forms.py`
+    - Remove babel-related imports
+    - Replace `EditProfileForm`
+    - `import`, from `wtforms.validators` `Email`, `PasswordField`, and `Optional`
+    - Add appropriate code syling and comments
+* `routes.py`
+    - Remove babel-related imports (incl. guess_language)
+    - Add appropriate code syling and comments
+    - Remove any `_()` and some flash messages (as we don't use flash)
+    - Delete `g.locale = str(get_locale())`
+    - Delete `explore()`
+    - Replace `index()`
+    - Add `fiscalyear()`, `project()`, and `report()` routes.
+    - Add `fiscalyear()`, `project()`, and `report()` route decorators to blueprints
+    - Replace `user()`
+    - Replace `edit_profile()` and change url_for('user') to url_for('main.user')
+    - Delete `follow()`, `unfollow()` and `translate_text` routes.
+    - Remove PostForm from `app.main.forms` import
+    - Remove `app.translate` import
+    - Remove 'Post' import from `app.models`
+
+### Debugging After Merging ###
+
+#### `dotenv` not installed ####
+
+
+`python-dotenv` was not installed. We had to install it and add it to `requirements.txt`.
+
+```bash
+python -m pip install python-dotenv
+python -m pip freeze > requirements.txt
+```
+
+#### Could not import sbmacro ####
+
+After that, cli could not import 'sbmacro'. Changed `sbMACRO.py` to `sbmacro.py`.
+
+
+#### `ImportError: cannot import name 'PasswordField'` ####
+
+`PasswordField` import in `app/main/forms.py` was moved from `wtforms.validators` to `wtforms`.
+
+#### jinja2.exceptions.TemplateNotFound: auth/login.html ####
+
+Needed to remove `auth/` from all routes in `app/auth/routes.py`, then move `password_reset_request.html`, `post_pass_reset_request.html`, `register.html`, `reset_password.html`, and `successful_pass_reset.html` from `main/templates/` to `auth/templates/`. This required moving both `reset_password.html` and `reset_password.txt` (the templates for the reset password email), to be moved into a new folder `app/auth/templates/email/`, which required `app/auth/email.py` to change all references to prepend 'email/' to both `reset_password.html` and `reset_password.txt`.
+
+#### werkzeug.routing.BuildError: Could not build url for endpoint 'register'. Did you mean 'auth.register' instead? ####
+
+I certainly did mean that. The issue was in the templates. The `url_for()` calls had not been updated to reflect the new blueprints. 
+* `main/templates/login.html`:
+    - Change `register` to `auth.register`
+    - Change `reset_password_request` to `auth.reset_password_request`
+* `main/user.html`:
+    - `edit_profile` -> `main.edit_profile`
+* All `errors` templates:
+    - Change `index` to `main.index`
+* `app/auth/templates/email/reset_password.html` and `app/auth/templates/email/reset_password.txt`:
+    - `reset_password` -> `auth.reset_password`
+* `/app/auth/templates/post_pass_reset_request.html`:
+    - `reset_password_request` -> `auth.reset_password_request`
+* `/app/auth/templates/successful_pass_reset.html`:
+    - `login` -> `main.login`
