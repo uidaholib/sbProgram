@@ -56,7 +56,7 @@ def register():
 def reset_password_request():
     """Display request form for pass reset. Display appropriate page after."""
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()

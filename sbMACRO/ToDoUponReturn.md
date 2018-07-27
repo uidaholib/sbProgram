@@ -11,13 +11,13 @@ To Do:
 When done with migrating code:
 * Check basic functionality (using new unit tests where applicable)
     - `app/email.py` (unit test)
-    - Flask Shell and DB-diving
-    - Check models form and function (unit test)
+    - XFlask Shell and DB-diving
+    - XCheck models form and function (unit test)
 * Check subsystems
     * Auth
-        - Check template rendering of emails and pages (particularly emails)
-        - Check email sending
-        - Check that changes are made in db for creating user, changing password, email, etc.
+        - XCheck template rendering of emails and pages (particularly emails)
+        - XCheck email sending
+        - XCheck that changes are made in db for creating user, changing password, email, etc.
     * Errors
         - Check all handled errors
     * Main

@@ -70,8 +70,10 @@ class EditProfileForm(FlaskForm):
                                password in the form.
 
         """
+        print("Password: {0}. Password2: {1}"
+              .format(self.password.data, password2.data))
         if self.password.data:
-            if self.password.data != password2:
+            if self.password.data != password2.data:
                 raise ValidationError('Passwords must match')
         else:
             if password2:

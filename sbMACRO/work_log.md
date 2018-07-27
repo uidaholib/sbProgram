@@ -2183,3 +2183,22 @@ I certainly did mean that. The issue was in the templates. The `url_for()` calls
     - `reset_password_request` -> `auth.reset_password_request`
 * `/app/auth/templates/successful_pass_reset.html`:
     - `login` -> `main.login`
+
+
+#### werkzeug.routing.BuildError: Could not build url for endpoint 'reset_password' with values ['token']. Did you mean 'auth.reset_password' instead? ####
+
+Same issue as above. I searched for 'url_for' in `app/auth/routes.py` and replaced one missing `main.`. That obviously isn't the problem, so I moved on.
+
+Found that `app/auth/templates/email/reset_password.html` was missing an 'auth.' before 'reset_password'. Maybe that was it?
+
+It appears to have worked. But, when I tried to reset my password:
+
+#### werkzeug.routing.BuildError: Could not build url for endpoint 'main.login'. Did you mean 'auth.login' instead? ####
+
+Changed `app/auth/templates/email/successful_pass_reset.html` reference to 'main.login' to 'auth.login'. I also moved the `login.html` template into the `app/auth/templates` folder.
+
+#### 'Invalid username or password' is flashed, not shown on form ####
+
+The flash is fine, but it was flashed twice each time, so I had to go to `base.html` and edit the `<div>` that had the flash message. Then I added a `flash-div` class to that div and made a note to give it some better css.
+
+#### Url for login has '/auth/' prepended to 'login' ####

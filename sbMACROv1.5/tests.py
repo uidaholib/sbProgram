@@ -33,11 +33,28 @@ class UserModelCase(unittest.TestCase):
 
     def test_password_hashing(self):
         """Test suite for password hashing."""
-        u = User(username='susan') # pylint: disable=C0103
+        u = User(username='susan_belinda7456789142') # pylint: disable=C0103
         u.set_password('cat')
         self.assertFalse(u.check_password('car'))
         self.assertFalse(u.check_password('caT'))
         self.assertTrue(u.check_password('cat'))
+
+    def test_password_reset(self):
+        """Test suite for token creation, verifying, and pass reset."""
+        u = User(username='susan_belinda7456789142') # pylint: disable=C0103
+        u.set_password('cat')
+        self.assertIsNotNone(u, msg="Could not find test user.")
+        token = u.get_reset_password_token()
+        self.assertIsNotNone(token, msg="Token is 'None'")
+        self.assertTrue(User.verify_reset_password_token(token),
+                        msg="Failed to verify pass reset token.")
+        u.set_password('dog')
+        self.assertFalse(u.check_password('dot'))
+        self.assertFalse(u.check_password('doG'))
+        self.assertTrue(u.check_password('dog'))
+
+
+
 
 class CascModelCase(unittest.TestCase):
     """Test suite for CASC DB Model."""
