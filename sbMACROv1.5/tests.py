@@ -24,6 +24,10 @@ class UserModelCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
+        u = User(username='susan_belinda7456789142') # pylint: disable=C0103
+        u.set_password('cat')
+        db.session.add(u)
+        db.session.commit()
 
     def tearDown(self):
         """Clear in-memory DB and pops the app context off the stack."""
@@ -33,16 +37,18 @@ class UserModelCase(unittest.TestCase):
 
     def test_password_hashing(self):
         """Test suite for password hashing."""
-        u = User(username='susan_belinda7456789142') # pylint: disable=C0103
-        u.set_password('cat')
+        u = User.query.filter_by(username='susan_belinda7456789142').first()
         self.assertFalse(u.check_password('car'))
         self.assertFalse(u.check_password('caT'))
         self.assertTrue(u.check_password('cat'))
 
     def test_password_reset(self):
         """Test suite for token creation, verifying, and pass reset."""
-        u = User(username='susan_belinda7456789142') # pylint: disable=C0103
-        u.set_password('cat')
+        # u = User(username='susan_belinda7456789142') # pylint: disable=C0103
+        # u.set_password('cat')
+        # db.session.add(u)
+        # db.session.commit()
+        u = User.query.filter_by(username='susan_belinda7456789142').first()
         self.assertIsNotNone(u, msg="Could not find test user.")
         token = u.get_reset_password_token()
         self.assertIsNotNone(token, msg="Token is 'None'")
