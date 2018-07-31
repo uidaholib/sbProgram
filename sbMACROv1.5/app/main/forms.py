@@ -15,9 +15,10 @@ class EditProfileForm(FlaskForm):
     email = StringField('Email', validators=[Optional(), Email()])
     about = TextAreaField('About me', validators=[Optional(),
                                                   Length(min=0, max=140)])
-    password = PasswordField('New Password', validators=[Optional()])
+    password = PasswordField('New Password (optional)',
+                             validators=[Optional()])
     password2 = PasswordField(
-        'Repeat Password')
+        'Repeat New Password (optional)')
     submit = SubmitField('Submit')
 
     def __init__(self, original_username, *args, **kwargs):
@@ -34,7 +35,8 @@ class EditProfileForm(FlaskForm):
             ValidationError -- If username already is in use/exists
 
         """
-        user = User.query.filter_by(username=username.data).first()
+        # Change to lowercase to make case insensitive
+        user = User.query.filter_by(username=username.data.lower()).first()
         if user is None:
             return
         if current_user.username != user.username:

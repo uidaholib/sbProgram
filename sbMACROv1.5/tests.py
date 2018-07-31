@@ -20,10 +20,12 @@ class UserModelCase(unittest.TestCase):
 
     def setUp(self):
         """Create new app initialization with in memory database."""
+        # Create new application instance using Testing configuration
         self.app = create_app(TestConfig)
         self.app_context = self.app.app_context()
+        # Make sure we are using the new test app context
         self.app_context.push()
-        db.create_all()
+        db.create_all()  # Create database tables
         u = User(username='susan_belinda7456789142') # pylint: disable=C0103
         u.set_password('cat')
         db.session.add(u)
@@ -32,8 +34,8 @@ class UserModelCase(unittest.TestCase):
     def tearDown(self):
         """Clear in-memory DB and pops the app context off the stack."""
         db.session.remove()
-        db.drop_all()
-        self.app_context.pop()
+        db.drop_all()  # Clean up database and remove all tables.
+        self.app_context.pop()  # Reset app context. Wipe slate clean.
 
     def test_password_hashing(self):
         """Test suite for password hashing."""

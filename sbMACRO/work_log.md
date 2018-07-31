@@ -2202,3 +2202,60 @@ Changed `app/auth/templates/email/successful_pass_reset.html` reference to 'main
 The flash is fine, but it was flashed twice each time, so I had to go to `base.html` and edit the `<div>` that had the flash message. Then I added a `flash-div` class to that div and made a note to give it some better css.
 
 #### Url for login has '/auth/' prepended to 'login' ####
+
+Decided I'm ok with this. I added the prepending `/error/` to the errors subsystem as well (you do this when importing the blueprints in `app/__init__.py`).
+
+#### Created New Unit Test for Password Resetting ####
+
+Just as the title here says. I added this test to the `User` model:
+
+```py
+#...
+
+    def test_password_reset(self):
+        """Test suite for token creation, verifying, and pass reset."""
+        # u = User(username='susan_belinda7456789142') # pylint: disable=C0103
+        # u.set_password('cat')
+        # db.session.add(u)
+        # db.session.commit()
+        u = User.query.filter_by(username='susan_belinda7456789142').first()
+        self.assertIsNotNone(u, msg="Could not find test user.")
+        token = u.get_reset_password_token()
+        self.assertIsNotNone(token, msg="Token is 'None'")
+        self.assertTrue(User.verify_reset_password_token(token),
+                        msg="Failed to verify pass reset token.")
+        u.set_password('dog')
+        self.assertFalse(u.check_password('dot'))
+        self.assertFalse(u.check_password('doG'))
+        self.assertTrue(u.check_password('dog'))
+#...
+```
+
+
+#### Error Handling Subsystem was not functioning ####
+
+404 errors were not being handled, nor were other ones. I searched long and hard to find that I hadn't used the right decorator. Instead of the correct `@bp.app_errorhandler(404)`, I had used `@bp.errorhandler(404)` from before the blueprinting. It now works fine.
+
+#### Usernames are case sensitive ####
+
+This shouldn't be the case. They should all be lower case, and when typed into the address bar, it should be converted to lowercase.
+
+This requires that 
+1. Any username typed is converted to lower case and the user is told it is not case sensitive.
+2. Any username in URLs is converted to lowercase.
+
+
+The only username entered in a URL is the one for seeing a user profile in the `main` subsystem. I simply made sure to search for the username in the database as `User.query.filter_by(username=username.lower()).first_or_404()`, using `.lower()` to transform the provided username to lowercase.
+
+I then needed to go to the forms and make sure that the usernames were always converted.
+
+* `main` subsystem
+    * Edit Profile -- `validate_username` Form validation
+        - changed query from `filter_by(username=username.data)` to `filter_by(username=username.data.lower())`
+        - `@bp.route('/edit_profile')` in `main/routes.py`
+            - Changed the form submit action to change the current user's username to a lowercase verson of the string: from `current_user.username = str(form.username.data)` to `current_user.username = str(form.username.data).lower()`
+* `auth` subsystem
+    * Login
+        - Did not edit the form, but processed the data in the `/login` route using `.lower()`: from `user = User.query.filter_by(username=form.username.data).first()` to `user = User.query.filter_by(username=form.username.data.lower()).first()`
+    * Register
+        - Added `.lower()` to the post-submit processing for the username.

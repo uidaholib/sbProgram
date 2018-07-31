@@ -47,7 +47,8 @@ def report():
 @login_required
 def user(username):
     """Load user and render user.html template if found, else 404."""
-    usr = User.query.filter_by(username=username).first_or_404()
+    # Change to lowercase to make case insensitive
+    usr = User.query.filter_by(username=username.lower()).first_or_404()
 
     return render_template('user.html', user=usr)
 
@@ -59,7 +60,7 @@ def edit_profile():
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         if form.username.data:
-            current_user.username = str(form.username.data)
+            current_user.username = str(form.username.data).lower()
         if form.about.data:
             current_user.about = str(form.about.data)
         if form.email.data:

@@ -13,14 +13,14 @@ When done with migrating code:
     - `app/email.py` (unit test)
     - XFlask Shell and DB-diving
     - XCheck models form and function (unit test)
-* Check subsystems
+* XCheck subsystems
     * Auth
         - XCheck template rendering of emails and pages (particularly emails)
         - XCheck email sending
         - XCheck that changes are made in db for creating user, changing password, email, etc.
     * Errors
-        - Check all handled errors
+        - XCheck all handled errors
     * Main
-        - Check all routes
-        - Check editting profile is working
-* Check that last chapter's things were done (unit testing improvements, environmental variables, etc.)
+        - XCheck all routes
+        - XCheck editting profile is working
+* XCheck that last chapter's things were done (unit testing improvements, environmental variables, etc.)
