@@ -266,7 +266,7 @@ We want to apply the changes:
 
 Because we're using SQLite, the `upgrade` command detects if the db exists and creates one if it does not.
 
-Note: Flask-SQLAlchemy uses snake case, so it translates class names to snake case. For example, for a AddressAndPhone model class, the table would be named address_and_phone. To chose a table name yourself, add an attribute nammed __tablename__ to the model class.
+Note: Flask-SQLAlchemy uses snake case, so it translates class names to snake case. For example, for a AddressAndPhone model class, the table would be named address_and_phone. To chose a table name yourself, add an attribute named __tablename__ to the model class.
 
 Now we need to know our Database Upgrade and Downgrade workflow. Miguel Grinberg describes it well:
 
@@ -2259,3 +2259,240 @@ I then needed to go to the forms and make sure that the usernames were always co
         - Did not edit the form, but processed the data in the `/login` route using `.lower()`: from `user = User.query.filter_by(username=form.username.data).first()` to `user = User.query.filter_by(username=form.username.data.lower()).first()`
     * Register
         - Added `.lower()` to the post-submit processing for the username.
+
+
+## v2: Merging v1 and v1.5 ##
+
+Now is where the rubber meets the road, and where we combine all of the new code we've created with the old code to create our working web app that should, theoretically, be ready to host.
+
+This means that we start with creating a new folder for v2, and merge all of the code together, debugging as we go. After it is all successfully merged, we will stop tracking any other folder except this one. It should be huge changes. At that point, we will add all of our changes to the master branch and v2 will be completed.
+
+Steps:
+1. Create folder `sbMACROv2`
+2. Move new code to new folder.
+3. Move old algorithm to new code
+    
+    3a. Create `sb_data_gather` package
+
+    3b. Change from json -> database
+
+    3c. Run algorithm to populate database
+
+    3d. Make sure database is correctly populated
+
+    3e. Add new unit tests
+4. Merge old `app.py` with new `sbmacro.py`
+    4a. Merge old routes to new code
+5. Move old templates to new code
+6. test that app is working (aside from data)
+8. Make sure app routes now access database, and any other db access is changed from `jsonCache2` to the new db.
+9. Bring old scripts to new code (google sheets, test scripts, etc.)
+10. Test all additions, creating unit tests where necessary.
+11. Update front end javascript to be clean and use more Flask features.
+
+
+
+### 1-2. Create folder `sbMACROv2` and move new code there ###
+
+This was done easily.
+
+### 3. Move old algorithm to new code ###
+
+This is a significant process. It will be broken into steps.
+
+#### 3a. Create `sb_data_gather` package ####
+
+We will start by creating a package in a new `bin/` directory that will contain the references to and code for the "sb algorithm". 
+
+To create our package, we create a new folder, `sb_data_gather/` within the `bin/` directory. Inside that `sb_data_gather` directory, we create an `__init__.py` file, which we can use to set paths, import modules as our package API, etc.  It will let Python know that this directory is a Python package. We then move the files in `DataCounting/` to `sb_data_gather/`. Our `__init__.py` file will look like this to allow a master `start()` function to control the algorithm:
+```py
+"""Initialization file for sb_data_gather package."""
+from main import full_hard_search, defined_hard_search
+
+
+# To run this function from command line (add any args to 'start()'):
+# python -c 'from __init__ import start; start()'
+def start(defined=None):
+    """Start new sb_data_gather instance.
+
+    Depending on the provided argument, this function calls either
+    defined_hard_search() or full_hard_search(). Default is full_hard_search()
+    if no arg is provided.
+    Args:
+        defined -- (string, optional) if provided as "defined", calls
+                   defined_hard_search(), otherwise, calls full_hard_search().
+    """
+    if not defined or defined != "defined":
+        full_hard_search()
+    else:
+        defined_hard_search()
+```
+
+
+`data_main.py` was renamed `main.py`. This meant finding all references to `data_main` and replacing it with `main`.
+
+`pysb` package is not installed in the new code. We must install it for `sb_data_gather` package to run.
+
+This requires downloading the zip file from [here](https://my.usgs.gov/bitbucket/projects/SBE/repos/pysb/browse) and running `python setup.py install`
+
+`pysb` also requires the `requests` package, so that needed installed as well as the requirements frozen into requirements.txt:
+```bash
+(venv) python -m pip install requests
+(venv) python -m pip freeze > requirements.txt
+```
+
+#### 3b. Change from json -> database ####
+An error then occurred because `jsonpickle` was required, but not installed. However, we are no longer creating JSONs, so we can do away with that `import` as well as any references to it.
+* `import jsonpickle` was removed
+* Docstrings mentioning jsons were changed to mention the database.
+* The `JsonTransformer` class and methods were deleted.
+* `save_json()` was deleted in `main`.
+
+Before starting anything else, we need to establish a connection to our database and be able to add Users, cscs, Fiscal Years, etc. We will be using `flask_sqlalchemy`, as we did before because we want all of our models kept in one place (and we already defined them). 
+
+_Note: The relative path to the db from the modules in the package is `../../sbmacro.db`._
+
+First, we must add the basics for creating an application instance. We start with defining a new `Config` `class` in our package's `__init__.py` that is an extention of the original `Config`, but with a new relative path to the db. Then we create the app instance:
+
+```py
+class DataGatherConfig(Config):
+    """Master Data Gather Algorithm config, connects to relative db."""
+
+    SQLALCHEMY_DATABASE_URI = 'sqlite://../../sbmacro.db'
+
+
+app_instance = create_app(DataGatherConfig)  # pylint: disable=C0103
+```
+
+We want our algorithm to have access to the models and the db, so we can create a dictionary with all of these things and pass it into `full_hard_search()` and `defined_hard_search()`.
+
+```py
+app = {
+    'app': app_instance,
+    'db': db,
+    'User': User,
+    'casc': casc,
+    'FiscalYear': FiscalYear,
+    'Project': Project,
+    'Item': Item,
+    'SbFile': SbFile,
+    'ProblemItem': ProblemItem
+}
+```
+
+We must make sure that `app` is passed into `full_hard_search()` and `defined_hard_search()` within `start()`. 
+
+This is actually wrong, as I found out after trying to run the program. Instead, we crate another class, initialize it, and send it through. Here's the class and initialization:
+```py
+class App(object):
+    """Object containing important application references."""
+    
+    app = app_instance
+    db = db
+    User = User
+    casc = casc
+    FiscalYear = FiscalYear
+    Project = Project
+    Item = Item
+    SbFile = SbFile
+    ProblemItem = ProblemItem
+
+app = App()
+```
+
+After a bunch of debugging the final `__init__.py` that was able to pass the `App` `class` to the workhorse functions was as follows:
+```py
+"""Initialization file for sb_data_gather package."""
+import sys
+import os
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+LOC = os.path.dirname(os.path.realpath(__file__))
+# LOC == sb_data_gather
+LOC = os.path.dirname(LOC)
+# LOC == bin
+LOC = os.path.dirname(LOC)
+# LOC == sbMACRO
+sys.path.insert(0, LOC)
+from app.models import User, casc, FiscalYear, Project, Item, SbFile
+from app.models import ProblemItem
+from main import full_hard_search, defined_hard_search
+from config import Config
+
+
+class DataGatherConfig(Config):
+    """Master Data Gather Algorithm config, connects to relative db."""
+
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///../../sbmacro.db'
+
+
+
+app = Flask(__name__)
+app.config.from_object(DataGatherConfig)
+db = SQLAlchemy(app)
+
+print("db in __init__.py in package: {}".format(db))
+class App(object):
+    """Object containing important application references."""
+
+    def __init__(self):
+        "Initializes App class object."
+        print("creating App object...")
+        print("Using app_instance: {}".format(app))
+        print("Using db: {}".format(db))
+        self.app = app
+        self.db = db
+        self.User = User
+        self.casc = casc
+        self.FiscalYear = FiscalYear
+        self.Project = Project
+        self.Item = Item
+        self.SbFile = SbFile
+        self.ProblemItem = ProblemItem
+
+
+APP = App()
+
+# To run this function from command line (add any args to 'start()'):
+# python -c 'from __init__ import start; start()'
+def start(defined=None):
+    """Start new sb_data_gather instance.
+
+    Depending on the provided argument, this function calls either
+    defined_hard_search() or full_hard_search(). Default is full_hard_search()
+    if no arg is provided.
+    Args:
+        defined -- (string, optional) if provided as "defined", calls
+                   defined_hard_search(), otherwise, calls full_hard_search().
+    """
+    if not defined or defined != "defined":
+        full_hard_search(APP)
+    else:
+        defined_hard_search(APP)
+```
+
+This new passing of `app` to `full_hard_search()` and `defined_hard_search()` required additions to both functions' docstrings as well.
+
+In fact, many other functions and modules needed access to `app`. So, `parse_fiscal_years()` in `fiscal_years.py` was edited to accept `app` as an argument (the docstring was also edited appropriately).
+
+A replacement for `save_json()` is now necessary. We create a `save_db()` function in `main.py` to replace `save_json()`. However, it would be best to modularize and have a function for each level of sb item (CASC, FY, Project, etc). Therefore, we create a new module called `db_save.py` and `import` it into `main.py` and call each function.
+
+However, when looking at adding a `save_casc()` function, I noticed that we only took note of the casc name. This was resolved by loking at `get_csc_from_fy_id()` in `fiscal_years.py`. I added a new optional second boolean argument that, if set to `True`, returns more than just the CASC name, but also the URL, and the science base ID.
+
+So, I worked through creating functions to save cascs, FYs, projects, etc to the database. I also realized that `SbItem`s should have a `total_data` field. Also, that all `total_data` should be tabulated at the end, after all `SbFiles` are accounted for.
+
+
+_NOTE: for `defined_hard_search`, we need to have a way to update the data of all 'parent' items by the difference we found between before and after the search. This would be solved by tabulating data at the end. This means NOT using previously calculated `total_data` from the algorithm and calculating it again. This means that the `total_data` code in the algorithm before `save_data()` can be deleted._
+
+
+
+Now, there are still plenty of references to `save_json()` and a lot of effort put into making the jsons. All modules must be searched for any mention of jsons, and changed, when appropriate, to database references.
+
+
+* `__init__.py`
+    - There were no references to jsons, `save_json()`, etc. as it was just created.
+* `exceptions_raised.py`
+   -  No mention of `save_json()`. 'json' was mentioned, but in the context of sb jsons.
+* `fiscal_years.py`
+    - `save_json()` was called in `parse_fiscal_years()`
+    
