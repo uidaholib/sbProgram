@@ -2597,11 +2597,10 @@ Oh no. I just realized that multiple CASCs could own the same project [Confirmed
 
 This is going to be confusing and is a big change.
 
-Resources:
+Resources (In order of usefulness):
 * [Good youtube video](https://www.youtube.com/watch?v=OvhoYbjtiKc)
-* [SQLAlchemy Docs](http://docs.sqlalchemy.org/en/rel_0_9/orm/basic_relationships.html#many-to-many)
-* [Flask-SQLAlchemy Docs](http://flask-sqlalchemy.pocoo.org/2.3/models/) (Not very thorough/descriptive)
+* [SQLAlchemy Docs](http://docs.sqlalchemy.org/en/latest/orm/basic_relationships.html#many-to-many)
 * [Helpful Q. on Stack Overflow](https://stackoverflow.com/questions/25668092/flask-sqlalchemy-many-to-many-insert-data)
+* [Flask-SQLAlchemy Docs](http://flask-sqlalchemy.pocoo.org/2.3/models/) (Not very thorough/descriptive)
 
-
-
+So, I need to create association tables. 

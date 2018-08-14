@@ -61,6 +61,72 @@ def load_user(id):
     """Load appropriate user when logged in."""
     return User.query.get(int(id))
 
+# Association Tables:
+# CASC associations
+assoc_casc_project = db.Table('assoc_casc_project',
+                              db.Column('casc_id', db.Integer,
+                                        db.ForeignKey('casc.id')),
+                              db.Column('project_id', db.Integer,
+                                        db.ForeignKey('project.id')))
+assoc_casc_item = db.Table('assoc_casc_item',
+                           db.Column('casc_id', db.Integer,
+                                     db.ForeignKey('casc.id')),
+                           db.Column('item_id', db.Integer,
+                                     db.ForeignKey('item.id')))
+assoc_casc_sbfile = db.Table('assoc_casc_sbfile',
+                             db.Column('casc_id', db.Integer,
+                                       db.ForeignKey('casc.id')),
+                             db.Column('sbfile_id', db.Integer,
+                                       db.ForeignKey('sb_file.id')))
+assoc_casc_prob_item = db.Table('assoc_casc_prob_item',
+                                db.Column('casc_id', db.Integer,
+                                          db.ForeignKey('casc.id')),
+                                db.Column('prob_item_id', db.Integer,
+                                          db.ForeignKey('problem_item.id')))
+# FiscalYear associations
+assoc_fy_project = db.Table('assoc_fy_project',
+                            db.Column('fy_id', db.Integer,
+                                      db.ForeignKey('fiscal_year.id')),
+                            db.Column('project_id', db.Integer,
+                                      db.ForeignKey('project.id')))
+assoc_fy_item = db.Table('assoc_fy_item',
+                         db.Column('fy_id', db.Integer,
+                                   db.ForeignKey('fiscal_year.id')),
+                         db.Column('item_id', db.Integer,
+                                   db.ForeignKey('item.id')))
+assoc_fy_sbfile = db.Table('assoc_fy_sbfile',
+                           db.Column('fy_id', db.Integer,
+                                     db.ForeignKey('fiscal_year.id')),
+                           db.Column('sbfile_id', db.Integer,
+                                     db.ForeignKey('sb_file.id')))
+assoc_fy_prob_item = db.Table('assoc_fy_prob_item',
+                                db.Column('fy_id', db.Integer,
+                                          db.ForeignKey('fiscal_year.id')),
+                                db.Column('prob_item_id', db.Integer,
+                                          db.ForeignKey('problem_item.id')))
+# Project associations
+assoc_proj_item = db.Table('assoc_proj_item',
+                           db.Column('project_id', db.Integer,
+                                     db.ForeignKey('project.id')),
+                           db.Column('item_id', db.Integer,
+                                     db.ForeignKey('item.id')))
+assoc_proj_sbfile = db.Table('assoc_proj_sbfile',
+                             db.Column('project_id', db.Integer,
+                                       db.ForeignKey('project.id')),
+                             db.Column('sbfile_id', db.Integer,
+                                       db.ForeignKey('sb_file.id')))
+assoc_proj_prob_item = db.Table('assoc_proj_prob_item',
+                                db.Column('project_id', db.Integer,
+                                          db.ForeignKey('project.id')),
+                                db.Column('prob_item_id', db.Integer,
+                                          db.ForeignKey('problem_item.id')))
+# Item associations
+assoc_item_sbfile = db.Table('assoc_item_sbfile',
+                             db.Column('item_id', db.Integer,
+                                       db.ForeignKey('item.id')),
+                             db.Column('sbfile_id', db.Integer,
+                                       db.ForeignKey('sb_file.id')))
+
 
 class casc(db.Model):
     """casc database model class."""
@@ -70,15 +136,30 @@ class casc(db.Model):
     url = db.Column(db.String(128), unique=True)
     name = db.Column(db.String(32), unique=True)
     total_data = db.Column(db.Integer)
-    # Relationships:
+    # One-to-Many Relationships:
     fiscal_years = db.relationship('FiscalYear', backref='casc',
                                    lazy='dynamic')
-    projects = db.relationship('Project', backref='casc',
-                               lazy='dynamic')
-    items = db.relationship('Item', backref='casc', lazy='dynamic')
-    files = db.relationship('SbFile', backref='casc', lazy='dynamic')
-    prob_items = db.relationship('ProblemItem', backref='casc',
-                                 lazy='dynamic')
+    # Many-to-Many Relationships
+    projects = db.relationship(
+        'Project',
+        secondary=assoc_casc_project,
+        backref='cascs',
+        lazy='dynamic')
+    items = db.relationship(
+        'Item',
+        secondary=assoc_casc_item,
+        backref='cascs',
+        lazy='dynamic')
+    files = db.relationship(
+        'SbFile',
+        secondary=assoc_casc_sbfile
+        backref='cascs',
+        lazy='dynamic')
+    prob_items = db.relationship(
+        'ProblemItem',
+        secondary=assoc_casc_prob_item,
+        backref='cascs',
+        lazy='dynamic')
 
 
 class FiscalYear(db.Model):
@@ -92,13 +173,27 @@ class FiscalYear(db.Model):
     total_data = db.Column(db.Integer)
     # Foreign Keys
     casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
-    # Relationships:
-    projects = db.relationship('Project', backref='fiscal_year',
-                               lazy='dynamic')
-    items = db.relationship('Item', backref='fiscal_year', lazy='dynamic')
-    files = db.relationship('SbFile', backref='fiscal_year', lazy='dynamic')
-    prob_items = db.relationship('ProblemItem', backref='fiscal_year',
-                                 lazy='dynamic')
+    # Many-to-Many Relationships
+    projects = db.relationship(
+        'Project',
+        secondary=assoc_fy_project,
+        backref='fiscal_years',
+        lazy='dynamic')
+    items = db.relationship(
+        'Item',
+        secondary=assoc_fy_item,
+        backref='fiscal_years',
+        lazy='dynamic')
+    files = db.relationship(
+        'SbFile',
+        secondary=assoc_fy_sbfile,
+        backref='fiscal_years',
+        lazy='dynamic')
+    prob_items = db.relationship(
+        'ProblemItem',
+        secondary=assoc_fy_prob_item,
+        backref='fiscal_years',
+        lazy='dynamic')
 
 
 class Project(db.Model):
@@ -114,14 +209,22 @@ class Project(db.Model):
     file_count = db.Column(db.Integer)
     start_date = db.Column(db.String(32))
     end_date = db.Column(db.String(32))
-    # Foreign Keys:
-    casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
-    fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))
-    # Relationships:
-    items = db.relationship('Item', backref='project', lazy='dynamic')
-    files = db.relationship('SbFile', backref='project', lazy='dynamic')
-    prob_items = db.relationship('ProblemItem', backref='project',
-                                 lazy='dynamic')
+    # Many-to-Many Relationships
+    items = db.relationship(
+        'Item',
+        secondary=assoc_proj_item,
+        backref='projects',
+        lazy='dynamic')
+    files = db.relationship(
+        'SbFile',
+        secondary=assoc_proj_sbfile,
+        backref='projects',
+        lazy='dynamic')
+    prob_items = db.relationship(
+        'ProblemItem',
+        secondary=assoc_proj_prob_item,
+        backref='projects',
+        lazy='dynamic')
 
 
 class Item(db.Model):
@@ -137,12 +240,12 @@ class Item(db.Model):
     start_date = db.Column(db.String(32))
     end_date = db.Column(db.String(32))
     pub_date = db.Column(db.String(32))
-    # Foreign Keys:
-    casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
-    fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))
-    proj_id = db.Column(db.Integer, db.ForeignKey('project.id'))
-    # Relationships:
-    files = db.relationship('SbFile', backref='item', lazy='dynamic')
+    # Many-to-Many Relationships:
+    files = db.relationship(
+        'SbFile',
+        secondary=assoc_item_sbfile,
+        backref='items',
+        lazy='dynamic')
 
 
 class SbFile(db.Model):
@@ -154,11 +257,6 @@ class SbFile(db.Model):
     name = db.Column(db.String(128))
     size = db.Column(db.Integer)
     content_type = db.Column(db.String(128))
-    # Foreign Keys:
-    casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
-    fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))
-    proj_id = db.Column(db.Integer, db.ForeignKey('project.id'))
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
 
 
 class ProblemItem(db.Model):
@@ -168,7 +266,4 @@ class ProblemItem(db.Model):
     url = db.Column(db.String(512), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     issue = db.Column(db.String(128))
-    # Foreign Keys:
-    casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
-    fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))
-    proj_id = db.Column(db.Integer, db.ForeignKey('project.id'))
+
