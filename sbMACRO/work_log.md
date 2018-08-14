@@ -2481,12 +2481,29 @@ However, when looking at adding a `save_casc()` function, I noticed that we only
 
 So, I worked through creating functions to save cascs, FYs, projects, etc to the database. I also realized that `SbItem`s should have a `total_data` field. Also, that all `total_data` should be tabulated at the end, after all `SbFiles` are accounted for.
 
+<strike>In addition, I noticed that the database did not allow for the `Item` to have a `size` field. This does not work. I need to add a size field as sometimes the item contains files and have a size itself. The original `sb` classes in `gl.py` have a `size` attribute.</strike> This was not necessary. `check_for_files()` in `gl.py` finds the `total_data` of the `Item` by tallying up all the files and extentions. 
+
+
+However, the `SbFile` model in `models.py` did not give the `sb_id` field enough characters, as there is no `sb_id` for a file. Instead, we should use "path_on_disk" from the file's json. Therefore, I made some changes to the `SbFile` model after looking at a file json.
+* deleted the `sb_id` field
+* deleted both `start_date` and `end_date`, the parent item should have that, and the `date_uploaded` is more appropriate for a file.
+* deleted `file_count`, as a file does not have numerous other files. It is the smallest item.
+* added `content_type` field, as there is a json field for it, and it could be quite useful.
+
+This requires changes to the database, of course. First, we generate the migration script for the changes to our db schema(`python -m flask db migrate -m "message"`). Then we apply those changes to the database:
+```bash
+(venv) $ python -m flask db migrate -m "Update SbFiles table with content_type, delete unused"
+(venv) $ python -m flask db upgrade
+```
+
+Now `db_save.py` should, theoretically, be ready to use in place of the previous save operations. However, to replace `save_json()` that we deleted from `main.py`, we now need to complete `save_to_db()`, which will call all of the functions in the new `db_save.py` module.
+
+
 
 _NOTE: for `defined_hard_search`, we need to have a way to update the data of all 'parent' items by the difference we found between before and after the search. This would be solved by tabulating data at the end. This means NOT using previously calculated `total_data` from the algorithm and calculating it again. This means that the `total_data` code in the algorithm before `save_data()` can be deleted._
 
 
-
-Now, there are still plenty of references to `save_json()` and a lot of effort put into making the jsons. All modules must be searched for any mention of jsons, and changed, when appropriate, to database references.
+Now, there are still references to `save_json()` and a lot of effort put into making the jsons. All modules must be searched for any mention of jsons, and changed, when appropriate, to database references.
 
 
 * `__init__.py`
@@ -2494,5 +2511,41 @@ Now, there are still plenty of references to `save_json()` and a lot of effort p
 * `exceptions_raised.py`
    -  No mention of `save_json()`. 'json' was mentioned, but in the context of sb jsons.
 * `fiscal_years.py`
-    - `save_json()` was called in `parse_fiscal_years()`
-    
+    - `save_json()` was called in `parse_fiscal_years()`, so it was replaced with `save_to_db.py`. 
+* `gl.py`
+    - No mention of `save_json()`. 'json' was mentioned, but in the context of sb jsons.
+* `main.py`
+    - No mention of `save_json()`. 'json' was mentioned, but in the context of sb jsons.
+* `projects.py`
+    - No mention of `save_json()`. 'json' was mentioned, but in the context of sb jsons.
+
+
+#### 3c. Run algorithm to populate database ####
+
+Now it is time to try to run the newly refactored algorithm.
+
+The first issue I came accross was `check_for_recency()` in `fiscal_years.py`. It was looking for the `jsonCache/` directory, to check for how recently it was done. <strike>This needs to be changed to a database check.
+
+To do this, we make sure to pass the `App class` to the function so it has access to the database and the models.</strike> 
+
+I decided to delete `check_for_recency()`. Comparing two UTC datetime objects would ALWAYS (unless something was very wrong) find that now is more recent than whenever it was last done, and would parse the object. There's really no reason not to parse everything when a hard search is done. Even if recent, something could have changed!
+
+Therefore, I removed the calls to `check_for_recency()` in both `full_hard_search()` and `defined_hard_search()`. I kept the function in `fiscal_years.py` just in case it would be useful in the future. I noted this in it's docstring. 
+
+_Error: sqlalchemy.exc.StatementError: (raised as a result of Query-invoked autoflush; consider using a session.no_autoflush block if this flush is occurring prematurely) (builtins.TypeError) SQLite DateTime type only accepts Python datetime and date objects as input._
+
+Not sure if this has to do with reusing the models from function to function, or if it's a datetime issue. It was as datetime issue. I had called `datetime.utcnow` rather than `datetime.utcnow()`. 
+
+However, I quickly ran across another issue:
+
+_sqlite3.OperationalError: only a single result allowed for a SELECT that is part of an expression_
+
+This has been hard to figure out. Jeremy thinks it has to do with missing an `INNER JOIN` for the SQL. That may mean that there's an issue with how I'm making the calls, or how I set up the database. Not sure. 
+
+YAY! I figured it out! I had forgotten to append `.first()` after my queries, so I was trying to use query objects, not the actual result! Hallelujah!
+
+
+Newest issue: _sqlite3.OperationalError: database is locked_
+
+
+[Here](https://www.reddit.com/r/flask/comments/36g2g7/af_sqlite_database_locking_problem/) is a possible solution.

@@ -26,13 +26,16 @@ class DataGatherConfig(Config):
 app = Flask(__name__)
 app.config.from_object(DataGatherConfig)
 db = SQLAlchemy(app)
+app_context = app.app_context()
+# Make sure we are using the new app context for flask SQLAlchemy
+app_context.push()
 
 class App(object):
     """Object containing important application references."""
 
     def __init__(self):
         "Initializes App class object."
-        
+
         self.app = app
         self.db = db
         self.User = User
@@ -48,6 +51,10 @@ APP = App()
 
 # To run this function from command line (add any args to 'start()'):
 # python -c 'from __init__ import start; start()'
+# To run with cProfiler:
+# python -m cProfile -o ../test_files/profile_output.txt __init__.py
+# Then cd to test_files and run:
+# python profiler_datawrangle.py > profiler_report.txt; python profiler_datawrangle2.py
 def start(defined=None):
     """Start new sb_data_gather instance.
 
@@ -62,3 +69,7 @@ def start(defined=None):
         full_hard_search(APP)
     else:
         defined_hard_search(APP)
+
+
+if __name__ == "__main__":
+    start()

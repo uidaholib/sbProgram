@@ -136,6 +136,7 @@ class Item(db.Model):
     file_count = db.Column(db.Integer)
     start_date = db.Column(db.String(32))
     end_date = db.Column(db.String(32))
+    pub_date = db.Column(db.String(32))
     # Foreign Keys:
     casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
     fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))
@@ -148,15 +149,11 @@ class SbFile(db.Model):
     """SbFile database model class."""
 
     id = db.Column(db.Integer, primary_key=True)
-    sb_id = db.Column(db.String(32), unique=True)
     url = db.Column(db.String(512), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     name = db.Column(db.String(128))
     size = db.Column(db.Integer)
-    date_uploaded = db.Column(db.String(32))
-    file_count = db.Column(db.Integer)
-    start_date = db.Column(db.String(32))
-    end_date = db.Column(db.String(32))
+    content_type = db.Column(db.String(128))
     # Foreign Keys:
     casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
     fy_id = db.Column(db.Integer, db.ForeignKey('fiscal_year.id'))

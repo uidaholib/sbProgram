@@ -385,15 +385,22 @@ def create_fy_objs(id_list):
     return fy_obj_list
 
 
-def check_for_recency(fy_obj_list):
+def check_for_recency(app, fy_obj_list):
     """Check current date against each fiscal year json date.
 
     Iterates through each object in fy_obj_list, checks the current date
     against the date of the json corresponding to that object's Science Base
-    ID, and if it is more recent it is kept. If not, the object is removed
-    from the list.
+    ID, and if the current date is more recent it is kept. If not, the object
+    is removed from the list.
+
+    NOTE: This function is no longer used in the current algorithm as of Aug.
+    10, 2018. It was found to be not useful, but in case it would be in the
+    future, it has been left, rather than deleted.
 
     Arguments:
+        app -- (App class) As defined in the package's __init__.py, the class
+               gives access to the application instance, the database, and the
+               db models.
         fy_obj_list -- (list) a list of SbFiscalYear objects
 
     """

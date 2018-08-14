@@ -4,6 +4,7 @@ from datetime import datetime
 import gl
 import fiscal_years
 import projects
+import db_save
 
 
 def full_hard_search(app):
@@ -11,12 +12,11 @@ def full_hard_search(app):
 
     This function calls get_all_cscs() to populate the fy_obj_list list with
     fiscal year objects for each of the fiscal years present in each CSC.
-    After checking that those CSCs were not done within the last 24 hrs (using
-    check_for_recency()), it begins the parsing process by calling
-    parse_fiscal_years(), which finds all projects in each fiscal year and
-    each item in each project to create a comprehensive database for each
-    fiscal year in each CSC. All CSCs, fiscal years, projects, items, etc are
-    added to their respective relational database tables.
+    It begins the parsing process by calling parse_fiscal_years(), which finds
+    all projects in each fiscal year and each item in each project to create a
+    comprehensive database for each fiscal year in each CSC. All CSCs, fiscal
+    years, projects, items, etc are added to their respective relational
+    database tables.
 
     Arguments:
         app -- (App class) As defined in the package's __init__.py, the class
@@ -28,18 +28,13 @@ def full_hard_search(app):
                      the end of the process.
 
     """
-    # To run this function from command line:
-    # python -c 'from main import full_hard_search; full_hard_search()'
-    # To run with cProfiler:
-    # python -m cProfile -o ../test_files/profile_output.txt main.py
-    # Then cd to test_files and run:
-    # python profiler_datawrangle.py > profiler_report.txt; python profiler_datawrangle2.py
+    # To run this package from command line:
+    # python -c 'from __init__ import start; start()'
 
     fy_obj_list = fiscal_years.get_all_cscs()
 
     if __debug__:
         print("fy_obj_list:\n{0}".format(fy_obj_list))
-    fiscal_years.check_for_recency(fy_obj_list)
     fy_obj_list = fiscal_years.parse_fiscal_years(app, fy_obj_list)
     if not fy_obj_list:
         print("""
@@ -79,7 +74,6 @@ def defined_hard_search(app):
 
     if __debug__:
         print("fy_obj_list:\n{0}".format(fy_obj_list))
-    fiscal_years.check_for_recency(fy_obj_list)
     fiscal_years.parse_fiscal_years(app, fy_obj_list)
     if not fy_obj_list:
         print("""
@@ -176,6 +170,22 @@ def save_to_db(app, fiscal_year):
                        in 'gl.py') to be parsed and saved to the database.
 
     """
+    # Save casc to db and get db model for casc
+    casc_model = db_save.save_casc(app, fiscal_year)
+
+    fy_model = db_save.save_fy(app, fiscal_year, casc_model)
+
+    for project in fiscal_year.projects:
+        proj_model = db_save.save_proj(app, project, fy_model, casc_model)
+        for item in project.project_items["Project_Item_List"]:
+            item_model = db_save.save_item(app, item, proj_model, fy_model, 
+                                           casc_model)
+            for file_json in item.file_list:
+                db_save.save_file(app, file_json, item_model, proj_model, 
+                                  fy_model, casc_model)
+                
+
+
 
 
 
