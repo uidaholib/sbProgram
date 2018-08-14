@@ -36,6 +36,7 @@ def full_hard_search(app):
     if __debug__:
         print("fy_obj_list:\n{0}".format(fy_obj_list))
     fy_obj_list = fiscal_years.parse_fiscal_years(app, fy_obj_list)
+    update_casc_total_data(app)
     if not fy_obj_list:
         print("""
 
@@ -75,6 +76,7 @@ def defined_hard_search(app):
     if __debug__:
         print("fy_obj_list:\n{0}".format(fy_obj_list))
     fiscal_years.parse_fiscal_years(app, fy_obj_list)
+    update_casc_total_data(app)
     if not fy_obj_list:
         print("""
 
@@ -178,17 +180,37 @@ def save_to_db(app, fiscal_year):
     for project in fiscal_year.projects:
         proj_model = db_save.save_proj(app, project, fy_model, casc_model)
         for item in project.project_items["Project_Item_List"]:
-            item_model = db_save.save_item(app, item, proj_model, fy_model, 
+            item_model = db_save.save_item(app, item, proj_model, fy_model,
                                            casc_model)
             for file_json in item.file_list:
-                db_save.save_file(app, file_json, item_model, proj_model, 
+                db_save.save_file(app, file_json, item_model, proj_model,
                                   fy_model, casc_model)
-                
 
 
+def update_casc_total_data(app):
+    print("""
+------------------------------------------------------------------------------
+          """)
+    print("Updating all CASC `.total_data` fields...")
+    cascs = app.db.session.query(app.casc).all()
+    print("CASCs found:")
+    num = 0
+    for casc in cascs:
+        num += 1
+        total_data = 0
+        print("\t{0}. {1}".format(num, casc.name))
+        fys = casc.fiscal_years.all()
+        for fy in fys:
+            total_data += fy.total_data
+            if (total_data - fy.total_data) == 0:
+                print("{}".format(fy.total_data), end="")
+            else:
+                print(" + {}".format(fy.total_data), end="")
+        print("\n")
+        casc.total_data = total_data
+        app.db.session.commit()
+        print("Total Data in {0}:\n\t{1}".format(casc.name, casc.total_data))
 
-
-
-
-if __name__ == "__main__":
-    full_hard_search()
+    print("""
+------------------------------------------------------------------------------
+          """)

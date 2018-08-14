@@ -12,7 +12,7 @@ LOC = os.path.dirname(LOC)
 sys.path.insert(0, LOC)
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem
-from main import full_hard_search, defined_hard_search
+from main import full_hard_search, defined_hard_search, update_casc_total_data
 from config import Config
 
 
@@ -69,6 +69,16 @@ def start(defined=None):
         full_hard_search(APP)
     else:
         defined_hard_search(APP)
+
+# python -c 'from __init__ import update_casc_data; update_casc_data()'
+def update_casc_data():
+    """Update all CASC .total_data fields.
+
+    This is a wrapper for update_casc_total_data() to update the .total_data
+    field of all CASCs.
+    
+    """
+    update_casc_total_data(APP)
 
 
 if __name__ == "__main__":

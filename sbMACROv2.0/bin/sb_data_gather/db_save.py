@@ -135,8 +135,8 @@ def save_proj(app, project, fy_model, casc_model):
                                               ["Project_Item_Count"],
                            file_count=project.project_files\
                                               ["Project_File_Count"],
-                           start_date=get_sb_date("start", project),
-                           end_date=get_sb_date("end", project),
+                           start_date=get_sb_date("start", project.sb_json),
+                           end_date=get_sb_date("end", project.sb_json),
                            # Backrefs (need db model):
                            casc_id=casc_model.id,
                            fy_id=fy_model.id)
@@ -156,8 +156,8 @@ def save_proj(app, project, fy_model, casc_model):
             proj.item_count = project.project_items["Project_Item_Count"]
         if proj.file_count != project.project_files["Project_File_Count"]:
             proj.file_count = project.project_files["Project_File_Count"]
-        proj.start_date = get_sb_date("start", project)
-        proj.end_date = get_sb_date("end", project)
+        proj.start_date = get_sb_date("start", project.sb_json)
+        proj.end_date = get_sb_date("end", project.sb_json)
 
         # Backrefs (need db model):
         if proj.casc_id != casc_model.id:
@@ -173,21 +173,22 @@ def save_proj(app, project, fy_model, casc_model):
     return proj
 
 
-def get_sb_date(date_type, project):
+def get_sb_date(date_type, sb_json):
     """Get start of end date of a project.
 
     Arguments:
-        date_type -- (string) "start" or "end" will cause the function to
-                     search for either the start or end date of the project.
-        project -- (SbProject) A completed SbFiscalYear object (defined in
-                   'gl.py') to be parsed and saved to the database.
+        date_type -- (string) "start", "end", or "publication" will cause the
+                     function to search for either the start, end, or
+                     publication date, respectively, of the project.
+        sb_json -- (json) A science base json representing a science base file
+                   to be parsed and saved to the database.
     Returns:
         (string) A date string for either the start or end date of a project,
         or a sting that says there was none provided.
 
     """
     try:
-        for i in project.sb_json["dates"]:
+        for i in sb_json["dates"]:
             if i['type'].lower() == date_type:
                 return i["dateString"]
         return "No " + date_type + " date provided."
@@ -231,8 +232,9 @@ def save_item(app, sb_item, proj_model, fy_model, casc_model):
                         #Convert bytes to megabytes:
                         total_data=(sb_item.size/1000000),
                         file_count=sb_item.num_files,
-                        start_date=get_sb_date("start", sb_item),
-                        end_date=get_sb_date("end", sb_item),
+                        start_date=get_sb_date("start", sb_item.sb_json),
+                        end_date=get_sb_date("end", sb_item.sb_json),
+                        pub_date=get_sb_date("publication", sb_item.sb_json),
                         # Backrefs (need db model):
                         casc_id=casc_model.id,
                         fy_id=fy_model.id,
@@ -251,8 +253,9 @@ def save_item(app, sb_item, proj_model, fy_model, casc_model):
             item.total_data = sb_item.size
         if item.file_count != sb_item.num_files:
             item.file_count = sb_item.num_files
-        item.start_date = get_sb_date("start", sb_item)
-        item.end_date = get_sb_date("end", sb_item)
+        item.start_date = get_sb_date("start", sb_item.sb_json)
+        item.end_date = get_sb_date("end", sb_item.sb_json)
+        item.pub_date = get_sb_date("publication", sb_item.sb_json)
 
         # Backrefs (need db model):
         if item.casc_id != casc_model.id:
@@ -281,14 +284,14 @@ def save_file(app, file_json, item_model, proj_model, fy_model, casc_model):
         item_model -- (Item model) As defined in `models.py`, the item_model
                       is a database model class.
         proj_model -- (Project model) As defined in `models.py`, the proj_model
-                    is a database model class.
+                      is a database model class.
         fy_model -- (FiscalYear model) As defined in `models.py`, the fy_model
                     is a database model class.
         casc_model -- (casc model) As defined in `models.py`, the casc_model
                       is a database model class.
     Returns:
         sb_file -- (SbFile model) As defined in `models.py`, the sb_file is a
-                database model class.
+                   database model class.
 
     """
     # casc_model = app.casc.query.filter_by(id=casc_model).first()
@@ -296,17 +299,16 @@ def save_file(app, file_json, item_model, proj_model, fy_model, casc_model):
     # proj_model = app.Project.query.filter_by(id=proj_model).first()
     # item_model = app.Item.query.filter_by(id=item_model).first()
     # Since there is not science base id for a file, url is best to find it:
-    sb_file = app.db.session.query(app.Item).filter(
-              app.Item.url == file_json["url"]).first()
+    sb_file = app.db.session.query(app.SbFile).filter(
+              app.SbFile.url == file_json["url"]).first()
     # sb_file = app.Item.query.filter_by(url=file_json["url"]).first()
     if sb_file is None:  # The Fiscal Year was not found in the db
         print("\t\t---------SQL--------- [SbFile] Could not find " +
-              "{} in database...".format(sb_file["name"]))
-        sb_file = app.Item(url=file_json["url"],
+              "{} in database...".format(file_json["name"]))
+        sb_file = app.SbFile(url=file_json["url"],
                            name=file_json["name"],
                            # Convert bytes to megabytes:
                            size=(file_json["size"]/1000000),
-                           date_uploaded=file_json["dateUploaded"],
                            content_type=file_json["contentType"],
                            # Backrefs (need db model):
                            casc_id=casc_model.id,
@@ -316,15 +318,13 @@ def save_file(app, file_json, item_model, proj_model, fy_model, casc_model):
         app.db.session.add(sb_file)
     else:
         print("\t\t---------SQL--------- [SbFile] Found {} in database..."
-              .format(sb_file["name"]))
+              .format(file_json["name"]))
         if sb_file.name != file_json["name"]:
             sb_file.name = file_json["name"]
         if sb_file.url != file_json["url"]:
             sb_file.url = file_json["url"]
         if sb_file.size != file_json["size"]:
             sb_file.size = file_json["size"]
-        if sb_file.date_uploaded != file_json["dateUploaded"]:
-            sb_file.date_uploaded = file_json["dateUploaded"]
         if sb_file.content_type != file_json["contentType"]:
             sb_file.content_type = file_json["contentType"]
 
@@ -344,5 +344,6 @@ def save_file(app, file_json, item_model, proj_model, fy_model, casc_model):
         sb_file.timestamp = datetime.utcnow()
 
     app.db.session.commit()
-    print("---------SQL--------- [SbFile] Done with {}.".format(sb_file.name))
+    print("\t\t---------SQL--------- [SbFile] Done with {}."
+          .format(sb_file.name))
     return sb_file

@@ -88,7 +88,7 @@ class FiscalYear(db.Model):
     sb_id = db.Column(db.String(32), unique=True)
     url = db.Column(db.String(128), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    name = db.Column(db.String(32), unique=True)
+    name = db.Column(db.String(32))
     total_data = db.Column(db.Integer)
     # Foreign Keys
     casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
@@ -106,9 +106,9 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     sb_id = db.Column(db.String(32), unique=True)
-    url = db.Column(db.String(128), unique=True)
+    url = db.Column(db.String(128))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    name = db.Column(db.String(512), unique=True)
+    name = db.Column(db.String(512))
     total_data = db.Column(db.Integer)
     item_count = db.Column(db.Integer)
     file_count = db.Column(db.Integer)

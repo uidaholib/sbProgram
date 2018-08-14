@@ -2548,4 +2548,60 @@ YAY! I figured it out! I had forgotten to append `.first()` after my queries, so
 Newest issue: _sqlite3.OperationalError: database is locked_
 
 
-[Here](https://www.reddit.com/r/flask/comments/36g2g7/af_sqlite_database_locking_problem/) is a possible solution.
+[Here](https://www.reddit.com/r/flask/comments/36g2g7/af_sqlite_database_locking_problem/) is a possible solution. The queries needed changed to be from `db.session` and from `filter_by()` to `filter()`.
+
+This seemed to work, however, I found that not every file or item has a "date" section of the json. Also, that there are several kinds of dates given. So I wrote a script (`countDateTypes.py`) that parsed all files in all fiscal years for all CASCs and looked at all the different types of dates given. This is what we found:
+
+```
+1. Publication          508
+2. Start                358
+3. End                  355
+4. Info                 114
+5. creation             16
+6. lastUpdate           14
+7. Acquisition          12
+8. Release              2
+9. Due                  2
+10. Received            2
+11. Collected           2
+12. Reported            2
+13. Repository Updated  1
+```
+
+Therefore, we decided to just track Publication, Start, and End dates. We also decided that `SbFile.date_uploaded` was not useful to track, as it could change for a variety of reasons.
+
+Changing these in the database was a hassle, because SQLite3 [does not allow for column deletions](https://stackoverflow.com/questions/8442147/how-to-delete-or-add-column-in-sqlite). So, I deleted the migration script I had created with those actions, then deleted the tables, changed the models, created a new migration script, then upgraded the db. Now the tables are correct. 
+
+I also changed `get_sb_date()` to `except` a `KeyError` if it cannot find "dates" in the file json. <strike>Also, I made it so that `get_sb_date()` takes a third argument that describes what it is parsing, either a `gl.py` object or a file json, and it treats each differently.</strike> Actually, I just made it so you have to pass the science base json into `get_sb_date()` regardless.
+
+I finally got the thing running and adding everything from CASCs to SbFiles to the database. However, I realized I had never finished by updating the total data in a CASC. So, I created a function to be called after all fiscal years were done: `update_casc_total_data()`. For each casc, it pulled up all fiscal years and added their total data together and put that in `casc.total_data`. It was added to both `full_hard_search()` and `defined_hard_search()`. I also added a method to call `update_casc_total_data()` directly from `__init__.py`.
+
+_Error: sqlite3.IntegrityError: UNIQUE constraint failed: fiscal_year.name_
+Shoot. This is obvious. I made it so the fiscal year name had to be unique, but that doesn't make sense becasue each CASC will have a fiscal year of the same name.
+
+This made me take a closer look at the models and remove a lot of `unique` constraints, as I wasn't sure they would always be satisfied:
+* FiscalYear:
+    - name
+* Project:
+    - url
+    - name
+
+    -------------
+
+Oh no. I just realized that multiple CASCs could own the same project [Confirmed with Jeremy]. That means that
+1. Everything Project-and-smaller must have a 'many-to-many' relationship so that multiple FYs, CASCs, Projects, etc can own them. 
+2. I have to change the way I look for things in the database/add relationships to science base items. 
+
+------
+1. Creating Many-to-Many relationships
+
+This is going to be confusing and is a big change.
+
+Resources:
+* [Good youtube video](https://www.youtube.com/watch?v=OvhoYbjtiKc)
+* [SQLAlchemy Docs](http://docs.sqlalchemy.org/en/rel_0_9/orm/basic_relationships.html#many-to-many)
+* [Flask-SQLAlchemy Docs](http://flask-sqlalchemy.pocoo.org/2.3/models/) (Not very thorough/descriptive)
+* [Helpful Q. on Stack Overflow](https://stackoverflow.com/questions/25668092/flask-sqlalchemy-many-to-many-insert-data)
+
+
+
