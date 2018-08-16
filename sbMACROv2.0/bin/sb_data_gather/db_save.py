@@ -136,10 +136,10 @@ def save_proj(app, project, fy_model, casc_model):
                            file_count=project.project_files\
                                               ["Project_File_Count"],
                            start_date=get_sb_date("start", project.sb_json),
-                           end_date=get_sb_date("end", project.sb_json),
-                           # Backrefs (need db model):
-                           casc_id=casc_model.id,
-                           fy_id=fy_model.id)
+                           end_date=get_sb_date("end", project.sb_json))
+        # Many-to-many relationship definitions:
+        proj.cascs.append(casc_model)
+        proj.fiscal_years.append(fy_model)
         app.db.session.add(proj)
     else:
         print("---------SQL--------- [Project] Found {} in database..."
@@ -159,11 +159,13 @@ def save_proj(app, project, fy_model, casc_model):
         proj.start_date = get_sb_date("start", project.sb_json)
         proj.end_date = get_sb_date("end", project.sb_json)
 
-        # Backrefs (need db model):
-        if proj.casc_id != casc_model.id:
-            proj.casc_id = casc_model.id
-        if proj.fy_id != fy_model.id:
-            proj.fy_id = fy_model.id
+        # Many-to-many relationships (need db model):
+        # Check if the casc is already related to the project by iterating
+        # through proj.cascs and seeing if the ids match. If not found, add it.
+        if not (any(casc.id == casc_model.id for casc in proj.cascs)):
+            proj.cascs.append(casc_model)
+        if not (any(fy.id == fy_model.id for fy in proj.fiscal_years)):
+            proj.fiscal_years.append(fy_model)
 
         # Add new timestamp
         proj.timestamp = datetime.utcnow()
@@ -234,11 +236,11 @@ def save_item(app, sb_item, proj_model, fy_model, casc_model):
                         file_count=sb_item.num_files,
                         start_date=get_sb_date("start", sb_item.sb_json),
                         end_date=get_sb_date("end", sb_item.sb_json),
-                        pub_date=get_sb_date("publication", sb_item.sb_json),
-                        # Backrefs (need db model):
-                        casc_id=casc_model.id,
-                        fy_id=fy_model.id,
-                        proj_id=proj_model.id)
+                        pub_date=get_sb_date("publication", sb_item.sb_json))
+        # Many-to-many relationship definitions:
+        item.cascs.append(casc_model)
+        item.fiscal_years.append(fy_model)
+        item.projects.append(proj_model)
         app.db.session.add(item)
     else:
         print("---------SQL--------- [Item] Found {} in database..."
@@ -257,13 +259,13 @@ def save_item(app, sb_item, proj_model, fy_model, casc_model):
         item.end_date = get_sb_date("end", sb_item.sb_json)
         item.pub_date = get_sb_date("publication", sb_item.sb_json)
 
-        # Backrefs (need db model):
-        if item.casc_id != casc_model.id:
-            item.casc_id = casc_model.id
-        if item.fy_id != fy_model.id:
-            item.fy_id = fy_model.id
-        if item.proj_id != proj_model.id:
-            item.proj_id = proj_model.id
+        # Many-to-many relationships (need db model):
+        if not (any(casc.id == casc_model.id for casc in item.cascs)):
+            item.cascs.append(casc_model)
+        if not (any(fy.id == fy_model.id for fy in item.fiscal_years)):
+            item.fiscal_years.append(fy_model)
+        if not (any(proj.id == proj_model.id for proj in item.projects)):
+            item.projects.append(proj_model)
 
         # Add new timestamp
         item.timestamp = datetime.utcnow()
@@ -309,12 +311,12 @@ def save_file(app, file_json, item_model, proj_model, fy_model, casc_model):
                            name=file_json["name"],
                            # Convert bytes to megabytes:
                            size=(file_json["size"]/1000000),
-                           content_type=file_json["contentType"],
-                           # Backrefs (need db model):
-                           casc_id=casc_model.id,
-                           fy_id=fy_model.id,
-                           proj_id=proj_model.id,
-                           item_id=item_model.id)
+                           content_type=file_json["contentType"])
+        # Many-to-many relationship definitions:
+        sb_file.cascs.append(casc_model)
+        sb_file.fiscal_years.append(fy_model)
+        sb_file.projects.append(proj_model)
+        sb_file.items.append(item_model)
         app.db.session.add(sb_file)
     else:
         print("\t\t---------SQL--------- [SbFile] Found {} in database..."
@@ -328,17 +330,15 @@ def save_file(app, file_json, item_model, proj_model, fy_model, casc_model):
         if sb_file.content_type != file_json["contentType"]:
             sb_file.content_type = file_json["contentType"]
 
-        # Backrefs (need db model):
-        if sb_file.casc_id != casc_model.id:
-            sb_file.casc_id = casc_model.id
-        if sb_file.fy_id != fy_model.id:
-            sb_file.fy_id = fy_model.id
-        if sb_file.proj_id != proj_model.id:
-            sb_file.proj_id = proj_model.id
-        if sb_file.proj_id != proj_model.id:
-            sb_file.proj_id = proj_model.id
-        if sb_file.item_id != item_model.id:
-            sb_file.item_id = item_model.id
+        # Many-to-many relationships (need db model):
+        if not (any(casc.id == casc_model.id for casc in sb_file.cascs)):
+            sb_file.cascs.append(casc_model)
+        if not (any(fy.id == fy_model.id for fy in sb_file.fiscal_years)):
+            sb_file.fiscal_years.append(fy_model)
+        if not (any(proj.id == proj_model.id for proj in sb_file.projects)):
+            sb_file.projects.append(proj_model)
+        if not (any(item.id == item_model.id for item in sb_file.items)):
+            sb_file.items.append(item_model)
 
         # Add new timestamp
         sb_file.timestamp = datetime.utcnow()

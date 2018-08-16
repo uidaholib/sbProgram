@@ -152,7 +152,7 @@ class casc(db.Model):
         lazy='dynamic')
     files = db.relationship(
         'SbFile',
-        secondary=assoc_casc_sbfile
+        secondary=assoc_casc_sbfile,
         backref='cascs',
         lazy='dynamic')
     prob_items = db.relationship(

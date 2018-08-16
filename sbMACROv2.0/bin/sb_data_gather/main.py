@@ -209,7 +209,8 @@ def update_casc_total_data(app):
         print("\n")
         casc.total_data = total_data
         app.db.session.commit()
-        print("Total Data in {0}:\n\t{1}".format(casc.name, casc.total_data))
+        print("Total Data in {0}:\n\t{1}\n\n"
+              .format(casc.name, casc.total_data))
 
     print("""
 ------------------------------------------------------------------------------

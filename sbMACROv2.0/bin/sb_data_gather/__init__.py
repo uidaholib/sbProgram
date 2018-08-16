@@ -13,6 +13,7 @@ sys.path.insert(0, LOC)
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem
 from main import full_hard_search, defined_hard_search, update_casc_total_data
+from tests import test_old_v_new_data
 from config import Config
 
 
@@ -79,6 +80,14 @@ def update_casc_data():
     
     """
     update_casc_total_data(APP)
+
+def run_tests():
+    """Run unit tests for package.
+
+    This is a wrapper for test_old_v_new_data() in tests.py.
+
+    """
+    test_old_v_new_data(APP)
 
 
 if __name__ == "__main__":

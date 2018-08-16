@@ -2603,4 +2603,243 @@ Resources (In order of usefulness):
 * [Helpful Q. on Stack Overflow](https://stackoverflow.com/questions/25668092/flask-sqlalchemy-many-to-many-insert-data)
 * [Flask-SQLAlchemy Docs](http://flask-sqlalchemy.pocoo.org/2.3/models/) (Not very thorough/descriptive)
 
-So, I need to create association tables. 
+_Also, [here is a good question and answer](https://dba.stackexchange.com/questions/52094/are-2-foreign-keys-a-bad-idea-in-any-association-junction-table) about multiple entries in an association table._
+
+So, I need to create association tables. I did this in `models.py` like so:
+```py
+# ...
+# Association Tables:
+# CASC associations
+assoc_casc_project = db.Table('assoc_casc_project',
+                              db.Column('casc_id', db.Integer,
+                                        db.ForeignKey('casc.id')),
+                              db.Column('project_id', db.Integer,
+                                        db.ForeignKey('project.id')))
+assoc_casc_item = db.Table('assoc_casc_item',
+                           db.Column('casc_id', db.Integer,
+                                     db.ForeignKey('casc.id')),
+                           db.Column('item_id', db.Integer,
+                                     db.ForeignKey('item.id')))
+assoc_casc_sbfile = db.Table('assoc_casc_sbfile',
+                             db.Column('casc_id', db.Integer,
+                                       db.ForeignKey('casc.id')),
+                             db.Column('sbfile_id', db.Integer,
+                                       db.ForeignKey('sb_file.id')))
+assoc_casc_prob_item = db.Table('assoc_casc_prob_item',
+                                db.Column('casc_id', db.Integer,
+                                          db.ForeignKey('casc.id')),
+                                db.Column('prob_item_id', db.Integer,
+                                          db.ForeignKey('problem_item.id')))
+# FiscalYear associations
+assoc_fy_project = db.Table('assoc_fy_project',
+                            db.Column('fy_id', db.Integer,
+                                      db.ForeignKey('fiscal_year.id')),
+                            db.Column('project_id', db.Integer,
+                                      db.ForeignKey('project.id')))
+assoc_fy_item = db.Table('assoc_fy_item',
+                         db.Column('fy_id', db.Integer,
+                                   db.ForeignKey('fiscal_year.id')),
+                         db.Column('item_id', db.Integer,
+                                   db.ForeignKey('item.id')))
+assoc_fy_sbfile = db.Table('assoc_fy_sbfile',
+                           db.Column('fy_id', db.Integer,
+                                     db.ForeignKey('fiscal_year.id')),
+                           db.Column('sbfile_id', db.Integer,
+                                     db.ForeignKey('sb_file.id')))
+assoc_fy_prob_item = db.Table('assoc_fy_prob_item',
+                                db.Column('fy_id', db.Integer,
+                                          db.ForeignKey('fiscal_year.id')),
+                                db.Column('prob_item_id', db.Integer,
+                                          db.ForeignKey('problem_item.id')))
+# Project associations
+assoc_proj_item = db.Table('assoc_proj_item',
+                           db.Column('project_id', db.Integer,
+                                     db.ForeignKey('project.id')),
+                           db.Column('item_id', db.Integer,
+                                     db.ForeignKey('item.id')))
+assoc_proj_sbfile = db.Table('assoc_proj_sbfile',
+                             db.Column('project_id', db.Integer,
+                                       db.ForeignKey('project.id')),
+                             db.Column('sbfile_id', db.Integer,
+                                       db.ForeignKey('sb_file.id')))
+assoc_proj_prob_item = db.Table('assoc_proj_prob_item',
+                                db.Column('project_id', db.Integer,
+                                          db.ForeignKey('project.id')),
+                                db.Column('prob_item_id', db.Integer,
+                                          db.ForeignKey('problem_item.id')))
+# Item associations
+assoc_item_sbfile = db.Table('assoc_item_sbfile',
+                             db.Column('item_id', db.Integer,
+                                       db.ForeignKey('item.id')),
+                             db.Column('sbfile_id', db.Integer,
+                                       db.ForeignKey('sb_file.id')))
+
+# ...
+```
+
+I edited the many-to-many relationships by adding the `secondary` attribute and setting it equal to the appropriate association table. Then I changed the `backref` to the plural, so it made more sense as a many-to-many, rather than a one-to-many relationship. I also removed most of the Foreign Key definitions in each of the models, as the `backref` attribute automatically populates that in the referenced table. 
+
+Finally, I deleted the migration scrips and info by deleting `migrations/`, deleted the database, then created a new db, migration script, and updated the db:
+```bash
+(venv) $ python -m flask db init
+(venv) $ python -m flask db migrate -m "Created new db for many-to-many relations"
+(venv) $ python -m flask db upgrade
+```
+
+----------
+2. Change how we interact with database with new models
+
+We must now change how we 
+1. Query the database
+2. Add new entries to the database
+
+due to our new changes to the database schema.
+
+First, I wanted to test out a couple many-to-many relationships using the `flask shell`. 
+```bash
+>>> u = casc(name="trial", sb_id="don't matter")
+>>> db.session.query(casc).first()
+>>> c = db.session.query(casc).first()
+>>> c
+>>> db.session.add()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "/Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv1.5/venv/lib/python3.6/site-packages/sqlalchemy/orm/scoping.py", line 153, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+TypeError: add() missing 1 required positional argument: 'instance'
+>>> db.session.add(u)
+>>> c = db.session.query(casc).first()
+>>> c
+<casc 1>
+>>> c.name
+'trial'
+>>> u = casc(name="trial2", sb_id="don't matter2")
+>>> db.session.add(u)
+>>> sb.session.query(casc).all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'sb' is not defined
+>>> db.session.query(casc).all()
+[<casc 1>, <casc 2>]
+>>> proj = Project(name="project1", sb_id="12345")
+>>> proj2 = Project(name="project2", sb_id="112233")
+>>> db.session.add(proj, proj2)
+>>> proj = db.session.query(Project).filter(name == "project1").first()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'name' is not defined
+>>> proj = db.session.query(Project).filter(Project.name == "project1").first()
+>>> proj.name
+'project1'
+>>> c
+<casc 1>
+>>> proj.cascs.append(c)
+>>> casc_list = db.session.query(casc).all()
+>>> casc_list[1]
+<casc 2>
+>>> proj.cascs.append(casc_list[1])
+>>> proj.cascs
+[<casc 1>, <casc 2>]
+>>> c.projects
+<sqlalchemy.orm.dynamic.AppenderBaseQuery object at 0x10e16eba8>
+>>> for i in c.projects:
+... print(i.name)
+  File "<console>", line 2
+    print(i.name)
+        ^
+IndentationError: expected an indented block
+>>> for i in c.projects:
+...     print(i.name)
+...
+project1
+>>> item1 = Item(name="item1")
+>>> item2 = Item(name="item2")
+>>> item3 = Item(name="item3")
+>>> item4 = Item(name="item4")
+>>> proj
+<Project 1>
+>>> proj2 = db.session.query(Project).filter(Project.name == "project2").first()
+>>> proj2
+>>> proj2 = db.session.query(Project).all()
+>>> proj2
+[<Project 1>]
+>>> proj2 = Project(name="project2", sb_id="112233")
+>>> db.session.add(proj2)
+>>> proj2 = db.session.query(Project).all()
+>>> proj2
+[<Project 1>, <Project 2>]
+>>> proj2 = db.session.query(Project).filter(Project.name == "project2").first()
+>>> proj2
+<Project 2>
+>>> item1.projects.append(proj)
+>>> item2.projects.append(proj)
+>>> item3.projects.append(proj2)
+>>> item4.projects.append(proj2)
+>>> proj.items
+<sqlalchemy.orm.dynamic.AppenderBaseQuery object at 0x10dc62828>
+>>> for i in proj.items:
+...     print(i.name)
+...
+item2
+item1
+>>> for i in proj2.items:
+...     print(i.name)
+...
+item3
+item4
+>>> item4.projects.append(proj)
+>>> for i in proj.items:
+...     print(i.name)
+...
+item2
+item1
+item4
+>>> for i in proj2.items:
+...     print(i.name)
+...
+item3
+item4
+>>> quit()
+```
+
+It appears to be working correctly.
+
+Looking at all the `.query` calls in `db_save.py`, we do not need to change anything as we weren't querying based on the relationships. All other queries so far are for the `User` model, which has not changed. 
+
+Now I'm going to work on changing how we define relationships as we add science base item entries to the database:
+* `db_save.py`
+    - `save_casc()`
+        - No changes necessary as no relationships can be formed at this point in the process.
+    - `save_fy()`
+        - The relationship between a fiscal year and a casc is still one-to-many, so this doesn't need changed.
+    - `save_proj()`
+        - This is where things start to change. 
+            - When creating a project: Instead of setting the `backref`s as attributes when we create the new project, we create the new project, then append the casc and fy to the `.cascs` and `.fiscal_years` attributes respectively.
+            - When updating a project: Instead of checking if the id's are the same for the casc and fiscal year, we should see if it exists in the list or not, and append it if not.
+    - `save_item()`
+        - Same changes, really, as the previous function. Just more.
+        - Creating item: backrefs -> append to appropriate attribute.
+        - Editing item: search list, if not present, add.
+    - `save_file()`
+        - Same changes, really, as the previous function. Just more.
+        - Creating item: backrefs -> append to appropriate attribute.
+        - Editing item: search list, if not present, add.
+        
+Now it's time to try to populate the database with the algorithm.
+
+The database is now populated. The algorith took `44:39` to finish. Just about 45 minutes. Now we can move on to checking the data.
+
+
+
+#### 3d. Make sure database is correctly populated ####
+
+To check the data, we want to play with the database and possibly make a script to compare the data with the jsons we have from previously (probably from NWCSC 2012, which had a lot of weird data). 
+
+__*Note: This is not yet completed. Unit tests and test of data still need done!*__
+
+### 4. Merge old `app.py` with new `sbmacro.py` ###
+
+Looking at app.py, I notice that ...
+
+
+#### 4a. Merge old routes to new code ####
