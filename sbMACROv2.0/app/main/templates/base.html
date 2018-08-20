@@ -3,9 +3,7 @@
   <head>
     <title>sbMACRO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    <link href="static/bootstrap.min.css" rel="stylesheet" media="screen"> -->
-    <script src="static/jquery.js"></script>
+    <script src="../../static/js/jquery.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     <!-- Compiled and minified CSS -->
@@ -14,21 +12,13 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
     <!-- <link rel="stylesheet" href="../static/bootstrap.min.css"> -->
-    <link rel="stylesheet" href="../static/custom.css">
-    <link rel="stylesheet" href="../static/table.css">
+    <link rel="stylesheet" href="../../static/css/custom.css">
 
   
    
 
   </head>
 <body>
-  <script src="static/jquery.js"></script>
-  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
-  </script> -->
-  <script src="../../node_modules/moment/moment.js"></script>
-  <script>
-    moment().format();
-  </script>
 
   <script>
 
@@ -136,9 +126,9 @@
               For active one add class="active amber accent-4"-->
 
         <div class="collection grey-text text-darken4">
-          <a href="/" id="Nav-Home" class="collection-item teal lighten-1 white-text"> Home </a>
-          <a href="/fiscalYears" id="Nav-FiscalYear" class="collection-item teal lighten-1 white-text">Fiscal Year Report</a>
-          <a href="/projects" id="Nav-Project" class="collection-item teal lighten-1 white-text">Project Report</a>
+          <a href="{{ url_for('main.index') }}" id="Nav-Home" class="collection-item teal lighten-1 white-text"> Home </a>
+          <a href="{{ url_for('main.fiscalyear') }}" id="Nav-FiscalYear" class="collection-item teal lighten-1 white-text">Fiscal Year Report</a>
+          <a href="{{ url_for('main.project') }}" id="Nav-Project" class="collection-item teal lighten-1 white-text">Project Report</a>
           <!-- <a href="#!" id="Nav-Item" class="collection-item teal lighten-1 white-text">Item Report</a> -->
           <a id="Nav-Item" class="collection-item grey grey-text text-darken-2">Item Report</a>
           <a id="Nav-Mixed" class="collection-item grey grey-text text-darken-2">Mixed Report</a>

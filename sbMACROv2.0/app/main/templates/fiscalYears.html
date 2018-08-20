@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h4>Welcome to SB MACRO</h4>
+<br>
+<p class="flow-text">This program can be used to count the data present in one or multiple fiscal years in the NWCSC or SWCSC folders on ScienceBase.</p>
+<p class="flow-text">Choose the center and fiscal year(s) in which you want the data counted:</p>
+<h1>Select Fiscal Year(s)</h1>
+<form method="POST">
+    <div class="row" align="right">
+        {{ form.submit(class="btn waves-effect") }}
+    </div>
+    {{ form.hidden_tag() }}
+    {% set number = 2 %}
+    {% for casc_name, casc_info in cascs_and_fys.items(): %}
+    {% set number = number + 1 %}
+    {% if number % 3 == 0: %}
+    <div class="row">
+        <div class="col s4 m4 l4">
+            <div class="card blue-grey lighten-4">
+                <div class="card-content">
+                    <span class="card-title">
+                        <p><strong>{{ casc_name }}</strong></p>
+                    </span>
+                    {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %}
+                    {% set field_name = "fy" ~ fiscal_year["id"] %}
+                    {% set field = form|attr(field_name) %}
+                    <br> {{ form|attr(field_name)(class="say_wut") }}  {{ field.label }}
+                    <br> {% for error in field.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% elif number % 3 == 1 %}
+        <div class="col s4 m4 l4">
+            <div class="card blue-grey lighten-4">
+                <div class="card-content">
+                    <span class="card-title">
+                        <p><strong>{{ casc_name }}</strong></p>
+                    </span>
+                    {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %}
+                    <h3>{{ fiscal_year["name"] }}</h3>
+                    {% set field_name = "fy" ~ fiscal_year["id"] %}
+                    {% set field = form|attr(field_name) %}
+                    {{ field.label }}
+                    <br> {{ form|attr(field_name)(class="FY-Checkbox") }}
+                    <br> {% for error in field.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col s4 m4 l4">
+            <div class="card blue-grey lighten-4">
+                <div class="card-content">
+                    <span class="card-title">
+                        <p><strong>{{ casc_name }}</strong></p>
+                    </span>
+                    {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %}
+                    <h3>{{ fiscal_year["name"] }}</h3>
+                    {% set field_name = "fy" ~ fiscal_year["id"] %}
+                    {% set field = form|attr(field_name) %}
+                    {{ field.label }}
+                    <br> {{ form|attr(field_name)(class="FY-Checkbox") }}
+                    <br> {% for error in field.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</form>
+
+<script src="static/js/fiscalYears.js"></script>
+<script>
+    let currentPage = document.getElementById('Nav-FiscalYear');
+    currentPage.classList.add("currentPage");
+</script>
+<!-- <script>
+    $(document).ready(function () {
+        $('#Excel1, #Excel2').hide();
+    });
+</script> -->
+{% endblock %}

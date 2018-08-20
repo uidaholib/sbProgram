@@ -1,10 +1,12 @@
 """Module to Define forms for the main application."""
 from flask import request
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, Form
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
+from wtforms import BooleanField, FieldList, FormField
 from wtforms.validators import ValidationError, DataRequired, Length, Email
 from wtforms.validators import Optional
-from app.models import User
+from app.models import User, casc, FiscalYear, Project, Item, SbFile
+from app import db
 from flask_login import current_user
 
 
@@ -13,12 +15,11 @@ class EditProfileForm(FlaskForm):
 
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[Optional(), Email()])
-    about = TextAreaField('About me', validators=[Optional(),
-                                                  Length(min=0, max=140)])
-    password = PasswordField('New Password (optional)',
-                             validators=[Optional()])
-    password2 = PasswordField(
-        'Repeat New Password (optional)')
+    about = TextAreaField(
+        'About me', validators=[Optional(), Length(min=0, max=140)])
+    password = PasswordField(
+        'New Password (optional)', validators=[Optional()])
+    password2 = PasswordField('Repeat New Password (optional)')
     submit = SubmitField('Submit')
 
     def __init__(self, original_username, *args, **kwargs):
@@ -72,11 +73,16 @@ class EditProfileForm(FlaskForm):
                                password in the form.
 
         """
-        print("Password: {0}. Password2: {1}"
-              .format(self.password.data, password2.data))
+        print("Password: {0}. Password2: {1}".format(self.password.data,
+                                                     password2.data))
         if self.password.data:
             if self.password.data != password2.data:
                 raise ValidationError('Passwords must match')
         else:
             if password2:
                 ValidationError('Please enter password twice')
+
+
+class FyForm(FlaskForm):
+    name = BooleanField('static field')
+    submit = SubmitField('Submit')

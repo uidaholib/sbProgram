@@ -2,17 +2,17 @@
 {% block content %}
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
 
-<link rel="stylesheet" href="../static/custom.css">
-<link rel="stylesheet" href="../static/modal.css">
+<link rel="stylesheet" href="../../static/css/custom.css">
+<link rel="stylesheet" href="/static/css/modal.css">
 <link rel="stylesheet" href="static/css/table.css">
-<script src="../static/d3.v4.min.js"></script>
-<script src="../static/node_modules/file-saverjs/FileSaver.js"></script>
-<script src="../node_modules/tableexport/src/stable/js/tableexport.js"></script>
-<script src="../static/DataVisualization/projectBarGraph.js"></script>
-<script src="../static/DataVisualization/FY_BarGraph.js"></script>
-<script src="../static/DataVisualization/projectTable.js"></script>
-<script src="../static/DataVisualization/d3-tip.js"></script>
-<script src="../static/reportModal.js"></script>
+<script src="../../static/js/d3.v4.min.js"></script>
+<script src="/static/js/node_modules/file-saverjs/FileSaver.js"></script>
+<script src="/static/js/node_modules/tableexport/src/stable/js/tableexport.js"></script>
+<script src="/static/js/DataVisualization/projectBarGraph.js"></script>
+<script src="/static/js/DataVisualization/FY_BarGraph.js"></script>
+<script src="/static/js/DataVisualization/projectTable.js"></script>
+<script src="/static/js/DataVisualization/d3-tip.js"></script>
+<script src="/static/js/reportModal.js"></script>
 
 
 
@@ -172,9 +172,9 @@
 
 <script>  
   var reportDict = {{ full_report_json | safe }};
-  projectBarGraph(reportDict); //from ../static/DataVisualization/projectBarGraph.js
+  projectBarGraph(reportDict); //from /static/js/DataVisualization/projectBarGraph.js
   $("<br><br>").insertAfter("#wrapper");
-  FY_BarGraph(reportDict); //from ../static/DataVisualization/FY_BarGraph.js
+  FY_BarGraph(reportDict); //from /static/js/DataVisualization/FY_BarGraph.js
   function catchResize() {
     console.log("Resized1!");
     var s = d3.selectAll('svg');

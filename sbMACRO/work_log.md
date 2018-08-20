@@ -2285,7 +2285,7 @@ Steps:
     4a. Merge old routes to new code
 5. Move old templates to new code
 6. test that app is working (aside from data)
-8. Make sure app routes now access database, and any other db access is changed from `jsonCache2` to the new db.
+8. Make sure app routes now access database, and any other db access is changed from `jsonCache` to the new db.
 9. Bring old scripts to new code (google sheets, test scripts, etc.)
 10. Test all additions, creating unit tests where necessary.
 11. Update front end javascript to be clean and use more Flask features.
@@ -2837,9 +2837,95 @@ To check the data, we want to play with the database and possibly make a script 
 
 __*Note: This is not yet completed. Unit tests and test of data still need done!*__
 
-### 4. Merge old `app.py` with new `sbmacro.py` ###
+### 4/5. Merge old `app.py` with new `sbmacro.py`, move templates ###
 
-Looking at app.py, I notice that ...
+Looking at the old `app.py`, I find that it contains the following:
+1. `full_hard_search()`, `defined_hard_search()`, `get_fiscal_years()`, and `JsonTransformer` class.
+2. Routes:
+    - `/`
+    - `/fiscalYears`
+    - `/projects`
+    - `/report` (Find appropriate data in jsons or via hard search, render report.html)
+    - `/download_log` (The function takes formats report_dict and passes it to report.html, then renders report.html page)
+3. Supporting/API-like backend functions:
+    - `project_post_request()` (Use local jsons to populate report_dict and returns it)
+    - `create_project_list()` (Create and return a dictionary of project data)
+
+For 1., the hard search and json-related methods can be simply deleted. For 2., We need to move the routes to the appropriate `routes.py` module in the appropriate subsystem of the application. When we move the routes, the supporting api-like functions will, A) need changed drastically, and B) need moved to an appropriate module.
+
+Also, all CSS and JavaScript will also need moved and their paths updated so that they are accessed by the application.
+
+__Moving routes to `routes.py`__
+
+* `/`
+    - This is fairly easy as we just need to render the `index.html` page. It also required moving `index.html` to the `app/main/templates/` directory.
+    - I did realize that the old JavaScript and CSS is no longer in the project, so I needed to move it and change the relative address. I created a new `static/` directory in the `templates/` directory to hold a new `js/` and a new `css/` directory to hold the javascript and CSS specific to those templates. For JS and CSS that's used everywhere, I'll include it in a new `js/` and `css/` directory respectively in `app/static/`. All relative addresses need changed, obiously.
+    - I also realized that the nav bar links need changed to a flask-style link that uses `url_for()` so that the url can change. So I updated that.
+* `/fiscalYears`
+    - This was was a bit more difficult. The fiscal years needed gotten from the database and passed to the javascript front-end.
+    - First, I created a dictionary with keys for each CASC (name and id), and within each CASC, and ordered list of Fiscal years, their names and ids. That would then be passed to the front end when rendering `fiscalYears.html`:
+    ```py
+    def fiscalyear():
+        """Retrieve Fiscal Years and display for selection by user."""
+        cascs = db.session.query(casc).order_by(casc.name.desc()).all()
+        cascs_and_fys = {}
+        for curr_casc in cascs:
+            cascs_and_fys[curr_casc.name] = {}
+            cascs_and_fys[curr_casc.name]["id"] = curr_casc.id
+            fys = db.session.query(FiscalYear).order_by(
+                FiscalYear.name).filter(
+                FiscalYear.casc_id == curr_casc.id).all()
+            cascs_and_fys[curr_casc.name]["fiscal_years"] = []
+            for fy in fys:
+                print(fy.id, fy.name)
+                fiscal_year = {}
+                fiscal_year["id"] = fy.id
+                fiscal_year["name"] = fy.name
+                cascs_and_fys[curr_casc.name]["fiscal_years"].append(fiscal_year)
+        return render_template('fiscalYears.html',
+                            **locals(),
+                            title="Select Fiscal Years")
+    ```
+    - `fiscalYears.html` needed moved from the old code to the new code (`app/main/templates/`). I took the opportunity to also move `projects.html`, and `report.html`.
+    - I noticed when looking at `fiscalYears.html`, that it had a form. That should be converted to WTForms for security and consistency reasons. ~~This also means that the work I did above in `fiscalyear()` is needed only for creating the form in `forms.py`, and not in `routes.py`~~ This is not true. I can instead create a base form then add fields in the route view function (Resources: 
+    [[1](http://wtforms.simplecodes.com/docs/1.0.2/specific_problems.html#dynamic-form-composition)]
+    [[2](https://groups.google.com/forum/#!topic/wtforms/cJl3aqzZieA)]
+    [[3](https://stackoverflow.com/questions/12850605/how-do-i-generate-dynamic-fields-in-wtforms)]
+    [[4](https://wtforms.readthedocs.io/en/stable/fields.html#basic-fields)]. 
+        - This took FOREVER. I had numerous bugs and problems betting WTForms to work to create dynamicly generated fields. Then working with Jinja2 to dynamically display the form on the front-end took quite a long time as well.
+        - The FY Form isn't displaying quite right yet, but I'm moving on and will come back to it later.
+*  `/report` (Find appropriate data in jsons or via hard search, render report.html)
+    - `report.html` needed moved to `templates/`, as well as several JS and CSS files (the whole `DataVisualization/` dir, `reportModal.js`, `modal.css`, `table.css`). 
+    - While looking at these files and thinkig about reconstructing the table and modals, I noticed some data was missing/not tracked in our database that we will need:
+        - Table:
+            - Number [Tracked]
+            - Climate Adaptation Science Center [Tracked]
+            - Object Type [Tracked]
+            - Name [Tracked]
+            - More Info [Just the modal link]
+            - Data in Project (GB) [Tracked]
+            - Number of Files [Tracked]
+            - Total Data in Fiscal Year [Tracked]
+            - sbMACRO Data Retrieval Date [Tracked]
+        - Modal
+            - DMP Status [Tracked -- Google Sheet]
+            - Title [Tracked]
+            - Principle Investigator [NOT Tracked]
+                - PI email [NOT Tracked]
+            - Summary [NOT Tracked]
+            - Data Steward History [Tracked -- Google Sheet]
+            - Uploaded Data Product Breakdown [Not yet implemented]
+            - Potential Products [Tracked -- Google Sheet]
+            - Products Recieved [Tracked]
+    - Therefore, we need to add the following to the database schema:
+        - Project
+            - Principle Investigator(s!)
+            - PI email(s!)
+            - Summary
+        - User
+            - Access Privileges
+        
 
 
-#### 4a. Merge old routes to new code ####
+* `/projects`
+* `/download_log` (The function takes formats report_dict and passes it to report.html, then renders report.html page)

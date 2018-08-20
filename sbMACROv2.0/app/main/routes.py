@@ -1,13 +1,19 @@
 """Define main application routes."""
 from datetime import datetime
 from flask import render_template, redirect, url_for, request, \
-    jsonify, current_app
+    jsonify, current_app, session
 from flask_login import current_user, login_required
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField
+from wtforms import BooleanField
+from wtforms.validators import ValidationError, DataRequired, Length, Email
+from wtforms.validators import Optional
 from app import db
-from app.main.forms import EditProfileForm
-from app.models import User
+from app.main.forms import EditProfileForm, FyForm
+from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.main import bp
+import json
 
+from pprint import pprint
 
 @bp.before_app_request
 def before_request():
@@ -17,19 +23,88 @@ def before_request():
         db.session.commit()
 
 
-@bp.route('/', methods=['GET', 'POST'])
-@bp.route('/index', methods=['GET', 'POST'])
-@login_required
+@bp.route('/', methods=['GET', 'POST'])  # Also accepts
+@bp.route('/index', methods=['GET', 'POST'])  # Default
 def index():
     """Render splash page for sbMACRO."""
-    return "Page under construction"
+    return(render_template('index.html',
+                           **locals(),
+                           title="Welcome to sbMACRO"))
 
-@bp.route('/select_fiscalyear')
-@bp.route('/select_fiscalyears')
+
+@bp.route('/select_fiscalyear', methods=['GET', 'POST'])  # Also accepts
+@bp.route('/select_fiscalyears', methods=['GET', 'POST'])  # Default
 def fiscalyear():
     """Retrieve Fiscal Years and display for selection by user."""
-    return "Page under construction"
+    cascs = db.session.query(casc).order_by(casc.name).all()
+    cascs_and_fys = {}
+    fy_list = []
+    class F(FyForm):
+        pass
 
+    list_fy = []
+    for curr_casc in cascs:
+        cascs_and_fys[curr_casc.name] = {}
+        cascs_and_fys[curr_casc.name]["id"] = curr_casc.id
+        fys = db.session.query(FiscalYear).order_by(
+            FiscalYear.name).filter(
+            FiscalYear.casc_id == curr_casc.id).all()
+        cascs_and_fys[curr_casc.name]["fiscal_years"] = []
+        for fy in fys:
+            fiscal_year = {}
+            list_fy.append("fy" + str(fy.id))
+            fiscal_year["id"] = fy.id
+            fiscal_year["name"] = fy.name
+            cascs_and_fys[curr_casc.name]["fiscal_years"].append(fiscal_year)
+            # new_attr_name = curr_casc.name + " " + fy.name
+            setattr(F,
+                    "fy"+str(fy.id),
+                    BooleanField(fy.name))
+    form = F()
+    if form.validate_on_submit():
+        print("Form submitted!")
+        id_list = []
+        projects = []
+        for fy in list_fy:
+            fy_attr = getattr(form, fy)
+            selected = fy_attr.data
+            # print("{0} selected: {1}".format(fy, selected))
+            if selected:
+                id_list.append(fy.replace("fy", ""))
+        # print("id_list:")
+        for i in id_list:
+            # print("\t{}".format(i))
+            fy_projs = db.session.query(Project).filter(
+                Project.fiscal_years.any(id=i)).all()
+            # print("\tProjects:")
+            for proj in fy_projs:
+                # print("\t\t{}".format(proj.id))
+                projects.append(proj.id)
+
+        session["projects"] = projects
+        return redirect(url_for('main.report'))
+    elif request.method == 'GET':
+        pass
+
+    return render_template('fiscalYears.html',
+                           form=form,
+                           cascs_and_fys=cascs_and_fys,
+                           title="Select Fiscal Years")
+
+@bp.route('/try', methods=['GET', 'POST'])  # Also accepts
+def fy():
+    class NewForm(FyForm):
+        pass
+    record = {
+        '1': 'label1',
+        '2': 'label2',
+        '3': 'label3',
+        '4': 'label4'
+    }
+    for key, value in record.items():
+        setattr(NewForm, key, BooleanField(value, id="flush"))
+    form = NewForm()
+    return render_template('try.html', record=record, form=form, title="Good luck")
 
 @bp.route('/select_project')
 @bp.route('/select_projects')
@@ -41,7 +116,10 @@ def project():
 @bp.route('/report')
 def report():
     """Gather appropriate report information and display."""
-    return "Page under construction"
+    projects = session["projects"]
+    projects2 = []
+
+    return render_template("report.html", projects=projects2)
 
 @bp.route('/user/<username>')
 @login_required
@@ -72,7 +150,6 @@ def edit_profile():
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about.data = current_user.about
-        print(current_user.email)
         form.email.data = current_user.email
 
     return render_template(

@@ -81,6 +81,8 @@ def update_casc_data():
     """
     update_casc_total_data(APP)
 
+
+# python -c 'from __init__ import update_casc_data; update_casc_data()'
 def run_tests():
     """Run unit tests for package.
 

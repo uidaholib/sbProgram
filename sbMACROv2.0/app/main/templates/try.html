@@ -1,0 +1,13 @@
+
+
+{% for key, value in record.items(): %}
+<form method="POST">
+    <div>
+        {% set field = form|attr(key) %}
+        
+        <p>{{ form|attr(key)(class="a_class") }} {{ field.label }}</p>
+    </div>
+
+{% endfor %}
+<br>{{ form.submit() }}
+</form>
