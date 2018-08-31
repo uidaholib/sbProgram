@@ -26,3 +26,12 @@ env2/*
 test_files
 venv/
 venv/*
+
+# Database
+*.Database
+*.db
+*.sqlite
+
+# Old code
+old_code/
+old_code/*
