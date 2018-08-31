@@ -1,15 +1,59 @@
 
 // Doctored From http://bl.ocks.org/kiranml1/6872226 
-function FY_BarGraph (reportDict) {
+function shortenCascName (casc) {
+  if (casc.includes('Alaska')) {
+    casc = casc.replace('Alaska ', 'AK');
+    return casc;
+  }
+  else if (casc.includes('National')) {
+    casc = casc.replace('National ', 'NA');
+    return casc;
+  }
+  else if (casc.includes('North Central')) {
+    casc = casc.replace('North Central ', 'NC');
+    return casc;
+  }
+  else if (casc.includes('Northeast')) {
+    casc = casc.replace('Northeast ', 'NE');
+    return casc;
+  }
+  else if (casc.includes('Northwest')) {
+    casc = casc.replace('Northwest ', 'NW');
+    return casc;
+  }
+  else if (casc.includes('Pacific Islands')) {
+    casc = casc.replace('Pacific Islands ', 'PI');
+    return casc;
+  }
+  else if (casc.includes('South Central')) {
+    casc = casc.replace('South Central ', 'SC');
+    return casc;
+  }
+  else if (casc.includes('Southeast')) {
+    casc = casc.replace('Southeast ', 'SE');
+    return casc;
+  }
+  else if (casc.includes('Southwest')) {
+    casc = casc.replace('Southwest ', 'SW');
+    return casc;
+  }
+  else {
+    return casc;
+  }
+}
+
+function FY_BarGraph (projectArray) {
 
   $(document).ready(function () {
 
     //check that there are multiple FYs
     let FYs = [];
-    for (let i = 0; i < reportDict.report.length; i++)
+    for (let i = 0; i < projectArray.length; i++)
     {
-      let identity = reportDict.identity[i].CSC + reportDict.identity[i].name;
-      //if "identity" is not in the reasons array, add it.
+      let fyName = projectArray[i].fiscal_year;
+      let fyCascName = projectArray[i].casc;
+      let identity = fyCascName + " " + fyName;
+      //if "identity" is not in the FYs array, add it.
       let fyIndex = FYs.indexOf(identity);
       if (fyIndex == -1) { FYs.push(identity); }
     }
@@ -19,42 +63,22 @@ function FY_BarGraph (reportDict) {
     if(FYs.length > 1){
 
       var fyObjArray = [];
+      var finishedFys = [];
 
-      function createAndAddFYObject(FYname, FYsize, FYcsc){
-        var FY = {};
-        FY.name = FYcsc + " " + FYname;
-        if (FYsize === "None") {
-          // console.log("It's NONE")   //DeBug
-          FY.size = 0;
-        } else {
-          FY.size = FYsize;
-        }
-        FY.CSC = FYcsc;
-        fyObjArray.push(FY);
-      // console.log("!!!!!!!!!!!!FYarray:");   //DeBug
-      // console.log(fyObjArray);   //DeBug
-      }
-      function getFYsizes(report, identity){
-        for (var i = 0; i < report.length; i++) {
-          var fiscalYear = report[i];
-          var FYcsc = identity[i].CSC;
-          for (var z = 0; z < (fiscalYear.length - (fiscalYear.length-1)); z++) {
-            var projectObj = fiscalYear[z];
-            // console.log("projectObj");
-            // console.log(projectObj);
-            var FYname = projectObj.FY;
-            // console.log("FYname");   //DeBug
-            // console.log(FYname);   //DeBug
-            var FYsize = projectObj.totalFYData;
-            
-            // console.log("data");   //DeBug
-            // console.log(data);   //DeBug
-            createAndAddFYObject(FYname, FYsize, FYcsc);
-          }
+      for (var i=0; i < projectArray.length; i++) {
+        let currProj = projectArray[i];
+        let projParent = currProj.casc + " " + currProj.fiscal_year
+        if (finishedFys.indexOf(projParent) === -1) { // Fy has not been done
+          let FY = {};
+          let casc_short = shortenCascName(currProj.casc);
+          let fy_short = currProj.fiscal_year.replace("FY ", "");
+          FY.name = casc_short + " " + fy_short;
+          FY.size = currProj.total_data_in_fy_GB;
+          FY.casc = casc_short;
+          fyObjArray.push(FY);
+          finishedFys.push(projParent);
         }
       }
-
-      getFYsizes(reportDict.report, reportDict.identity);
       
       const fyMaxSize = getMaxSize(fyObjArray);
       if (fyMaxSize > 0){
@@ -229,8 +253,8 @@ function createFYGraph (data){
     .enter().append("rect")
       .attr("class", "bar")
       .attr("id", function (d) {
-        // console.log(d.CSC); 
-        return d.CSC; 
+        // console.log(d.casc); 
+        return d.casc; 
       })
       //.attr("x", function(d) { return x(d.sales); })
       .attr("width", function (d) { return x(d.size); })
@@ -286,16 +310,16 @@ function createFYGraph (data){
   var existing_CSCs = [];
 
   for (var i = 0; i < data.length; i++) {
-    if ($.inArray(data[i].CSC, existing_CSCs) === -1) {
+    if ($.inArray(data[i].casc, existing_CSCs) === -1) {
       // the value is not in the array
-      existing_CSCs.push(data[i].CSC);
+      existing_CSCs.push(data[i].casc);
     }
   }
   // console.log("existing_CSCs");
   // console.log(existing_CSCs);
   var legend = svg.selectAll('.legend')
     .data(data.filter(function (d) {
-      var index = $.inArray(d.CSC, existing_CSCs);
+      var index = $.inArray(d.casc, existing_CSCs);
       // console.log("index: "+index);
       if (index > -1) {
         // the value is in the array
@@ -313,20 +337,20 @@ function createFYGraph (data){
     .enter()
     .append('g')
     .attr('class', 'legend')
-    // .attr('id', function (d) { return d.CSC })
+    // .attr('id', function (d) { return d.casc })
     .attr('transform', function (d, i) {
       // var height = legendRectSize + legendSpacing;
       // var offset = height * data.length / 2;
       // var horz = -2 * legendRectSize;
       // var vert = i * height - offset;
-      var horz = width * 0.9;
+      var horz = width * 0.85;
       var vert = i * 19;
       return 'translate(' + horz + ',' + vert + ')';
     });
 
   legend.append('rect')
     .attr('class', function (d) { return 'legend'; })
-    .attr('id', function (d) { return d.CSC; })
+    .attr('id', function (d) { return d.casc; })
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)
 
@@ -334,7 +358,7 @@ function createFYGraph (data){
   legend.append('text')
     .attr('x', legendRectSize + legendSpacing)
     .attr('y', legendRectSize - legendSpacing)
-    .text(function (d) { return d.CSC; });
+    .text(function (d) { return d.casc; });
 
   //Updating dimensions
   function updateFYDimensions(data, winWidth, winHeight) {

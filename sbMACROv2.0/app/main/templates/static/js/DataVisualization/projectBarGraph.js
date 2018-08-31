@@ -1,113 +1,60 @@
 
+function getShortParentIdentity (project) {
+  let casc_short = shortenCascName(project.casc);
+  let fy_short = project.fiscal_year.replace("FY ", "");
+  return casc_short + " " + fy_short;
+}
 
-var NWCSC_projectObjArray;
-var SWCSC_projectObjArray;
-function projectBarGraph (reportDict) {
-  // console.log("GRAPH-BUILDING SCRIPT");   //DeBug
+function projectBarGraph (projectArray) {
   $(document).ready(function () {
-    // console.log("reportDict in second script:");   //DeBug
-    
-    // console.log(reportDict);   //DeBug
-    
-  NWCSC_projectObjArray = [];
-  SWCSC_projectObjArray = [];
 
-  var createAndAddObject = function (name, size, number, FY, CSC) {
-    var project = {};
-    project.name = name;
-    if (size === "None") {
-      // console.log("It's NONE")   //DeBug
-      project.size = 0;
-    } else {
-      project.size = size;
+  let cascs = {};
+  for (var i=0; i < projectArray.length; i++) {
+    let currProj = projectArray[i];
+    let currProjCascShort = shortenCascName(currProj.casc);
+    if ( !cascs.hasOwnProperty(currProjCascShort) ) { 
+      // Casc project array has not been created.
+      cascs[currProjCascShort] = [];
     }
-    project.number = number.toString();
-    project.FY = FY.substring(3,7);
-    project.CSC = CSC;
-    // console.log("project:");   //DeBug
-    // console.log(project);   //DeBug
-    if (CSC === "NWCSC")
-    {
+    let projObj = {};
+    projObj.name = currProj.name;
+    projObj.size = currProj.data_in_project_GB;
+    projObj.number = (i+1).toString();
+    projObj.FY = currProj.fiscal_year.replace("FY ", "");
+    projObj.casc = currProjCascShort;
+    cascs[currProjCascShort].push(projObj);
 
-      NWCSC_projectObjArray.push(project);
-    }
-    if (CSC === "SWCSC")
-    {
-
-      SWCSC_projectObjArray.push(project);
-    }
-    
-    // console.log("!!!!!!!!!!!!array:");   //DeBug
-    // console.log(projectObjArray);   //DeBug
   }
-  function iterate(reportDict) {
-    var report = reportDict.report;
-    var identity = reportDict.identity;
-    var projectNumber = 0
-    // console.log("report");   //DeBug
-    // console.log(report);   //DeBug
-    for (var i = 0; i < report.length; i++) {
-      var fiscalYear = report[i];
-      var FY = identity[i].name;
-      var csc = identity[i].CSC;
 
-      for (var z = 0; z < fiscalYear.length; z++) {
-        projectNumber++;
-        var projectObj = fiscalYear[z];
-        var name = projectObj.name;
-        // console.log("name");   //DeBug
-        // console.log(name);   //DeBug
-        var size = projectObj.DataInProject;
-        // console.log("data");   //DeBug
-        // console.log(data);   //DeBug
-        createAndAddObject(name, size, projectNumber, FY, csc);
-      }
-    }
-  }
-  iterate(reportDict);
-  NWCSC_Max = getMaxSize(NWCSC_projectObjArray);
-  SWCSC_Max = getMaxSize(SWCSC_projectObjArray);
+  //Get to each casc in cascs
   //Check which size is the max size of all data.
-  if( NWCSC_Max >= SWCSC_Max)
-  {
-    var Max = NWCSC_Max;
-  }
-  else {
-    var Max = SWCSC_Max;
-  }
-  if (Max > 0)
-  {
-    //if NWSCS_Max is > 0
-    if(NWCSC_Max > 0){
-      //create graph if both NWSCS and SWCSC have at least 1 project and SWCSC_Max is ALSO > 0, or if NWCSC has at least 2 projects
-      if ((NWCSC_projectObjArray.length > 0 
-            && SWCSC_projectObjArray.length > 0
-            && SWCSC_Max > 0)
-        || NWCSC_projectObjArray.length > 1) {
-        createGraph(NWCSC_projectObjArray, "NWCSC", Max);
-      }
-    } else if (SWCSC_projectObjArray.length > 0){
-      createNoDataProjGraph("NWCSC");
+  let maxSize = 0;
+  for (var casc in cascs) {
+    if (cascs.hasOwnProperty(casc)) {
+      let currCascMax = getMaxSize(cascs[casc]);
+      maxSize = currCascMax > maxSize ? currCascMax : maxSize;
     }
-    //if SWSCS_Max is > 0
-    if(SWCSC_Max > 0){
-      //create graph if both SWSCS and NWCSC have at least 1 project and NWCSC_Max is ALSO > 0, or if SWCSC has at least 2 projects
-      if ((SWCSC_projectObjArray.length > 0 
-            && NWCSC_projectObjArray.length > 0
-            && NWCSC_Max > 0)
-        || SWCSC_projectObjArray.length > 1) {
-        createGraph(SWCSC_projectObjArray, "SWCSC", Max);
+  }
+  
+  if (maxSize > 0)
+  {
+    for (var casc in cascs) {
+      if (cascs.hasOwnProperty(casc)) {
+        let currCascMax = getMaxSize(cascs[casc]);
+        if (currCascMax > 0) {
+          createGraph(cascs[casc], casc, maxSize);
+        } 
+        else {
+          createNoDataProjGraph(casc);
+        }
       }
-    } else if (SWCSC_projectObjArray.length > 0){
-      createNoDataProjGraph("SWCSC");
     }
-  //else, if the Max of both is not greater than 0, create NoData graphs for both if they have any projects
+  //else, if the maxSize of all CASCs is not greater than 0, create NoData graphs for all
   } else {
-    if (NWCSC_projectObjArray.length > 0){
-      createNoDataProjGraph("NWCSC");
-    }
-    if (SWCSC_projectObjArray.length > 0) {
-      createNoDataProjGraph("SWCSC");
+    for (var casc in cascs) {
+      if (cascs.hasOwnProperty(casc)) {
+        createNoDataProjGraph(casc);
+      }
     }
   }
   
@@ -264,7 +211,7 @@ function createGraph (data, currCSC, DATA_max){
     .html(function (d) {
       var rStr = d.size.toString().substring(0, 4);
       var rFY = d.FY;
-      var rCSC = d.CSC
+      var rCSC = d.casc
       if (parseFloat(rStr) < 0.01) {
         rStr = "Less than 0.01";
       } else {
@@ -287,19 +234,25 @@ function createGraph (data, currCSC, DATA_max){
     //   .attr("xlink:href", "#"+d.number)
     .append("rect")
       .attr("class", function (d) { 
-        return "bar "+d.CSC; 
+        return "bar "+d.casc; 
       })
-      // .attr("class", function (d) { console.log(d.CSC); return d.CSC; })
+      // .attr("class", function (d) { console.log(d.casc); return d.casc; })
       .attr("id", function (d) { return "FY"+d.FY; })
       //.attr("x", function(d) { return x(d.sales); })
       .attr("width", function(d) {return x(d.size); } )
       .attr("y", function(d) { return y(d.number); })
       .attr("height", y.bandwidth())
       .on('click', function (d) {
-        var id = 'p' + d.number;
-        // console.log("Number: "+id+". element: " + document.getElementById(id));
+        let id;
+        if (d.number > 2) {
+          let num = d.number - 2;
+          id = 'p' + num;
+        }
+        else {
+          id = 'table_head';
+        }
         
-        document.getElementById(id).scrollIntoView(); 
+        document.getElementById(id).scrollIntoView();
       })
       .on('mouseover', tool_tip.show)
       .on('mouseout', tool_tip.hide);
@@ -368,7 +321,7 @@ function createGraph (data, currCSC, DATA_max){
       // var offset = height * data.length / 2;
       // var horz = -2 * legendRectSize;
       // var vert = i * height - offset;
-      var horz = width * 0.9;
+      var horz = width * 0.85;
       var vert = i * 18;
       return 'translate(' + horz + ',' + vert + ')';
     });
@@ -426,9 +379,9 @@ function createGraph (data, currCSC, DATA_max){
 //   console.log("Resized1!");
 //   d3.select("#projectGraph_svg").remove();
 //   d3.select("#projectGraph_svg").remove(); //once for each CSC
-//   projectBarGraph(reportDict);
+//   projectBarGraph(projectArray);
 //   d3.select("#fyGraphWrapper").remove(); 
-//   FY_BarGraph(reportDict);
+//   FY_BarGraph(projectArray);
 
 // }
 // // d3.select(window).on('resize', go);

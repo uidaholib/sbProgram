@@ -1,4 +1,5 @@
 """Define main application routes."""
+import os, sys
 from datetime import datetime
 from flask import render_template, redirect, url_for, request, \
     jsonify, current_app, session
@@ -11,9 +12,13 @@ from app import db
 from app.main.forms import EditProfileForm, FyForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.main import bp
-import json
+from app.auth.read_sheets import API_SERVICE_NAME,\
+        API_VERSION, get_sheet_name, parse_values, SPREADSHEET_ID
+from app.auth.routes import credentials_to_dict, clear_credentials
+import json, jsonpickle
 
 from pprint import pprint
+
 
 @bp.before_app_request
 def before_request():
@@ -32,6 +37,8 @@ def index():
                            title="Welcome to sbMACRO"))
 
 
+@bp.route('/fiscal_years')
+@bp.route('/fiscalyears')
 @bp.route('/select_fiscalyear', methods=['GET', 'POST'])  # Also accepts
 @bp.route('/select_fiscalyears', methods=['GET', 'POST'])  # Default
 def fiscalyear():
@@ -62,24 +69,22 @@ def fiscalyear():
                     BooleanField(fy.name))
     form = F()
     if form.validate_on_submit():
-        print("Form submitted!")
         id_list = []
         projects = []
         for fy in list_fy:
             fy_attr = getattr(form, fy)
             selected = fy_attr.data
-            # print("{0} selected: {1}".format(fy, selected))
             if selected:
                 id_list.append(fy.replace("fy", ""))
-        # print("id_list:")
+
         for i in id_list:
-            # print("\t{}".format(i))
-            fy_projs = db.session.query(Project).filter(
-                Project.fiscal_years.any(id=i)).all()
-            # print("\tProjects:")
-            for proj in fy_projs:
-                # print("\t\t{}".format(proj.id))
-                projects.append(proj.id)
+            fy_model = db.session.query(FiscalYear).get(i)
+            for proj in fy_model.projects:
+                project_dict = {}
+                project_dict['fy_id'] = i
+                project_dict['casc_id'] = fy_model.casc_id
+                project_dict['proj_id'] = proj.id
+                projects.append(project_dict)
 
         session["projects"] = projects
         return redirect(url_for('main.report'))
@@ -91,35 +96,257 @@ def fiscalyear():
                            cascs_and_fys=cascs_and_fys,
                            title="Select Fiscal Years")
 
-@bp.route('/try', methods=['GET', 'POST'])  # Also accepts
-def fy():
-    class NewForm(FyForm):
-        pass
-    record = {
-        '1': 'label1',
-        '2': 'label2',
-        '3': 'label3',
-        '4': 'label4'
-    }
-    for key, value in record.items():
-        setattr(NewForm, key, BooleanField(value, id="flush"))
-    form = NewForm()
-    return render_template('try.html', record=record, form=form, title="Good luck")
+# @bp.route('/try', methods=['GET', 'POST'])  # Also accepts
+# def fy():
+#     class NewForm(FyForm):
+#         pass
+#     record = {
+#         '1': 'label1',
+#         '2': 'label2',
+#         '3': 'label3',
+#         '4': 'label4'
+#     }
+#     for key, value in record.items():
+#         setattr(NewForm, key, BooleanField(value, id="flush"))
+#     form = NewForm()
+#     return render_template('try.html', record=record, form=form, title="Good luck")
 
-@bp.route('/select_project')
-@bp.route('/select_projects')
+@bp.route('/projects', methods=['GET', 'POST'])
+@bp.route('/select_project', methods=['GET', 'POST'])
+@bp.route('/select_projects', methods=['GET', 'POST'])
 def project():
     """Display and implement selection/searching for projects by URL."""
-    return "Page under construction"
+    if request.method == 'POST':
+        sb_urls = request.form.getlist("SBurls")
+        projects = []
+        for url in sb_urls:
+            project_dict = {}
+            proj = db.session.query(Project).filter(
+                    Project.url == url).first()
+            fys = proj.fiscal_years
+            if len(fys) > 1:
+                project_dict['fy_id'] = []
+                project_dict['casc_id'] = []
+                for fy in fys:
+                    project_dict['fy_id'].append(fy.id)
+                    project_dict['casc_id'].append(fy.casc_id)
+            else:
+                fy = fys[0]
+                project_dict['fy_id'] = fy.id
+                project_dict['casc_id'] = fy.casc_id
+
+            project_dict['proj_id'] = proj.id
+            projects.append(project_dict)
+            session["projects"] = projects
+            return redirect(url_for('main.report'))
+
+    return(render_template('projects.html',
+                           title="Select Projects to Report"))
 
 
 @bp.route('/report')
 def report():
     """Gather appropriate report information and display."""
-    projects = session["projects"]
-    projects2 = []
+    import google.oauth2.credentials
+    import googleapiclient.discovery
+    if current_user.is_authenticated and current_user.access_level > 0:
+        if 'credentials' not in session:
+            return redirect(url_for('auth.authorize_google'))
 
-    return render_template("report.html", projects=projects2)
+
+    project_list = session["projects"]
+    projects = []
+    sheets_dict = {}
+    class ReportItem(object):
+        """Object to be passed to front-end for display in table and modal."""
+
+        name = None
+        id = None
+        sb_id = None
+        url = None
+        obj_type = None
+        data_in_project_GB = None
+        num_of_files = None
+        total_data_in_fy_GB = None
+        timestamp = None
+        dmp_status = None
+        pi_list = []
+        summary = None
+        history = None
+        item_breakdown = None
+        potential_products = None
+        products_received = []
+        listy = [1, 2, 3, 4, 5, 6]
+
+        # Possibly necessary info:
+        casc = None
+        fiscal_year = None
+        project = None
+        item = None
+
+        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+            """Initialize ReportItem class object.
+            
+            Arguments:
+                obj_type -- (string) 'project', 'fiscal year', 'casc', 'item',
+                            'sbfile', or 'problem item' to determine the type
+                            of object being created.
+                obj_db_id -- (int) the database id for the item being created.
+                fy_db_id -- (int or list) the database id for the item's
+                            fiscal year of concern. 
+                casc_db_id -- (int or list) the database id for the item's
+                              fiscal year of concern. 
+
+            """
+
+            if obj_type == 'project':
+                self.obj_type = obj_type
+                proj = db.session.query(Project).filter(
+                        Project.id == obj_db_id).first()
+                if proj == None:
+                    raise Exception  # It has to be there somewhere...
+                else:
+                    self.name = proj.name
+                    self.id = obj_db_id
+                    self.sb_id = proj.sb_id
+                    self.url = proj.url
+                    # convert from MB -> GB
+                    self.data_in_project_GB = proj.total_data / 1000
+                    self.num_of_files = proj.files.count()
+                    if fy_db_id is list:
+                        self.fiscal_year = []
+                        self.casc = []
+                        self.total_data_in_fy_GB = []
+                        for fy_id in fy_db_id:
+                            fy = db.session.query(FiscalYear).get(fy_id)
+                            self.fiscal_year.append(fy.name)
+                            casc_model = db.session.query(casc).get(fy.casc_id)
+                            self.casc.append(casc_model.name)
+                            # convert from MB -> GB
+                            self.total_data_in_fy_GB.append(
+                                                    fy.total_data / 1000)
+                    else:
+                        fy = db.session.query(FiscalYear).get(fy_db_id)
+                        self.fiscal_year = fy.name
+                        casc_model = db.session.query(casc).get(casc_db_id)
+                        self.casc = casc_model.name
+                        # convert from MB -> GB
+                        self.total_data_in_fy_GB = fy.total_data / 1000
+                    self.timestamp = proj.timestamp
+                    self.pi_list = []
+                    for pi in proj.principal_investigators:
+                        curr_pi = {'name': pi.name, 'email': pi.email}
+                        self.pi_list.append(curr_pi)
+                    self.summary = proj.summary
+                    self.products_received = []
+                    for item in proj.items:
+                        curr_item = {'name': item.name, 'url': item.url}
+                        self.products_received.append(curr_item)
+                    # Things that depend on user access level:
+                    if current_user.is_authenticated:
+                        if current_user.access_level > 0:
+                            # Load credentials from the session.
+                            credentials = google.oauth2.credentials.\
+                                Credentials(**session['credentials'])
+
+                            # Build API client
+                            service = googleapiclient.discovery.build(
+                                API_SERVICE_NAME, API_VERSION,
+                                    credentials=credentials)
+                            sheet_name = get_sheet_name(self.casc)
+                            if sheet_name:
+                                try:
+                                    sheet = sheets_dict[sheet_name]
+                                except KeyError:
+                                    print("Sheet not found in sheet_dict")
+                                    result = service.spreadsheets().values().get(
+                                        spreadsheetId=SPREADSHEET_ID,
+                                        range=sheet_name).execute()
+                                    values = result.get('values', [])
+                                    sheet = parse_values(values)
+                                    sheets_dict[sheet_name] = sheet
+                            else:
+                                sheet = {}
+
+                            # Save credentials back to session in case access
+                            #   token was refreshed.
+                            # ACTION ITEM: In a production app, you likely
+                            #       want to save these credentials in a
+                            #       persistent database instead.
+                            session['credentials'] = credentials_to_dict(credentials)
+
+                            try:
+                                # DMP Status
+                                self.dmp_status = sheet[proj.sb_id]\
+                                                            ['DMP Status']
+                                if self.dmp_status.isspace() or \
+                                        self.dmp_status == "":
+                                    self.dmp_status = "No DMP status provided"
+                            # History
+                                self.history = sheet[proj.sb_id]['History']
+                                if self.history.isspace() or \
+                                        self.history == "":
+                                    self.history = \
+                                            "No data steward history provided"
+                            #Potential Products
+                                self.potential_products = sheet[proj.sb_id]\
+                                                        ['Expected Products']
+                                if self.potential_products.isspace() or \
+                                        self.potential_products == "":
+                                    self.potential_products = \
+                                        "No data potential products provided"
+                            except KeyError:
+                                self.dmp_status = \
+                            "Project not currently tracked by Data Steward"
+                                self.history = \
+                            "Project not currently tracked by Data Steward"
+                                self.potential_products = \
+                            "Project not currently tracked by Data Steward"
+                        else:
+                            self.dmp_status = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.history = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.potential_products = "Please email "\
+                                + "administrators at {} to receive access "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "privileges to view this content."
+                    else:
+                        self.dmp_status = "Please login to view this content."
+                        self.history = "Please login to view this content."
+                        self.potential_products = "Please login to view this"\
+                                                  + " content."
+            elif obj_type == 'fiscal year':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'casc':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'sbfile':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'problem item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+
+    for project in project_list:
+        new_obj = ReportItem('project',
+                             project['proj_id'],
+                             project['fy_id'],
+                             project['casc_id'])
+        projects.append(new_obj.__dict__)
+
+
+
+    # clear_credentials()
+    return render_template("report.html", projects=projects)
 
 @bp.route('/user/<username>')
 @login_required

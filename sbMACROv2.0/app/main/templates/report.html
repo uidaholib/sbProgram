@@ -2,28 +2,28 @@
 {% block content %}
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
 
-<link rel="stylesheet" href="../../static/css/custom.css">
-<link rel="stylesheet" href="/static/css/modal.css">
-<link rel="stylesheet" href="static/css/table.css">
-<script src="../../static/js/d3.v4.min.js"></script>
-<script src="/static/js/node_modules/file-saverjs/FileSaver.js"></script>
-<script src="/static/js/node_modules/tableexport/src/stable/js/tableexport.js"></script>
-<script src="/static/js/DataVisualization/projectBarGraph.js"></script>
-<script src="/static/js/DataVisualization/FY_BarGraph.js"></script>
-<script src="/static/js/DataVisualization/projectTable.js"></script>
-<script src="/static/js/DataVisualization/d3-tip.js"></script>
-<script src="/static/js/reportModal.js"></script>
-
+<link rel="stylesheet" href="static/css/custom.css">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/table.css') }}">
+<script src="static/js/d3.v4.min.js"></script>
+<script src="{{ url_for('main.static', filename='js/node_modules/file-saverjs/FileSaver.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/node_modules/tableexport/src/stable/js/tableexport.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/DataVisualization/FY_BarGraph.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/DataVisualization/projectBarGraph.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/DataVisualization/projectTable.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/DataVisualization/d3-tip.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/reportModal.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/jquery.floatThead.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/graphs.css') }}">
 
 
 
 
 
 <script>
-  var reportDict = {{ full_report_json | safe }};
-  console.log("reportDict:")
-  console.log(reportDict);
-  buildProjectTable(reportDict);
+  var projectArray = {{ projects| tojson | safe }};
+  console.log(projectArray)
+  buildProjectTable(projectArray);
 </script>
 <script type="text/javascript">
 //script for downloading table as excel.
@@ -74,9 +74,9 @@
   <button class="btn wave-effect waves-teal" id="btnExport2">Export to Excel (.xls)</button>
   <div id="table_wrapper">
     <table class="bordered highlight striped centered responsive-table" id="reportTable">
-      <thead>
+      <thead id="table_head">
         <th>Number</th>
-        <th>Climate Science Center</th>
+        <th>Climate Adaptation Science Center</th>
         <th>Fiscal Year</th>
         <!-- <th>ID</th> -->
         <th>Object Type</th>
@@ -127,7 +127,7 @@
 
         <div class="centered_container">
           <span style="font-size: 2vh;">
-            <strong>Principal Investigator: </strong><br>
+            <strong>Principal Investigators: </strong><br>
             <span class="PI"></span>
           </span>
         </div>
@@ -149,7 +149,7 @@
       </div>
       <div class="col s12 m6 l6">
         <h5>Uploaded Data Product Breakdown</h5><br>
-        <img src="../static/placeholderPiee.jpg">
+        <img src="{{ url_for('main.static', filename='placeholderPiee.jpg') }}">
       </div>
     </div>
     <div class="row">
@@ -171,23 +171,25 @@
 
 
 <script>  
-  var reportDict = {{ full_report_json | safe }};
-  projectBarGraph(reportDict); //from /static/js/DataVisualization/projectBarGraph.js
+  projectBarGraph(projectArray); //from /static/js/DataVisualization/projectBarGraph.js
   $("<br><br>").insertAfter("#wrapper");
-  FY_BarGraph(reportDict); //from /static/js/DataVisualization/FY_BarGraph.js
+  FY_BarGraph(projectArray); //from /static/js/DataVisualization/FY_BarGraph.js
   function catchResize() {
-    console.log("Resized1!");
     var s = d3.selectAll('svg');
     s.remove();
     d3.select("#projectGraph_svg").remove();
     d3.select("#projectGraph_svg").remove(); //once for each CSC
     d3.select("#FYGraph_svg").remove();
-    projectBarGraph(reportDict);
-    FY_BarGraph(reportDict);
+    projectBarGraph(projectArray);
+    FY_BarGraph(projectArray);
 
   }
   // d3.select(window).on('resize', go);
   window.addEventListener('resize', catchResize);
+
+
+  var $table = $('table#reportTable');
+  $table.floatThead();
 </script>
 
 

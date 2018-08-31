@@ -3,7 +3,7 @@ import sys
 import os
 from app import create_app, db
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
-from app.models import ProblemItem
+from app.models import ProblemItem, PrincipalInvestigator
 
 app = create_app() # pylint: disable=C0103
 
@@ -31,7 +31,8 @@ def make_shell_context():
         'Project': Project,
         'Item': Item,
         'SbFile': SbFile,
-        'ProblemItem': ProblemItem
+        'ProblemItem': ProblemItem,
+        'PrincipalInvestigator': PrincipalInvestigator
     }
 
 if __name__ == "__main__":

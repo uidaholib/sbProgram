@@ -17,6 +17,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     about = db.Column(db.String(140))
+    access_level = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         """Create printed representation of the User model class."""
@@ -62,6 +63,13 @@ def load_user(id):
     return User.query.get(int(id))
 
 # Association Tables:
+# Principal Investigator association
+assoc_PI_project = db.Table('assoc_PI_project',
+                            db.Column('PI_id', db.Integer,
+                                      db.ForeignKey(
+                                        'principal_investigator.id')),
+                            db.Column('project_id', db.Integer,
+                                      db.ForeignKey('project.id')))
 # CASC associations
 assoc_casc_project = db.Table('assoc_casc_project',
                               db.Column('casc_id', db.Integer,
@@ -128,6 +136,19 @@ assoc_item_sbfile = db.Table('assoc_item_sbfile',
                                        db.ForeignKey('sb_file.id')))
 
 
+class PrincipalInvestigator(db.Model):
+    """Principal Investigator model class."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    email = db.Column(db.String(64))
+    projects = db.relationship(
+        'Project',
+        secondary=assoc_PI_project,
+        backref='principal_investigators',
+        lazy='dynamic')
+
+
 class casc(db.Model):
     """casc database model class."""
 
@@ -170,7 +191,7 @@ class FiscalYear(db.Model):
     url = db.Column(db.String(128), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     name = db.Column(db.String(32))
-    total_data = db.Column(db.Integer)
+    total_data = db.Column(db.Integer)  # Megabytes
     # Foreign Keys
     casc_id = db.Column(db.Integer, db.ForeignKey('casc.id'))
     # Many-to-Many Relationships
@@ -204,11 +225,12 @@ class Project(db.Model):
     url = db.Column(db.String(128))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     name = db.Column(db.String(512))
-    total_data = db.Column(db.Integer)
+    total_data = db.Column(db.Integer)  # Megabytes
     item_count = db.Column(db.Integer)
     file_count = db.Column(db.Integer)
     start_date = db.Column(db.String(32))
     end_date = db.Column(db.String(32))
+    summary = db.Column(db.String(2048))
     # Many-to-Many Relationships
     items = db.relationship(
         'Item',
@@ -235,7 +257,7 @@ class Item(db.Model):
     url = db.Column(db.String(128), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     name = db.Column(db.String(128))
-    total_data = db.Column(db.Integer)
+    total_data = db.Column(db.Integer)  # Megabytes
     file_count = db.Column(db.Integer)
     start_date = db.Column(db.String(32))
     end_date = db.Column(db.String(32))
@@ -255,7 +277,7 @@ class SbFile(db.Model):
     url = db.Column(db.String(512), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     name = db.Column(db.String(128))
-    size = db.Column(db.Integer)
+    size = db.Column(db.Integer)  # Megabytes
     content_type = db.Column(db.String(128))
 
 
@@ -266,4 +288,3 @@ class ProblemItem(db.Model):
     url = db.Column(db.String(512), unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     issue = db.Column(db.String(128))
-

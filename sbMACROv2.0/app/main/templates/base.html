@@ -7,105 +7,48 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+
     <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+    {{ moment.include_moment() }}
     <!-- <link rel="stylesheet" href="../static/bootstrap.min.css"> -->
     <link rel="stylesheet" href="../../static/css/custom.css">
-
-  
    
 
   </head>
 <body>
-
-  <script>
-
-  $(document).ready(function () {
-    var $nav = $("#nav");
-    var $content = $("#content");
-    var $loading = $("#loading");
-    $loading.hide();
-    // $("#loading").hide();
-    $("input[type=submit]").on('click', function () {
-    // $("#submit").click(function () {
-      $content.hide();
-      $nav.hide();
-      $loading.show();
-      // $("#loading").show();
-      // setTimeout(function () {
-      //     $('#loading-message').fadeOut('fast');
-      //   }, 500);
-      //$("#loading-message").empty();
-
-    });
-  });
-    var showLoading = function () {
-      var $nav = $("#nav");
-      var $content = $("#content");
-      var $loading = $("#loading");
-      $content.hide();
-      $nav.hide();
-      $loading.show();
-    };
-    var DontShowLoading = function () {
-      var $nav = $("#nav");
-      var $content = $("#content");
-      var $loading = $("#loading");
-      $content.show();
-      $nav.show();
-      $loading.hide();
-    };
-    
-  $(document).ready(function () {
-    var $nav = $("#nav");
-    var $content = $("#content");
-    var $loading = $("#loading");
-    $loading.hide();
-    // $("#loading").hide();
-    $("input[type=submit]").on('click', function () {
-    // $("#submit").click(function () {
-      $content.hide();
-      $nav.hide();
-      $loading.show();
-      // $("#loading").show();
-      // setTimeout(function () {
-      //     $('#loading-message').fadeOut('fast');
-      //   }, 500);
-      //$("#loading-message").empty();
-
-    });
-  });
-  </script>
-
-  <div id="loading">
-    <h3>Please wait while we contact ScienceBase.gov.</h3>
-    <p>This could take several minutes depending on how much data must be parsed.
-      <br>
-      Maybe do something else while you wait...
-    </p>
-    <img src="https://4.bp.blogspot.com/-QYt9k9dahqQ/WcQBGz6iYVI/AAAAAAAAASI/ppRCm7BIZA4R3WgrC1awv0kRxElu15ojgCK4BGAYYCw/s400/ajax-loader.gif" id="loading">
-    
-    <!-- messages -->
-    {% with messages = get_flashed_messages() %} 
-      {% if messages %}
-        {% for message in messages %}
-        <div class="flash-div">
-          <p id="loading-message">{{ message }}</p>
-        </div>
-        {% endfor %}
-      {% endif %} 
-    {% endwith %}
-    
+  <div id="loading_container">
+      <h4 id="loading_title">Please wait...</h4>
+      <img src="static/loading.gif" id="loading">
   </div>
-<!-- Navbar goes here -->
+  <!-- Navbar goes here -->
   <nav id="nav" class="blue darken-4">
     <div class="nav-wrapper">
-      <a class="brand-logo center">sbMACRO</a>
+      <a href="{{ url_for('main.index') }}" class="brand-logo center">sbMACRO</a>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+      <ul class="right hide-on-med-and-down">
+        <li id="get_report"><a href="{{ url_for('main.report') }}">Report</a></li>
+        {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+        <li><a href="{{ url_for('auth.revoke') }}">Logout</a></li>
+        {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+        {% endif %}
+      </ul>
     </div>
   
   </nav>
+  <!-- Side Nave hidden menu -->
+  <ul class="sidenav" id="mobile-demo">
+    <li id="get_report"><a href="{{ url_for('main.report') }}">Report</a></li>
+    {% if current_user.is_authenticated %}
+    <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+    <li><a href="{{ url_for('auth.revoke') }}">Logout</a></li>
+    {% else %}
+    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+    {% endif %}
+  </ul>
 
 <!-- Page Layout here -->
 
@@ -161,6 +104,77 @@
     
     </div>
   </div>
+    <script>
+      $(document).ready(function () {
+        var $nav = $("#nav");
+        var $content = $("#content");
+        var $loading = $("#loading");
+        $loading.hide();
+        // $("#loading").hide();
+        $("input[type=submit]").on('click', function () {
+          // $("#submit").click(function () {
+          $content.hide();
+          $nav.hide();
+          $loading.show();
+          // $("#loading").show();
+          // setTimeout(function () {
+          //     $('#loading-message').fadeOut('fast');
+          //   }, 500);
+          //$("#loading-message").empty();
 
+        });
+        $("#get_report").on('click', function () {
+          // $("#submit").click(function () {
+          $content.hide();
+          $nav.hide();
+          $loading.show();
+          // $("#loading").show();
+          // setTimeout(function () {
+          //     $('#loading-message').fadeOut('fast');
+          //   }, 500);
+          //$("#loading-message").empty();
+
+        });
+      });
+      var showLoading = function () {
+        var $nav = $("#nav");
+        var $content = $("#content");
+        var $loading = $("#loading_container");
+        $content.hide();
+        $nav.hide();
+        $loading.show();
+      };
+      var DontShowLoading = function () {
+        var $nav = $("#nav");
+        var $content = $("#content");
+        var $loading = $("#loading_container");
+        $content.show();
+        $nav.show();
+        $loading.hide();
+      };
+
+      $(document).ready(function () {
+        var $nav = $("#nav");
+        var $content = $("#content");
+        var $loading = $("#loading_container");
+        $loading.hide();
+        // $("#loading").hide();
+        $("input[type=submit]").on('click', function () {
+          // $("#submit").click(function () {
+          $content.hide();
+          $nav.hide();
+          $loading.show();
+          // $("#loading").show();
+          // setTimeout(function () {
+          //     $('#loading-message').fadeOut('fast');
+          //   }, 500);
+          //$("#loading-message").empty();
+
+        });
+      });
+      //Initialize the sidenav-trigger line of nav bar
+      $('.sidenav').sidenav();
+
+    </script>
 </body>
 </html>

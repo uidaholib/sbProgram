@@ -491,45 +491,7 @@ def get_user_input_fys():
                 and (not main.id_in_list(fy_id_list, obj))
                 and (len(answer) == 24)):  # ID string length is 24
             print("ID appears valid...")
-            csc = None
-            while(csc != "ALASKACSC"
-                  and csc != "NCCSC"
-                  and csc != "NCCWSC"
-                  and csc != "NECSC"
-                  and csc != "NWCSC"
-                  and csc != "PacificCSC"
-                  and csc != "SCCSC"
-                  and csc != "SECSC"
-                  and csc != "SWCSC"
-                  and csc != 'UNKNOWN'):
-                if csc == "ALASKACSC":
-                    print("csc = ALASKACSC")
-                if csc == "NCCSC":
-                    print("csc = NCCSC")
-                if csc == "NCCWSC":
-                    print("csc = NCCWSC")
-                if csc == "NECSC":
-                    print("csc = NECSC")
-                if csc == "NWCSC":
-                    print("csc = NWCSC")
-                if csc == "PacificCSC":
-                    print("csc = PacificCSC")
-                if csc == "SCCSC":
-                    print("csc = SCCSC")
-                if csc == "SECSC":
-                    print("csc = SECSC")
-                if csc == "SWCSC":
-                    print("csc = SWCSC")
-                if csc == "UNKNOWN":
-                    print("csc = UNKNOWN")
-                print("Please enter the CSC for the given ID, "
-                      + "or type 'unknown'.")
-                csc = input('SB CSC: ')
-                print("Input: {0}".format(csc))
-                if csc == 'UNKNOWN':
-                    csc = get_csc_from_fy_id(answer)
-                    if not csc:
-                        continue
+            csc = get_csc_from_fy_id(answer)
             obj.csc = csc
             fy_id_list.append(obj)
     return fy_id_list

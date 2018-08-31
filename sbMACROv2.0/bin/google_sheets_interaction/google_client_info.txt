@@ -1,0 +1,5 @@
+client ID
+246202771284-s51uqsf2mq552gppf363h7t6kqaaprud.apps.googleusercontent.com
+
+client secret key
+eYSnTd4WYf1oX0My6gjb-oOJ

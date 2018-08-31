@@ -2896,7 +2896,7 @@ __Moving routes to `routes.py`__
         - The FY Form isn't displaying quite right yet, but I'm moving on and will come back to it later.
 *  `/report` (Find appropriate data in jsons or via hard search, render report.html)
     - `report.html` needed moved to `templates/`, as well as several JS and CSS files (the whole `DataVisualization/` dir, `reportModal.js`, `modal.css`, `table.css`). 
-    - While looking at these files and thinkig about reconstructing the table and modals, I noticed some data was missing/not tracked in our database that we will need:
+    - While looking at these files and thinking about reconstructing the table and modals, I noticed some data was missing/not tracked in our database that we will need:
         - Table:
             - Number [Tracked]
             - Climate Adaptation Science Center [Tracked]
@@ -2916,16 +2916,179 @@ __Moving routes to `routes.py`__
             - Data Steward History [Tracked -- Google Sheet]
             - Uploaded Data Product Breakdown [Not yet implemented]
             - Potential Products [Tracked -- Google Sheet]
-            - Products Recieved [Tracked]
+            - Products Received [Tracked]
     - Therefore, we need to add the following to the database schema:
         - Project
             - Principle Investigator(s!)
+                - I added a new model (`PrimaryInvestigator`) and created a many-to-many relationship between `Project` and `PrimaryInvestigator`.
+                - In `sb_data_gather.db_save.py` I added a new method `get_pi_list()` that for each PI that was not found in the database. Then, in `save_proj()` each PI had the project added to their `.projects` attribute.
             - PI email(s!)
+                - I added a new model (`PrimaryInvestigator`) and created a many-to-many relationship between `Project` and `PrimaryInvestigator`.
+                - In `sb_data_gather.db_save.py` I added a new method `get_pi_list()` that for each PI that was not found in the database. Then, in `save_proj()` each PI had the project added to their `.projects` attribute.
             - Summary
+                - I added `summary = db.Column(db.String(2048))` to the `Project` model
+                - In `sb_data_gather.db_save.py` I added new logic to save this information.
         - User
             - Access Privileges
+                - I added `access_level = db.Column(db.Integer, default=0)` to the `User` model
+        - After all of this, I had to create a new db migration, `upgrade` the db, then play in `flask shell` to make sure all the new stuff works.
+        ```py
+        Instance: /Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv2.0/instance
+        >>> proj = Project(name='project1')
+        >>> pi1 = PrincipalInvestigator(name="gary", email="whatever")
+        >>> pi2 = PrincipalInvestigator(name="jane", email="whatever2")
+        >>> pi3 = PrincipalInvestigator(name="jo", email="whatever3")
+        >>> proj.principal_investigators.append(pi1)
+        >>> proj.principal_investigators.append(pi2)
+        >>> for pi in proj.principal_investigators:
+        ...     print(pi.name, pi.email)
+        ...
+        gary whatever
+        jane whatever2
+        >>> for project in pi1.projects:
+        ...     print(project.name)
+        ...
+        project1
+        >>> proj2 = Project(name="oahsasdfasf")
+        >>> proj2.principal_investigators.append(pi1)
+        >>> proj2.principal_investigators.append(pi3)
+        >>> for project in pi1.projects:
+        ...     print(project.name)
+        ...
+        project1
+        oahsasdfasf
+        >>> for pi in proj2.principal_investigators:
+        ...     print(pi.name, pi.email)
+        ...
+        gary whatever
+        jo whatever3
+        >>>
+        ```
+        - I then had to run the `sb_data_gather` algorithm to repopulate the datebase. This took about 40 min to do all CASCs.
+        - Now everything for the table and modal are all tracked.
+
+I made a ton of changes to how things were done, including adding the `static` folder to the blueprints in flask for each subsystem/blueprint [[1](http://flask.pocoo.org/docs/1.0/blueprints/#static-files)] [[2](https://stackoverflow.com/questions/22152840/flask-blueprint-static-directory-does-not-work)]. I added a giant class object to `report()` for `/report`. Then I changed the front-end to correctly import each file. This brought be to making changes in ALL JavaScript so that `/report` actually works. These are `DataVisualization/FY_BarGraph.js`, `DataVisualization/projectBarGraph.js`, `DataVisualization/projectTable.js`, and `reportModal.js`.
+
+We'll start with the project table (`projectTable.js`) as it is probably the most important. I deleted a bunch of unnecessary code, changing the interface from the old `reportDict` to `projectList`. It took a long time to correct the large amount of errors (most having to do with imports or passing variables incorrectly from back to front-end).
+
+After having `/report` mostly squared away, I realized that permissions levels needed implemented and the google sheets integration needed tested for a logged in user. This set forth a cascade of bugs and issues which have taken days to try to fix. Apparently, Google changes their APIs sometimes frequently. I thought my old script wasn't working for that reason. [I tried a ton of different things to figure out what was going on before finally figuring it out](##Google-Sheets-Integration).
+
+
         
 
 
 * `/projects`
+
+The `projects.html` template was already moved to `/templates`, though `projects.js` needed moved to `main/static/js/`. I then went straight to the route in `routes.py`.
+
+_NOTE: There have been some problems with refreshing access tokens with google sheets interaction... I believe this was fixed by adding `prompt='consent'` to `flow.authorization_url` object in `authorize_google()`._
+
+The new code for the route, after much fiddling, looks like this:
+
+```py
+@bp.route('/projects', methods=['GET', 'POST'])
+@bp.route('/select_project', methods=['GET', 'POST'])
+@bp.route('/select_projects', methods=['GET', 'POST'])
+def project():
+    """Display and implement selection/searching for projects by URL."""
+    if request.method == 'POST':
+        sb_urls = request.form.getlist("SBurls")
+        projects = []
+        for url in sb_urls:
+            project_dict = {}
+            proj = db.session.query(Project).filter(
+                    Project.url == url).first()
+            fys = proj.fiscal_years
+            if len(fys) > 1:
+                project_dict['fy_id'] = []
+                project_dict['casc_id'] = []
+                print("Found project {0} in ".format(proj.id), end="")
+                for fy in fys:
+                    project_dict['fy_id'].append(fy.id)
+                    print(fy.id, end=" ")
+                    project_dict['casc_id'].append(fy.casc_id)
+            else:
+                fy = fys[0]
+                print("Found project {0} in {1}".format(proj.id, fy.id),
+                      end="")
+                project_dict['fy_id'] = fy.id
+                project_dict['casc_id'] = fy.casc_id
+
+            project_dict['proj_id'] = proj.id
+            # print("\t\t{}".format(proj.id))
+            projects.append(project_dict)
+            session["projects"] = projects
+            return redirect(url_for('main.report'))
+
+    return(render_template('projects.html',
+                           title="Select Projects to Report"))
+```
+
+While a bit sloppy, it works. Notice that we now have to check whether `session['fy_id']` and `session['casc_id']` are lists or not. This needed changed in the javascript for `/report` and the `ReportItem.__init__()` function.
+
+
 * `/download_log` (The function takes formats report_dict and passes it to report.html, then renders report.html page)
+    - This is, I think, a useless url now that we have changed how the back-end functions.
+
+
+# Appendix #
+
+## Google Sheets Integration ## 
+
+After having `/report` mostly squared away, I realized that permissions levels needed implemented and the google sheets integration needed tested for a logged in user. This set forth a cascade of bugs and issues which have taken days to try to fix. Apparently, Google changes their APIs sometimes frequently. I thought my old script wasn't working for that reason. I was wrong. I tried many, many different things, as it outlined here.
+
+I kept getting an error saying that the `-m` flag didn't recognize the `flask run` option. I tried many different things (such as [this](https://developers.google.com/api-client-library/python/auth/service-accounts), and many others). I created google projects, service accounts, various security keys, client permissions, API activations, etc. I even found [this resource](https://www.twilio.com/blog/2017/02/an-easy-way-to-read-and-write-to-a-google-spreadsheet-in-python.html) (which also had a helpful library for integrating with google sheets), which I got to work, with some tinkering, but ONLY as a CLI run directly from python. If I called it within the flask application, I kept getting the same error mentioned previously. Currently, I have spent days on this, and it has been extraordinarily demoralizing.
+
+[Now, I'm trying [this version](https://developers.google.com/api-client-library/python/auth/web-app). Instead of directly accessing the project's own available resources, the web app would, instead, accesss such resources with the permission and credentials of the user. This isn't ideal, but is likely sufficient _if_ I can get it to work (not likely).
+
+___Note: ~~I realized that, rather than have access levels that are static, they will change from '0' (default) to '1' IF they are authenticated by google, which should happen after submitting a `/select_fiscalyears` or `/select_projects` form.~~ False. The permission level will indicate whether or not google is contacted for authentification, which will then happen after the submission of the forms at `/select_fiscalyears` or `/select_projects`.___
+
+I did the following installs, and froze everything into `requirement.txt`:
+```bash
+(venv) $ python -m pip install --upgrade google-api-python-client
+...
+(venv) $ python -m pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2
+...
+(venv) $ python -m pip install --upgrade flask
+...
+(venv) $ python -m pip install --upgrade requests
+...
+(venv) $ python -m pip freeze > requirements.txt
+```
+
+Now I need to first obtain the 'access tokens'. Here is the outline given by Google:
+
+1. Your application identifies the permissions it needs.
+2. Your application redirects the user to Google along with the list of requested permissions.
+3. The user decides whether to grant the permissions to your application.
+4. Your application finds out what the user decided.
+5. If the user granted the requested permissions, your application retrieves tokens needed to make API requests on the user's behalf.
+
+
+__Step 1: Set Authorization Parameters__
+
+
+I first created a new route in the `auth` subsystem/blueprint. Then I pasted the code found under Step 1 [here](https://developers.google.com/api-client-library/python/auth/web-app). I had to change some things, such as the relative path and name of `client_secret.json`. 
+
+__Step 2: Redirect to Google's OAuth 2.0 server__
+
+This is a fairly simple:
+```py
+return flask.redirect(authorization_url)
+```
+
+__Step 3: Google prompts user for consent__
+
+Google covers this step.
+
+__Step 4: Handle the OAuth 2.0 server response__
+
+The response is given as a url parameter and needs handled.
+
+__Step 5: Exchange authorization code for refresh and access tokens__
+
+I created another route, `/google_authentication_res/<token>`, to handle the response from google. I copied and doctored much of the code presented in the instrucitons.
+
+I also realized that, to do as google suggests, ie. that the user's access and refresh tokens need stored in the database, I also need to add those things to the db model for `User`. However, upon further reflection, I believe that erring on the side of security is best, so storage of the tokens will only take place in the temporary `session` variable. This means that they are not stored permanently, which is more secure, but means that users will have to give their permission more frequently--a price worth paying for the increased security and decreased responsibility of the app.
+
+

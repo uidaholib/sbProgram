@@ -3,6 +3,7 @@ import sys
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from tests import test_old_v_new_data
 LOC = os.path.dirname(os.path.realpath(__file__))
 # LOC == sb_data_gather
 LOC = os.path.dirname(LOC)
@@ -11,9 +12,8 @@ LOC = os.path.dirname(LOC)
 # LOC == sbMACRO
 sys.path.insert(0, LOC)
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
-from app.models import ProblemItem
+from app.models import ProblemItem, PrincipalInvestigator
 from main import full_hard_search, defined_hard_search, update_casc_total_data
-from tests import test_old_v_new_data
 from config import Config
 
 
@@ -46,6 +46,7 @@ class App(object):
         self.Item = Item
         self.SbFile = SbFile
         self.ProblemItem = ProblemItem
+        self.PI = PrincipalInvestigator
 
 
 APP = App()

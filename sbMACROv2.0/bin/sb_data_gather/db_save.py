@@ -121,12 +121,12 @@ def save_proj(app, project, fy_model, casc_model):
     """
     # casc_model = app.casc.query.filter_by(id=casc_model).first()
     # fy_model = app.FiscalYear.query.filter_by(id=fy_model).first()
-
     proj = app.db.session.query(app.Project).filter(
            app.Project.sb_id == project.ID).first()
     if proj is None:  # The Fiscal Year was not found in the db
         print("---------SQL--------- [Project] Could not find " +
               "{} in database...".format(project.name))
+        pi_list = get_pi_list(app, project.sb_json)
         proj = app.Project(sb_id=project.ID,
                            url=project.URL,
                            name=project.name,
@@ -136,14 +136,18 @@ def save_proj(app, project, fy_model, casc_model):
                            file_count=project.project_files\
                                               ["Project_File_Count"],
                            start_date=get_sb_date("start", project.sb_json),
-                           end_date=get_sb_date("end", project.sb_json))
+                           end_date=get_sb_date("end", project.sb_json),
+                           summary=project.sb_json['summary'])
         # Many-to-many relationship definitions:
         proj.cascs.append(casc_model)
         proj.fiscal_years.append(fy_model)
+        for pi_model in pi_list:
+            proj.principal_investigators.append(pi_model)
         app.db.session.add(proj)
     else:
         print("---------SQL--------- [Project] Found {} in database..."
               .format(project.name))
+        pi_list = get_pi_list(app, project.sb_json)
         if proj.sb_id != project.ID:
             proj.sb_id = project.ID
         if proj.name != project.name:
@@ -158,6 +162,8 @@ def save_proj(app, project, fy_model, casc_model):
             proj.file_count = project.project_files["Project_File_Count"]
         proj.start_date = get_sb_date("start", project.sb_json)
         proj.end_date = get_sb_date("end", project.sb_json)
+        if proj.summary != project.sb_json['summary']:
+            proj.summary = project.sb_json['summary']
 
         # Many-to-many relationships (need db model):
         # Check if the casc is already related to the project by iterating
@@ -166,6 +172,10 @@ def save_proj(app, project, fy_model, casc_model):
             proj.cascs.append(casc_model)
         if not (any(fy.id == fy_model.id for fy in proj.fiscal_years)):
             proj.fiscal_years.append(fy_model)
+        for pi_model in pi_list:
+            if not (any(pi.id == pi_model.id for pi in \
+                            proj.principal_investigators)):
+                proj.principal_investigators.append(pi_model)
 
         # Add new timestamp
         proj.timestamp = datetime.utcnow()
@@ -173,6 +183,59 @@ def save_proj(app, project, fy_model, casc_model):
     app.db.session.commit()
     print("---------SQL--------- [Project] Done with {}.".format(proj.name))
     return proj
+
+
+def get_pi_list(app, project):
+    """Create/gather list of Principal Investigators for a project.
+
+    Arguments:
+        project -- (JSON) the Science Base JSON for a project item.
+    
+    Returns:
+        pi_list -- (list) a list of PrincipalInvestigator models (defined in
+                   models.py) that are related to the project.
+
+    """
+    pi_list = []
+    for person in project['contacts']:
+        try:
+            if person['type'].lower() == "principal investigator":
+                PI = app.db.session.query(app.PI).filter(
+                    app.PI.name == person['name']).first()
+                try:
+                    email = person['email']
+                except KeyError:
+                    email = None
+                # Update/Create PI:
+                if PI is None:
+                    PI = app.PI(name=person['name'],
+                                email=email)
+                    app.db.session.add(PI)
+                else:
+                    if PI.name != person['name']:
+                        PI.name = person['name']
+                    if PI.email != email:
+                        PI.email = email
+                app.db.session.commit()
+                pi_list.append(PI)
+                if PI.name == "Scott Rupp":
+                    print("""
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    Name: {0}
+                    Email: {1}
+                    email variable: {2}
+                    """.format(PI.name, PI.email, email))
+                    exit(0)
+        except KeyError:
+            continue
+    return pi_list
 
 
 def get_sb_date(date_type, sb_json):
