@@ -234,7 +234,7 @@ function createGraph (data, currCSC, DATA_max){
     //   .attr("xlink:href", "#"+d.number)
     .append("rect")
       .attr("class", function (d) { 
-        return "bar "+d.casc; 
+        return "bar "+d.casc+"CASC"; 
       })
       // .attr("class", function (d) { console.log(d.casc); return d.casc; })
       .attr("id", function (d) { return "FY"+d.FY; })
@@ -282,7 +282,7 @@ function createGraph (data, currCSC, DATA_max){
       .attr("text-anchor", "middle")
       .style("font-size", "20px")
       .style("text-decoration", "underline")
-      .text("ScienceBase Project Size Comparison-- " + currCSC);
+      .text("ScienceBase Project Size Comparison-- " + currCSC + "CASC");
 
   //Adding Legend
   var legendRectSize = 18;
@@ -327,7 +327,7 @@ function createGraph (data, currCSC, DATA_max){
     });
 
   legend.append('rect')
-    .attr('class', function (d) { return 'legend ' + currCSC; })
+    .attr('class', function (d) { return 'legend ' + currCSC + "CASC"; })
     .attr('id', function (d) { return 'FY' + d.FY; })
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)

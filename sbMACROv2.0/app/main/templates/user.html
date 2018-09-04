@@ -3,9 +3,7 @@
 {% block content %}
     <h1>User: {{ user.username }}</h1>
     <p>Email: {{ user.email }}</p>
-    {% if user.last_seen %}
-        <p>Last seen on: {{ user.last_seen }} </p> 
-    {% endif %}
+<p>Permission Level: <i><strong> {{ user.access_level }}</strong></i>. Please <a href="mailto:{{ adminEmail }}?subject=Privilege Level Increase Request: {{user.username}}&body=Dear adminitrator, please increase my access level. Yours, {{user.username}}">email the site admin </a>if you'd like to increase your permissions and access privileges. </p>
     {% if user.about %}
         <br>
         <h4>About me:</h4>

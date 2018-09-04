@@ -118,11 +118,18 @@ def project():
     """Display and implement selection/searching for projects by URL."""
     if request.method == 'POST':
         sb_urls = request.form.getlist("SBurls")
+        print("sb_urls:")
+        pprint(sb_urls)
         projects = []
         for url in sb_urls:
             project_dict = {}
             proj = db.session.query(Project).filter(
                     Project.url == url).first()
+            if proj is None:
+                print("---Error: Could not find project for {}".format(url))
+                continue
+            else:
+                print("Found: {0}: {1}".format(proj.id, proj.name))
             fys = proj.fiscal_years
             if len(fys) > 1:
                 project_dict['fy_id'] = []
@@ -138,7 +145,7 @@ def project():
             project_dict['proj_id'] = proj.id
             projects.append(project_dict)
             session["projects"] = projects
-            return redirect(url_for('main.report'))
+        return redirect(url_for('main.report'))
 
     return(render_template('projects.html',
                            title="Select Projects to Report"))
@@ -353,9 +360,9 @@ def report():
 def user(username):
     """Load user and render user.html template if found, else 404."""
     # Change to lowercase to make case insensitive
-    usr = User.query.filter_by(username=username.lower()).first_or_404()
-
-    return render_template('user.html', user=usr)
+    user = User.query.filter_by(username=username.lower()).first_or_404()
+    admin_email = current_app.config['ADMINS'][0]
+    return render_template('user.html', user=user, adminEmail=admin_email)
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])

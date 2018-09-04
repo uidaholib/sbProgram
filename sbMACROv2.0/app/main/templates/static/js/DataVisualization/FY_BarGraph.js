@@ -1,6 +1,7 @@
 
 // Doctored From http://bl.ocks.org/kiranml1/6872226 
 function shortenCascName (casc) {
+  casc = casc.replace("CASC", "");
   if (casc.includes('Alaska')) {
     casc = casc.replace('Alaska ', 'AK');
     return casc;
@@ -222,7 +223,9 @@ function createFYGraph (data){
   // Scale the range of the data in the domains
   x.domain([0, d3.max(data, function (d) { return d.size; })])
   // y.domain(d3.range(data.length));
-  y.domain(data.map(function (d) { return d.name; }));
+  y.domain(data.map(function (d) {
+    return d.name;
+  }));
   //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
 
 
@@ -254,7 +257,7 @@ function createFYGraph (data){
       .attr("class", "bar")
       .attr("id", function (d) {
         // console.log(d.casc); 
-        return d.casc; 
+        return d.casc+"CASC"; 
       })
       //.attr("x", function(d) { return x(d.sales); })
       .attr("width", function (d) { return x(d.size); })
@@ -350,7 +353,7 @@ function createFYGraph (data){
 
   legend.append('rect')
     .attr('class', function (d) { return 'legend'; })
-    .attr('id', function (d) { return d.casc; })
+    .attr('id', function (d) { return d.casc + "CASC"; })
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)
 
@@ -358,7 +361,7 @@ function createFYGraph (data){
   legend.append('text')
     .attr('x', legendRectSize + legendSpacing)
     .attr('y', legendRectSize - legendSpacing)
-    .text(function (d) { return d.casc; });
+    .text(function (d) { return d.casc+"CASC"; });
 
   //Updating dimensions
   function updateFYDimensions(data, winWidth, winHeight) {

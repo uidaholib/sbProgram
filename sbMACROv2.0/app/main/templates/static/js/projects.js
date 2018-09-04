@@ -1,95 +1,91 @@
 
 
 function gatherProjects () {
-    // alert('button clicked');
-    let UrlArray = [];
     let input = document.querySelector('#url').value; // item is gotten from the for input with id 'item'
     console.log("input1: " + input);
-    $('#url').val(''); //clear the input 
-
-    //clear any spaces
-    while (input.indexOf(' ') > -1)
-    {
-        input = input.replace(' ', '');
-    }
-    console.log("input w/0 spaces: " + input);
-    let blank = false;
-    
-    
+    input = input.replace(/,/g, " ");
+    console.log("input: comma->space");
+    console.log(input);
+    $('#url').val(''); //clear the input
     let anySkipped = false;
     let amountSkipped = 0;
     let reasons = [];
-
-    if (input == '')
-    {
-        blank = true;
-        amountSkipped++;
-        console.log("Blank Entry");
+    let blank = false;
+    if (input.trim().length < 65) { //String must at least be length of the url
+        if (input.trim().length === 0) {
+            blank = true;
+            console.log("skipped1");
+            amountSkipped++;
+            anySkipped = true;
+            console.log("Blank Entry");
+        } else {
+            //if "length" is not in the reasons array, add it.
+            let typeIndex = reasons.indexOf("length");
+            if (typeIndex == -1) {
+                reasons.push("length");
+            }
+            console.log("skipped2");
+            amountSkipped++;
+            anySkipped = true;
+        }
         problemAlert(amountSkipped, reasons, blank);
     }
-    //extract each url
-    while (input != '')
-    {
-        let comma = input.indexOf(',');
-        if (comma > -1)
-        {
-            //grab from the beginning to just before the comma as a url
-            var url = input.substring(0,comma)
-            console.log("url: " + url);
-            //change to correct url format (folder->item) if necessary
-            if (url.includes("https://www.sciencebase.gov/catalog/folder")) {
-                url = url.replace("https://www.sciencebase.gov/catalog/folder", "https://www.sciencebase.gov/catalog/item")
-            }
-            if (url.includes("https://www.sciencebase.gov/catalog/item")) {
-                UrlArray.push(url)
+
+    let urlArray = input.split(/(\s+)/).filter(function (e) {
+        // Must include part of science base url
+        if (e.indexOf("https://www.sciencebase.gov/catalog/folder") > -1 ||
+            e.indexOf("https://www.sciencebase.gov/catalog/item") > -1) {
+            //Must insure that the url is the correct length after including 
+            //sb ID            
+            if( e.trim().length > 64 || e.trim().length < 69) {
+                return true;
             } else {
-                anySkipped = true;
-                console.log("Skipped 1");
+                if (e.trim().length > 0) { //If 0, it is filtered whitespace
+                    console.log("skipped3");
+                    amountSkipped++;
+                    anySkipped = true;
+                    //if "length" is not in the reasons array, add it.
+                    let typeIndex = reasons.indexOf("length");
+                    if (typeIndex == -1) {
+                        reasons.push("length");
+                    }
+                }
+                return false;
+            }
+        } else {
+            if (e.trim().length > 0) { //If 0, it is filtered whitespace
+                console.log("skipped4");
                 amountSkipped++;
+                anySkipped = true;
                 //if "format" is not in the reasons array, add it.
                 let typeIndex = reasons.indexOf("format");
-                if (typeIndex == -1) { reasons.push("format"); }
+                if (typeIndex == -1) {
+                    reasons.push("format");
+                }
             }
-            input = input.substring(comma+1, input.length)
-            console.log("new input: " + input)
+            return false;
         }
-        if (comma === -1 && input != '')
-        {
-            //change to correct url format (folder->item) if necessary
-            if (input.includes("https://www.sciencebase.gov/catalog/folder"))
-
-            {
-
-                input = input.replace("https://www.sciencebase.gov/catalog/folder", "https://www.sciencebase.gov/catalog/item")
-            }
-            //check that it has the right format
-            if (input.includes("https://www.sciencebase.gov/catalog/item"))
-            {
-                //take the whole thing as another url
-                // console.log("check here:");
-                // console.log("https://www.sciencebase.gov/catalog/item/4f4e476ae4b07f02db47e13b".length);
-                UrlArray.push(input);
-            } else {
-                anySkipped = true;
-                console.log("Skipped 2");
-                console.log(input);
-                amountSkipped++;
-                //if "format" is not in the reasons array, add it.
-                let typeIndex = reasons.indexOf("format");
-                if (typeIndex == -1) { reasons.push("format"); }
-            }            
-            input = '';
+        
+    });
+    urlArray = urlArray.map(entry => {
+        //change to correct url format (folder->item) if necessary
+        if (entry.includes("https://www.sciencebase.gov/catalog/folder")) {
+            entry = entry.replace("https://www.sciencebase.gov/catalog/folder", "https://www.sciencebase.gov/catalog/item")
         }
-    }
+        return entry;
+    })
+    console.log("urlArray:");
+    console.log(urlArray);
+    
     
     if(anySkipped===true)
     {
         problemAlert(amountSkipped, reasons, blank);
     }
-    console.log("UrlArray");
-    console.log(UrlArray);
-    if(UrlArray.length > 0){
-        createCollection(UrlArray);
+    console.log("urlArray");
+    console.log(urlArray);
+    if(urlArray.length > 0){
+        createCollection(urlArray);
     }
     
 }
