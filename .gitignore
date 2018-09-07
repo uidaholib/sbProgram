@@ -14,8 +14,10 @@ __pycache__/
 *.vscode
 *.code-workspace
 
+*.DS_Store
+
 # .env environmental variables file
-.env
+# .env
 
 # virtual environment folders and files
 env
