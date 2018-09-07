@@ -20,11 +20,15 @@
         {{ form.submit(class="btn waves-effect") }}
     </div>
     {{ form.hidden_tag() }}
-    {% set number = -1 %}
-    {% for casc_name, casc_info in cascs_and_fys.items(): %}
-    {% set number = number + 1 %}
-    {% if number % 3 == 0: %}
     <div class="row">
+{% set count = namespace(a=-1) %}
+{% set mod_num = 3 %}
+{% for casc_name, casc_info in cascs_and_fys.items(): %}
+    {% set count.a = count.a + 1 %}
+    {% if count.a % mod_num == 0 %}
+        </div>
+        <div class="row" id="{{number}}">
+    {% endif %}
         <div class="col s4 m4 l4">
             <div class="card blue-grey lighten-4">
                 <div class="card-content">
@@ -42,49 +46,9 @@
                 </div>
             </div>
         </div>
-    {% elif number % 3 == 1 %}
-        <div class="col s4 m4 l4">
-            <div class="card blue-grey lighten-4">
-                <div class="card-content">
-                    <span class="card-title">
-                        <p><strong>{{ casc_name }}</strong></p>
-                    </span>
-                    {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %}
-                    <h3>{{ fiscal_year["name"] }}</h3>
-                    {% set field_name = "fy" ~ fiscal_year["id"] %}
-                    {% set field = form|attr(field_name) %}
-                    {{ field.label }}
-                    <br> {{ form|attr(field_name)(class="FY-Checkbox") }}
-                    <br> {% for error in field.errors %}
-                    <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <div class="col s4 m4 l4">
-            <div class="card blue-grey lighten-4">
-                <div class="card-content">
-                    <span class="card-title">
-                        <p><strong>{{ casc_name }}</strong></p>
-                    </span>
-                    {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %}
-                    <h3>{{ fiscal_year["name"] }}</h3>
-                    {% set field_name = "fy" ~ fiscal_year["id"] %}
-                    {% set field = form|attr(field_name) %}
-                    {{ field.label }}
-                    <br> {{ form|attr(field_name)(class="FY-Checkbox") }}
-                    <br> {% for error in field.errors %}
-                    <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+
+{% endfor %}
     </div>
-    {% endif %}
-    {% endfor %}
 </form>
 
 <script src="{{ url_for('main.static', filename='js/fiscalYears.js') }}"></script>

@@ -2981,7 +2981,7 @@ After having `/report` mostly squared away, I realized that permissions levels n
 
 The `projects.html` template was already moved to `/templates`, though `projects.js` needed moved to `main/static/js/`. I then went straight to the route in `routes.py`.
 
-_NOTE: There have been some problems with refreshing access tokens with google sheets interaction... I believe this was fixed by adding `prompt='consent'` to `flow.authorization_url` object in `authorize_google()`._
+_NOTE: There have been some problems with refreshing access tokens with google sheets interaction... I believe this was fixed by adding `prompt='consent'` to `flow.authorization_url` object in `authorize_google()`., _
 
 The new code for the route, after much fiddling, looks like this:
 
@@ -3030,6 +3030,120 @@ While a bit sloppy, it works. Notice that we now have to check whether `session[
 * `/download_log` (The function takes formats report_dict and passes it to report.html, then renders report.html page)
     - This is, I think, a useless url now that we have changed how the back-end functions.
 
+
+### Creating File Breakdown for a project ###
+
+```python
+^C(venv) Taylors-MacBook-Pro-2:sbMACROv2.0 taylorrogers$ python -m flask shell
+Python 3.6.1 (v3.6.1:69c0db5050, Mar 21 2017, 01:21:04)
+[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
+App: app [production]
+Instance: /Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv2.0/instance
+>>> db.session.query(SbFile).group_by(SbFile.content_type).all()
+[<SbFile 4263>, <SbFile 2779>, <SbFile 1912>, <SbFile 3150>, <SbFile 3174>, <SbFile 2860>, <SbFile 994>, <SbFile 4258>, <SbFile 2993>, <SbFile 2142>, <SbFile 4276>, <SbFile 2780>, <SbFile 2055>, <SbFile 2833>, <SbFile 3940>, <SbFile 4032>, <SbFile 2814>, <SbFile 335>, <SbFile 2641>, <SbFile 3254>, <SbFile 4275>, <SbFile 3158>, <SbFile 2635>, <SbFile 1903>, <SbFile 4256>, <SbFile 4264>, <SbFile 4254>, <SbFile 2710>, <SbFile 3073>, <SbFile 4250>, <SbFile 3175>, <SbFile 2927>, <SbFile 4255>, <SbFile 3152>, <SbFile 3141>, <SbFile 1737>, <SbFile 1021>, <SbFile 2069>, <SbFile 98>, <SbFile 1020>, <SbFile 2963>, <SbFile 2139>, <SbFile 4045>]
+>>> db.session.query(db.func.count(SbFile.content_type).group_by(SbFile.content_type).all()
+...
+... ;
+  File "<console>", line 3
+    ;
+    ^
+SyntaxError: invalid syntax
+>>> db.session.query(SbFile, db.func.count(SbFile.content_type).group_by(SbFile.content_type).all()
+... ;
+  File "<console>", line 2
+    ;
+    ^
+SyntaxError: invalid syntax
+>>> db.session.query(db.func.count(SbFile.content_type)).group_by(SbFile.content_type).all()
+[(748,), (22,), (1,), (24,), (14,), (18,), (2,), (338,), (38,), (1,), (18,), (15,), (10,), (2,), (95,), (19,), (66,), (1,), (2,), (10,), (420,), (59,), (4,), (2,), (371,), (524,), (382,), (73,), (90,), (56,), (92,), (4,), (209,), (16,), (279,), (21,), (1,), (24,), (5,), (1,), (30,), (15,), (154,)]
+>>> db.session.query(SbFile.content_type, db.func.count(SbFile.content_type)).group_by(SbFile.content_type).all()
+[('application/fgdc+xml', 748), ('application/json', 22), ('application/msword', 1), ('application/octet-stream', 24), ('application/pdf', 14), ('application/pgp-signature', 18), ('application/rtf', 2), ('application/sld+xml', 338), ('application/unknown', 38), ('application/vnd.google-earth.kml+xml', 1), ('application/vnd.iso.19115+xml', 18), ('application/vnd.iso.19139-2+xml', 15), ('application/vnd.ms-excel', 10), ('application/vnd.ms-excel.sheet.macroenabled.12', 2), ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 95), ('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 19), ('application/x-7z-compressed', 66), ('application/x-director', 1), ('application/x-gzip', 2), ('application/x-msaccess', 10), ('application/x-netcdf', 420), ('application/x-rar-compressed', 59), ('application/x-tika-msoffice', 4), ('application/x-zip-compressed', 2), ('application/xml', 371), ('application/zip', 524), ('image/geotiff', 382), ('image/jpeg', 73), ('image/png', 90), ('image/tiff', 56), ('text/csv', 92), ('text/html', 4), ('text/plain', 209), ('text/plain; charset=ISO-8859-1', 16), ('text/plain; charset=windows-1252', 279), ('text/tab-separated-values', 21), ('text/x-c', 1), ('text/x-ini', 24), ('text/x-python', 5), ('text/x-rsrc', 1), ('x-gis/x-arcgis-service-def', 30), ('x-gis/x-mpk', 15), ('x-gis/x-shapefile', 154)]
+>>> proj = db.session.query(Project).get(10)
+>>> proj
+<Project 10>
+>>> proj.files
+<sqlalchemy.orm.dynamic.AppenderBaseQuery object at 0x10e6ecba8>
+>>> proj.sbfiles
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'Project' object has no attribute 'sbfiles'
+>>> for file in proj.files:
+...     print(file.id, file.name)
+...
+>>> proj = db.session.query(Project).get(1)
+>>> for file in proj.files:
+...     print(file.id, file.name)
+...
+>>> proj = db.session.query(Project).get(29)
+>>> for file in proj.files:
+...     print(file.id, file.name)
+...
+8 Data Quality Assurance - Laboratory Duplicates 2009.csv
+9 Data Quality Assurance - Laboratory Duplicates 2011.csv
+10 Data Quality Assurance - Laboratory Duplicates 2012.csv
+11 Data Quality Assurance - Laboratory Duplicates 2014.csv
+12 Data Quality Assurance - Laboratory Duplicates 2013.csv
+13 Data_Quality_Assurance_Laboratory_duplicates.xml
+14 Data Quality Assurance - Field Replicates 2011.csv
+15 Data Quality Assurance - Field Replicates 2014.csv
+16 Data Quality Assurance - Field Replicates 2010.csv
+17 Data Quality Assurance - Field Replicates 2013.csv
+18 Data Quality Assurance - Field Replicates 2009.csv
+19 Data_Quality_Assurance_Field_Replicates.xml
+20 Instrument Detection Limits 2009-2014.csv
+21 Data_Quality_Assurance_Instrument_Detection_Limits.xml
+22 Data Quality Assurance - Field Blanks 2014.csv
+23 Data_Quality_Assurance_Field_Blanks.xml
+24 Water Chemistry 2009.csv
+25 Water Chemistry 2010.csv
+26 Water Chemistry 2011.csv
+27 Water Chemistry 2012.csv
+28 Water Chemistry 2013.csv
+29 Water Chemistry 2014.csv
+30 Field_Measurements_and_Laboratory_Analysis.xml
+>>> db.session.query(proj.files, db.func.count(SbFile.content_type)).group_by(SbFile.content_type).all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "/Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv1.5/venv/lib/python3.6/site-packages/sqlalchemy/orm/scoping.py", line 153, in do
+    return getattr(self.registry(), name)(*args, **kwargs)
+  File "/Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv1.5/venv/lib/python3.6/site-packages/sqlalchemy/orm/session.py", line 1399, in query
+    return self._query_cls(entities, self, **kwargs)
+  File "/Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv1.5/venv/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 141, in __init__
+    self._set_entities(entities)
+  File "/Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv1.5/venv/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 150, in _set_entities
+    entity_wrapper(self, ent)
+  File "/Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv1.5/venv/lib/python3.6/site-packages/sqlalchemy/orm/query.py", line 3634, in __new__
+    _is_mapped_class(entity):
+  File "/Users/taylorrogers/Documents/#Coding/sbProgram/sbMACROv1.5/venv/lib/python3.6/site-packages/sqlalchemy/orm/base.py", line 332, in _is_mapped_class
+    not insp.is_clause_element and \
+AttributeError: 'AppenderBaseQuery' object has no attribute 'is_clause_element'
+>>> db.session.query(proj.files.content_type, db.func.count(SbFile.content_type)).group_by(SbFile.content_type).all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'AppenderBaseQuery' object has no attribute 'content_type'
+>>> db.session.query(SbFile.content_type, db.func.count(SbFile.content_type)).group_by(SbFile.content_type).filter(proj.id.in_(SbFile.projects)).all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'int' object has no attribute 'in_'
+>>> db.session.query(SbFile.content_type, db.func.count(SbFile.content_type)).group_by(SbFile.content_type).filter(proj.id.in_(SbFile.projects.id)).all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'int' object has no attribute 'in_'
+>>> file_id_list = []
+>>> for file in proj.files:
+...     file_id_list.append(file.id)
+...
+>>> print(file_id_list)
+[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+>>> db.session.query(SbFile.content_type, db.func.count(SbFile.content_type)).group_by(SbFile.content_type).filter(SbFile.id.in_(file_id_list)).all()[('application/fgdc+xml', 5), ('text/csv', 18)]
+>>> new_list = db.session.query(SbFile.content_type, db.func.count(SbFile.content_type)).group_by(SbFile.content_type).filter(SbFile.id.in_(file_id_list)).all()
+>>> for i in new_list:
+...     print(i[0], i[1])
+...
+application/fgdc+xml 5
+text/csv 18
+>>>
+```
 
 # Appendix #
 

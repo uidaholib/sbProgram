@@ -1,8 +1,7 @@
 function findModalBtns(projectArray) {
     $(document).ready(function () {
         var modalBtns = document.getElementsByClassName('modalbtn');
-        for (let i = 0; i < modalBtns.length; i++)
-        {
+        for (var i = 0; i < modalBtns.length; i++) {
             let m_id = modalBtns[i].id;
 
             createModal(m_id, projectArray)
@@ -45,6 +44,9 @@ function createModal(sbId, projectArray) {
         thead.style.display = "table-header-group";
     });
 
+    //Create Pie Chart
+    createPieChart(d3, project, modal_id);
+
     // add project title
     var title = $('#' + modal_id).find('.title');
     title.text(project.name).wrap('<a href="' + project.url +'" target="_blank"></a>');
@@ -83,8 +85,8 @@ function createModal(sbId, projectArray) {
     potProdText = potProdText.replace(/(?:\r\n|\r|\n)/g, '<br />'); //replaces newline character (\n) with html equivalent (<br />)
     PotentialProd.html(potProdText);
 
-    // add products recieved
-    var ProdRecieved = $('#' + modal_id).find('.products_recieved');
+    // add products received
+    var ProdReceived = $('#' + modal_id).find('.products_received');
     let prodRecArray = project.products_received;
     let html = "";
     for(let i = 0; i < prodRecArray.length; i++)
@@ -98,9 +100,9 @@ function createModal(sbId, projectArray) {
         }
     }
     if(html != ""){
-        ProdRecieved.html(html);
+        ProdReceived.html(html);
     } else {
-        ProdRecieved.html("No Science Base Items found.");
+        ProdReceived.html("No Science Base Items found.");
     }
     
     

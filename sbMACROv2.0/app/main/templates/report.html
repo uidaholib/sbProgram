@@ -4,11 +4,13 @@
 
 <link rel="stylesheet" href="static/css/custom.css">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/pieChart.css') }}">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/table.css') }}">
 <script src="static/js/d3.v4.min.js"></script>
 <script src="{{ url_for('main.static', filename='js/node_modules/file-saverjs/FileSaver.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/node_modules/tableexport/src/stable/js/tableexport.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/FY_BarGraph.js') }}"></script>
+<script src="{{ url_for('main.static', filename='js/DataVisualization/fileBreakdownPieChart.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/projectBarGraph.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/projectTable.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/d3-tip.js') }}"></script>
@@ -149,7 +151,7 @@
       </div>
       <div class="col s12 m6 l6">
         <h5>Uploaded Data Product Breakdown</h5><br>
-        <img src="{{ url_for('main.static', filename='placeholderPiee.jpg') }}">
+        <div id="modal_chart"></div>
       </div>
     </div>
     <div class="row">
@@ -157,9 +159,9 @@
         <h5>Potential Products</h5>
         <p class="potential_products"></p>
       </div>
-      <div class="col s12 m6 l6 projModal_products_recieved">
+      <div class="col s12 m6 l6 projModal_products_received">
         <h5>Products Recieved</h5>
-        <p class="products_recieved"></p>
+        <p class="products_received"></p>
       </div>
     </div>
     <div class="projModal-footer">
@@ -182,6 +184,10 @@
     d3.select("#FYGraph_svg").remove();
     projectBarGraph(projectArray);
     FY_BarGraph(projectArray);
+    for (var i=0; i < projectArray.length; i++) {
+      let modal_id = "modal_" + projectArray[i].sb_id + "_div";
+      createPieChart(d3, projectArray[i], modal_id);
+    }
 
   }
   // d3.select(window).on('resize', go);

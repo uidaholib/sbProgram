@@ -1,6 +1,7 @@
 """Define main application routes."""
 import os, sys
 from datetime import datetime
+from collections import OrderedDict
 from flask import render_template, redirect, url_for, request, \
     jsonify, current_app, session
 from flask_login import current_user, login_required
@@ -183,7 +184,7 @@ def report():
         item_breakdown = None
         potential_products = None
         products_received = []
-        listy = [1, 2, 3, 4, 5, 6]
+        file_breakdown = []
 
         # Possibly necessary info:
         casc = None
@@ -327,6 +328,27 @@ def report():
                         self.history = "Please login to view this content."
                         self.potential_products = "Please login to view this"\
                                                   + " content."
+                    self.file_breakdown = []
+                    proj_file_list = []
+                    for sbfile in proj.files:
+                        proj_file_list.append(sbfile.id)
+                    if len(proj_file_list) > 0:
+                        file_breakdown_list = db.session.query(
+                            SbFile.content_type, db.func.count(
+                                SbFile.content_type)).group_by(
+                                    SbFile.content_type).filter(
+                                        SbFile.id.in_(proj_file_list)).all()
+                        proj_file_list[:] = []
+                        for _tuple in file_breakdown_list:
+                            temp_dict = {}
+                            temp_dict['label'] = _tuple[0]
+                            temp_dict['count'] = _tuple[1]
+                            proj_file_list.append(temp_dict)
+                        self.file_breakdown = sorted(
+                            proj_file_list,
+                            key=lambda k: k['count'],
+                            reverse=True)
+
             elif obj_type == 'fiscal year':
                 pass  # We don't do anything with fiscal year objects on the
                 # front-end yet.
