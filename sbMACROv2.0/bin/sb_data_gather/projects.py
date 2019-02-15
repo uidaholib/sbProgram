@@ -1,6 +1,6 @@
 """Functions related to Science Base Projects."""
 import gl
-import pysb
+import sciencebasepy as pysb
 import main
 import time
 

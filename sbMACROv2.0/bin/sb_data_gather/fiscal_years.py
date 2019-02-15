@@ -3,7 +3,7 @@ import os
 import json
 from datetime import datetime
 import gl
-import pysb
+import sciencebasepy as pysb
 import main
 import projects
 import time

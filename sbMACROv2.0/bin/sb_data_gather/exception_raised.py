@@ -2,7 +2,7 @@
 """Handle Science Base Exceptions via waiting time (5 min)."""
 import sys
 import time
-import pysb
+import sciencebasepy as pysb
 
 SB = pysb.SbSession()
 

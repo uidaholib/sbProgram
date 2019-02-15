@@ -1,6 +1,6 @@
 #pylint: disable=W0703
 """Fiscal Year, Project, and Item class definitions and exception_loop()."""
-import pysb  # pylint: disable=wrong-import-order
+import sciencebasepy as pysb  # pylint: disable=wrong-import-order
 import time
 
 SB = pysb.SbSession()
