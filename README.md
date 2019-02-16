@@ -1,6 +1,6 @@
 # sbMACRO
 
-This is a program and web app meant to work with the SciencBase.gov REST API to generate reports useful for USGS CSC Data Managers. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects in the Northwest and Southwest Climate Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
+This is a program and web app meant to work with the SciencBase.gov REST API to generate reports useful for USGS CASC Data Stewards and associated personnel. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects in the Northwest and Southwest Climate Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
 
 
 Entire commit history and contributor history can be found here: https://github.com/uidaholib/sbProgram
@@ -9,50 +9,18 @@ Entire commit history and contributor history can be found here: https://github.
 
 ### Prerequisites
 
-[Python 3.6](https://www.python.org/downloads/) is required to run this program. The program is currently best used on a recent version of Google Chrome.
-
-
-Libraries you need to install to run sbMACRO Web App:
-* certifi==2017.7.27.1
-* chardet==3.0.4
-* click==6.7
-* Flask==0.12.2
-* google-api-python-client==1.6.4
-* httplib2==0.10.3
-* idna==2.6
-* itsdangerous==0.24
-* Jinja2==2.9.6
-* jsonpickle==0.9.5
-* MarkupSafe==1.0
-* mpmath==1.0.0
-* numpy==1.13.3
-* oauth2client==4.1.2
-* pyasn1==0.4.2
-* pyasn1-modules==0.2.1
-* pysb==1.5.4 (NOTE: see instructions below to install)
-* requests==2.18.4
-* rsa==3.4.2
-* scipy==1.0.0
-* six==1.11.0
-* sympy==1.1.1
-* uritemplate==3.0.0
-* urllib3==1.22
-* Werkzeug==0.12.2
-
+[Python 3.6](https://www.python.org/downloads/) or more recentis required to run this program. The program is currently best used on a recent version of Google Chrome.
 
 The recommended way to make sure you have all dependencies/prerequisites is to download the `requirements.txt` file and run
-`python -m pip install -r requirements.txt` in the TrialWebApp directory.
+`python -m pip install -r requirements.txt` in the sbMACROv2.0 directory.
 
-Alternatively, to install each library manually, simply type `python -m pip install <library_name>` without the brackets.
+Alternatively, to install each library manually, simply type `python -m pip install <library_name>` or `python -m pip install <library_name>==<version>` without the brackets.
 
-
-Some necessary libraries come pre-installed with python and may not have been included in the prerequisites list above. They can be found in the `requirements.txt` file. 
-
-NOTE: pysb may need to be installed manually. To install pysb manually, follow instructions here: https://my.usgs.gov/bitbucket/projects/SBE/repos/pysb/browse
+Some necessary libraries come pre-installed with python and may not have been included in the prerequisites list above. They can be found in the `requirements.txt` file.
 
 If the Google Sheets API python module doesn't install, try: `python -m pip install --upgrade google-api-python-client`
 
-The project is also mid-development, so if you have trouble, or `requirements.txt` is not up to date, create an issue on our GitHub page or [contact us](mailto:trogers@uidaho.edu).
+The project is also mid-development, so if you have trouble, or `requirements.txt` is not up to date, create an issue on our GitHub page or [contact us](mailto:jkenyon@uidaho.edu).
 
 ### Installing
 Simply install all libraries and python 3 before running the program in your favorite command line/terminal program.
@@ -61,11 +29,11 @@ Creating a virtual environment is highly recommended so you do not affect your g
 
 ## Deployment
 
-The simplest way to deploy the program is to clone the *TrialWebApp* directory to your local machine, open your favorite command line/terminal program, cd into the directory into which you cloned *TrialWebApp*,and install the prerequisites/dependencies as shown above. 
+The simplest way to deploy the program is to clone the *sbMACROv2.0* directory to your local machine, open your favorite command line/terminal program, cd into the directory into which you cloned *sbMACROv2.0*,and install the prerequisites/dependencies as shown above. 
 
-Once you have the program installed (and your virtual environment is activated if applicable), run app.py
+Once you have the program installed (and your virtual environment is activated if applicable), run sbmacro.py
 ```
-python app.py
+python sbmacro.py
 ```
 
 The program should be up and running!
@@ -77,20 +45,38 @@ http://localhost:5000/
 
 You can then interact with the sbMACRO Web Application.
 
+## Docker Deployment
+
+To deploy with Docker, download the repository and build from the *sbMaCROv2.0* folder using
+```
+docker build -t sbmacro:latest .
+```
+
+Run using (for example):
+```
+docker run --name sbmacro -d -p 8000:5000 --rm sbmacro:latest
+```
+
+Go to your favorite browser and type in:
+```
+http://localhost:8000/
+```
+
 ## Built With
 ScienceBase API,
+Google API,
 Python,
 Flask,
 Javascript
 
 ## Contributing
 [Taylor Rogers](https://github.com/trogers1)
+[Jeremy Kenyon](https://github.com/jkenyon)
 
 
 ## Authors
 
 * **Taylor Rogers** - *Initial work* - [Capt.Rogers](https://gitlab.com/Capt.Rogers) as well as [trogers1](https://github.com/trogers1)
-
 
 
 ## License
@@ -120,5 +106,5 @@ THE SOFTWARE.
 ## Acknowledgments
 
 * Thanks to everyone who helped me learn so much by working on this program, including the countless people on the internet willing to answer the questions of a stranger
-* Thanks to Jeremy Kenyon, the University of Idaho, and the USGS Climate Science Center for supporting this project professionally and fiscally
+* Thanks to Jeremy Kenyon, the University of Idaho, and the USGS Climate Adaptation Science Center for supporting this project professionally and fiscally
 * Thanks to the USGS ScienceBase team who made such a wonderful API.
