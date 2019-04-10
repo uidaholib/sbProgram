@@ -1,6 +1,6 @@
 # sbMACRO
 
-This is a program and web app meant to work with the SciencBase.gov REST API to generate reports useful for USGS CSC Data Managers. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects in the Northwest and Southwest Climate Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
+This is a program and web app meant to work with the ScienceBase.gov REST API to generate reports useful for USGS CSC Data Managers. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects in the Northwest and Southwest Climate Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
 
 
 Entire commit history and contributor history can be found here: https://github.com/uidaholib/sbProgram
@@ -11,8 +11,8 @@ Entire commit history and contributor history can be found here: https://github.
 
 [Python 3.6](https://www.python.org/downloads/) is required to run this program. The program is currently best used on a recent version of Google Chrome.
 
-
 Libraries you need to install to run sbMACRO Web App:
+
 * certifi==2017.7.27.1
 * chardet==3.0.4
 * click==6.7
@@ -39,12 +39,10 @@ Libraries you need to install to run sbMACRO Web App:
 * urllib3==1.22
 * Werkzeug==0.12.2
 
-
 The recommended way to make sure you have all dependencies/prerequisites is to download the `requirements.txt` file and run
 `python -m pip install -r requirements.txt` in the TrialWebApp directory.
 
 Alternatively, to install each library manually, simply type `python -m pip install <library_name>` without the brackets.
-
 
 Some necessary libraries come pre-installed with python and may not have been included in the prerequisites list above. They can be found in the `requirements.txt` file. 
 
@@ -55,6 +53,7 @@ If the Google Sheets API python module doesn't install, try: `python -m pip inst
 The project is also mid-development, so if you have trouble, or `requirements.txt` is not up to date, create an issue on our GitHub page or [contact us](mailto:trogers@uidaho.edu).
 
 ### Installing
+
 Simply install all libraries and python 3 before running the program in your favorite command line/terminal program.
 
 Creating a virtual environment is highly recommended so you do not affect your global version of python by installing all of these libraries. Information on virtualenv can be found here: https://virtualenv.pypa.io/en/stable/ . It is easy and highly recommended.
@@ -64,6 +63,7 @@ Creating a virtual environment is highly recommended so you do not affect your g
 The simplest way to deploy the program is to clone the *TrialWebApp* directory to your local machine, open your favorite command line/terminal program, cd into the directory into which you cloned *TrialWebApp*,and install the prerequisites/dependencies as shown above. 
 
 Once you have the program installed (and your virtual environment is activated if applicable), run app.py
+
 ```
 python app.py
 ```
@@ -71,6 +71,7 @@ python app.py
 The program should be up and running!
 
 Go to your favorite browser (while in development, sbMACRO works best on Google Chrome) and type in
+
 ```
 http://localhost:5000/
 ```
@@ -78,20 +79,19 @@ http://localhost:5000/
 You can then interact with the sbMACRO Web Application.
 
 ## Built With
+
 ScienceBase API,
 Python,
 Flask,
 Javascript
 
 ## Contributing
-[Taylor Rogers](https://github.com/trogers1)
 
+[Taylor Rogers](https://github.com/trogers1)
 
 ## Authors
 
 * **Taylor Rogers** - *Initial work* - [Capt.Rogers](https://gitlab.com/Capt.Rogers) as well as [trogers1](https://github.com/trogers1)
-
-
 
 ## License
 The MIT License
@@ -115,7 +115,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
 
 ## Acknowledgments
 
