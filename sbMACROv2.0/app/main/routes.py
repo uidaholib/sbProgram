@@ -97,6 +97,7 @@ def fiscalyear():
                            cascs_and_fys=cascs_and_fys,
                            title="Select Fiscal Years")
 
+
 # @bp.route('/try', methods=['GET', 'POST'])  # Also accepts
 # def fy():
 #     class NewForm(FyForm):
@@ -203,7 +204,7 @@ def report():
                 fy_db_id -- (int or list) the database id for the item's
                             fiscal year of concern. 
                 casc_db_id -- (int or list) the database id for the item's
-                              fiscal year of concern. 
+                              casc year of concern. 
 
             """
 
@@ -337,7 +338,7 @@ def report():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list)).all()
+                                        SbFile.id.in_(proj_file_list[:999])).all()
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -373,9 +374,9 @@ def report():
         projects.append(new_obj.__dict__)
 
 
-
     # clear_credentials()
     return render_template("report.html", projects=projects)
+
 
 @bp.route('/user/<username>')
 @login_required
