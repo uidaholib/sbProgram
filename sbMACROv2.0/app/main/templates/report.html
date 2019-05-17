@@ -1,14 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
 
 <link rel="stylesheet" href="static/css/custom.css">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/pieChart.css') }}">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/table.css') }}">
 <script src="static/js/d3.v4.min.js"></script>
-<script src="{{ url_for('main.static', filename='js/node_modules/file-saverjs/FileSaver.js') }}"></script>
-<script src="{{ url_for('main.static', filename='js/node_modules/tableexport/src/stable/js/tableexport.js') }}"></script>
+<script type="text/javascript" src="http://oss.sheetjs.com/js-xlsx/xlsx.full.min.js"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/FY_BarGraph.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/fileBreakdownPieChart.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/projectBarGraph.js') }}"></script>
@@ -18,46 +16,29 @@
 <script src="{{ url_for('main.static', filename='js/jquery.floatThead.min.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/graphs.css') }}">
 
-
-
-
-
 <script>
   var projectArray = {{ projects| tojson | safe }};
   console.log(projectArray)
   buildProjectTable(projectArray);
 </script>
+
+<!-- script for downloading table as excel -->
 <script type="text/javascript">
-//script for downloading table as excel.
+  //XLSX
   $(document).ready(function () {
     $("#btnExport").click(function (e) {
-      e.preventDefault();
-
-      //getting data from our table
-      var data_type = 'data:application/vnd.ms-excel';
-      var table_div = document.getElementById('table_wrapper');
-      var table_html = table_div.outerHTML.replace(/ /g, '%20');
-
-      var table = TableExport(document.getElementById("export-buttons-table"));
-      table.click();
+      var workbook = XLSX.utils.table_to_book(document.getElementById('reportTable'));
+      XLSX.writeFile(workbook, 'sbMacro_Report.xlsx');
     });
   });
+
+  //XLS
   $(document).ready(function () {
     $("#btnExport2").click(function (e) {
-      e.preventDefault();
-
-      //getting data from our table
-      var data_type = 'data:application/vnd.ms-excel';
-      var table_div = document.getElementById('table_wrapper');
-      var table_html = table_div.outerHTML.replace(/ /g, '%20');
-
-      var a = document.createElement('a');
-      a.href = data_type + ', ' + table_html;
-      a.download = 'sbMacro_Report' + Math.floor((Math.random() * 9999999) + 1000000) + '.xls';
-      a.click();
+      var workbook = XLSX.utils.table_to_book(document.getElementById('reportTable'));
+      XLSX.writeFile(workbook, 'sbMacro_Report.xls');
     });
   });
-
 </script>
 
 <div>
@@ -72,7 +53,7 @@
   <div id="fyGraphWrapper"></div>
 </div>
 <div id="container">
-  <button class="btn wave-effect waves-teal disabled" id="btnExport">Export to Excel (.xlsx)</button>
+  <button class="btn wave-effect waves-teal" id="btnExport" >Export to Excel (.xlsx)</button>
   <button class="btn wave-effect waves-teal" id="btnExport2">Export to Excel (.xls)</button>
   <div id="table_wrapper">
     <table class="bordered highlight striped centered responsive-table" id="reportTable">
@@ -80,15 +61,14 @@
         <th>Number</th>
         <th>Climate Adaptation Science Center</th>
         <th>Fiscal Year</th>
-        <!-- <th>ID</th> -->
         <th>Object Type</th>
         <th>Name</th>
         <th>More Info</th>
+        <th style="display: none">Link</th>
         <th>Data in Project (GB)</th>
         <th>Number of Files</th>
         <th>Total Data in Fiscal Year (GB)</th>
         <th>sbMACRO Data Retrieval Date</th>
-        <!-- <th>Running Data Total (GB)</th> -->
       </thead>
       <tbody>
 
@@ -188,14 +168,11 @@
       let modal_id = "modal_" + projectArray[i].sb_id + "_div";
       createPieChart(d3, projectArray[i], modal_id);
     }
-
   }
   // d3.select(window).on('resize', go);
   window.addEventListener('resize', catchResize);
-
-
-  var $table = $('table#reportTable');
-  $table.floatThead();
+  // var $table = $('table#reportTable');
+  // $table.floatThead();
 </script>
 
 
