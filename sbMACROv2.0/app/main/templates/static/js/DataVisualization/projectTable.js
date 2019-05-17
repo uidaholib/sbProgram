@@ -34,6 +34,7 @@ function buildProjectTable (projectArray) {
         report_data += '<td>' + project.obj_type + '</td>\n';
         report_data += '<td> <a href="' + project.url + '" target="_blank">' + project.name + '</a></td>\n';
         report_data += '<td><button class="btn waves-effect waves-light modalbtn" id="modal_' + project.sb_id + '" onclick="displayModal(modal_' + project.sb_id + ')">More Info</button></td>\n';
+        report_data += '<td style="display: none">' + project.url + '</td>\n';
         report_data += '<td id="ElipseDataShort">' + project.data_in_project_GB + '</td>\n';
         report_data += '<td id="ElipseDataLong">' + project.num_of_files + '</td>\n';
         if (Array.isArray(project.total_data_in_fy_GB)) {
