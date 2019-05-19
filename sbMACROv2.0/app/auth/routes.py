@@ -1,4 +1,8 @@
 """Authentification-related url routes."""
+import googleapiclient.discovery
+import requests
+import flask
+import os
 from flask import render_template, redirect, url_for, flash, request, session
 from werkzeug.urls import url_parse
 from flask_login import login_user, logout_user, current_user
@@ -19,15 +23,21 @@ def login():
         return redirect(url_for('main.index'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data.lower()).first()
+        user = User.query.filter_by(
+            username=form.username.data.lower()).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash('Invalid username or password', 'error')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('main.index')
         return redirect(next_page)
+        if login(username, password):
+            return redirect(url_for('auth.login'))
+        else:
+            raise flask('Invalid login')
+
     return render_template('login.html', title='Sign In', form=form)
 
 
@@ -49,6 +59,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+        flash('Thanks for Registering. Account Successfully got created', 'Success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', title='Register',
                            form=form)
@@ -70,7 +81,6 @@ def reset_password_request():
         'password_reset_request.html', title="Reset Password", form=form)
 
 
-
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     """Display form to reset password. Display correct page after."""
@@ -89,16 +99,8 @@ def reset_password(token):
                            form=form)
 
 
-
 #####################################################################
 
-import os
-import flask
-import requests
-
-import google.oauth2.credentials
-import google_auth_oauthlib.flow
-import googleapiclient.discovery
 # When running locally, disable OAuthlib's HTTPs verification.
 # ACTION ITEM for developers:
 #     When running in production *do not* leave this option enabled.
@@ -182,7 +184,7 @@ def revoke():
 
     if status_code == 200:
         return redirect(url_for('auth.logout'))
-    else: # Could just be a user without access privileges
+    else:  # Could just be a user without access privileges
         return redirect(url_for('auth.logout'))
 
 
