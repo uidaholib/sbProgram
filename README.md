@@ -89,14 +89,14 @@ Javascript
 
 [Taylor Rogers](https://github.com/trogers1)
 
-[Sandeep Ravindrababu](https://github.com/sandy0520)
+[Sandeep Ravindrababu](https://github.com/sgravi1992)
 
 [Joel Oduro-Afriyie](https://github.com/KobyO)
 
 ## Authors
 
 * **Taylor Rogers** - *Initial work* - [Capt.Rogers](https://gitlab.com/Capt.Rogers) as well as [trogers1](https://github.com/trogers1)
-* **Sandeep Ravindrababu** - *Contributor* - [sandy0520](https://github.com/sandy0520)
+* **Sandeep Ravindrababu** - *Contributor* - [sgravi1992](https://github.com/sgravi1992)
 * **Joel Oduro-Afriyie** - *Contributor* - [KobyO](https://github.com/KobyO)
 
 ## License
