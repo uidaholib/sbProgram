@@ -88,7 +88,9 @@ Javascript
 ## Contributing
 
 [Taylor Rogers](https://github.com/trogers1)
+
 [Sandeep Ravindrababu](https://github.com/sandy0520)
+
 [Joel Oduro-Afriyie](https://github.com/KobyO)
 
 ## Authors
