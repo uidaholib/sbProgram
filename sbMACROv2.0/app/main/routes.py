@@ -13,14 +13,10 @@ from app import db
 from app.main.forms import EditProfileForm, FyForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.main import bp
-from app.auth.read_sheets import API_SERVICE_NAME,\
-        API_VERSION, get_sheet_name, parse_values, SPREADSHEET_ID
-from app.auth.routes import credentials_to_dict, clear_credentials
-import json, jsonpickle
+from app.auth.read_sheets import get_sheet_name, parse_values
 import openpyxl
 
 from pprint import pprint
-
 
 @bp.before_app_request
 def before_request():
@@ -97,21 +93,6 @@ def fiscalyear():
                            cascs_and_fys=cascs_and_fys,
                            title="Select Fiscal Years")
 
-
-# @bp.route('/try', methods=['GET', 'POST'])  # Also accepts
-# def fy():
-#     class NewForm(FyForm):
-#         pass
-#     record = {
-#         '1': 'label1',
-#         '2': 'label2',
-#         '3': 'label3',
-#         '4': 'label4'
-#     }
-#     for key, value in record.items():
-#         setattr(NewForm, key, BooleanField(value, id="flush"))
-#     form = NewForm()
-#     return render_template('try.html', record=record, form=form, title="Good luck")
 
 @bp.route('/projects', methods=['GET', 'POST'])
 @bp.route('/select_project', methods=['GET', 'POST'])
@@ -321,7 +302,7 @@ def report():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list[:999])).all() #sqlalchemy max query items is 999
+                                        SbFile.id.in_(proj_file_list[:999])).all() # sqlalchemy max query items is 999
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -353,8 +334,6 @@ def report():
         new_obj = ReportItem('project', project['proj_id'], project['fy_id'], project['casc_id'])
         projects.append(new_obj.__dict__)
 
-
-    # clear_credentials()
     return render_template("report.html", projects=projects)
 
 
