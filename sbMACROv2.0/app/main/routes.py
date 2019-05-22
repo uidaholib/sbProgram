@@ -17,6 +17,7 @@ from app.auth.read_sheets import API_SERVICE_NAME,\
         API_VERSION, get_sheet_name, parse_values, SPREADSHEET_ID
 from app.auth.routes import credentials_to_dict, clear_credentials
 import json, jsonpickle
+import openpyxl
 
 from pprint import pprint
 
@@ -46,7 +47,6 @@ def fiscalyear():
     """Retrieve Fiscal Years and display for selection by user."""
     cascs = db.session.query(casc).order_by(casc.name).all()
     cascs_and_fys = {}
-    fy_list = []
     class F(FyForm):
         pass
 
@@ -156,16 +156,28 @@ def project():
 @bp.route('/report')
 def report():
     """Gather appropriate report information and display."""
-    import google.oauth2.credentials
-    import googleapiclient.discovery
-    if current_user.is_authenticated and current_user.access_level > 0:
-        if 'credentials' not in session:
-            return redirect(url_for('auth.authorize_google'))
 
-
+    excel_file = 'CASC Data Management Tracking for Projects - v2.xlsx'
     project_list = session["projects"]
     projects = []
-    sheets_dict = {}
+    workbook = None
+
+    # Decide whether to load project tracking excel workbook
+    if current_user.is_authenticated and current_user.access_level > 0:
+        for project in project_list:
+            casc_item = db.session.query(casc).get(project['casc_id'])
+            if get_sheet_name(casc_item.name):
+                # Load workbook
+                try:
+                    print('Opening {}...'.format(excel_file))
+                    workbook = openpyxl.load_workbook(excel_file)
+                    print('Successfully opened {}'.format(excel_file))
+                except:
+                    print('File error: {}'.format(excel_file))
+                # No need to continue if workbook has just been loaded
+                break
+
+
     class ReportItem(object):
         """Object to be passed to front-end for display in table and modal."""
 
@@ -208,6 +220,8 @@ def report():
 
             """
 
+            sheet = {}
+
             if obj_type == 'project':
                 self.obj_type = obj_type
                 proj = db.session.query(Project).filter(
@@ -232,8 +246,7 @@ def report():
                             casc_model = db.session.query(casc).get(fy.casc_id)
                             self.casc.append(casc_model.name)
                             # convert from MB -> GB
-                            self.total_data_in_fy_GB.append(
-                                                    fy.total_data / 1000)
+                            self.total_data_in_fy_GB.append(fy.total_data / 1000)
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
                         self.fiscal_year = fy.name
@@ -254,63 +267,34 @@ def report():
                     # Things that depend on user access level:
                     if current_user.is_authenticated:
                         if current_user.access_level > 0:
-                            # Load credentials from the session.
-                            credentials = google.oauth2.credentials.\
-                                Credentials(**session['credentials'])
-
-                            # Build API client
-                            service = googleapiclient.discovery.build(
-                                API_SERVICE_NAME, API_VERSION,
-                                    credentials=credentials)
+                            # Parse excel sheet
                             sheet_name = get_sheet_name(self.casc)
                             if sheet_name:
-                                try:
-                                    sheet = sheets_dict[sheet_name]
-                                except KeyError:
-                                    print("Sheet not found in sheet_dict")
-                                    result = service.spreadsheets().values().get(
-                                        spreadsheetId=SPREADSHEET_ID,
-                                        range=sheet_name).execute()
-                                    values = result.get('values', [])
-                                    sheet = parse_values(values)
-                                    sheets_dict[sheet_name] = sheet
-                            else:
-                                sheet = {}
+                                values = []
+                                for vals in workbook[sheet_name].values:
+                                    if vals[0] is None:
+                                        break
+                                    values.append(vals)
 
-                            # Save credentials back to session in case access
-                            #   token was refreshed.
-                            # ACTION ITEM: In a production app, you likely
-                            #       want to save these credentials in a
-                            #       persistent database instead.
-                            session['credentials'] = credentials_to_dict(credentials)
+                                sheet = parse_values(values)
 
                             try:
                                 # DMP Status
-                                self.dmp_status = sheet[proj.sb_id]\
-                                                            ['DMP Status']
-                                if self.dmp_status.isspace() or \
-                                        self.dmp_status == "":
+                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
                                     self.dmp_status = "No DMP status provided"
-                            # History
+                                # History
                                 self.history = sheet[proj.sb_id]['History']
-                                if self.history.isspace() or \
-                                        self.history == "":
-                                    self.history = \
-                                            "No data steward history provided"
-                            #Potential Products
-                                self.potential_products = sheet[proj.sb_id]\
-                                                        ['Expected Products']
-                                if self.potential_products.isspace() or \
-                                        self.potential_products == "":
-                                    self.potential_products = \
-                                        "No data potential products provided"
+                                if self.history is None or self.history.isspace() or self.history == "":
+                                    self.history = "No data steward history provided"
+                                # Potential Products
+                                self.potential_products = sheet[proj.sb_id]['Expected Products']
+                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
+                                    self.potential_products = "No data potential products provided"
                             except KeyError:
-                                self.dmp_status = \
-                            "Project not currently tracked by Data Steward"
-                                self.history = \
-                            "Project not currently tracked by Data Steward"
-                                self.potential_products = \
-                            "Project not currently tracked by Data Steward"
+                                self.dmp_status = "Project not currently tracked by Data Steward"
+                                self.history = "Project not currently tracked by Data Steward"
+                                self.potential_products = "Project not currently tracked by Data Steward"
                         else:
                             self.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
@@ -327,8 +311,7 @@ def report():
                     else:
                         self.dmp_status = "Please login to view this content."
                         self.history = "Please login to view this content."
-                        self.potential_products = "Please login to view this"\
-                                                  + " content."
+                        self.potential_products = "Please login to view this content."
                     self.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
@@ -338,7 +321,7 @@ def report():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list[:999])).all()
+                                        SbFile.id.in_(proj_file_list[:999])).all() #sqlalchemy max query items is 999
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -367,10 +350,7 @@ def report():
                 # front-end yet.
 
     for project in project_list:
-        new_obj = ReportItem('project',
-                             project['proj_id'],
-                             project['fy_id'],
-                             project['casc_id'])
+        new_obj = ReportItem('project', project['proj_id'], project['fy_id'], project['casc_id'])
         projects.append(new_obj.__dict__)
 
 
