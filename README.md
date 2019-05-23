@@ -60,12 +60,12 @@ Creating a virtual environment is highly recommended so you do not affect your g
 
 ## Deployment
 
-The simplest way to deploy the program is to clone the *TrialWebApp* directory to your local machine, open your favorite command line/terminal program, cd into the directory into which you cloned *TrialWebApp*,and install the prerequisites/dependencies as shown above. 
+The simplest way to deploy the program is to clone the *sbMACROv2.0* directory to your local machine, open your favorite command line/terminal program, cd into the directory into which you cloned *sbMACROv2.0*,and install the prerequisites/dependencies as shown above. 
 
-Once you have the program installed (and your virtual environment is activated if applicable), run app.py
+Once you have the program installed (and your virtual environment is activated if applicable), run sbmacro.py
 
 ```
-python app.py
+python sbmacro.py
 ```
 
 The program should be up and running!
@@ -89,9 +89,15 @@ Javascript
 
 [Taylor Rogers](https://github.com/trogers1)
 
+[Sandeep Ravindrababu](https://github.com/sgravi1992)
+
+[Joel Oduro-Afriyie](https://github.com/KobyO)
+
 ## Authors
 
 * **Taylor Rogers** - *Initial work* - [Capt.Rogers](https://gitlab.com/Capt.Rogers) as well as [trogers1](https://github.com/trogers1)
+* **Sandeep Ravindrababu** - *Contributor* - [sgravi1992](https://github.com/sgravi1992)
+* **Joel Oduro-Afriyie** - *Contributor* - [KobyO](https://github.com/KobyO)
 
 ## License
 The MIT License

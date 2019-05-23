@@ -1,60 +1,68 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <!-- OLD Compiled and minified CSS for correct formatting of checkboxes -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"
+/>
 
 <!-- OLD Compiled and minified JavaScript for correct formatting of checkboxes -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 
 <!-- Must import again to supersede the newest materialize imports -->
-<link rel="stylesheet" href="static/css/custom.css"> 
+<link rel="stylesheet" href="static/css/custom.css" />
 
 <h4>Welcome to SB MACRO</h4>
-<br>
-<p>This program can be used to better understand the data present in one or multiple fiscal years under any CASC on ScienceBase.</p>
-<p>Choose the fiscal year(s) under your desired Climate Adaptation Science Center from which you want a report generated:</p>
+<br />
+<p>
+  This program can be used to better understand the data present in one or
+  multiple fiscal years under any CASC on ScienceBase.
+</p>
+<p>
+  Choose the fiscal year(s) under your desired Climate Adaptation Science Center
+  from which you want a report generated:
+</p>
 <h4>Select Fiscal Year(s)</h4>
 <form method="POST" id="FY-Select-Form">
-    <div class="row" align="right">
-        {{ form.submit(class="btn waves-effect") }}
-    </div>
-    {{ form.hidden_tag() }}
-    <div class="row">
-{% set count = namespace(a=-1) %}
-{% set mod_num = 3 %}
-{% for casc_name, casc_info in cascs_and_fys.items(): %}
-    {% set count.a = count.a + 1 %}
-    {% if count.a % mod_num == 0 %}
-        </div>
-        <div class="row" id="{{number}}">
+  <div class="row" align="right">
+    {{ form.submit(class="btn btn-primary") }}
+  </div>
+  {{ form.hidden_tag() }}
+  <div class="row">
+    {% set count = namespace(a=-1) %} {% set mod_num = 3 %} {% for casc_name,
+    casc_info in cascs_and_fys.items(): %} {% set count.a = count.a + 1 %} {% if
+    count.a % mod_num == 0 %}
+  </div>
+  <div class="row" id="{{ number }}">
     {% endif %}
-        <div class="col s4 m4 l4">
-            <div class="card blue-grey lighten-4">
-                <div class="card-content">
-                    <span class="card-title">
-                        <p><strong>{{ casc_name }}</strong></p>
-                    </span>
-                    {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %}
-                    {% set field_name = "fy" ~ fiscal_year["id"] %}
-                    {% set field = form|attr(field_name) %}
-                    <br> {{ form|attr(field_name)(class="FY-Checkbox") }}  {{ field.label }}
-                    <br> {% for error in field.errors %}
-                    <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-            </div>
+    <div class="col s4 m4 l4">
+      <div class="card blue-grey lighten-4">
+        <div class="card-content">
+          <span class="card-title">
+            <p>
+              <strong>{{ casc_name }}</strong>
+            </p>
+          </span>
+          {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %} {%
+          set field_name = "fy" ~ fiscal_year["id"] %} {% set field =
+          form|attr(field_name) %}
+          <br />
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label }}
+          <br />
+          {% for error in field.errors %}
+          <span style="color: red;">{{ error }}</span>
+          {% endfor %} {% endfor %}
         </div>
-
-{% endfor %}
+      </div>
     </div>
+
+    {% endfor %}
+  </div>
 </form>
 
-<script src="{{ url_for('main.static', filename='js/fiscalYears.js') }}"></script>
-<script>
-    let currentPage = document.getElementById('Nav-FiscalYear');
-    currentPage.classList.add("currentPage");
+<script src="{{ url_for('main.static', filename='js/fiscalYears.js') }}">
+  let currentPage = document.getElementById('Nav-FiscalYear')
+  currentPage.classList.add('currentPage')
 </script>
 <!-- <script>
     $(document).ready(function () {

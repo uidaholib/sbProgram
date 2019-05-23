@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Module for app instantiation and shell context creation."""
 import sys
 import os
