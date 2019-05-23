@@ -1,9 +1,0 @@
-{% extends "base.html" %}
-
-{% block content %}
-    <h1>Hmmm...</h1>
-    <p>It appears that you are not authorized to view this page.</p>
-    <p>This is likely because the server could not verify that you are authorized to access the URL requested. You may have supplied the wrong credentials
-    (e.g. a bad password), or your browser doesn't understand how to supply the credentials required.</p>
-    <p><a href="{{ url_for('main.index') }}">Home</a></p>
-{% endblock %}
