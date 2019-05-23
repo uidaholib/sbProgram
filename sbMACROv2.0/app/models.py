@@ -11,13 +11,25 @@ from app import db, login
 class User(UserMixin, db.Model):
     """User database model class."""
 
+    __tablename__ = 'User'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    email_confirmation_sent_on = db.Column(db.DateTime, nullable=True)
+    email_confirmed = db.Column(db.Integer, nullable=True, default=False)
+    email_confirmed_on = db.Column(db.DateTime, nullable=True)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     about = db.Column(db.String(140))
     access_level = db.Column(db.Integer, default=0)
+
+    def __init__(self, email, username, email_confirmation_sent_on=None):
+        self.email = email
+        self.username = username
+        self.authenticated = False
+        self.email_confirmation_sent_on = email_confirmation_sent_on
+        self.email_confirmed = False
+        self.email_confirmed_on = None
 
     def __repr__(self):
         """Create printed representation of the User model class."""
@@ -62,12 +74,13 @@ def load_user(id):
     """Load appropriate user when logged in."""
     return User.query.get(int(id))
 
+
 # Association Tables:
 # Principal Investigator association
 assoc_PI_project = db.Table('assoc_PI_project',
                             db.Column('PI_id', db.Integer,
                                       db.ForeignKey(
-                                        'principal_investigator.id')),
+                                          'principal_investigator.id')),
                             db.Column('project_id', db.Integer,
                                       db.ForeignKey('project.id')))
 # CASC associations
@@ -108,10 +121,10 @@ assoc_fy_sbfile = db.Table('assoc_fy_sbfile',
                            db.Column('sbfile_id', db.Integer,
                                      db.ForeignKey('sb_file.id')))
 assoc_fy_prob_item = db.Table('assoc_fy_prob_item',
-                                db.Column('fy_id', db.Integer,
-                                          db.ForeignKey('fiscal_year.id')),
-                                db.Column('prob_item_id', db.Integer,
-                                          db.ForeignKey('problem_item.id')))
+                              db.Column('fy_id', db.Integer,
+                                        db.ForeignKey('fiscal_year.id')),
+                              db.Column('prob_item_id', db.Integer,
+                                        db.ForeignKey('problem_item.id')))
 # Project associations
 assoc_proj_item = db.Table('assoc_proj_item',
                            db.Column('project_id', db.Integer,

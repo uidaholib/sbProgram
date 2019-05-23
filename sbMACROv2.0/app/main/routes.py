@@ -1,9 +1,11 @@
 """Define main application routes."""
-import os, sys
+import os
+import sys
 from datetime import datetime
+from flask import request
 from collections import OrderedDict
 from flask import render_template, redirect, url_for, request, \
-    jsonify, current_app, session
+    jsonify, current_app, session, flash
 from flask_login import current_user, login_required
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms import BooleanField
@@ -14,9 +16,10 @@ from app.main.forms import EditProfileForm, FyForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.main import bp
 from app.auth.read_sheets import API_SERVICE_NAME,\
-        API_VERSION, get_sheet_name, parse_values, SPREADSHEET_ID
+    API_VERSION, get_sheet_name, parse_values, SPREADSHEET_ID
 from app.auth.routes import credentials_to_dict, clear_credentials
-import json, jsonpickle
+import json
+import jsonpickle
 
 from pprint import pprint
 
@@ -47,6 +50,7 @@ def fiscalyear():
     cascs = db.session.query(casc).order_by(casc.name).all()
     cascs_and_fys = {}
     fy_list = []
+
     class F(FyForm):
         pass
 
@@ -126,7 +130,7 @@ def project():
         for url in sb_urls:
             project_dict = {}
             proj = db.session.query(Project).filter(
-                    Project.url == url).first()
+                Project.url == url).first()
             if proj is None:
                 print("---Error: Could not find project for {}".format(url))
                 continue
@@ -162,10 +166,10 @@ def report():
         if 'credentials' not in session:
             return redirect(url_for('auth.authorize_google'))
 
-
     project_list = session["projects"]
     projects = []
     sheets_dict = {}
+
     class ReportItem(object):
         """Object to be passed to front-end for display in table and modal."""
 
@@ -195,23 +199,23 @@ def report():
 
         def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
             """Initialize ReportItem class object.
-            
+
             Arguments:
                 obj_type -- (string) 'project', 'fiscal year', 'casc', 'item',
                             'sbfile', or 'problem item' to determine the type
                             of object being created.
                 obj_db_id -- (int) the database id for the item being created.
                 fy_db_id -- (int or list) the database id for the item's
-                            fiscal year of concern. 
+                            fiscal year of concern.
                 casc_db_id -- (int or list) the database id for the item's
-                              casc year of concern. 
+                              casc year of concern.
 
             """
 
             if obj_type == 'project':
                 self.obj_type = obj_type
                 proj = db.session.query(Project).filter(
-                        Project.id == obj_db_id).first()
+                    Project.id == obj_db_id).first()
                 if proj == None:
                     raise Exception  # It has to be there somewhere...
                 else:
@@ -233,7 +237,7 @@ def report():
                             self.casc.append(casc_model.name)
                             # convert from MB -> GB
                             self.total_data_in_fy_GB.append(
-                                                    fy.total_data / 1000)
+                                fy.total_data / 1000)
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
                         self.fiscal_year = fy.name
@@ -261,7 +265,7 @@ def report():
                             # Build API client
                             service = googleapiclient.discovery.build(
                                 API_SERVICE_NAME, API_VERSION,
-                                    credentials=credentials)
+                                credentials=credentials)
                             sheet_name = get_sheet_name(self.casc)
                             if sheet_name:
                                 try:
@@ -282,12 +286,12 @@ def report():
                             # ACTION ITEM: In a production app, you likely
                             #       want to save these credentials in a
                             #       persistent database instead.
-                            session['credentials'] = credentials_to_dict(credentials)
+                            session['credentials'] = credentials_to_dict(
+                                credentials)
 
                             try:
                                 # DMP Status
-                                self.dmp_status = sheet[proj.sb_id]\
-                                                            ['DMP Status']
+                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
                                 if self.dmp_status.isspace() or \
                                         self.dmp_status == "":
                                     self.dmp_status = "No DMP status provided"
@@ -296,21 +300,20 @@ def report():
                                 if self.history.isspace() or \
                                         self.history == "":
                                     self.history = \
-                                            "No data steward history provided"
-                            #Potential Products
-                                self.potential_products = sheet[proj.sb_id]\
-                                                        ['Expected Products']
+                                        "No data steward history provided"
+                            # Potential Products
+                                self.potential_products = sheet[proj.sb_id]['Expected Products']
                                 if self.potential_products.isspace() or \
                                         self.potential_products == "":
                                     self.potential_products = \
                                         "No data potential products provided"
                             except KeyError:
                                 self.dmp_status = \
-                            "Project not currently tracked by Data Steward"
+                                    "Project not currently tracked by Data Steward"
                                 self.history = \
-                            "Project not currently tracked by Data Steward"
+                                    "Project not currently tracked by Data Steward"
                                 self.potential_products = \
-                            "Project not currently tracked by Data Steward"
+                                    "Project not currently tracked by Data Steward"
                         else:
                             self.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
@@ -373,7 +376,6 @@ def report():
                              project['casc_id'])
         projects.append(new_obj.__dict__)
 
-
     # clear_credentials()
     return render_template("report.html", projects=projects)
 
@@ -394,6 +396,7 @@ def edit_profile():
     """Define form for editing a profile."""
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
+
         if form.username.data:
             current_user.username = str(form.username.data).lower()
         if form.about.data:
@@ -401,7 +404,10 @@ def edit_profile():
         if form.email.data:
             current_user.email = str(form.email.data)
         if form.password.data:
-            current_user.password = str(form.password.data)
+            # current_user.password = str(form.password.data)
+            user = current_user
+            user.set_password(form.password.data)
+            db.session.add(user)
         db.session.commit()
         return redirect(url_for('main.user', username=current_user.username))
     elif request.method == 'GET':
