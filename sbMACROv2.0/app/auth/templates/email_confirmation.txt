@@ -1,0 +1,11 @@
+Hello {{ user.username }},
+
+Please click the below link to activate ur account 
+
+{{ url_for('auth.confirm_email', token=confirm_email, _external=True) }}
+
+
+
+Yours,
+
+sbMACRO Devs
