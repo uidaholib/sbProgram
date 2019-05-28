@@ -24,29 +24,26 @@
     {{ form.submit() }}
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-      <div class="{{ category }}">{{ message }}</div>
+    <div class="{{ category }}">{{ message }}</div>
     {% endfor %}
-  {% endwith %}
+    {% endwith %}
   </p>
   <p>
     New User?
     <a href="{{ url_for('auth.register') }}"> Click to Register!</a>
   </p>
   <p>
-    <a href="{{ url_for('auth.reset_password_request') }}"
-      >Forgot Your Password?</a
-    >
+    <a href="{{ url_for('auth.reset_password_request') }}">Forgot Your Password?</a>
   </p>
   <style>
+    .error {
+      color: red
+    }
 
-.error {
-  color: red
-}
-.Success{
-  color:green
-}
+    .success {
+      color: green
+    }
   </style>
 
 </form>
 {% endblock %}
-

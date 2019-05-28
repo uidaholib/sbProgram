@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm, Form
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms import BooleanField, FieldList, FormField
 from wtforms.validators import ValidationError, DataRequired, Length, Email
-from wtforms.validators import Optional
+from wtforms.validators import Optional, DataRequired, Regexp
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app import db
 from flask_login import current_user
@@ -18,7 +18,8 @@ class EditProfileForm(FlaskForm):
     about = TextAreaField(
         'About me', validators=[Optional(), Length(min=0, max=140)])
     password = PasswordField(
-        'New Password (optional)', validators=[Optional()])
+        'New Password (optional)', validators=[Optional(),
+                                               DataRequired(), Length(min=8, max=32), Regexp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', message="Should contain atleast 1 Lowercase, UpperCase, Digit and SpecialSymbol ")])
     password2 = PasswordField('Repeat New Password (optional)')
     submit = SubmitField('Submit')
 
