@@ -46,7 +46,7 @@ Alternatively, to install each library manually, simply type `python -m pip inst
 
 Some necessary libraries come pre-installed with python and may not have been included in the prerequisites list above. They can be found in the `requirements.txt` file. 
 
-NOTE: sciencebasepy may need to be installed manually. To install sciencebasepy manually, follow instructions here: https://github.com/usgs/sciencebasepy
+NOTE: sciencebasepy may need to be installed manually. To install sciencebasepy manually, follow instructions here: https://github.com/usgs/sciencebasepy.
 
 If the Google Sheets API python module doesn't install, try: `python -m pip install --upgrade google-api-python-client`
 
