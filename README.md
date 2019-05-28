@@ -29,7 +29,7 @@ Libraries you need to install to run sbMACRO Web App:
 * oauth2client==4.1.2
 * pyasn1==0.4.2
 * pyasn1-modules==0.2.1
-* pysb==1.5.4 (NOTE: see instructions below to install)
+* sciencebasepy==1.5.4 (NOTE: see instructions below to install)
 * requests==2.18.4
 * rsa==3.4.2
 * scipy==1.0.0
@@ -46,7 +46,7 @@ Alternatively, to install each library manually, simply type `python -m pip inst
 
 Some necessary libraries come pre-installed with python and may not have been included in the prerequisites list above. They can be found in the `requirements.txt` file. 
 
-NOTE: pysb may need to be installed manually. To install pysb manually, follow instructions here: https://my.usgs.gov/bitbucket/projects/SBE/repos/pysb/browse
+NOTE: sciencebasepy may need to be installed manually. To install sciencebasepy manually, follow instructions here: https://github.com/usgs/sciencebasepy.
 
 If the Google Sheets API python module doesn't install, try: `python -m pip install --upgrade google-api-python-client`
 

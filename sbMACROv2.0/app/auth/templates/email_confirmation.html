@@ -1,0 +1,20 @@
+{# app/templates/email_confirmation.html #}
+
+Your account on SbMacro was successfully created.
+Please click the link below to confirm your email address and
+activate your account:
+
+
+<!-- <p>
+    <a href="{{ token}}">{{token }}</a>
+</p> -->
+<a href="{{ url_for('auth.confirm_email', token=token, _external=True) }}">
+    click here
+</a>.
+<p>
+    --<br>
+    If u have any Questions? Email us at ad.sbmacro@gmail.com
+
+</p>
+<p>Yours,</p>
+<p>sbMACRO Devs</p>

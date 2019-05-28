@@ -1,17 +1,22 @@
 """Authentification-related url routes."""
 
+from datetime import datetime
+from itsdangerous import URLSafeTimedSerializer
+import google_auth_oauthlib.flow
+import google.oauth2.credentials
+from app.auth.email import send_password_reset_email, send_confirmation_email
+from app.models import User
+from app.auth.forms import LoginForm, RegistrationForm, \
+    ResetPasswordRequestForm, ResetPasswordForm
+from app.auth import bp
+from app import db
+from flask_login import login_user, logout_user, current_user
+from werkzeug.urls import url_parse
+import googleapiclient.discovery
 import requests
 import flask
 import os
-from flask import render_template, redirect, url_for, flash, request, session
-from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
-from app import db
-from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User
-from app.auth.email import send_password_reset_email
+from flask import render_template, redirect, url_for, flash, request, session, current_app
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -25,6 +30,9 @@ def login():
             username=form.username.data.lower()).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password', 'error')
+            return redirect(url_for('auth.login'))
+        if user.email_confirmed == False:
+            flash("Please confirm your email address to activate your Account", 'error')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -55,9 +63,12 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data.lower(), email=form.email.data)
         user.set_password(form.password.data)
+        user.email_confirmed = False
         db.session.add(user)
         db.session.commit()
-        flash('Thanks for Registering. Account Successfully got created', 'Success')
+        send_confirmation_email(user.email)
+        flash('Thanks for Registering. Account Successfully got created, Please check your email to confirm',
+              'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', title='Register',
                            form=form)
@@ -66,17 +77,36 @@ def register():
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
     """Display request form for pass reset. Display appropriate page after."""
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        try:
+            user = User.query.filter_by(email=form.email.data).first_or_404()
+        except:
+            flash('This Email ID is Not Registered', 'error')
+            return render_template('password_reset_request.html', form=form)
+
         if user:
             send_password_reset_email(user)
-        return render_template('post_pass_reset_request.html',
-                               title="Reset Password")
-    return render_template(
-        'password_reset_request.html', title="Reset Password", form=form)
+            flash('Please check your email for a password reset link.', 'success')
+            return render_template('post_pass_reset_request.html',
+                                   title="Reset Password")
+        else:
+            flash(
+                'Your email address must be confirmed before attempting a password reset.', 'error')
+        return redirect(url_for('auth.login'))
+
+    return render_template('password_reset_request.html', form=form)
+    # if current_user.is_authenticated:
+    #     return redirect(url_for('main.index'))
+    # form = ResetPasswordRequestForm()
+    # if form.validate_on_submit():
+    #     user = User.query.filter_by(email=form.email.data).first()
+    #     if user:
+    #         send_password_reset_email(user)
+    #     return render_template('post_pass_reset_request.html',
+    #                            title="Reset Password")
+    # return render_template(
+    #     'password_reset_request.html', title="Reset Password", form=form)
 
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
@@ -135,3 +165,29 @@ def credentials_to_dict(credentials):
         'client_secret': credentials.client_secret,
         'scopes': credentials.scopes
     }
+
+
+@bp.route('/confirm/<token>')
+def confirm_email(token):
+    try:
+        confirm_serializer = URLSafeTimedSerializer(
+            current_app.config['SECRET_KEY'])
+        cemail = confirm_serializer.loads(
+            token, salt='email-confirmation-salt', max_age=3600)[0]
+
+    except:
+        flash('The confirmation link is invalid or has expired.', 'error')
+        return redirect(url_for('auth.login'))
+
+    user = User.query.filter_by(email=cemail).first()
+
+    if user.email_confirmed:
+        flash('Account already confirmed. Please login.', 'error')
+    else:
+        user.email_confirmed = True
+        user.email_confirmed_on = datetime.now()
+        db.session.add(user)
+        db.session.commit()
+        flash('Thank you for confirming your email address!', 'success')
+
+    return redirect(url_for('auth.login'))

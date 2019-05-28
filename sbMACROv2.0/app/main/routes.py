@@ -1,5 +1,6 @@
 """Define main application routes."""
-import os, sys
+import os
+import sys
 from datetime import datetime
 from collections import OrderedDict
 from flask import render_template, redirect, url_for, request, \
@@ -17,6 +18,7 @@ from app.auth.read_sheets import get_sheet_name, parse_values
 import openpyxl
 
 from pprint import pprint
+
 
 @bp.before_app_request
 def before_request():
@@ -43,6 +45,7 @@ def fiscalyear():
     """Retrieve Fiscal Years and display for selection by user."""
     cascs = db.session.query(casc).order_by(casc.name).all()
     cascs_and_fys = {}
+
     class F(FyForm):
         pass
 
@@ -107,7 +110,7 @@ def project():
         for url in sb_urls:
             project_dict = {}
             proj = db.session.query(Project).filter(
-                    Project.url == url).first()
+                Project.url == url).first()
             if proj is None:
                 print("---Error: Could not find project for {}".format(url))
                 continue
@@ -158,7 +161,6 @@ def report():
                 # No need to continue if workbook has just been loaded
                 break
 
-
     class ReportItem(object):
         """Object to be passed to front-end for display in table and modal."""
 
@@ -188,16 +190,16 @@ def report():
 
         def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
             """Initialize ReportItem class object.
-            
+
             Arguments:
                 obj_type -- (string) 'project', 'fiscal year', 'casc', 'item',
                             'sbfile', or 'problem item' to determine the type
                             of object being created.
                 obj_db_id -- (int) the database id for the item being created.
                 fy_db_id -- (int or list) the database id for the item's
-                            fiscal year of concern. 
+                            fiscal year of concern.
                 casc_db_id -- (int or list) the database id for the item's
-                              casc year of concern. 
+                              casc year of concern.
 
             """
 
@@ -206,7 +208,7 @@ def report():
             if obj_type == 'project':
                 self.obj_type = obj_type
                 proj = db.session.query(Project).filter(
-                        Project.id == obj_db_id).first()
+                    Project.id == obj_db_id).first()
                 if proj == None:
                     raise Exception  # It has to be there somewhere...
                 else:
@@ -227,7 +229,9 @@ def report():
                             casc_model = db.session.query(casc).get(fy.casc_id)
                             self.casc.append(casc_model.name)
                             # convert from MB -> GB
-                            self.total_data_in_fy_GB.append(fy.total_data / 1000)
+                            self.total_data_in_fy_GB.append(
+                                fy.total_data / 1000)
+
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
                         self.fiscal_year = fy.name
@@ -248,6 +252,7 @@ def report():
                     # Things that depend on user access level:
                     if current_user.is_authenticated:
                         if current_user.access_level > 0:
+
                             # Parse excel sheet
                             sheet_name = get_sheet_name(self.casc)
                             if sheet_name:
@@ -259,10 +264,16 @@ def report():
 
                                 sheet = parse_values(values)
 
+    # ACTION ITEM: In a production app, you likely
+                            #       want to save these credentials in a
+                            #       persistent database instead.
+                            session['credentials'] = credentials_to_dict(
+                                credentials)
                             try:
                                 # DMP Status
                                 self.dmp_status = sheet[proj.sb_id]['DMP Status']
                                 if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+
                                     self.dmp_status = "No DMP status provided"
                                 # History
                                 self.history = sheet[proj.sb_id]['History']
@@ -276,6 +287,7 @@ def report():
                                 self.dmp_status = "Project not currently tracked by Data Steward"
                                 self.history = "Project not currently tracked by Data Steward"
                                 self.potential_products = "Project not currently tracked by Data Steward"
+
                         else:
                             self.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
@@ -302,7 +314,7 @@ def report():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list[:999])).all() # sqlalchemy max query items is 999
+                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -331,7 +343,8 @@ def report():
                 # front-end yet.
 
     for project in project_list:
-        new_obj = ReportItem('project', project['proj_id'], project['fy_id'], project['casc_id'])
+        new_obj = ReportItem(
+            'project', project['proj_id'], project['fy_id'], project['casc_id'])
         projects.append(new_obj.__dict__)
 
     return render_template("report.html", projects=projects)
@@ -353,6 +366,7 @@ def edit_profile():
     """Define form for editing a profile."""
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
+
         if form.username.data:
             current_user.username = str(form.username.data).lower()
         if form.about.data:
@@ -360,7 +374,10 @@ def edit_profile():
         if form.email.data:
             current_user.email = str(form.email.data)
         if form.password.data:
-            current_user.password = str(form.password.data)
+            # current_user.password = str(form.password.data)
+            user = current_user
+            user.set_password(form.password.data)
+            db.session.add(user)
         db.session.commit()
         return redirect(url_for('main.user', username=current_user.username))
     elif request.method == 'GET':

@@ -14,6 +14,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(BASEDIR, 'sbmacro.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # USER_ENABLE_CHANGE_PASSWORD = True
 
     # Email server details:
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
@@ -23,4 +24,4 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['ad.sbmacro@gmail.com'
-             ]  # Must be changed once hosted. Is a list.
+              ]  # Must be changed once hosted. Is a list.
