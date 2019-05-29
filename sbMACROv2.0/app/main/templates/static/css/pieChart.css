@@ -1,9 +1,9 @@
 #modal_chart {
-    height: 360px;
+    height: 100%;
     margin: 0 auto;
     /* NEW */
     position: relative;
-    width: 360px;
+    width: 100%;
 }
 
 #modal_chart.tooltip {
