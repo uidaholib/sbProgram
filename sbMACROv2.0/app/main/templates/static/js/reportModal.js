@@ -1,5 +1,5 @@
 function findModalBtns(projectArray) {
-  $(document).ready(function() {
+  $(document).ready(function () {
     var modalBtns = document.getElementsByClassName('modalbtn')
     for (var i = 0; i < modalBtns.length; i++) {
       let m_id = modalBtns[i].id
@@ -9,12 +9,13 @@ function findModalBtns(projectArray) {
   })
 }
 
-var displayModal = function(elem) {
+var displayModal = function (elem) {
   let modal = document.getElementById(elem.id + '_div')
   modal.style.display = 'block'
   let thead = document.getElementById('table_head')
   thead.style.display = 'none'
 }
+
 function createModal(sbId, projectArray) {
   let projectSbId = sbId.replace('modal_', '')
   let project = null
@@ -37,7 +38,7 @@ function createModal(sbId, projectArray) {
   $('#BaseModal').after(newModal)
 
   var span = $('#' + modal_id).find('.close')
-  span.on('click', function() {
+  span.on('click', function () {
     let modal = document.getElementById(modal_id)
     modal.style.display = 'none'
     let thead = document.getElementById('table_head')
@@ -140,7 +141,7 @@ function createModal(sbId, projectArray) {
 }
 
 // When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
+window.onclick = function (event) {
   if ($(event.target).hasClass('projModal')) {
     let modal = document.getElementById(event.target.id)
     modal.style.display = 'none'
