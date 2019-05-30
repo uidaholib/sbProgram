@@ -1,0 +1,38 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'Connected!'});
+    });
+</script> -->
+
+<div>
+
+  <h1>sbMACRO Database Update</h1>
+
+  <br>
+
+  <p>The following CASC(s) will be updated:</p>
+
+  {% for casc in cascs_to_update %}
+    {{ casc }}
+    <br>
+  {% endfor %}
+
+  <p>You may continue with your work<p>
+
+<!--   {% set first_casc = cascs_to_update[0] %}
+  <br>
+  Updating
+  <p> {{ first_casc }} <p> -->
+
+</div>
+
+<!-- <div id = 'progress'></div> -->
+
+<!-- <script src="{{ url_for('main.static', filename='js/updates.js') }}"></script> -->
+
+{% endblock %}

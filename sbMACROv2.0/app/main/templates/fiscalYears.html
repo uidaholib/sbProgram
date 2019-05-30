@@ -60,13 +60,10 @@
   </div>
 </form>
 
-<script src="{{ url_for('main.static', filename='js/fiscalYears.js') }}">
-  let currentPage = document.getElementById('Nav-FiscalYear')
-  currentPage.classList.add('currentPage')
+<script src="{{ url_for('main.static', filename='js/fiscalYears.js') }}"></script>
+<script>
+    let currentPage = document.getElementById('Nav-FiscalYear');
+    currentPage.classList.add("currentPage");
 </script>
-<!-- <script>
-    $(document).ready(function () {
-        $('#Excel1, #Excel2').hide();
-    });
-</script> -->
+
 {% endblock %}

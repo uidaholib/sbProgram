@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- OLD Compiled and minified CSS for correct formatting of checkboxes -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+<!-- OLD Compiled and minified JavaScript for correct formatting of checkboxes -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
+<!-- Must import again to supersede the newest materialize imports -->
+<link rel="stylesheet" href="static/css/custom.css">
+
+<h4>sbMACRO Database Update</h4>
+
+<br>
+
+<h5>Select CASC(s) to update:</h5>
+<form method="POST" id="CASC-Select-Form">
+
+  <div class="row">
+    <div class="col s4 m4 l4">
+        <div class="card blue-grey lighten-4">
+            <div class="card-content">
+              {% for casc_name in list_of_cascs: %}
+                  {% set field_name = casc_name %}
+                  {% set field = form|attr(field_name) %}
+                  <br> {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label }}
+              {% endfor %}
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class = "row">
+    {{ form.submit(class="btn btn-primary") }}
+  </div>
+  {{ form.hidden_tag() }}
+
+</form>
+
+<script src="{{ url_for('main.static', filename='js/updateDB.js') }}"></script>
+<script>
+    let currentPage = document.getElementById('Nav-Update');
+    currentPage.classList.add("currentPage");
+</script>
+
+{% endblock %}
