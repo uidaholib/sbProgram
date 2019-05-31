@@ -1,10 +1,10 @@
 """Define main application routes."""
 import os
 import sys
+import openpyxl
 from datetime import datetime
 from collections import OrderedDict
-from flask import render_template, redirect, url_for, request, \
-    jsonify, current_app, session
+from flask import render_template, redirect, url_for, request, jsonify, current_app, session
 from flask_login import current_user, login_required
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField
 from wtforms import BooleanField
@@ -15,7 +15,10 @@ from app.main.forms import EditProfileForm, FyForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.main import bp
 from app.auth.read_sheets import get_sheet_name, parse_values
-import openpyxl
+from app.updater.__init__ import update
+import multiprocessing
+# from sbmacro import socketio
+
 
 from pprint import pprint
 
@@ -63,10 +66,8 @@ def fiscalyear():
             fiscal_year["id"] = fy.id
             fiscal_year["name"] = fy.name
             cascs_and_fys[curr_casc.name]["fiscal_years"].append(fiscal_year)
-            # new_attr_name = curr_casc.name + " " + fy.name
-            setattr(F,
-                    "fy"+str(fy.id),
-                    BooleanField(fy.name))
+            setattr(F, "fy" + str(fy.id), BooleanField(fy.name))
+
     form = F()
     if form.validate_on_submit():
         id_list = []
@@ -97,6 +98,53 @@ def fiscalyear():
                            title="Select Fiscal Years")
 
 
+@bp.route('/update_db', methods=['GET', 'POST'])
+def update_db():
+    """Retrieve CASCs and display for selection by user."""
+
+    list_of_cascs = []
+    cascs_to_update = []
+
+    cascs = db.session.query(casc).order_by(casc.name).all()
+
+    class F(FyForm):
+        pass
+
+    for curr_casc in cascs:
+        list_of_cascs.append(str(curr_casc.name))
+        setattr(F, str(curr_casc.name), BooleanField(curr_casc.name.replace(' CASC', '')))
+
+    form = F()
+    if form.validate_on_submit():
+        
+        for csc in list_of_cascs:
+            csc_attr = getattr(form, csc)
+
+            selected = csc_attr.data
+            if selected:
+                cascs_to_update.append(csc.replace(' CASC', ''))
+
+        session['cascs_to_update'] = cascs_to_update
+
+        return redirect(url_for('main.updates'))
+
+    elif request.method == 'GET':
+        pass
+
+    return render_template('update_db.html', form = form, list_of_cascs = list_of_cascs)
+
+# @socketio.on('connect', namespace='/test')
+@bp.route('/updates')
+def updates():
+    """Update the cascs selected for update"""
+    cascs_to_update = session['cascs_to_update']
+
+    thread = multiprocessing.Process(target = update, args = (cascs_to_update,))
+    thread.start()
+
+    return render_template("updates.html", cascs_to_update = cascs_to_update)
+
+
 @bp.route('/projects', methods=['GET', 'POST'])
 @bp.route('/select_project', methods=['GET', 'POST'])
 @bp.route('/select_projects', methods=['GET', 'POST'])
@@ -109,8 +157,7 @@ def project():
         projects = []
         for url in sb_urls:
             project_dict = {}
-            proj = db.session.query(Project).filter(
-                Project.url == url).first()
+            proj = db.session.query(Project).filter(Project.url == url).first()
             if proj is None:
                 print("---Error: Could not find project for {}".format(url))
                 continue
@@ -133,8 +180,7 @@ def project():
             session["projects"] = projects
         return redirect(url_for('main.report'))
 
-    return(render_template('projects.html',
-                           title="Select Projects to Report"))
+    return(render_template('projects.html', title="Select Projects to Report"))
 
 
 @bp.route('/report')
@@ -257,37 +303,41 @@ def report():
                             sheet_name = get_sheet_name(self.casc)
                             if sheet_name:
                                 values = []
-                                for vals in workbook[sheet_name].values:
-                                    if vals[0] is None:
-                                        break
-                                    values.append(vals)
+                                try:
+                                    for vals in workbook[sheet_name].values:
+                                        if vals[0] is None:
+                                            break
+                                        values.append(vals)
 
-                                sheet = parse_values(values)
+                                    sheet = parse_values(values)
+                                except:
+                                    pass
 
     # ACTION ITEM: In a production app, you likely
                             #       want to save these credentials in a
                             #       persistent database instead.
-                            session['credentials'] = credentials_to_dict(
-                                credentials)
+                            session['credentials'] = credentials_to_dict(credentials)
                             try:
-                                # DMP Status
-                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+                                try:
+                                    # DMP Status
+                                    self.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                    if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
 
-                                    self.dmp_status = "No DMP status provided"
-                                # History
-                                self.history = sheet[proj.sb_id]['History']
-                                if self.history is None or self.history.isspace() or self.history == "":
-                                    self.history = "No data steward history provided"
-                                # Potential Products
-                                self.potential_products = sheet[proj.sb_id]['Expected Products']
-                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
-                                    self.potential_products = "No data potential products provided"
-                            except KeyError:
-                                self.dmp_status = "Project not currently tracked by Data Steward"
-                                self.history = "Project not currently tracked by Data Steward"
-                                self.potential_products = "Project not currently tracked by Data Steward"
-
+                                        self.dmp_status = "No DMP status provided"
+                                    # History
+                                    self.history = sheet[proj.sb_id]['History']
+                                    if self.history is None or self.history.isspace() or self.history == "":
+                                        self.history = "No data steward history provided"
+                                    # Potential Products
+                                    self.potential_products = sheet[proj.sb_id]['Expected Products']
+                                    if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
+                                        self.potential_products = "No data potential products provided"
+                                except KeyError:
+                                    self.dmp_status = "Project not currently tracked by Data Steward"
+                                    self.history = "Project not currently tracked by Data Steward"
+                                    self.potential_products = "Project not currently tracked by Data Steward"
+                            except:
+                                pass
                         else:
                             self.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
@@ -348,7 +398,6 @@ def report():
         projects.append(new_obj.__dict__)
 
     return render_template("report.html", projects=projects)
-
 
 @bp.route('/user/<username>')
 @login_required
