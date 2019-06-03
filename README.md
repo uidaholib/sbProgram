@@ -11,36 +11,8 @@ Entire commit history and contributor history can be found here: https://github.
 
 [Python 3.6](https://www.python.org/downloads/) is required to run this program. The program is currently best used on a recent version of Google Chrome.
 
-Libraries you need to install to run sbMACRO Web App:
-
-* certifi==2017.7.27.1
-* chardet==3.0.4
-* click==6.7
-* Flask==0.12.2
-* google-api-python-client==1.6.4
-* httplib2==0.10.3
-* idna==2.6
-* itsdangerous==0.24
-* Jinja2==2.9.6
-* jsonpickle==0.9.5
-* MarkupSafe==1.0
-* mpmath==1.0.0
-* numpy==1.13.3
-* oauth2client==4.1.2
-* pyasn1==0.4.2
-* pyasn1-modules==0.2.1
-* sciencebasepy==1.5.4 (NOTE: see instructions below to install)
-* requests==2.18.4
-* rsa==3.4.2
-* scipy==1.0.0
-* six==1.11.0
-* sympy==1.1.1
-* uritemplate==3.0.0
-* urllib3==1.22
-* Werkzeug==0.12.2
-
-The recommended way to make sure you have all dependencies/prerequisites is to download the `requirements.txt` file and run
-`python -m pip install -r requirements.txt` in the TrialWebApp directory.
+Libraries you need to install to run sbMACRO Web App are listed in sbMACROv2.0/requirements.txt. The recommended way to make sure you have all dependencies/prerequisites is to download the `requirements.txt` file and run
+`python -m pip install -r requirements.txt` in the sbMACROv2.0 directory.
 
 Alternatively, to install each library manually, simply type `python -m pip install <library_name>` without the brackets.
 
@@ -50,7 +22,7 @@ NOTE: sciencebasepy may need to be installed manually. To install sciencebasepy 
 
 If the Google Sheets API python module doesn't install, try: `python -m pip install --upgrade google-api-python-client`
 
-The project is also mid-development, so if you have trouble, or `requirements.txt` is not up to date, create an issue on our GitHub page or [contact us](mailto:trogers@uidaho.edu).
+The project is also mid-development, so if you have trouble, or `requirements.txt` is not up to date, create an issue on our GitHub page or [contact us](mailto:ad.sbmacro@gmail.com).
 
 ### Installing
 
