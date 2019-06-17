@@ -160,6 +160,217 @@ def report():
                     print('File error: {}'.format(excel_file))
                 # No need to continue if workbook has just been loaded
                 break
+    
+    class ReportItem(object):
+        """Object to be passed to front-end for display in table and modal."""
+
+        name = None
+        id = None
+        sb_id = None
+        url = None
+        obj_type = None
+        data_in_project_GB = None
+        num_of_files = None
+        total_data_in_fy_GB = None
+        timestamp = None
+        dmp_status = None
+        pi_list = []
+        summary = None
+        history = None
+        item_breakdown = None
+        potential_products = None
+        products_received = []
+        file_breakdown = []
+
+        # Possibly necessary info:
+        casc = None
+        fiscal_year = None
+        project = None
+        item = None
+
+        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+            """Initialize ReportItem class object.
+
+            Arguments:
+                obj_type -- (string) 'project', 'fiscal year', 'casc', 'item',
+                            'sbfile', or 'problem item' to determine the type
+                            of object being created.
+                obj_db_id -- (int) the database id for the item being created.
+                fy_db_id -- (int or list) the database id for the item's
+                            fiscal year of concern.
+                casc_db_id -- (int or list) the database id for the item's
+                              casc year of concern.
+
+            """
+
+            sheet = {}
+
+            if obj_type == 'project':
+                self.obj_type = obj_type
+                proj = db.session.query(Project).filter(
+                    Project.id == obj_db_id).first()
+                if proj == None:
+                    raise Exception  # It has to be there somewhere...
+                else:
+                    self.name = proj.name
+                    self.id = obj_db_id
+                    self.sb_id = proj.sb_id
+                    self.url = proj.url
+                    # convert from MB -> GB
+                    self.data_in_project_GB = proj.total_data / 1000
+                    self.num_of_files = proj.files.count()
+                    if fy_db_id is list:
+                        self.fiscal_year = []
+                        self.casc = []
+                        self.total_data_in_fy_GB = []
+                        for fy_id in fy_db_id:
+                            fy = db.session.query(FiscalYear).get(fy_id)
+                            self.fiscal_year.append(fy.name)
+                            casc_model = db.session.query(casc).get(fy.casc_id)
+                            self.casc.append(casc_model.name)
+                            # convert from MB -> GB
+                            self.total_data_in_fy_GB.append(
+                                fy.total_data / 1000)
+
+                    else:
+                        fy = db.session.query(FiscalYear).get(fy_db_id)
+                        self.fiscal_year = fy.name
+                        casc_model = db.session.query(casc).get(casc_db_id)
+                        self.casc = casc_model.name
+                        # convert from MB -> GB
+                        self.total_data_in_fy_GB = fy.total_data / 1000
+                    self.timestamp = proj.timestamp
+                    self.pi_list = []
+                    for pi in proj.principal_investigators:
+                        curr_pi = {'name': pi.name, 'email': pi.email}
+                        self.pi_list.append(curr_pi)
+                    self.summary = proj.summary
+                    self.products_received = []
+                    for item in proj.items:
+                        curr_item = {'name': item.name, 'url': item.url}
+                        self.products_received.append(curr_item)
+                    # Things that depend on user access level:
+                    if current_user.is_authenticated:
+                        if current_user.access_level > 0:
+
+                            # Parse excel sheet
+                            sheet_name = get_sheet_name(self.casc)
+                            if sheet_name:
+                                values = []
+                                for vals in workbook[sheet_name].values:
+                                    if vals[0] is None:
+                                        break
+                                    values.append(vals)
+
+                                sheet = parse_values(values)
+
+    # ACTION ITEM: In a production app, you likely
+                            #       want to save these credentials in a
+                            #       persistent database instead.
+                            session['credentials'] = credentials_to_dict(
+                                credentials)
+                            try:
+                                # DMP Status
+                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+
+                                    self.dmp_status = "No DMP status provided"
+                                # History
+                                self.history = sheet[proj.sb_id]['History']
+                                if self.history is None or self.history.isspace() or self.history == "":
+                                    self.history = "No data steward history provided"
+                                # Potential Products
+                                self.potential_products = sheet[proj.sb_id]['Expected Products']
+                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
+                                    self.potential_products = "No data potential products provided"
+                            except KeyError:
+                                self.dmp_status = "Project not currently tracked by Data Steward"
+                                self.history = "Project not currently tracked by Data Steward"
+                                self.potential_products = "Project not currently tracked by Data Steward"
+
+                        else:
+                            self.dmp_status = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.history = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.potential_products = "Please email "\
+                                + "administrators at {} to receive access "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "privileges to view this content."
+                    else:
+                        self.dmp_status = "Please login to view this content."
+                        self.history = "Please login to view this content."
+                        self.potential_products = "Please login to view this content."
+                    self.file_breakdown = []
+                    proj_file_list = []
+                    for sbfile in proj.files:
+                        proj_file_list.append(sbfile.id)
+                    if len(proj_file_list) > 0:
+                        file_breakdown_list = db.session.query(
+                            SbFile.content_type, db.func.count(
+                                SbFile.content_type)).group_by(
+                                    SbFile.content_type).filter(
+                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
+                        proj_file_list[:] = []
+                        for _tuple in file_breakdown_list:
+                            temp_dict = {}
+                            temp_dict['label'] = _tuple[0]
+                            temp_dict['count'] = _tuple[1]
+                            proj_file_list.append(temp_dict)
+                        self.file_breakdown = sorted(
+                            proj_file_list,
+                            key=lambda k: k['count'],
+                            reverse=True)
+
+            elif obj_type == 'fiscal year':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'casc':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'sbfile':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'problem item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+    for project in project_list:
+        new_obj = ReportItem(
+            'project', project['proj_id'], project['fy_id'], project['casc_id'])
+        projects.append(new_obj.__dict__)
+
+    return render_template("report.html", projects=projects)
+
+@bp.route('/verticalbar')
+def verticalbar():
+    """Gather appropriate report information and display."""
+
+    excel_file = 'CASC Data Management Tracking for Projects - v2.xlsx'
+    project_list = session["projects"]
+    projects = []
+    workbook = None
+
+    # Decide whether to load project tracking excel workbook
+    if current_user.is_authenticated and current_user.access_level > 0:
+        for project in project_list:
+            casc_item = db.session.query(casc).get(project['casc_id'])
+            if get_sheet_name(casc_item.name):
+                # Load workbook
+                try:
+                    print('Opening {}...'.format(excel_file))
+                    workbook = openpyxl.load_workbook(excel_file)
+                    print('Successfully opened {}'.format(excel_file))
+                except:
+                    print('File error: {}'.format(excel_file))
+                # No need to continue if workbook has just been loaded
+                break
 
     class ReportItem(object):
         """Object to be passed to front-end for display in table and modal."""
@@ -347,7 +558,435 @@ def report():
             'project', project['proj_id'], project['fy_id'], project['casc_id'])
         projects.append(new_obj.__dict__)
 
-    return render_template("report.html", projects=projects)
+    return render_template("verticalbar.html", projects=projects)
+
+
+@bp.route('/horizontalbar')
+def horizontalbar():
+    """Gather appropriate report information and display."""
+
+    excel_file = 'CASC Data Management Tracking for Projects - v2.xlsx'
+    project_list = session["projects"]
+    projects = []
+    workbook = None
+
+    # Decide whether to load project tracking excel workbook
+    if current_user.is_authenticated and current_user.access_level > 0:
+        for project in project_list:
+            casc_item = db.session.query(casc).get(project['casc_id'])
+            if get_sheet_name(casc_item.name):
+                # Load workbook
+                try:
+                    print('Opening {}...'.format(excel_file))
+                    workbook = openpyxl.load_workbook(excel_file)
+                    print('Successfully opened {}'.format(excel_file))
+                except:
+                    print('File error: {}'.format(excel_file))
+                # No need to continue if workbook has just been loaded
+                break
+
+    class ReportItem(object):
+        """Object to be passed to front-end for display in table and modal."""
+
+        name = None
+        id = None
+        sb_id = None
+        url = None
+        obj_type = None
+        data_in_project_GB = None
+        num_of_files = None
+        total_data_in_fy_GB = None
+        timestamp = None
+        dmp_status = None
+        pi_list = []
+        summary = None
+        history = None
+        item_breakdown = None
+        potential_products = None
+        products_received = []
+        file_breakdown = []
+
+        # Possibly necessary info:
+        casc = None
+        fiscal_year = None
+        project = None
+        item = None
+
+        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+            """Initialize ReportItem class object.
+
+            Arguments:
+                obj_type -- (string) 'project', 'fiscal year', 'casc', 'item',
+                            'sbfile', or 'problem item' to determine the type
+                            of object being created.
+                obj_db_id -- (int) the database id for the item being created.
+                fy_db_id -- (int or list) the database id for the item's
+                            fiscal year of concern.
+                casc_db_id -- (int or list) the database id for the item's
+                              casc year of concern.
+
+            """
+
+            sheet = {}
+
+            if obj_type == 'project':
+                self.obj_type = obj_type
+                proj = db.session.query(Project).filter(
+                    Project.id == obj_db_id).first()
+                if proj == None:
+                    raise Exception  # It has to be there somewhere...
+                else:
+                    self.name = proj.name
+                    self.id = obj_db_id
+                    self.sb_id = proj.sb_id
+                    self.url = proj.url
+                    # convert from MB -> GB
+                    self.data_in_project_GB = proj.total_data / 1000
+                    self.num_of_files = proj.files.count()
+                    if fy_db_id is list:
+                        self.fiscal_year = []
+                        self.casc = []
+                        self.total_data_in_fy_GB = []
+                        for fy_id in fy_db_id:
+                            fy = db.session.query(FiscalYear).get(fy_id)
+                            self.fiscal_year.append(fy.name)
+                            casc_model = db.session.query(casc).get(fy.casc_id)
+                            self.casc.append(casc_model.name)
+                            # convert from MB -> GB
+                            self.total_data_in_fy_GB.append(
+                                fy.total_data / 1000)
+
+                    else:
+                        fy = db.session.query(FiscalYear).get(fy_db_id)
+                        self.fiscal_year = fy.name
+                        casc_model = db.session.query(casc).get(casc_db_id)
+                        self.casc = casc_model.name
+                        # convert from MB -> GB
+                        self.total_data_in_fy_GB = fy.total_data / 1000
+                    self.timestamp = proj.timestamp
+                    self.pi_list = []
+                    for pi in proj.principal_investigators:
+                        curr_pi = {'name': pi.name, 'email': pi.email}
+                        self.pi_list.append(curr_pi)
+                    self.summary = proj.summary
+                    self.products_received = []
+                    for item in proj.items:
+                        curr_item = {'name': item.name, 'url': item.url}
+                        self.products_received.append(curr_item)
+                    # Things that depend on user access level:
+                    if current_user.is_authenticated:
+                        if current_user.access_level > 0:
+
+                            # Parse excel sheet
+                            sheet_name = get_sheet_name(self.casc)
+                            if sheet_name:
+                                values = []
+                                for vals in workbook[sheet_name].values:
+                                    if vals[0] is None:
+                                        break
+                                    values.append(vals)
+
+                                sheet = parse_values(values)
+
+    # ACTION ITEM: In a production app, you likely
+                            #       want to save these credentials in a
+                            #       persistent database instead.
+                            session['credentials'] = credentials_to_dict(
+                                credentials)
+                            try:
+                                # DMP Status
+                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+
+                                    self.dmp_status = "No DMP status provided"
+                                # History
+                                self.history = sheet[proj.sb_id]['History']
+                                if self.history is None or self.history.isspace() or self.history == "":
+                                    self.history = "No data steward history provided"
+                                # Potential Products
+                                self.potential_products = sheet[proj.sb_id]['Expected Products']
+                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
+                                    self.potential_products = "No data potential products provided"
+                            except KeyError:
+                                self.dmp_status = "Project not currently tracked by Data Steward"
+                                self.history = "Project not currently tracked by Data Steward"
+                                self.potential_products = "Project not currently tracked by Data Steward"
+
+                        else:
+                            self.dmp_status = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.history = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.potential_products = "Please email "\
+                                + "administrators at {} to receive access "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "privileges to view this content."
+                    else:
+                        self.dmp_status = "Please login to view this content."
+                        self.history = "Please login to view this content."
+                        self.potential_products = "Please login to view this content."
+                    self.file_breakdown = []
+                    proj_file_list = []
+                    for sbfile in proj.files:
+                        proj_file_list.append(sbfile.id)
+                    if len(proj_file_list) > 0:
+                        file_breakdown_list = db.session.query(
+                            SbFile.content_type, db.func.count(
+                                SbFile.content_type)).group_by(
+                                    SbFile.content_type).filter(
+                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
+                        proj_file_list[:] = []
+                        for _tuple in file_breakdown_list:
+                            temp_dict = {}
+                            temp_dict['label'] = _tuple[0]
+                            temp_dict['count'] = _tuple[1]
+                            proj_file_list.append(temp_dict)
+                        self.file_breakdown = sorted(
+                            proj_file_list,
+                            key=lambda k: k['count'],
+                            reverse=True)
+
+            elif obj_type == 'fiscal year':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'casc':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'sbfile':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'problem item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+
+    for project in project_list:
+        new_obj = ReportItem(
+            'project', project['proj_id'], project['fy_id'], project['casc_id'])
+        projects.append(new_obj.__dict__)
+
+    return render_template("horizontalbar.html", projects=projects)
+
+
+
+@bp.route('/treemap')
+def treemap():
+
+    """Gather appropriate report information and display."""
+
+    excel_file = 'CASC Data Management Tracking for Projects - v2.xlsx'
+    project_list = session["projects"]
+    projects = []
+    workbook = None
+
+    # Decide whether to load project tracking excel workbook
+    if current_user.is_authenticated and current_user.access_level > 0:
+        for project in project_list:
+            casc_item = db.session.query(casc).get(project['casc_id'])
+            if get_sheet_name(casc_item.name):
+                # Load workbook
+                try:
+                    print('Opening {}...'.format(excel_file))
+                    workbook = openpyxl.load_workbook(excel_file)
+                    print('Successfully opened {}'.format(excel_file))
+                except:
+                    print('File error: {}'.format(excel_file))
+                # No need to continue if workbook has just been loaded
+                break
+
+    class ReportItem(object):
+        """Object to be passed to front-end for display in table and modal."""
+
+        name = None
+        id = None
+        sb_id = None
+        url = None
+        obj_type = None
+        data_in_project_GB = None
+        num_of_files = None
+        total_data_in_fy_GB = None
+        timestamp = None
+        dmp_status = None
+        pi_list = []
+        summary = None
+        history = None
+        item_breakdown = None
+        potential_products = None
+        products_received = []
+        file_breakdown = []
+
+        # Possibly necessary info:
+        casc = None
+        fiscal_year = None
+        project = None
+        item = None
+
+        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+            """Initialize ReportItem class object.
+
+            Arguments:
+                obj_type -- (string) 'project', 'fiscal year', 'casc', 'item',
+                            'sbfile', or 'problem item' to determine the type
+                            of object being created.
+                obj_db_id -- (int) the database id for the item being created.
+                fy_db_id -- (int or list) the database id for the item's
+                            fiscal year of concern.
+                casc_db_id -- (int or list) the database id for the item's
+                              casc year of concern.
+
+            """
+
+            sheet = {}
+
+            if obj_type == 'project':
+                self.obj_type = obj_type
+                proj = db.session.query(Project).filter(
+                    Project.id == obj_db_id).first()
+                if proj == None:
+                    raise Exception  # It has to be there somewhere...
+                else:
+                    self.name = proj.name
+                    self.id = obj_db_id
+                    self.sb_id = proj.sb_id
+                    self.url = proj.url
+                    # convert from MB -> GB
+                    self.data_in_project_GB = proj.total_data / 1000
+                    self.num_of_files = proj.files.count()
+                    if fy_db_id is list:
+                        self.fiscal_year = []
+                        self.casc = []
+                        self.total_data_in_fy_GB = []
+                        for fy_id in fy_db_id:
+                            fy = db.session.query(FiscalYear).get(fy_id)
+                            self.fiscal_year.append(fy.name)
+                            casc_model = db.session.query(casc).get(fy.casc_id)
+                            self.casc.append(casc_model.name)
+                            # convert from MB -> GB
+                            self.total_data_in_fy_GB.append(
+                                fy.total_data / 1000)
+
+                    else:
+                        fy = db.session.query(FiscalYear).get(fy_db_id)
+                        self.fiscal_year = fy.name
+                        casc_model = db.session.query(casc).get(casc_db_id)
+                        self.casc = casc_model.name
+                        # convert from MB -> GB
+                        self.total_data_in_fy_GB = fy.total_data / 1000
+                    self.timestamp = proj.timestamp
+                    self.pi_list = []
+                    for pi in proj.principal_investigators:
+                        curr_pi = {'name': pi.name, 'email': pi.email}
+                        self.pi_list.append(curr_pi)
+                    self.summary = proj.summary
+                    self.products_received = []
+                    for item in proj.items:
+                        curr_item = {'name': item.name, 'url': item.url}
+                        self.products_received.append(curr_item)
+                    # Things that depend on user access level:
+                    if current_user.is_authenticated:
+                        if current_user.access_level > 0:
+
+                            # Parse excel sheet
+                            sheet_name = get_sheet_name(self.casc)
+                            if sheet_name:
+                                values = []
+                                for vals in workbook[sheet_name].values:
+                                    if vals[0] is None:
+                                        break
+                                    values.append(vals)
+
+                                sheet = parse_values(values)
+
+    # ACTION ITEM: In a production app, you likely
+                            #       want to save these credentials in a
+                            #       persistent database instead.
+                            session['credentials'] = credentials_to_dict(
+                                credentials)
+                            try:
+                                # DMP Status
+                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+
+                                    self.dmp_status = "No DMP status provided"
+                                # History
+                                self.history = sheet[proj.sb_id]['History']
+                                if self.history is None or self.history.isspace() or self.history == "":
+                                    self.history = "No data steward history provided"
+                                # Potential Products
+                                self.potential_products = sheet[proj.sb_id]['Expected Products']
+                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
+                                    self.potential_products = "No data potential products provided"
+                            except KeyError:
+                                self.dmp_status = "Project not currently tracked by Data Steward"
+                                self.history = "Project not currently tracked by Data Steward"
+                                self.potential_products = "Project not currently tracked by Data Steward"
+
+                        else:
+                            self.dmp_status = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.history = "Please email administrators at"\
+                                + " {} to receive access privileges to view "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "this content."
+                            self.potential_products = "Please email "\
+                                + "administrators at {} to receive access "\
+                                .format(current_app.config['ADMINS'][0])\
+                                + "privileges to view this content."
+                    else:
+                        self.dmp_status = "Please login to view this content."
+                        self.history = "Please login to view this content."
+                        self.potential_products = "Please login to view this content."
+                    self.file_breakdown = []
+                    proj_file_list = []
+                    for sbfile in proj.files:
+                        proj_file_list.append(sbfile.id)
+                    if len(proj_file_list) > 0:
+                        file_breakdown_list = db.session.query(
+                            SbFile.content_type, db.func.count(
+                                SbFile.content_type)).group_by(
+                                    SbFile.content_type).filter(
+                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
+                        proj_file_list[:] = []
+                        for _tuple in file_breakdown_list:
+                            temp_dict = {}
+                            temp_dict['label'] = _tuple[0]
+                            temp_dict['count'] = _tuple[1]
+                            proj_file_list.append(temp_dict)
+                        self.file_breakdown = sorted(
+                            proj_file_list,
+                            key=lambda k: k['count'],
+                            reverse=True)
+
+            elif obj_type == 'fiscal year':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'casc':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'sbfile':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+            elif obj_type == 'problem item':
+                pass  # We don't do anything with fiscal year objects on the
+                # front-end yet.
+
+    for project in project_list:
+        new_obj = ReportItem(
+            'project', project['proj_id'], project['fy_id'], project['casc_id'])
+        projects.append(new_obj.__dict__)
+
+    return render_template("treemap.html", projects=projects)
 
 
 @bp.route('/user/<username>')

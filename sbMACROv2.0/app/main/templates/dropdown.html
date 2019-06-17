@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+.header {
+  position: relative;
+list-style-type: none;
+  height: 35px;
+  width: 100%;
+  /*overflow: hidden;*/
+  /* background: #4caf50; */
+}
+.header > li {
+  display: inline-block;
+  padding: 6px;
+}
+.dropdown {
+  color: #FFF;
+  position: relative;
+  text-align: left
+}
+.dropdown ul {
+  list-style-type: none;
+  position: absolute;
+  /* and here */
+  top: 100%;
+  left: 0;
+  color: #4caf50;
+  width: auto;
+  display: none;
+  /* background:white; */
+  /* border: 1px solid black; */
+}
+.dropdown:hover ul {
+  display: block;
+}
+.main {
+  margin-top: 20px;
+  padding-top: 20px;
+  height: 50px;
+  display: block;
+  background: white;
+  text-align: center;
+  font-size: 20px;
+  transition: background 1s;
+}
+.main:hover {
+  background: #CCCCCC;
+}
+</style>
+</head>
+<body>
+        <ul class="header btn wave-effect waves-teal">
+          <li class="dropdown ">DataVisualizationTypes
+              <i class="fa fa-caret-down"></i>
+            <ul>
+                    <li class="active"><a href="/treemap">TreeMap</a></li>
+                    <li class="active"><a href="/horizontalbar">HorizontalBarGraph</a></li>
+
+            </ul>
+          </li>
+        </ul>
+      
+        <br>
+      </body>
+</html>

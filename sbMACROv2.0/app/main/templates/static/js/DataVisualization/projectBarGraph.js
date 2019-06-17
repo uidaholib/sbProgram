@@ -21,7 +21,7 @@ function projectBarGraph(projectArray) {
       projObj.FY = currProj.fiscal_year.replace('FY ', '')
       projObj.casc = currProjCascShort
       cascs[currProjCascShort].push(projObj)
-    }
+     } 
 
     //Get to each casc in cascs
     //Check which size is the max size of all data.
@@ -98,9 +98,9 @@ function createNoDataProjGraph(currCSC) {
 
   // Scale the range of the data in the domains
   x.domain([0, 100])
-  // y.domain(d3.range(data.length));
+ 
   y.domain([0, 100])
-  //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+  
 
   // append the rectangles for the bar chart
 
@@ -149,80 +149,10 @@ function createNoDataProjGraph(currCSC) {
   }
 }
 
-// tree map begin
-
-// function createGraph(data, currCSC, DATA_max) {
-//   // console.log("In createGraph");
-//   // var data = projectObjArray;
-//   // set the dimensions and margins of the graph
-
-//   'use strict';
-
-//   const margin = {
-//       top: 40,
-//       right: 10,
-//       bottom: 10,
-//       left: 10
-//     },
-//     width = 960 - margin.left - margin.right,
-//     height = 500 - margin.top - margin.bottom,
-//     color = d3.scaleOrdinal().range(d3.schemeCategory20c);
-
-//   const treemap = d3.treemap().size([width, height]);
-
-//   const div = d3.select("#wrapper").append("div")
-//     .style("position", "relative")
-//     .style("width", (width + margin.left + margin.right) + "px")
-//     .style("height", (height + margin.top + margin.bottom) + "px")
-//     .style("left", margin.left + "px")
-//     .style("top", margin.top + "px");
-
-//   data.forEach(function (d) {
-//     d.size = +d.size;
-//   });
-//   const root = d3.hierarchy(data, (d) => d.name)
-//     .sum((d) => d.size);
-
-//   const tree = treemap(root);
-
-//   const node = div.datum(data).selectAll(".node")
-//     .data(tree.leaves())
-//     .enter().append("div")
-//     .attr("class", "node")
-//     .style("left", (d) => d.x0 + "px")
-//     .style("top", (d) => d.y0 + "px")
-//     .style("width", (d) => Math.max(0, d.x1 - d.x0 - 1) + "px")
-//     .style("height", (d) => Math.max(0, d.y1 - d.y0 - 1) + "px")
-//     .style("background", (d) => color(d.size))
-//     .text((d) => d.size);
-
-//   d3.selectAll("input").on("change", function change() {
-//     const value = this.value === "count" ?
-//       (d) => {
-//         return d.number ? 1 : 0;
-//       } :
-//       (d) => {
-//         return d.size;
-//       };
-
-//     const newRoot = d3.hierarchy(data, (d) => d.number)
-//       .sum(value);
-
-//     node.data(treemap(newRoot).leaves())
-//       .transition()
-//       .duration(1500)
-//       .style("left", (d) => d.x0 + "px")
-//       .style("top", (d) => d.y0 + "px")
-//       .style("width", (d) => Math.max(0, d.x1 - d.x0 - 1) + "px")
-//       .style("height", (d) => Math.max(0, d.y1 - d.y0 - 1) + "px")
-//   });
-
-//Tree MAP end
-
 //vertical graph begin
 
 function createGraph(data, currCSC, DATA_max) {
-  //console.log('In createGraph')
+  
   //var data = projectObjArray
   // set the dimensions and margins of the graph
   var margin = {
@@ -258,17 +188,21 @@ function createGraph(data, currCSC, DATA_max) {
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
   // get the data
-
-  // format the data
   data.forEach(function (d) {
     d.size = +d.size
   })
-  console.log(data)
+  //console.log("data after format",data)
+
+  data.sort(function(a, b) {
+    return b.size - a.size;
+  });
+
 
   // Scale the range of the data in the domains
   x.domain(
     data.map(function (d) {
-      return d.number
+      if(Number(d.size>0.0)){
+      return d.number}
     })
   )
   y.domain([
@@ -371,20 +305,6 @@ function createGraph(data, currCSC, DATA_max) {
     //.text('Gigabytes (GB)')
     .text('Project Number')
 
-  // add y-axis label
-  // svg
-  //   .append('text')
-  //   .attr('y', -margin.top - 2)
-
-  //   .attr('x', -margin.left)
-  //   .attr('dy', '1em')
-  //   .attr('font-size', '.8em')
-  //   .style('text-anchor', 'end')
-  //   .attr('transform', 'rotate(-90)')
-  //   .text('Gigabytes (GB)')
-
-  //.text('Project Number')
-
   //Adding a title
   svg
     .append('text')
@@ -395,164 +315,10 @@ function createGraph(data, currCSC, DATA_max) {
     .style('text-decoration', 'underline')
     .text('ScienceBase Project Size Comparison-- ' + currCSC + 'CASC')
 
-  // vertical graph end
-
-  //original begin
-
-  // function createGraph(data, currCSC, DATA_max) {
-  //   // console.log("In createGraph");
-  //   // var data = projectObjArray;
-  //   // set the dimensions and margins of the graph
-  //   var margin = {
-  //       top: 40,
-  //       right: 20,
-  //       bottom: 30,
-  //       left: 40
-  //     },
-  //     width = 960 - margin.left - margin.right,
-  //     height = 500 - margin.top - margin.bottom
-  //   //Should set width and height dynamically
-  //   updateDimensions(data, window.innerWidth, window.innerHeight)
-
-  //   //Come back to this to change graph layout for small screen sizes
-  //   var breakPoint = 768
-  //   // set the ranges
-  //   var y = d3
-  //     .scaleBand()
-  //     .range([0, height])
-  //     .padding(0.1)
-
-  //   var x = d3.scaleLinear().range([0, width])
-
-  //   // append the svg object to the body of the page
-  //   // append a 'group' element to 'svg'
-  //   // moves the 'group' element to the top left margin
-  //   var svg = d3
-  //     .select('#wrapper')
-  //     .append('svg')
-  //     .attr('width', width + margin.left + margin.right)
-  //     .attr('height', height + margin.top + margin.bottom)
-  //     .attr('id', 'projectGraph_svg')
-  //     .append('g')
-  //     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-
-  //   // format the data
-  //   data.forEach(function (d) {
-  //     d.size = +d.size
-  //   })
-
-  //   // Scale the range of the data in the domains
-  //   // x.domain([0, d3.max(data, function(d){ return d.size; })])
-  //   //Instead of normal ^, we must use max of both datasets for both graphs.
-  //   x.domain([0, DATA_max])
-  //   y.domain(
-  //     data.map(function (d) {
-  //       return d.number
-  //     })
-  //   )
-  //   //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
-
-  //   //Adding labels for amount of each bar
-
-  //   //d3-tip: http://bl.ocks.org/davegotz/bd54b56723c154d25eedde6504d30ad7
-  //   // Setup the tool tip.
-  //   // See original documentation for more details on styling: http://labratrevenge.com/d3-tip/
-  //   var tool_tip = d3
-  //     .tip()
-  //     .attr('class', 'd3-tip')
-  //     .offset([0, 0])
-  //     .html(function (d) {
-  //       var rStr = d.size.toString().substring(0, 4)
-  //       var rFY = d.FY
-  //       var rCSC = d.casc
-  //       if (parseFloat(rStr) < 0.01) {
-  //         rStr = 'Less than 0.01'
-  //       } else {
-  //         rStr = '~' + rStr
-  //       }
-  //       return (
-  //         'Science Center: ' +
-  //         rCSC +
-  //         '<br>' +
-  //         'Fiscal Year: ' +
-  //         rFY +
-  //         '<br>' +
-  //         'Project Number: ' +
-  //         d.number +
-  //         '<br>' +
-  //         rStr +
-  //         'gb'
-  //       )
-  //     })
-  //   svg.call(tool_tip)
-
-  //   // append the rectangles for the bar svg
-  //   svg
-  //     .selectAll('.bar')
-  //     .data(data)
-  //     .enter()
-  //     // .append("svg:a")
-  //     //   .attr("xlink:href", "#"+d.number)
-  //     .append('rect')
-  //     .attr('class', function (d) {
-  //       return 'bar ' + d.casc + 'CASC'
-  //     })
-  //     // .attr("class", function (d) { console.log(d.casc); return d.casc; })
-  //     .attr('id', function (d) {
-  //       return 'FY' + d.FY
-  //     })
-  //     //.attr("x", function(d) { return x(d.sales); })
-  //     .attr('width', function (d) {
-  //       return x(d.size)
-  //     })
-  //     .attr('y', function (d) {
-  //       return y(d.number)
-  //     })
-  //     .attr('height', y.bandwidth())
-  //     .on('click', function (d) {
-  //       let id
-  //       if (d.number > 2) {
-  //         let num = d.number - 2
-  //         id = 'p' + num
-  //       } else {
-  //         id = 'table_head'
-  //       }
-
-  //       document.getElementById(id).scrollIntoView()
-  //     })
-  //     .on('mouseover', tool_tip.show)
-  //     .on('mouseout', tool_tip.hide)
-
-  //   // add the x Axis
-  //   svg
-  //     .append('g')
-  //     .attr('transform', 'translate(0,' + height + ')')
-  //     .call(d3.axisBottom(x))
-
-  //   // add the y Axis
-  //   svg.append('g').call(d3.axisLeft(y))
-
-  //   //Adding x axis label
-  // svg
-  //   .append('text')
-  //   .attr('y', height + margin.bottom / 2)
-  //   .attr('x', width)
-  //   .attr('dy', '1em')
-  //   .attr('font-size', '.8em')
-  //   .style('text-anchor', 'end')
-  //   .text('Gigabytes (GB)')
-
-  // //Adding a title
-  // svg
-  //   .append('text')
-  //   .attr('x', width / 2)
-  //   .attr('y', 0 - margin.top / 2)
-  //   .attr('text-anchor', 'middle')
-  //   .style('font-size', '20px')
-  //   .style('text-decoration', 'underline')
-  //   .text('ScienceBase Project Size Comparison-- ' + currCSC + 'CASC')
-
-  //original end
+    function type(d) {
+      d.size = +d.size;
+      return d;
+    }
 
   //Adding Legend
   var legendRectSize = 18
