@@ -24,9 +24,10 @@
 -->
 <!-- <script src="{{ url_for('main.static', filename='js/node_modules/tableexport/src/stable/js/tableexport.js') }}"></script> -->
 
-<script src="{{ url_for('main.static', filename='js/DataVisualization/FY_BarGraph.js') }}"></script>
+<!-- <script src="{{ url_for('main.static', filename='js/DataVisualization/FY_BarGraph.js') }}"></script> -->
 <script src="{{ url_for('main.static', filename='js/DataVisualization/fileBreakdownPieChart.js') }}"></script>
-<script src="{{ url_for('main.static', filename='js/DataVisualization/projectBarGraph.js') }}"></script>
+<!-- <script src="{{ url_for('main.static', filename='js/DataVisualization/projectBarGraph.js') }}"></script> -->
+<script src="{{ url_for('main.static', filename='js/DataVisualization/projectTreeMap.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/projectTable.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/d3-tip.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/reportModal.js') }}"></script>
@@ -63,8 +64,29 @@
     })
   })
 </script>
+
+<style>
+
+rect {
+  fill: none;
+  opacity: 0.4;
+  stroke: white;
+  position:absolute
+}
+text {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  fill: black;
+  font-style:italic;
+  font-size: 12px;
+}
+.svg{
+  font-size: 20px;
+}
+
+
+</style>
 <div class="output">
-    {% include 'dropdown.html' %}
+    {% include 'dropdowntree.html' %}
    </div>
 <div>
   <br></br>
@@ -74,11 +96,12 @@
     Below is a table showing your query results from
     <a href="http://www.sciencebase.gov">ScienceBase.gov</a>
   </p>
-  <p>Currently You are visualizing Data Based on Size - Vertically</p>
 </div>
 <div id="container">
-  <div id="wrapper"></div>
-  <div id="fyGraphWrapper"></div>
+    <svg width="1200" height="1000">
+        <g><g></g></g>
+      </svg>
+    
    
 </div>
 <div id="container">
@@ -181,16 +204,17 @@
 </div>
 
 <script>
-  projectBarGraph(projectArray) //from /static/js/DataVisualization/projectBarGraph.js
-  $('<br><br>').insertAfter('#wrapper')
-  FY_BarGraph(projectArray) //from /static/js/DataVisualization/FY_BarGraph.js
+  projectTreeMap(projectArray)//from /static/js/DataVisualization/projectTreeMap.js
+ // projectBarGraph(projectArray) //from /static/js/DataVisualization/projectBarGraph.js
+//   $('<br><br>').insertAfter('#wrapper')
+//   FY_BarGraph(projectArray) //from /static/js/DataVisualization/FY_BarGraph.js
   function catchResize() {
     var s = d3.selectAll('svg')
     s.remove()
     d3.select('#projectGraph_svg').remove()
     d3.select('#projectGraph_svg').remove() //once for each CSC
     d3.select('#FYGraph_svg').remove()
-    projectBarGraph(projectArray)
+    projectTreeMap(projectArray)
     FY_BarGraph(projectArray)
     for (var i = 0; i < projectArray.length; i++) {
       let modal_id = 'modal_' + projectArray[i].sb_id + '_div'
