@@ -71,7 +71,11 @@ rect {
   fill: none;
   opacity: 0.4;
   stroke: white;
-  position:absolute
+  /* position:relative; */
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  left: 0;
 }
 text {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
@@ -81,7 +85,7 @@ text {
 }
 .svg{
   font-size: 20px;
-}
+  }
 
 
 </style>
@@ -98,7 +102,13 @@ text {
   </p>
 </div>
 <div id="container">
-    <svg width="1200" height="1000">
+  <svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMin meet"
+  style="width: 100%; position:relative; height: 1px; display: inline-block;
+  
+
+  padding-bottom: 100%; /* aspect ratio */
+  vertical-align: top;
+  overflow: visible;">
         <g><g></g></g>
       </svg>
     
@@ -208,24 +218,7 @@ text {
  // projectBarGraph(projectArray) //from /static/js/DataVisualization/projectBarGraph.js
 //   $('<br><br>').insertAfter('#wrapper')
 //   FY_BarGraph(projectArray) //from /static/js/DataVisualization/FY_BarGraph.js
-  function catchResize() {
-    var s = d3.selectAll('svg')
-    s.remove()
-    d3.select('#projectGraph_svg').remove()
-    d3.select('#projectGraph_svg').remove() //once for each CSC
-    d3.select('#FYGraph_svg').remove()
-    projectTreeMap(projectArray)
-    FY_BarGraph(projectArray)
-    for (var i = 0; i < projectArray.length; i++) {
-      let modal_id = 'modal_' + projectArray[i].sb_id + '_div'
-      createPieChart(d3, projectArray[i], modal_id)
-    }
-  }
-  // d3.select(window).on('resize', go);
-  window.addEventListener('resize', catchResize)
-  // var $table = $('table#reportTable');
-  // $table.floatThead();
-</script> 
+// </script> 
 
 
 <!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->

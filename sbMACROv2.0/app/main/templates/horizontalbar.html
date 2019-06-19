@@ -189,7 +189,7 @@
     d3.select('#projectGraph_svg').remove()
     d3.select('#projectGraph_svg').remove() //once for each CSC
     d3.select('#FYGraph_svg').remove()
-    projectBarGraph(projectArray)
+    projectHorizantalbar(projectArray)
     FY_BarGraph(projectArray)
     for (var i = 0; i < projectArray.length; i++) {
       let modal_id = 'modal_' + projectArray[i].sb_id + '_div'
