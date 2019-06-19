@@ -319,7 +319,6 @@ function createGraph(data, currCSC, DATA_max) {
       d.size = +d.size;
       return d;
     }
-
   //Adding Legend
   var legendRectSize = 18
   var legendSpacing = 4
