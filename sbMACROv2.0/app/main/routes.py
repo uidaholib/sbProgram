@@ -11,11 +11,11 @@ from wtforms import BooleanField
 from wtforms.validators import ValidationError, DataRequired, Length, Email
 from wtforms.validators import Optional
 from app import db
-<<<<<<< HEAD
-=======
+
+
 from app.main.forms import EditProfileForm, FyForm, SearchForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
->>>>>>> searchFun
+
 from app.main import bp
 from app.main.metadata import write_metadata
 from app.main.forms import EditProfileForm, FyForm, GeneralForm
@@ -23,12 +23,10 @@ from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
 from app.updater.__init__ import update
 import multiprocessing
-<<<<<<< HEAD
+
 from nltk.corpus import stopwords
-=======
 
 from config import Config
->>>>>>> searchFun
 # from sbmacro import socketio
 from pprint import pprint
 
