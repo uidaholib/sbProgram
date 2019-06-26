@@ -150,9 +150,9 @@
 			
 	// Define linear scale for output
 	var color = d3.scale.linear()
-				  .range(["rgb(213, 222, 217)", "rgb(69, 173, 168)", "rgb(0, 128, 255)", "rgb(217, 91, 67)", "rgb(0, 191, 255)", "rgb(0, 255, 255)", "rgb(0, 255, 191)", "rgb(255, 0, 255)"]);
+						.range(["rgb(213,222,217)", "rgb(69,173,168)", "rgb(0, 128, 255)", "rgb(217,91,67)", "rgb(0, 191, 255)", "rgb(0, 255, 255)", "rgb(0, 255, 191)", "rgb(255, 0, 255)", "rgb(20, 150, 150)"]);
 
-	var legendText = ["Alaska", "North Central", "Northeast", "Northwest", "Pacific", "South Central", "Southeast", "Southwest"];
+	var legendText = ["Alaska", "North Central", "Northeast", "Northwest", "Pacific", "South Central", "Southeast", "Southwest", "National"];
 
 	//Select first svg element. This will be used for the map
 	var map_svg = d3.select("svg")
@@ -160,11 +160,11 @@
 				.attr("height", height);
 
 	// Load in my states data!
-	d3.csv("{{ url_for('main.static', filename='casc_groupings.csv') }}", function(data) {
-		color.domain([0, 1, 2, 3, 4, 5, 6, 7]); // setting the range of the input data
+	d3.csv("{{ url_for('main.static', filename = 'casc_groupings.csv') }}", function(data) {
+		color.domain([0, 1, 2, 3, 4, 5, 6, 7, 8]); // setting the range of the input data
 
 		// Load GeoJSON data and merge with states data
-		d3.json("{{ url_for('main.static', filename='us-states.json') }}", function(json) {
+		d3.json("{{ url_for('main.static', filename = 'us-states.json') }}", function(json) {
 
 			// Loop through each state data value in the .csv file
 			for (var i = 0; i < data.length; i++) {
