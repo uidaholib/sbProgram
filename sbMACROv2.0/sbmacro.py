@@ -5,7 +5,6 @@ import os
 from app import create_app, db
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem, PrincipalInvestigator
-# from flask_socketio import SocketIO # We will use this for real-time feedback during database updates
 
 app = create_app() # pylint: disable=C0103
 # socketio = SocketIO(app)
@@ -39,5 +38,4 @@ def make_shell_context():
     }
 
 if __name__ == "__main__":
-    # socketio.run(app)
-    app.run(debug=True, threaded = True)
+    app.run(debug = True, threaded = True)

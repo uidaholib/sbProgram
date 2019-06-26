@@ -37,3 +37,7 @@ venv/*
 # Old code
 old_code/
 old_code/*
+
+# Logs
+logs/
+logs/*

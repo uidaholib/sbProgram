@@ -11,16 +11,20 @@ from wtforms import BooleanField
 from wtforms.validators import ValidationError, DataRequired, Length, Email
 from wtforms.validators import Optional
 from app import db
-from app.main.forms import EditProfileForm, FyForm
-from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.main import bp
+from app.main.metadata import write_metadata
+from app.main.forms import EditProfileForm, FyForm, GeneralForm
+from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
 from app.updater.__init__ import update
 import multiprocessing
+from nltk.corpus import stopwords
 # from sbmacro import socketio
-
-
 from pprint import pprint
+
+
+my_root = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(my_root, 'templates/static/')
 
 
 @bp.before_app_request
@@ -30,14 +34,57 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
-
-@bp.route('/', methods=['GET', 'POST'])  # Also accepts
-@bp.route('/index', methods=['GET', 'POST'])  # Default
+@bp.route('/', methods = ['GET', 'POST'])  # Also accepts
+@bp.route('/index', methods = ['GET', 'POST'])  # Default
 def index():
+    # class F(GeneralForm):
+    #     def __init__(self, buttonText):
+    #         super(F, self).__init__()
+    #         # self.name = BooleanField('static field')
+    #         self.submit = SubmitField(buttonText)
+
+    # form = F('Refresh Metadata')
+
+    class F(FyForm):
+        pass
+
+    form = F()
+
     """Render splash page for sbMACRO."""
-    return(render_template('index.html',
-                           **locals(),
-                           title="Welcome to sbMACRO"))
+    return(render_template('index.html', **locals(), title = "Welcome to sbMACRO"))
+
+
+@bp.route('/metadata', methods = ['GET', 'POST'])
+def metadata():
+
+    tag_to_search = request.form['tag_to_search']
+    custom_stopwords = ['climate', 'change']
+    protocol = 'xml'
+
+    us_states = []
+    with open(file_path + 'us-states.csv', 'r') as file:
+        for state in file:
+            us_states.append(state.strip().lower())
+
+    stop_words = us_states + stopwords.words('english') + custom_stopwords
+
+    url_file_name = 'metadata_urls.csv'
+
+    if request.method == 'POST':
+        casc_name = request.form['casc_name']
+
+        metadata_urls = []
+
+        with open(file_path + url_file_name, 'r') as file:
+            for line in file:
+                casc, url = line.split(',')
+                if casc == casc_name:
+                    metadata_urls.append(url)
+
+        # write to csv to be read by wordcloud module
+        write_metadata(casc_name, tag_to_search, metadata_urls, stop_words)
+
+    return ''
 
 
 @bp.route('/fiscal_years')
@@ -677,8 +724,7 @@ def horizontalbar():
 
             if obj_type == 'project':
                 self.obj_type = obj_type
-                proj = db.session.query(Project).filter(
-                    Project.id == obj_db_id).first()
+                proj = db.session.query(Project).filter(Project.id == obj_db_id).first()
                 if proj == None:
                     raise Exception  # It has to be there somewhere...
                 else:
@@ -699,8 +745,7 @@ def horizontalbar():
                             casc_model = db.session.query(casc).get(fy.casc_id)
                             self.casc.append(casc_model.name)
                             # convert from MB -> GB
-                            self.total_data_in_fy_GB.append(
-                                fy.total_data / 1000)
+                            self.total_data_in_fy_GB.append(fy.total_data / 1000)
 
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
