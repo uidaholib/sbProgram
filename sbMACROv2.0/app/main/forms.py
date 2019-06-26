@@ -87,3 +87,7 @@ class EditProfileForm(FlaskForm):
 class FyForm(FlaskForm):
     name = BooleanField('static field')
     submit = SubmitField('Submit')
+
+class SearchForm(FlaskForm):
+    search = StringField('search', validators=[DataRequired()])
+    submit = SubmitField('Submit')

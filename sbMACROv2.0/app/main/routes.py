@@ -11,12 +11,14 @@ from wtforms import BooleanField
 from wtforms.validators import ValidationError, DataRequired, Length, Email
 from wtforms.validators import Optional
 from app import db
-from app.main.forms import EditProfileForm, FyForm
+from app.main.forms import EditProfileForm, FyForm, SearchForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.main import bp
 from app.auth.read_sheets import get_sheet_name, parse_values
 from app.updater.__init__ import update
 import multiprocessing
+
+from config import Config
 # from sbmacro import socketio
 
 
@@ -29,6 +31,7 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+        current_user.search_form = SearchForm()
 
 
 @bp.route('/', methods=['GET', 'POST'])  # Also accepts
@@ -1075,3 +1078,28 @@ def edit_profile():
 
     return render_template(
         'edit_profile.html', title='Edit Profile', form=form)
+
+
+
+@bp.route('/search', methods=['GET', 'POST'])
+@login_required
+def search():
+    current_user.search_form = SearchForm()
+    d= str(current_user.search_form.data)
+    d=d.split(':')
+    d=d[1]
+    d=d.split(',')
+    d=str(d[0])
+    d=d.strip("' '")
+    print(len(d))
+
+    # Using Project.query.filter('%'+d+'%')
+    if(len(d)==0):
+        courses=["Please Enter The Keyword To Search"]
+        return render_template('search_results.html', courses = courses, length=len(d))
+
+    courses =Project.query.filter(Project.name.like('%'+d+'%')).all()
+    length=len(courses)
+    print(length)
+    print(type(courses))
+    return render_template('search_results.html',query=d, courses = courses, length= length)
