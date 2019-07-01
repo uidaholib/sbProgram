@@ -11,8 +11,9 @@ LOC = os.path.dirname(LOC) # LOC is now 'sbMACRO'
 sys.path.insert(0, LOC)
 
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
-from app.models import ProblemItem, PrincipalInvestigator
+from app.models import ProblemItem, PrincipalInvestigator, MasterDetails
 from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs
+from app.updater.db_save import save_master_details
 from config import Config
 
 
@@ -45,6 +46,7 @@ class App(object):
         self.SbFile = SbFile
         self.ProblemItem = ProblemItem
         self.PI = PrincipalInvestigator
+        self.MasterDetails = MasterDetails
 
 
 APP = App()
@@ -72,11 +74,17 @@ def start(defined=None):
 
 def update(casc_list = None):
     """Start new sb_data_gather instance.
-
     Args:
         casc_list -- List of cascs to be updated.
     """
     update_cascs(APP, casc_list)
+
+def refresh_master_table(item_details = None):
+    """Refresh the master details table
+    Args:
+        item_details -- List containing the details in the form of dictionaries
+    """
+    save_master_details(APP, item_details)
 
 # python -c 'from __init__ import update_casc_data; update_casc_data()'
 def update_casc_data():

@@ -4,7 +4,7 @@ import sys
 import os
 from app import create_app, db
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
-from app.models import ProblemItem, PrincipalInvestigator
+from app.models import ProblemItem, PrincipalInvestigator, MasterDetails
 
 app = create_app() # pylint: disable=C0103
 # socketio = SocketIO(app)
@@ -23,6 +23,7 @@ def make_shell_context():
         Item -- Item database model class
         SbFile -- SbFile database model class
         ProblemItem -- ProblemItem database model class
+        MasterDetails -- MasterDetails database model class
 
     """
     return {
@@ -34,7 +35,8 @@ def make_shell_context():
         'Item': Item,
         'SbFile': SbFile,
         'ProblemItem': ProblemItem,
-        'PrincipalInvestigator': PrincipalInvestigator
+        'PrincipalInvestigator': PrincipalInvestigator,
+        "MasterDetails": MasterDetails
     }
 
 if __name__ == "__main__":

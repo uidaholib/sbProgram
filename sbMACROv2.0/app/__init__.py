@@ -31,6 +31,9 @@ def create_app(config_class=Config):
     mail.init_app(app)
     moment.init_app(app)
 
+    # with app.app_context():
+    #     db.create_all()
+
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp, url_prefix='/error')
 

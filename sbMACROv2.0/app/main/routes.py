@@ -16,7 +16,8 @@ from app.main.metadata import write_metadata
 from app.main.forms import EditProfileForm, FyForm, GeneralForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
-from app.updater.__init__ import update
+from app.updater.__init__ import update, refresh_master_table
+from app.updater.main import get_item_details
 import multiprocessing
 from nltk.corpus import stopwords
 # from sbmacro import socketio
@@ -60,15 +61,15 @@ def metadata():
     tag_to_search = request.form['tag_to_search']
     custom_stopwords = ['climate', 'change']
     protocol = 'xml'
+    url_file_name = 'metadata_urls.csv'
+    us_states_file_name = 'us-states.csv'
 
     us_states = []
-    with open(file_path + 'us-states.csv', 'r') as file:
+    with open(file_path + us_states_file_name, 'r') as file:
         for state in file:
             us_states.append(state.strip().lower())
 
     stop_words = us_states + stopwords.words('english') + custom_stopwords
-
-    url_file_name = 'metadata_urls.csv'
 
     if request.method == 'POST':
         casc_name = request.form['casc_name']
@@ -149,6 +150,15 @@ def fiscalyear():
 def update_db():
     """Retrieve CASCs and display for selection by user."""
 
+    if request.method == 'POST':
+        try:
+            refresh_master_details = request.form['refresh_master_details']
+            if refresh_master_details:
+                session['refresh_master_details'] = refresh_master_details
+                return redirect(url_for('main.updates'))
+        except:
+            pass
+
     list_of_cascs = []
     cascs_to_update = []
 
@@ -183,13 +193,32 @@ def update_db():
 # @socketio.on('connect', namespace='/test')
 @bp.route('/updates')
 def updates():
-    """Update the cascs selected for update"""
-    cascs_to_update = session['cascs_to_update']
+    """Update the cascs selected for update, or refresh master details table"""
+    refresh_master_details = False
+    cascs_to_update = []
+    try:
+        refresh_master_details = session['refresh_master_details']
+        if refresh_master_details:
+            print('Starting refresh process')
+            # full_file_path = file_path + 'master_details.pkl'
+            full_file_path = file_path + 'item_ids.csv'
+            item_details = get_item_details(full_file_path)
+            print('Starting thread')
+            master_refresh_thread = multiprocessing.Process(target = refresh_master_table, args = (item_details,))
+            master_refresh_thread.start()
+            return render_template("updates.html", cascs_to_update = cascs_to_update, refresh_master_details = refresh_master_details)
+    except:
+        pass
+    try:
+        cascs_to_update = session['cascs_to_update']
+        if cascs_to_update:
+            casc_update_thread = multiprocessing.Process(target = update, args = (cascs_to_update,))
+            casc_update_thread.start()
+            return render_template("updates.html", cascs_to_update = cascs_to_update, refresh_master_details = refresh_master_details)
+    except:
+        pass
 
-    thread = multiprocessing.Process(target = update, args = (cascs_to_update,))
-    thread.start()
-
-    return render_template("updates.html", cascs_to_update = cascs_to_update)
+    return render_template("updates.html", cascs_to_update = cascs_to_update, refresh_master_details = refresh_master_details)
 
 
 @bp.route('/projects', methods=['GET', 'POST'])
