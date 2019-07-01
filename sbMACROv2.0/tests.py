@@ -36,7 +36,7 @@ class UserModelCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()  # Clean up database and remove all tables.
         self.app_context.pop()  # Reset app context. Wipe slate clean.
-
+    
     def test_password_hashing(self):
         """Test suite for password hashing."""
         u = User.query.filter_by(username='susan_belinda7456789142').first()
