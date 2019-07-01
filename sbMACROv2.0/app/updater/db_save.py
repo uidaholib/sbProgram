@@ -2,8 +2,75 @@
 from datetime import datetime
 from app.updater import gl
 from app.updater import fiscal_years
+from app.models import MasterDetails
 
 
+def save_master_details(app, item_details):
+    """Save item details relevant to searching..
+
+    Arguments:
+        item_details -- (List) A list of items, where each item is a dictionary containing
+                        item fields and values.
+    """
+    print('Saving master details to database...')
+    changes_made = False
+    errors = set()
+
+    for detail in item_details:
+        try:
+            sb_id = detail['id']
+            parentId = detail['parentId']
+            casc = detail['casc']
+            fy = detail['FY']
+            url = detail['url']
+            relatedItemsUrl = detail['relatedItemsUrl']
+            title = detail['title']
+            hasChildren = detail['hasChildren']
+            summary = detail['summary']
+            PI = ''
+            CI = ''
+            for contact in detail['contacts']:
+                if contact['type'] == 'Principal Investigator':
+                    PI = contact['name']
+                elif contact['type'] in ['Co-Investigator', 'Cooperator/Partner']:
+                    CI += contact['name'] + ';'
+            CI = CI.strip(';')
+
+            detail_row = MasterDetails(sb_id = sb_id,
+                                        parentId = parentId,
+                                        casc = casc,
+                                        fy = fy,
+                                        url = url,
+                                        relatedItemsUrl = relatedItemsUrl,
+                                        title = title,
+                                        hasChildren = hasChildren,
+                                        summary = summary,
+                                        PI = PI,
+                                        CI = CI)
+            app.db.session.add(detail_row)
+            changes_made = True
+        except Exception as e:
+            errors.add(e)
+    
+    if changes_made:
+        app.db.session.commit()
+        print('Master details saved to database')
+
+        # print('Testing...')
+        # test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '5bbe29b4e4b0fc368eb2a49c').first()
+        # if test is None:
+        #     print('nope!')
+        #     print('Done')
+        # else:
+        #     print('Success:')
+        #     print(test.casc)
+        #     print(test.fy)
+        #     print(test.title)
+        #     print('Done!')
+    else:
+        print('Errors encountered:')
+        for e in errors:
+            print(e)
 
 def save_casc(app, fiscal_year):
     """Save CASC data to a database.

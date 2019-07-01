@@ -10,6 +10,9 @@
 <!-- Must import again to supersede the newest materialize imports -->
 <link rel="stylesheet" href="static/css/custom.css">
 
+<!-- To enable us call a function synchronously in routes.py -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
 <h4>sbMACRO Database Update</h4>
 
 <br>
@@ -38,10 +41,31 @@
 
 </form>
 
+<h5>OR:</h5>
+
+<div>
+  <a id = "refresh_master_details" 
+  class = "waves-effect waves-light btn" 
+  onclick = "refresh_master_details()">Refresh_Master_Table</a>
+</div>
+<br>
+
 <script src="{{ url_for('main.static', filename='js/updateDB.js') }}"></script>
 <script>
-    let currentPage = document.getElementById('Nav-Update');
-    currentPage.classList.add("currentPage");
+
+  function refresh_master_details() {
+    var someVar = $.ajax({
+       method: "POST",
+       url: "{{ url_for('main.update_db') }}",
+       async: true,
+       data: { refresh_master_details: 'yes' }
+    });
+
+    return ' ';
+  }
+
+  let currentPage = document.getElementById('Nav-Update');
+  currentPage.classList.add("currentPage");
 </script>
 
 {% endblock %}
