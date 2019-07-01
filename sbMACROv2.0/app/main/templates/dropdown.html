@@ -23,7 +23,7 @@ list-style-type: none;
 .dropdown {
   color: #FFF;
   position: relative;
-  text-align: left
+  text-align: left;
 }
 .dropdown ul {
   list-style-type: none;
@@ -32,11 +32,15 @@ list-style-type: none;
   top: 100%;
   left: 0;
   color: #4caf50;
-  width: auto;
+  width: 100%;
   display: none;
-  /* background:white; */
+  background:white; 
   /* border: 1px solid black; */
 }
+.dropdown :hover {
+        background-color:white;
+        color: black;
+      }
 .dropdown:hover ul {
   display: block;
 }
@@ -57,11 +61,11 @@ list-style-type: none;
 </head>
 <body>
         <ul class="header btn wave-effect waves-teal">
-          <li class="dropdown ">DataVisualizationTypes
+          <li class="dropdown left">Data Chart Type
               <i class="fa fa-caret-down"></i>
             <ul>
                     <li class="active"><a href="/treemap">TreeMap</a></li>
-                    <li class="active"><a href="/horizontalbar">HorizontalBarGraph</a></li>
+                    <li class="active"><a href="/horizontalbar">Horizontal Chart</a></li>
 
             </ul>
           </li>

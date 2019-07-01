@@ -107,13 +107,13 @@ function projectTreeMap(projectArray) {
   var breakPoint = 768
 
   var treemapLayout = d3.treemap()
-    .size([1200, 800])
+    .size([1200, 1200])
     .paddingOuter(5);
   console.log(rootNode)
   //var rootNode = d3.hierarchy(data)
   rootNode.sum(function (d) {
 
-    return Number(d.num_of_files);
+    return Number(d.data_in_project_GB);
 
   });
 
@@ -145,14 +145,18 @@ function projectTreeMap(projectArray) {
         'Science Center: ' +
         rCSC +
         '<br>' +
+        '<br>' +
         'Fiscal Year: ' +
         rFY +
+        '<br>' +
         '<br>' +
         'Project Number: ' +
         d.data.id +
         '<br>' +
+        '<br>' +
         rStr +
         'gb' +
+        '<br>' +
         '<br>' +
         'Number of files: ' +
         d.data.num_of_files
@@ -168,8 +172,8 @@ function projectTreeMap(projectArray) {
     .style('color', 'orange')
     .on('click', function (d) {
       let id
-      if (d.data.id > 2) {
-        let num = d.data.id - 2
+      if (d.data.Number>2 ) {
+        let num = d.data.Number + 2
         id = 'p' + num
       } else {
         id = 'table_head'
@@ -179,47 +183,48 @@ function projectTreeMap(projectArray) {
     })
     .on('mouseover', tool_tip.show)
     .on('mouseout', tool_tip.hide)
-  nodes
-    .append('text')
-    .attr('dx', 2)
-    .attr('dy', 14)
-    .text(function (d) {
-      if (d.data.casc) {
-        d.data.casc = d.data.casc.split(' ')
-        d.data.casc = d.data.casc[0];
-      }
-      return (d.data.casc);
-    })
-  nodes
-    .append('text')
-    .attr('dx', 2)
-    .attr('dy', 28)
-    .text(function (d) {
-      if (d.data.fiscal_year) {
-        d.data.fiscal_year = d.data.fiscal_year.replace('FY ', 'FY:')
-      }
-      return (d.data.fiscal_year);
-    })
-  nodes
-    .append('text')
-    .attr('dx', 2)
-    .attr('dy', 40)
-    .text(function (d) {
-      if (d.data.id) {
-        d.data.id = 'Pno:' + (d.data.id)
-      }
-      return (d.data.id);
-    })
-  nodes
-    .append('text')
-    .attr('dx', 2)
-    .attr('dy', 55)
-    .text(function (d) {
-      if (d.data.num_of_files) {
-        d.data.num_of_files = d.data.num_of_files + 'files'
-      }
-      return (d.data.num_of_files);
-    })
+  // nodes
+  //   .append('text')
+  //   .attr('dx', 2)
+  //   .attr('dy', 14)
+  //   .text(function (d) {
+  //     if (d.data.casc) {
+  //       d.data.casc = d.data.casc.split(' ')
+  //       d.data.casc = d.data.casc[0];
+  //     }
+  //     return (d.data.casc);
+  //   })
+  nodes.forEach(function(d) { d.y = d.depth * 180; }); 
+  // nodes
+  //   .append('text')
+  //   .attr('dx', 2)
+  //   .attr('dy', 28)
+  //   .text(function (d) {
+  //     if (d.data.fiscal_year) {
+  //       d.data.fiscal_year = d.data.fiscal_year.replace('FY ', 'FY:')
+  //     }
+  //     return (d.data.fiscal_year);
+  //   })
+  // nodes
+  //   .append('text')
+  //   .attr('dx', 2)
+  //   .attr('dy', 40)
+  //   .text(function (d) {
+  //     if (d.data.id) {
+  //       d.data.id = 'Pno:' + (d.data.id)
+  //     }
+  //     return (d.data.id);
+  //   })
+  // nodes
+  //   .append('text')
+  //   .attr('dx', 2)
+  //   .attr('dy', 55)
+  //   .text(function (d) {
+  //     if (d.data.num_of_files) {
+  //       d.data.num_of_files = d.data.num_of_files + 'files'
+  //     }
+  //     return (d.data.num_of_files);
+  //   })
 
   function updateFYDimensions(winWidth, winHeight) {
     margin.top = 40
