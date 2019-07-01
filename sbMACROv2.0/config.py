@@ -2,6 +2,7 @@
 import os
 from dotenv import load_dotenv
 
+
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASEDIR, '.env'))
 
@@ -13,7 +14,7 @@ class Config(object):
         'SECRET_KEY') or 'odm93hj0pGHG[p03i{()UGHH=AKHHAS0D3THTHE900ANN'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(BASEDIR, 'sbmacro.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
     # USER_ENABLE_CHANGE_PASSWORD = True
 
     # Email server details:
@@ -25,3 +26,4 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['ad.sbmacro@gmail.com'
               ]  # Must be changed once hosted. Is a list.
+    

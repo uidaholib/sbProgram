@@ -15,24 +15,113 @@
     {{ moment.include_moment() }}
     <!-- <link rel="stylesheet" href="../static/bootstrap.min.css"> -->
     <link rel="stylesheet" href="../../static/css/custom.css">
-   
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+      * {box-sizing: border-box;}
+      
+      /* body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+      } */
+      
+      .topnav {
+        overflow: hidden;
+        background-color: #e9e9e9;
+      }
+      
+      .topnav a {
+        float: left;
+        display: block;
+        color: white;
+        text-align: center;
+        /* padding: 10px 10px; */
+        text-decoration: none;
+        font-size: 18px;
+      }
+      
+      .topnav a:hover {
+        background-color:lightblue;
+        color: black;
+      }
+      
+      .topnav a.active {
+        background-color: #2196F3;
+        color: white;
+      }
+    
+      .topnav .search-container {
+        float: right;
+      }
+      
+      .topnav input[type=text] {
+        padding: 4px;
+        margin-top: 4px;
+        font-size: 16px;
+        font-style: italic;
+        border:black;
+      }
+      
+      .topnav .search-container button {
+        float: left;
+        padding: 4px 6px;
+        margin-top: 2px;
+        margin-right: 4px;
+        background:black;
+        font-size: 14px;
+      
+        border: blue;
+        cursor: pointer;
+      }
+      
+      .topnav .search-container button:hover {
+        background: #ccc;
+      }
+      
+      @media screen and (max-width: 600px) {
+        .topnav .search-container {
+          float: none;
+        }
+        .topnav a, .topnav input[type=text], .topnav .search-container button {
+          float: none;
+          display: block;
+          text-align: left;
+          width: 50%;
+          margin: 0;
+          padding: 5px;
+        }
+        .topnav input[type=text] {
+          border: 10px solid black;  
+        }
+      }
+      </style>
   </head>
+  <style>
+  
+  </style>
 <body>
   <div id="loading_container">
       <h4 id="loading_title">Please wait...</h4>
       <img src="static/loading.gif" id="loading">
   </div>
   <!-- Navbar goes here -->
-  <nav id="nav" class="blue darken-4">
+  <nav id="nav" class="topnav blue darken-4">
     <div class="nav-wrapper">
-      <a href="{{ url_for('main.index') }}" class="brand-logo center">sbMACRO</a>
+      <a href="{{ url_for('main.index') }}" class="brand-logo center" style="font-size: 30px ">sbMACRO</a>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
         <li id="get_report"><a href="{{ url_for('main.report') }}">Report</a></li>
         {% if current_user.is_authenticated %}
+
+       
+        </li>
         <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
         <li><a href="{{ url_for('auth.revoke') }}">Logout</a></li>
+        <li>
+            <div class="search-container "> 
+            <form style="display: inline;" action="{{ url_for('main.search') }}" method="post" name="query">
+            <input type="text" class="blue " placeholder=" Search Here" name="search"></input>
+            <button type="submit"></button></form>
+          </div>
         {% else %}
         <li><a href="{{ url_for('auth.login') }}">Login</a></li>
         {% endif %}
@@ -44,7 +133,8 @@
   <ul class="sidenav" id="mobile-demo">
     <li id="get_report"><a href="{{ url_for('main.report') }}">Report</a></li>
     {% if current_user.is_authenticated %}
-    <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+    
+    <li ><a href="{{ url_for('main.user', username=current_user.username) }} ">Profile</a></li>
     <li><a href="{{ url_for('auth.revoke') }}">Logout</a></li>
     {% else %}
     <li><a href="{{ url_for('auth.login') }}">Login</a></li>

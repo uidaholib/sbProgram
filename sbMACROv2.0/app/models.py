@@ -229,10 +229,9 @@ class FiscalYear(db.Model):
         backref='fiscal_years',
         lazy='dynamic')
 
-
 class Project(db.Model):
     """Project database model class."""
-
+    __searchable__ = ['name']
     id = db.Column(db.Integer, primary_key=True)
     sb_id = db.Column(db.String(32), unique=True)
     url = db.Column(db.String(128))
@@ -260,8 +259,9 @@ class Project(db.Model):
         secondary=assoc_proj_prob_item,
         backref='projects',
         lazy='dynamic')
-
-
+    def __repr__(self):
+        return '<Project %r>' % (self.name)
+        
 class Item(db.Model):
     """Item database model class."""
 

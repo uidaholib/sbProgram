@@ -1,0 +1,17 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+{% block content %}
+
+  <h1>Search results for "{{ query }}":</h1>
+  <h4 style="color: green ">Number of Searches found: {{length}}</h4>
+  <ol>
+  {% for post in courses %}
+  {% if post.name %} 
+    <li><a href={{post.url}}>{{post.name}}</a></li>
+   </br>
+  {% else %}
+  <h4 style="color: red "> {{post}}</h4>
+  {% endif %}  
+  {% endfor %}
+</ol>
+{% endblock %}

@@ -11,6 +11,7 @@ from flask_mail import Mail
 from flask_moment import Moment
 from config import Config
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
@@ -30,9 +31,9 @@ def create_app(config_class=Config):
     login.init_app(app)
     mail.init_app(app)
     moment.init_app(app)
-
-    # with app.app_context():
-    #     db.create_all()
+    
+    with app.app_context():
+        db.create_all()
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp, url_prefix='/error')

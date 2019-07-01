@@ -21,7 +21,7 @@
 .dropdown {
   color: #FFF;
   position: relative;
-  text-align: left
+  text-align: left;
 }
 .dropdown ul {
   list-style-type: none;
@@ -29,13 +29,19 @@
   /* and here */
   top: 100%;
   left: 0;
-  color: #4caf50;
+  color: white;
   width: auto;
   display: none;
+  
 }
 .dropdown:hover ul {
-  display: block;
+  display:list-item;
+  border: black;
 }
+.dropdown :hover {
+        background-color:white;
+        color: black;
+      }
 .main {
   margin-top: 20px;
   padding-top: 20px;
@@ -53,11 +59,11 @@
 </head>
 <body>
         <ul class="header btn wave-effect waves-teal">
-          <li class="dropdown ">DataVisualizationTypes
+          <li class="dropdown  left">Data Chart Type
               <i class="fa fa-caret-down"></i>
             <ul>
-                    <li class="active"><a href="/report">VerticalBarGraph</a></li>
-                    <li class="active"><a href="/horizontalbar">HorizontalBarGraph</a></li>
+                    <li class="active "><a href="/report">Vertical Chart</a></li>
+                    <li class="active"><a href="/horizontalbar">Horizontal Chart</a></li>
 
             </ul>
           </li>
