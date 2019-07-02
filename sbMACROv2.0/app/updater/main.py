@@ -13,104 +13,123 @@ def get_item_details(file_location):
     print('Collecting item details...')
 
     sb = sciencebasepy.SbSession()
-    all_item_details = []
+    all_item_details = [] # a list of dicts
 
-    # try:
-    #     with open(file_location, 'rb') as item_details:
-    #         all_item_details = pickle.load(item_details)
-    # except Exception as e:
-    #     print('error: ' + str(e))
+    try:
+        with open(file_location, 'rb') as item_details:
+            all_item_details = pickle.load(item_details)
+    except Exception as e:
+        print('error: ' + str(e))
 
-    prev_casc = '' # just to help in printing
-    item_json = ''
+    # prev_casc = '' # just to help in printing
+    # item_json = ''
 
-    with open(file_location, 'rb') as file:
-        next(file) # skip header line
-        for line in file:
-            item_details = {}
+    # with open(file_location, 'rb') as file:
+    #     next(file) # skip header line
+    #     for line in file:
+    #         item_details = {}
             
-            casc, item_id = line.split(',')
-            item_id = item_id.split()[0] # remove the '\n' included when writing to the file
+    #         casc, item_id = line.split(',')
+    #         item_id = item_id.split()[0] # remove the '\n' included when writing to the file
             
-            item_details['casc'] = casc + ' CASC'
-            item_details['id'] = item_id
+    #         item_details['casc'] = casc + ' CASC'
+    #         item_details['id'] = item_id
             
-            if casc != prev_casc:
-                print('Processing ' + casc + '...')
-                prev_casc = casc
-             
-            try:    
-                item_json = sb.get_item(item_id)
-            except Exception as e:
-                # print(e)
-                pass
+    #         if casc != prev_casc:
+    #             print('Processing ' + casc + '...')
+    #             prev_casc = casc
             
-            try:
-                item_details['FY'] = item_json['provenance']['dateCreated'].split('-')[0]
-            except:
-                item_details['FY'] = ''
-                print('No FY for ' + casc + ':' + item_id)        
-            try:
-                item_details['title'] = item_json['title']
-            except:
-                item_details['title'] = ''
-            try:
-                item_details['url'] = item_json['link']['url']
-            except:
-                item_details['url'] = ''
-            try:
-                item_details['relatedItemsUrl'] = item_json['relatedItems']['link']['url']
-            except:
-                item_details['relatedItemsUrl'] = ''
-            try:
-                item_details['summary'] = item_json['summary']
-            except:
-                item_details['summary'] = ''
-            try:
-                item_details['hasChildren'] = item_json['hasChildren']
-            except:
-                item_details['hasChildren'] = ''
-            try:
-                item_details['parentId'] = item_json['parentId']
-            except:
-                item_details['parentId'] = ''
+    #         try:    
+    #             item_json = sb.get_item(item_id)
+    #         except Exception as e:
+    #             # print(e)
+    #             pass
             
-            item_details['contacts'] = []
-            try:
-                contacts = item_json['contacts']
-                for contact in contacts:
-                    details = {}
-                    try:
-                        details['name'] = contact['name']
-                    except:
-                        details['name'] = ''
-                    try:
-                        details['type'] = contact['type']
-                    except:
-                        details['type'] = ''
-                    try:
-                        details['email'] = contact['email']
-                    except:
-                        details['email'] = ''
-                    try:
-                        details['jobTitle'] = contact['jobTitle']
-                    except:
-                        details['jobTitle'] = ''
-                    try:
-                        details['orcId'] = contact['orcId']
-                    except:
-                        details['orcId'] = ''
+    #         try:
+    #             item_details['FY'] = item_json['provenance']['dateCreated'].split('-')[0]
+    #         except:
+    #             item_details['FY'] = ''
+    #             print('No FY for ' + casc + ':' + item_id)        
+    #         try:
+    #             item_details['title'] = item_json['title']
+    #         except:
+    #             item_details['title'] = ''
+    #         try:
+    #             item_details['url'] = item_json['link']['url']
+    #         except:
+    #             item_details['url'] = ''
+    #         try:
+    #             item_details['relatedItemsUrl'] = item_json['relatedItems']['link']['url']
+    #         except:
+    #             item_details['relatedItemsUrl'] = ''
+    #         try:
+    #             item_details['summary'] = item_json['summary']
+    #         except:
+    #             item_details['summary'] = ''
+    #         try:
+    #             item_details['hasChildren'] = item_json['hasChildren']
+    #         except:
+    #             item_details['hasChildren'] = ''
+    #         try:
+    #             item_details['parentId'] = item_json['parentId']
+    #         except:
+    #             item_details['parentId'] = ''
+            
+    #         item_details['contacts'] = []
+    #         try:
+    #             contacts = item_json['contacts']
+    #             for contact in contacts:
+    #                 details = {}
+    #                 try:
+    #                     details['name'] = contact['name']
+    #                 except:
+    #                     details['name'] = ''
+    #                 try:
+    #                     details['type'] = contact['type']
+    #                 except:
+    #                     details['type'] = ''
+    #                 try:
+    #                     details['email'] = contact['email']
+    #                 except:
+    #                     details['email'] = ''
+    #                 try:
+    #                     details['jobTitle'] = contact['jobTitle']
+    #                 except:
+    #                     details['jobTitle'] = ''
+    #                 try:
+    #                     details['orcId'] = contact['orcId']
+    #                 except:
+    #                     details['orcId'] = ''
 
-                    item_details['contacts'].append(details)
-            except Exception as e:
-                # print(e)
-                pass
+    #                 item_details['contacts'].append(details)
+    #         except Exception as e:
+    #             # print(e)
+    #             pass
                 
-            all_item_details.append(item_details)
+    #         all_item_details.append(item_details)
 
     print('Item details collected')
 
     return all_item_details
+
+def get_proj_details(file_location):
+
+    print('Collecting project details...')
+
+    sb = sciencebasepy.SbSession()
+    all_proj_details = [] # a list of dicts
+
+    try:
+        with open(file_location, 'rb') as proj_details:
+            all_proj_details = pickle.load(proj_details)
+    except Exception as e:
+        print('error: ' + str(e))
+
+
+
+    print('Project details collected')
+
+    return all_proj_details
 
 def update_cascs(app, casc_list):
     """Perform hard search on any ids older than 1 day.

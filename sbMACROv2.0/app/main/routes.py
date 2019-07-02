@@ -21,8 +21,8 @@ from app.main.metadata import write_metadata
 from app.main.forms import EditProfileForm, FyForm, GeneralForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
-from app.updater.__init__ import update, refresh_master_table
-from app.updater.main import get_item_details
+from app.updater.__init__ import update, refresh_master_tables
+from app.updater.main import get_item_details, get_proj_details
 import multiprocessing
 
 from nltk.corpus import stopwords
@@ -209,12 +209,17 @@ def updates():
         refresh_master_details = session['refresh_master_details']
         if refresh_master_details:
             print('Starting refresh process')
-            # full_file_path = file_path + 'master_details.pkl'
-            full_file_path = file_path + 'item_ids.csv'
-            item_details = get_item_details(full_file_path)
-            print('Starting thread')
-            master_refresh_thread = multiprocessing.Process(target = refresh_master_table, args = (item_details,))
-            master_refresh_thread.start()
+            # items_file_path = file_path + 'item_ids.csv'
+            items_file_path = file_path + 'item_details.pkl'
+            projs_file_path = file_path + 'proj_details.pkl'
+            item_details = get_item_details(items_file_path)
+            proj_details = get_proj_details(projs_file_path)
+            print('Starting item_details thread')
+            items_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (item_details, 'items',))
+            items_refresh_thread.start()
+            print('Starting proj_details thread')
+            projs_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (proj_details, 'projs',))
+            projs_refresh_thread.start()
             return render_template("updates.html", cascs_to_update = cascs_to_update, refresh_master_details = refresh_master_details)
     except:
         pass

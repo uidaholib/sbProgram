@@ -174,15 +174,18 @@ def get_data(metadata_urls, tag_header, tag_to_search, chars_to_exclude, stop_wo
     data = []
     
     for url in metadata_urls:
-        xml_content = minidom.parse(urlopen(url))
+        try:
+            xml_content = minidom.parse(urlopen(url))
 
-        data_nodes = xml_content.getElementsByTagName(tag_to_search)
+            data_nodes = xml_content.getElementsByTagName(tag_to_search)
 
-        nodes, children = collectData(data_nodes)
-        nodeNames = set()
+            nodes, children = collectData(data_nodes)
+            nodeNames = set()
 
-        for node in nodes:
-            processNode(node, children, nodeNames, data)
+            for node in nodes:
+                processNode(node, children, nodeNames, data)
+        except:
+            pass
 
     metadata = [tag_header] + applyNLP(data, chars_to_exclude, stop_words)
             
