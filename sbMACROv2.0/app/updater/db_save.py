@@ -2,8 +2,7 @@
 from datetime import datetime
 from app.updater import gl
 from app.updater import fiscal_years
-from app.models import MasterDetails
-
+from app.models import MasterDetails, ProjectDetails
 
 def save_master_details(app, item_details):
     """Save item details relevant to searching..
@@ -20,6 +19,7 @@ def save_master_details(app, item_details):
         try:
             sb_id = detail['id']
             parentId = detail['parentId']
+            projectId = detail['proj_id']
             casc = detail['casc']
             fy = detail['FY']
             url = detail['url']
@@ -38,6 +38,7 @@ def save_master_details(app, item_details):
 
             detail_row = MasterDetails(sb_id = sb_id,
                                         parentId = parentId,
+                                        projectId = projectId,
                                         casc = casc,
                                         fy = fy,
                                         url = url,
@@ -56,8 +57,8 @@ def save_master_details(app, item_details):
         app.db.session.commit()
         print('Master details saved to database')
 
-        # print('Testing...')
-        # test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '5bbe29b4e4b0fc368eb2a49c').first()
+        # print('Testing items...')
+        # test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '50f8472de4b0faa3ef21ecb6').first()
         # if test is None:
         #     print('nope!')
         #     print('Done')
@@ -71,6 +72,57 @@ def save_master_details(app, item_details):
         print('Errors encountered:')
         for e in errors:
             print(e)
+
+
+def save_project_details(app, proj_details):
+    """Save project details relevant to searching..
+
+    Arguments:
+        proj_details -- (List) A list of projects, where each project is a dictionary containing
+                        project fields and values.
+    """
+    print('Saving project details to database...')
+    changes_made = False
+    errors = set()
+
+    for detail in proj_details:
+        try:
+            sb_id = detail['id']
+            casc = detail['casc']
+            fy = detail['fy']
+            title = detail['title']
+            size = detail['size']
+
+            detail_row = ProjectDetails(sb_id = sb_id,
+                                        casc = casc,
+                                        fy = fy,
+                                        title = title,
+                                        size = size)
+            app.db.session.add(detail_row)
+            changes_made = True
+        except Exception as e:
+            errors.add(e)
+    
+    if changes_made:
+        app.db.session.commit()
+        print('Project details saved to database')
+
+        # print('Testing projects...')
+        # test = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == '4f833dabe4b0e84f608680d5').first()
+        # if test is None:
+        #     print('nope!')
+        #     print('Done')
+        # else:
+        #     print('Success:')
+        #     print(test.casc)
+        #     print(test.fy)
+        #     print(test.title)
+        #     print('Done!')
+    else:
+        print('Errors encountered:')
+        for e in errors:
+            print(e)
+
 
 def save_casc(app, fiscal_year):
     """Save CASC data to a database.
