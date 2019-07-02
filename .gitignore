@@ -42,3 +42,12 @@ old_code/*
 # Logs
 logs/
 logs/*
+
+# alembic files
+alembic.ini
+alembic/
+alembic/*
+
+# migrations folder
+migrations/
+migrations/*
