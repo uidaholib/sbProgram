@@ -7,6 +7,20 @@ from datetime import datetime
 from app.updater import db_save
 from app.updater import projects
 from app.updater import fiscal_years
+import time # just to time casc updates
+
+
+def load_details(file_location):
+
+    details = [] # a list of dicts
+
+    try:
+        with open(file_location, 'rb') as details_file:
+            details = pickle.load(details_file)
+    except Exception as e:
+        print('error: ' + str(e))
+
+    return details
 
 def get_item_details(file_location):
 
@@ -14,12 +28,6 @@ def get_item_details(file_location):
 
     sb = sciencebasepy.SbSession()
     all_item_details = [] # a list of dicts
-
-    try:
-        with open(file_location, 'rb') as item_details:
-            all_item_details = pickle.load(item_details)
-    except Exception as e:
-        print('error: ' + str(e))
 
     # prev_casc = '' # just to help in printing
     # item_json = ''
@@ -119,13 +127,7 @@ def get_proj_details(file_location):
     sb = sciencebasepy.SbSession()
     all_proj_details = [] # a list of dicts
 
-    try:
-        with open(file_location, 'rb') as proj_details:
-            all_proj_details = pickle.load(proj_details)
-    except Exception as e:
-        print('error: ' + str(e))
-
-
+    # implementation goes here
 
     print('Project details collected')
 
@@ -156,22 +158,29 @@ def update_cascs(app, casc_list):
     # To run this package from command line:
     # python -c 'from __init__ import start; start()'
 
+    start = time.time()
+
     fy_obj_list = fiscal_years.get_cascs(casc_list)
 
     if __debug__:
         print("fy_obj_list:\n{0}".format(fy_obj_list))
     fy_obj_list = fiscal_years.parse_fiscal_years(app, fy_obj_list)
     update_casc_total_data(app)
+
+    end = time.time()
+
+    print('Total time: ' + str(end - start))
+
     if not fy_obj_list:
         print("""
 
     ===========================================================================
 
-                    Hard Search is now finished.""")
-        exit(0)
-    print("WHY AM I HERE???")
-    assert False, "Should never get here!!!!"
-    raise Exception("Something went wrong in full_hard_search()")
+                    CASC update completed.""")
+    #     exit(0)
+    # print("WHY AM I HERE???")
+    # assert False, "Should never get here!!!!"
+    # raise Exception("Something went wrong in full_hard_search()")
 
 
 def full_hard_search(app):

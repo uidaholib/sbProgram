@@ -87,8 +87,10 @@ def refresh_master_tables(details = None, detail_type = ''):
     """
     if detail_type == 'items':
         save_master_details(APP, details)
+        pass
     elif detail_type == 'projs':
         save_project_details(APP, details)
+        pass
 
 # python -c 'from __init__ import update_casc_data; update_casc_data()'
 def update_casc_data():
