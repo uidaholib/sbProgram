@@ -21,8 +21,7 @@ from app.main.metadata import write_metadata
 from app.main.forms import EditProfileForm, FyForm, GeneralForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
-from app.updater.__init__ import update, refresh_master_tables
-from app.updater.main import load_details, get_item_details, get_proj_details
+from app.updater.__init__ import update, update_master_tables
 import multiprocessing
 
 from nltk.corpus import stopwords
@@ -32,8 +31,9 @@ from config import Config
 from pprint import pprint
 
 
-my_root = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(my_root, 'templates/static/')
+# my_root = os.path.dirname(os.path.abspath(__file__))
+# file_path = os.path.join(my_root, 'templates/static/')
+file_path = os.getcwd() + '/app/main/templates/static/'
 
 
 @bp.before_app_request
@@ -194,18 +194,13 @@ def updates():
     """Refresh master details table and update the cascs selected for update"""
 
     print('Starting refresh process')
-    items_file_path = file_path + 'master_details_full.pkl'
-    projs_file_path = file_path + 'proj_details.pkl'
-    item_details = load_details(items_file_path)
-    proj_details = load_details(projs_file_path)
-    # item_details = get_item_details(items_file_path)
-    # proj_details = get_proj_details(projs_file_path)
-    print('Starting item_details thread')
-    items_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (item_details, 'items',))
-    items_refresh_thread.start()
-    print('Starting proj_details thread')
-    projs_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (proj_details, 'projs',))
-    projs_refresh_thread.start()
+
+    # source = 'sciencebase'
+    source = 'file'
+
+    print('Starting thread thread')
+    master_refresh_thread = multiprocessing.Process(target = update_master_tables, args = (source,))
+    master_refresh_thread.start()
 
     cascs_to_update = session['cascs_to_update']
     if cascs_to_update:

@@ -1,5 +1,6 @@
 """Main module from which all Science Base data gathering branches."""
 import os
+import time
 import pickle
 import sciencebasepy
 import app.updater.gl
@@ -7,10 +8,10 @@ from datetime import datetime
 from app.updater import db_save
 from app.updater import projects
 from app.updater import fiscal_years
-import time # just to time casc updates
 
+file_path = os.getcwd() + '/app/main/templates/static/'
 
-def load_details(file_location):
+def load_details_from_file(file_location):
 
     details = [] # a list of dicts
 
@@ -22,116 +23,218 @@ def load_details(file_location):
 
     return details
 
-def get_item_details(file_location):
+def refresh_master_tables(app, source):
 
-    print('Collecting item details...')
+    # load or collect details
+    if source == 'file':
+        items_file_path = file_path + 'master_details_full.pkl'
+        projs_file_path = file_path + 'proj_details.pkl'
+        item_details = load_details_from_file(items_file_path)
+        proj_details = load_details_from_file(projs_file_path)
+    elif source == 'sciencebase':
+        item_details, proj_details = get_details_from_source()
 
-    sb = sciencebasepy.SbSession()
-    all_item_details = [] # a list of dicts
+    # write details to database
+    db_save.save_master_details(app, item_details)
+    db_save.save_project_details(app, proj_details)
 
-    # prev_casc = '' # just to help in printing
-    # item_json = ''
+def get_details_from_source():
 
-    # with open(file_location, 'rb') as file:
-    #     next(file) # skip header line
-    #     for line in file:
-    #         item_details = {}
-            
-    #         casc, item_id = line.split(',')
-    #         item_id = item_id.split()[0] # remove the '\n' included when writing to the file
-            
-    #         item_details['casc'] = casc + ' CASC'
-    #         item_details['id'] = item_id
-            
-    #         if casc != prev_casc:
-    #             print('Processing ' + casc + '...')
-    #             prev_casc = casc
-            
-    #         try:    
-    #             item_json = sb.get_item(item_id)
-    #         except Exception as e:
-    #             # print(e)
-    #             pass
-            
-    #         try:
-    #             item_details['FY'] = item_json['provenance']['dateCreated'].split('-')[0]
-    #         except:
-    #             item_details['FY'] = ''
-    #             print('No FY for ' + casc + ':' + item_id)        
-    #         try:
-    #             item_details['title'] = item_json['title']
-    #         except:
-    #             item_details['title'] = ''
-    #         try:
-    #             item_details['url'] = item_json['link']['url']
-    #         except:
-    #             item_details['url'] = ''
-    #         try:
-    #             item_details['relatedItemsUrl'] = item_json['relatedItems']['link']['url']
-    #         except:
-    #             item_details['relatedItemsUrl'] = ''
-    #         try:
-    #             item_details['summary'] = item_json['summary']
-    #         except:
-    #             item_details['summary'] = ''
-    #         try:
-    #             item_details['hasChildren'] = item_json['hasChildren']
-    #         except:
-    #             item_details['hasChildren'] = ''
-    #         try:
-    #             item_details['parentId'] = item_json['parentId']
-    #         except:
-    #             item_details['parentId'] = ''
-            
-    #         item_details['contacts'] = []
-    #         try:
-    #             contacts = item_json['contacts']
-    #             for contact in contacts:
-    #                 details = {}
-    #                 try:
-    #                     details['name'] = contact['name']
-    #                 except:
-    #                     details['name'] = ''
-    #                 try:
-    #                     details['type'] = contact['type']
-    #                 except:
-    #                     details['type'] = ''
-    #                 try:
-    #                     details['email'] = contact['email']
-    #                 except:
-    #                     details['email'] = ''
-    #                 try:
-    #                     details['jobTitle'] = contact['jobTitle']
-    #                 except:
-    #                     details['jobTitle'] = ''
-    #                 try:
-    #                     details['orcId'] = contact['orcId']
-    #                 except:
-    #                     details['orcId'] = ''
+    print('Collecting details...')
 
-    #                 item_details['contacts'].append(details)
-    #         except Exception as e:
-    #             # print(e)
-    #             pass
-                
-    #         all_item_details.append(item_details)
+    casc_ids = {
+        'Alaska':        '4f831626e4b0e84f6086809b',
+        'National':      '5050cb0ee4b0be20bb30eac0',
+        'North Central': '4f83509de4b0e84f60868124',
+        'Northeast':     '4f8c648de4b0546c0c397b43',
+        'Northwest':     '4f8c64d2e4b0546c0c397b46',
+        'Pacific':       '4f8c650ae4b0546c0c397b48',
+        'South Central': '4f8c652fe4b0546c0c397b4a',
+        'Southeast':     '4f8c6557e4b0546c0c397b4c',
+        'Southwest':     '4f8c6580e4b0546c0c397b4e'
+    }
 
-    print('Item details collected')
+    item_details_list = []
+    proj_details_list = []
 
-    return all_item_details
+    start = time.time()
+    total_items = process_casc_ids(casc_ids, proj_details_list, item_details_list)
+    end = time.time()
 
-def get_proj_details(file_location):
+    duration = end - start
+    mins = int(duration/60)
+    secs = duration % 60
 
-    print('Collecting project details...')
+    print('\n{} total items collected in {} minutes and {} seconds'.format(total_items, mins, secs))
 
-    sb = sciencebasepy.SbSession()
-    all_proj_details = [] # a list of dicts
+    return item_details_list, proj_details_list
 
-    # implementation goes here
+def process_casc_ids(casc_ids, proj_details_list, item_details_list):
+    
+    total_items = 0
+    for casc in casc_ids:
+        num_items = 0
+        casc_id = casc_ids[casc]
+        casc += ' CASC'
+        fy_ids = sb.get_child_ids(casc_id)
+        num_items = process_proj_ids(casc, fy_ids, proj_details_list, item_details_list)
+        total_items += num_items
+        print('\n========={} itmes=========\n'.format(num_items))
 
-    print('Project details collected')
+    return total_items
 
-    return all_proj_details
+def process_proj_ids(casc, fy_ids, proj_details_list, item_details_list):
+
+    num_items = 0
+    print(casc + ':')
+    for fy_id in fy_ids:
+        time.sleep(2) # to ease pressure on sciencebase servers
+        fy_json = sb.get_item(fy_id)
+        fy = fy_json['title'].split()[1]
+        if fy.isnumeric():
+            proj_ids = sb.get_child_ids(fy_id)
+            num_items += process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_list)
+
+    return num_items
+
+def process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_list):
+
+    num_items = 0
+    print(str(fy), end = '') # fiscal year is being processed
+    for proj_id in proj_ids:
+        #-----build project details-----
+        approved_dataset_items = []
+        proj_details = {}
+        
+        proj_details['id'] = proj_id
+        proj_details['casc'] = casc
+        proj_details['fy'] = fy
+        time.sleep(2) # to ease pressure on sciencebase servers
+        proj_json = sb.get_item(proj_id)
+        proj_details['title'] = proj_json['title']
+        proj_details['size'] = 0
+        try:
+            proj_files = proj_json['files']
+            for proj_file in proj_files:
+                proj_details['size'] += proj_file['size']
+        #-------------------------------
+        except:
+            pass
+        
+        proj_title = proj_details['title']
+        proj_size = proj_details['size']
+        
+        proj_details_list.append(proj_details)
+        
+        # build approved dataset list
+        dataset_ids = sb.get_child_ids(proj_id)
+        for dataset_id in dataset_ids:
+            time.sleep(2) # to ease pressure on sciencebase servers
+            dataset_json = sb.get_item(dataset_id)
+            if dataset_json['title'].lower() == 'approved datasets':
+                approved_dataset_items = get_approved_items(dataset_id)
+                num_items += collect_item_details(casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list)
+        
+    return num_items
+
+def get_approved_items(dataset_id):
+        
+    approved_items = []
+    
+    def get_items(parent_id):
+        child_id_list = sb.get_child_ids(parent_id)
+        for child_id in child_id_list:
+            child_json = sb.get_item(child_id)
+            if child_json['hasChildren']: # keep drilling down into folders (depth first search)
+                get_items(child_id)
+            else:
+                approved_items.append(child_id)
+    
+    get_items(dataset_id)
+    
+    return approved_items
+
+def collect_item_details(casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list):
+    
+    num_items = 0
+    print('p', end = '') # project is being processed
+    for item_id in approved_dataset_items:
+
+        print('*', end = '') # file is being processed
+        
+        #-----build item details-----
+        item_details = {}
+
+        item_details['id'] = item_id
+        item_details['casc'] = casc
+        item_details['FY'] = fy
+        item_details['proj_id'] = proj_id
+        item_details['proj_title'] = proj_title
+        item_details['proj_size'] = proj_size
+
+        time.sleep(2) # to ease pressure on sciencebase servers
+        item_json = sb.get_item(item_id)
+
+        try:
+            item_details['title'] = item_json['title']
+        except:
+            item_details['title'] = ''
+        try:
+            item_details['url'] = item_json['link']['url']
+        except:
+            item_details['url'] = ''
+        try:
+            item_details['relatedItemsUrl'] = item_json['relatedItems']['link']['url']
+        except:
+            item_details['relatedItemsUrl'] = ''
+        try:
+            item_details['summary'] = item_json['summary']
+        except:
+            item_details['summary'] = ''
+        try:
+            item_details['hasChildren'] = item_json['hasChildren']
+        except:
+            item_details['hasChildren'] = ''
+        try:
+            item_details['parentId'] = item_json['parentId']
+        except:
+            item_details['parentId'] = ''
+
+        item_details['contacts'] = []
+        try:
+            contacts = item_json['contacts']
+            for contact in contacts:
+                details = {}
+                try:
+                    details['name'] = contact['name']
+                except:
+                    details['name'] = ''
+                try:
+                    details['type'] = contact['type']
+                except:
+                    details['type'] = ''
+                try:
+                    details['email'] = contact['email']
+                except:
+                    details['email'] = ''
+                try:
+                    details['jobTitle'] = contact['jobTitle']
+                except:
+                    details['jobTitle'] = ''
+                try:
+                    details['orcId'] = contact['orcId']
+                except:
+                    details['orcId'] = ''
+
+                item_details['contacts'].append(details)
+        #----------------------------
+        except:
+            pass
+
+        item_details_list.append(item_details)
+        num_items += 1
+        
+    return num_items
 
 def update_cascs(app, casc_list):
     """Perform hard search on any ids older than 1 day.
