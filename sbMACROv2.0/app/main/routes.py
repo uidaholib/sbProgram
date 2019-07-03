@@ -22,7 +22,7 @@ from app.main.forms import EditProfileForm, FyForm, GeneralForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
 from app.updater.__init__ import update, refresh_master_tables
-from app.updater.main import get_item_details, get_proj_details
+from app.updater.main import load_details, get_item_details, get_proj_details
 import multiprocessing
 
 from nltk.corpus import stopwords
@@ -159,26 +159,15 @@ def fiscalyear():
 def update_db():
     """Retrieve CASCs and display for selection by user."""
 
-    if request.method == 'POST':
-        try:
-            refresh_master_details = request.form['refresh_master_details']
-            if refresh_master_details:
-                session['refresh_master_details'] = refresh_master_details
-                return redirect(url_for('main.updates'))
-        except:
-            pass
-
-    list_of_cascs = []
     cascs_to_update = []
 
-    cascs = db.session.query(casc).order_by(casc.name).all()
-
+    list_of_cascs = ['Alaska', 'North Central', 'Northeast', 'Northwest', 'Pacific', 'South Central', 'Southeast', 'Southwest', 'National']
+    
     class F(FyForm):
         pass
 
-    for curr_casc in cascs:
-        list_of_cascs.append(str(curr_casc.name))
-        setattr(F, str(curr_casc.name), BooleanField(curr_casc.name.replace(' CASC', '')))
+    for curr_casc in list_of_cascs:
+        setattr(F, str(curr_casc), BooleanField(curr_casc))
 
     form = F()
     if form.validate_on_submit():
@@ -188,7 +177,7 @@ def update_db():
 
             selected = csc_attr.data
             if selected:
-                cascs_to_update.append(csc.replace(' CASC', ''))
+                cascs_to_update.append(csc)
 
         session['cascs_to_update'] = cascs_to_update
 
@@ -202,37 +191,29 @@ def update_db():
 # @socketio.on('connect', namespace='/test')
 @bp.route('/updates')
 def updates():
-    """Update the cascs selected for update, or refresh master details table"""
-    refresh_master_details = False
-    cascs_to_update = []
-    try:
-        refresh_master_details = session['refresh_master_details']
-        if refresh_master_details:
-            print('Starting refresh process')
-            # items_file_path = file_path + 'item_ids.csv'
-            items_file_path = file_path + 'item_details.pkl'
-            projs_file_path = file_path + 'proj_details.pkl'
-            item_details = get_item_details(items_file_path)
-            proj_details = get_proj_details(projs_file_path)
-            print('Starting item_details thread')
-            items_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (item_details, 'items',))
-            items_refresh_thread.start()
-            print('Starting proj_details thread')
-            projs_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (proj_details, 'projs',))
-            projs_refresh_thread.start()
-            return render_template("updates.html", cascs_to_update = cascs_to_update, refresh_master_details = refresh_master_details)
-    except:
-        pass
-    try:
-        cascs_to_update = session['cascs_to_update']
-        if cascs_to_update:
-            casc_update_thread = multiprocessing.Process(target = update, args = (cascs_to_update,))
-            casc_update_thread.start()
-            return render_template("updates.html", cascs_to_update = cascs_to_update, refresh_master_details = refresh_master_details)
-    except:
-        pass
+    """Refresh master details table and update the cascs selected for update"""
 
-    return render_template("updates.html", cascs_to_update = cascs_to_update, refresh_master_details = refresh_master_details)
+    print('Starting refresh process')
+    items_file_path = file_path + 'master_details_full.pkl'
+    projs_file_path = file_path + 'proj_details.pkl'
+    item_details = load_details(items_file_path)
+    proj_details = load_details(projs_file_path)
+    # item_details = get_item_details(items_file_path)
+    # proj_details = get_proj_details(projs_file_path)
+    print('Starting item_details thread')
+    items_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (item_details, 'items',))
+    items_refresh_thread.start()
+    print('Starting proj_details thread')
+    projs_refresh_thread = multiprocessing.Process(target = refresh_master_tables, args = (proj_details, 'projs',))
+    projs_refresh_thread.start()
+
+    cascs_to_update = session['cascs_to_update']
+    if cascs_to_update:
+        print('Starting CASC updates...')
+        casc_update_thread = multiprocessing.Process(target = update, args = (cascs_to_update,))
+        casc_update_thread.start()
+
+    return render_template("updates.html", cascs_to_update = cascs_to_update)
 
 
 @bp.route('/projects', methods=['GET', 'POST'])

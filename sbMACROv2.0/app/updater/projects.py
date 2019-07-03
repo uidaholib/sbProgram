@@ -44,8 +44,9 @@ def parse_project(project):
     if approved_datasets is None and project.ID == "559afce2e4b0b94a64016ffe":
         return
     elif approved_datasets is None:
-        raise Exception("Approved Datasets not found in {0}"
-                        .format(project.ID))
+        print("Approved Datasets not found in {0}".format(project.ID))
+        return
+        # raise Exception("Approved Datasets not found in {0}".format(project.ID))
     try:
         proj_ancestors = SB.get_ancestor_ids(
             approved_datasets['id'])
@@ -445,8 +446,9 @@ def create_proj_objs(project_ids, fiscal_year):
                 if __debug__:
                     print("--Item already parsed.")
         except KeyError:
-            assert False, ("--{0} not a project. This should be looked into..."
-                           .format(project))
+            # assert False, ("--{0} not a project. This should be looked into..."
+            #                .format(project))
+            print('--{0} not a project. This should be looked into...'.format(project))
             print("Back to finding projects...")
             continue
     # for project in proj_obj_list:

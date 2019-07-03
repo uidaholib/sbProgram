@@ -309,6 +309,8 @@ class MasterDetails(db.Model):
     sb_id = db.Column(db.String(32), unique = True)
     parentId = db.Column(db.String(32))
     projectId = db.Column(db.String(32))
+    projectTitle = db.Column(db.String(256))
+    projectSize = db.Column(db.Integer, default = 0)
     casc = db.Column(db.String(32))
     fy = db.Column(db.String(4))
     url = db.Column(db.String(128))
@@ -327,5 +329,5 @@ class ProjectDetails(db.Model):
     title = db.Column(db.String(256), index = True)
     casc = db.Column(db.String(32))
     fy = db.Column(db.String(4))
-    size = db.Column(db.Integer, default=0)
+    size = db.Column(db.Integer, default = 0)
     

@@ -20,6 +20,8 @@ def save_master_details(app, item_details):
             sb_id = detail['id']
             parentId = detail['parentId']
             projectId = detail['proj_id']
+            projectTitle = detail['proj_title']
+            projectSize = detail['proj_size']
             casc = detail['casc']
             fy = detail['FY']
             url = detail['url']
@@ -36,18 +38,20 @@ def save_master_details(app, item_details):
                     CI += contact['name'] + ';'
             CI = CI.strip(';')
 
-            detail_row = MasterDetails(sb_id = sb_id,
-                                        parentId = parentId,
-                                        projectId = projectId,
-                                        casc = casc,
-                                        fy = fy,
-                                        url = url,
-                                        relatedItemsUrl = relatedItemsUrl,
-                                        title = title,
-                                        hasChildren = hasChildren,
-                                        summary = summary,
-                                        PI = PI,
-                                        CI = CI)
+            detail_row = app.MasterDetails(sb_id = sb_id,
+                                            parentId = parentId,
+                                            projectId = projectId,
+                                            projectTitle = projectTitle,
+                                            projectSize = projectSize,
+                                            casc = casc,
+                                            fy = fy,
+                                            url = url,
+                                            relatedItemsUrl = relatedItemsUrl,
+                                            title = title,
+                                            hasChildren = hasChildren,
+                                            summary = summary,
+                                            PI = PI,
+                                            CI = CI)
             app.db.session.add(detail_row)
             changes_made = True
         except Exception as e:
@@ -56,22 +60,24 @@ def save_master_details(app, item_details):
     if changes_made:
         app.db.session.commit()
         print('Master details saved to database')
-
-        # print('Testing items...')
-        # test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '50f8472de4b0faa3ef21ecb6').first()
-        # if test is None:
-        #     print('nope!')
-        #     print('Done')
-        # else:
-        #     print('Success:')
-        #     print(test.casc)
-        #     print(test.fy)
-        #     print(test.title)
-        #     print('Done!')
     else:
         print('Errors encountered:')
         for e in errors:
             print(e)
+
+    # print('Testing items...')
+    # test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '57f41688e4b0bc0bec033f5d').first()
+    # if test is None:
+    #     print('nope!')
+    #     print('Done')
+    # else:
+    #     print('Success:')
+    #     print(test.casc)
+    #     print(test.fy)
+    #     print(test.title)
+    #     print(test.projectId)
+    #     print(test.projectSize)
+    #     print('Done!')
 
 
 def save_project_details(app, proj_details):
@@ -93,11 +99,11 @@ def save_project_details(app, proj_details):
             title = detail['title']
             size = detail['size']
 
-            detail_row = ProjectDetails(sb_id = sb_id,
-                                        casc = casc,
-                                        fy = fy,
-                                        title = title,
-                                        size = size)
+            detail_row = app.ProjectDetails(sb_id = sb_id,
+                                            casc = casc,
+                                            fy = fy,
+                                            title = title,
+                                            size = size)
             app.db.session.add(detail_row)
             changes_made = True
         except Exception as e:
@@ -106,23 +112,22 @@ def save_project_details(app, proj_details):
     if changes_made:
         app.db.session.commit()
         print('Project details saved to database')
-
-        # print('Testing projects...')
-        # test = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == '4f833dabe4b0e84f608680d5').first()
-        # if test is None:
-        #     print('nope!')
-        #     print('Done')
-        # else:
-        #     print('Success:')
-        #     print(test.casc)
-        #     print(test.fy)
-        #     print(test.title)
-        #     print('Done!')
     else:
         print('Errors encountered:')
         for e in errors:
             print(e)
 
+    # print('Testing projects...')
+    # test = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == '4f833dabe4b0e84f608680d5').first()
+    # if test is None:
+    #     print('nope!')
+    #     print('Done')
+    # else:
+    #     print('Success:')
+    #     print(test.casc)
+    #     print(test.fy)
+    #     print(test.title)
+    #     print('Done!')
 
 def save_casc(app, fiscal_year):
     """Save CASC data to a database.
@@ -264,42 +269,49 @@ def save_proj(app, project, fy_model, casc_model):
             proj.principal_investigators.append(pi_model)
         app.db.session.add(proj)
     else:
-        print("---------SQL--------- [Project] Found {} in database..."
-              .format(project.name.encode('utf-8')))
-        pi_list = get_pi_list(app, project.sb_json)
-        if proj.sb_id != project.ID:
-            proj.sb_id = project.ID
-        if proj.name != project.name:
-            proj.name = project.name
-        if proj.url != project.URL:
-            proj.url = project.URL
-        if proj.total_data != project.data_in_project:
-            proj.total_data = project.data_in_project
-        if proj.item_count != project.project_items["Project_Item_Count"]:
-            proj.item_count = project.project_items["Project_Item_Count"]
-        if proj.file_count != project.project_files["Project_File_Count"]:
-            proj.file_count = project.project_files["Project_File_Count"]
-        proj.start_date = get_sb_date("start", project.sb_json)
-        proj.end_date = get_sb_date("end", project.sb_json)
-        if proj.summary != project.sb_json['summary']:
-            proj.summary = project.sb_json['summary']
+        try:
+            print("---------SQL--------- [Project] Found {} in database..."
+                  .format(project.name.encode('utf-8')))
+            pi_list = get_pi_list(app, project.sb_json)
+            if proj.sb_id != project.ID:
+                proj.sb_id = project.ID
+            if proj.name != project.name:
+                proj.name = project.name
+            if proj.url != project.URL:
+                proj.url = project.URL
+            if proj.total_data != project.data_in_project:
+                proj.total_data = project.data_in_project
+            if proj.item_count != project.project_items["Project_Item_Count"]:
+                proj.item_count = project.project_items["Project_Item_Count"]
+            if proj.file_count != project.project_files["Project_File_Count"]:
+                proj.file_count = project.project_files["Project_File_Count"]
+            proj.start_date = get_sb_date("start", project.sb_json)
+            proj.end_date = get_sb_date("end", project.sb_json)
+            if proj.summary != project.sb_json['summary']:
+                proj.summary = project.sb_json['summary']
 
-        # Many-to-many relationships (need db model):
-        # Check if the casc is already related to the project by iterating
-        # through proj.cascs and seeing if the ids match. If not found, add it.
-        if not (any(casc.id == casc_model.id for casc in proj.cascs)):
-            proj.cascs.append(casc_model)
-        if not (any(fy.id == fy_model.id for fy in proj.fiscal_years)):
-            proj.fiscal_years.append(fy_model)
-        for pi_model in pi_list:
-            if not (any(pi.id == pi_model.id for pi in \
-                            proj.principal_investigators)):
-                proj.principal_investigators.append(pi_model)
+            # Many-to-many relationships (need db model):
+            # Check if the casc is already related to the project by iterating
+            # through proj.cascs and seeing if the ids match. If not found, add it.
+            if not (any(casc.id == casc_model.id for casc in proj.cascs)):
+                proj.cascs.append(casc_model)
+            if not (any(fy.id == fy_model.id for fy in proj.fiscal_years)):
+                proj.fiscal_years.append(fy_model)
+            for pi_model in pi_list:
+                if not (any(pi.id == pi_model.id for pi in \
+                                proj.principal_investigators)):
+                    proj.principal_investigators.append(pi_model)
 
-        # Add new timestamp
-        proj.timestamp = datetime.utcnow()
+            # Add new timestamp
+            proj.timestamp = datetime.utcnow()
+        except Exception as e:
+            print('Other error: ' + str(e))
 
-    app.db.session.commit()
+    try:
+        app.db.session.commit()
+    except Exception as e:
+        print('Commit error: ' + str(e))
+
     print("---------SQL--------- [Project] Done with {}.".format(proj.name.encode('utf-8')))
     return proj
 
@@ -337,8 +349,8 @@ def get_pi_list(app, project):
                         PI.email = email
                 app.db.session.commit()
                 pi_list.append(PI)
-                if PI.name == "Scott Rupp":
-                    print("""
+                # if PI.name == "Scott Rupp":
+                #     print("""
                     
                     
                     
@@ -347,11 +359,11 @@ def get_pi_list(app, project):
                     
                     
                     
-                    Name: {0}
-                    Email: {1}
-                    email variable: {2}
-                    """.format(PI.name.encode('utf-8'), PI.email.encode('utf-8'), email.encode('utf-8')))
-                    exit(0)
+                #     Name: {0}
+                #     Email: {1}
+                #     email variable: {2}
+                #     """.format(PI.name.encode('utf-8'), PI.email.encode('utf-8'), email.encode('utf-8')))
+                #     exit(0)
         except KeyError:
             continue
     return pi_list

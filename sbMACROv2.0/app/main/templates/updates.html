@@ -6,18 +6,17 @@
 
   <br>
 
+  <p>The master details table will be updated.</p>
+
   {% if cascs_to_update %}
-    <p>The following CASC(s) will be updated:</p>
+    <p>The following CASC(s) will also be updated:</p>
     {% for casc in cascs_to_update %}
-      {{ casc }}
-      <br>
+      <li>{{ casc }}</li>
     {% endfor %}
+    Estimated update duration: {{ cascs_to_update|length * 1.5 }} minutes
   {% endif %}
 
-  {% if refresh_master_details %}
-  <p>The master details table will be updated:</p>
-  {% endif %}
-
+  <br>
   <p>You may continue with your work<p>
 
 </div>
