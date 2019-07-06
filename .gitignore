@@ -31,9 +31,9 @@ venv/*
 
 # Database
 *.Database
-#*.db
+*.db
 *.sqlite
-*.pkl
+#*.pkl
 
 # Old code
 old_code/

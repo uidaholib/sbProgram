@@ -12,8 +12,7 @@ sys.path.insert(0, LOC)
 
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem, PrincipalInvestigator, MasterDetails, ProjectDetails
-from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs
-from app.updater.db_save import save_master_details, save_project_details
+from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs, refresh_master_tables
 from config import Config
 
 
@@ -73,24 +72,20 @@ def start(defined=None):
     else:
         defined_hard_search(APP)
 
+def update_master_tables(source = None):
+    """Refresh database MasterDetails table
+    Args:
+        source -- 'file' if update should be done from local saved copy of file details
+                  'sciencebase' if update should be done from sciencebase servers
+    """
+    refresh_master_tables(APP, source)
+
 def update(casc_list = None):
     """Start new sb_data_gather instance.
     Args:
         casc_list -- List of cascs to be updated.
     """
     update_cascs(APP, casc_list)
-
-def refresh_master_tables(details = None, detail_type = ''):
-    """Refresh the master details table
-    Args:
-        item_details -- List containing the details in the form of dictionaries
-    """
-    if detail_type == 'items':
-        save_master_details(APP, details)
-        pass
-    elif detail_type == 'projs':
-        save_project_details(APP, details)
-        pass
 
 # python -c 'from __init__ import update_casc_data; update_casc_data()'
 def update_casc_data():
