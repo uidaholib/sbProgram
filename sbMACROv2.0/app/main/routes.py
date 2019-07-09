@@ -14,7 +14,7 @@ from app import db
 
 
 from app.main.forms import EditProfileForm, FyForm, SearchForm
-from app.models import User, casc, FiscalYear, Project, Item, SbFile
+from app.models import User, casc, FiscalYear, Project, Item, SbFile, MasterDetails
 
 from app.main import bp
 from app.main.metadata import write_metadata
@@ -1153,14 +1153,30 @@ def search():
     d=str(d[0])
     d=d.strip("' '")
     print(len(d))
+    print(d)
 
     # Using Project.query.filter('%'+d+'%')
     if(len(d)==0):
         courses=["Please Enter The Keyword To Search"]
         return render_template('search_results.html', courses = courses, length=len(d))
 
-    courses =Project.query.filter(Project.name.like('%'+d+'%')).all()
+    courses = MasterDetails.query.filter((MasterDetails.title.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
+    # courses = Project.query.filter(Project.name.like('%'+d+'%')) .all()
     length=len(courses)
-    print(length)
-    print(type(courses))
-    return render_template('search_results.html',query=d, courses = courses, length= length)
+    print(courses)
+    
+    # userdata = { "data":[]}
+    userdata=[]
+    def add_user(user):
+        # userdata["data"].append(user) 
+        userdata.append(user)
+    for i in courses:
+        user = {}
+        user["name"]=i.title
+        user["casc"]=i.casc
+        user["Fy"]=str(i.fy)
+        add_user(user)
+
+         
+    print(userdata)
+    return render_template('searchTree.html',query=d, courses = courses, length= length, userdata=userdata)
