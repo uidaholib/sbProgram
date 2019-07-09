@@ -304,7 +304,7 @@ class ProblemItem(db.Model):
 
 class MasterDetails(db.Model):
     """Master table model class."""
-
+    __searchable__ = ['title','PI']
     id = db.Column(db.Integer, primary_key = True)
     sb_id = db.Column(db.String(32), unique = True)
     parentId = db.Column(db.String(32))
