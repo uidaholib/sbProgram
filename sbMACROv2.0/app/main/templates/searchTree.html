@@ -2,174 +2,199 @@
 {% extends "base.html" %}{% block content %}
 <link rel="stylesheet" href="static/css/custom.css" />
 <script src="static/js/d3.v4.min.js"></script>
+<script></script>
 <!DOCTYPE html>
 <html>
-  <head>
-        <h1>Search results for "{{ query }}":</h1>
-        <h4 style="color: green ">Number of DataSets found: {{length}}</h4>
-    <!-- <link rel="stylesheet" href="styles.css"> -->
-    <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
-    <script src="https://unpkg.com/d3@5.6.0/dist/d3.min.js"></script>
-  </head>
-  <style type="text/css">
-    body {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: 0;
-  overflow: hidden;
-}
 
-path {
- 
-  fill: none;
-  stroke: #56c2a3;
-}
+<head>
+  <h1>Search results for "{{ query }}":</h1>
+  <h4 style="color: green ">Number of DataSets found: {{length}}</h4>
+  <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
+  <script src="https://unpkg.com/d3@5.6.0/dist/d3.min.js"></script>
+</head>
+<style type="text/css">
+  /* * {
+    margin: 0;
+    padding: 0;
+  } */
 
-text {
-  text-shadow:
-   -1px -1px 3px white,
-   -1px  1px 3px white,
-    1px -1px 3px white,
-    1px  1px 3px white;
-  pointer-events: none;
-  font-family: 'Playfair Display', serif;
-}
-  </style>
-  <body>
-    <svg></svg>
-    <script>
-        (function (d3) {
+  .header {
+    position: relative;
+    list-style-type: none;
+    height: 35px;
+    width: 100%;
+  }
+
+  .header>li {
+    display: inline-block;
+    padding: 6px;
+  }
+
+  .dropdown {
+    color: #FFF;
+    position: relative;
+    text-align: left;
+  }
+
+  .dropdown ul {
+    list-style-type: none;
+    position: absolute;
+    /* and here */
+    top: 100%;
+    left: 0;
+    color: white;
+    width: auto;
+    display: none;
+
+  }
+
+  .dropdown:hover ul {
+    display: list-item;
+    border: black;
+  }
+
+  .dropdown :hover {
+    background-color: white;
+    color: black;
+  }
+
+  .main {
+    margin-top: 20px;
+    padding-top: 20px;
+    height: 50px;
+    display: block;
+    background: white;
+    text-align: center;
+    font-size: 20px;
+    transition: background 1s;
+  }
+
+  .main:hover {
+    background: #CCCCCC;
+  }
+
+  body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  path {
+
+    fill: none;
+    stroke: #56c2a3;
+  }
+
+  text {
+    text-shadow:
+      -1px -1px 3px white,
+      -1px 1px 3px white,
+      1px -1px 3px white,
+      1px 1px 3px white;
+    overflow: hidden;
+    pointer-events: none;
+    font-family: 'Playfair Display', serif;
+  }
+</style>
+<div>
+
+  <ul class="header btn wave-effect waves-teal">
+    <li class="dropdown  left">Search Type
+      <i class="fa fa-caret-down"></i>
+      <ul>
+        <!-- <li class="active "><a href="/report">Vertical Chart</a></li> -->
+        <li class="active"><a href="/searchBar/{{query}}">Bar Chart</a></li>
+
+      </ul>
+    </li>
+  </ul>
+
+  <br>
+</div>
+
+{% for post in userdata %}
+{% if length>0 %}
+<div>
+  <svg></svg>
+</div>
+{% else %}
+<h4 style="color: red "> {{post}}</h4>
+{% endif %}
+{% endfor %}
+
+<script>
+  (function (d3) {
     'use strict';
-  
+
     const svg = d3.select('svg');
     const width = document.body.clientWidth;
     const height = document.body.clientHeight;
-  
-    const margin = { top: 0, right: 50, bottom: 0, left: 75};
+
+    const margin = { top: 0, right: 50, bottom: 0, left: 75 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
-  
+
     const treeLayout = d3.tree().size([innerHeight, innerWidth]);
-  
+
     const zoomG = svg
-        .attr('width', width)
-        .attr('height', height)
+      .attr('width', width)
+      .attr('height', height)
       .append('g');
-  
+
     const g = zoomG.append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-  
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+
     svg.call(d3.zoom().on('zoom', () => {
       zoomG.attr('transform', d3.event.transform);
     }));
-    
-    var pArray = {{userdata| tojson | safe}};
-let data1 = pArray
-var nest = d3.nest()
-    .key(function(d) { return d.casc; })
-    .key(function(d) { return d.Fy; })
-    .key(function(d) { return d.name; })
-    var data= d3.hierarchy({values: nest.entries(data1)}, function(d) { if(d.key!=0){return d.values;} })
- .sort((a, b) => b.value - a.value);
 
-        const root = d3.hierarchy(data);
-        console.log(root)
-        const links = treeLayout(root).links();
-        const linkPathGenerator = d3.linkHorizontal()
-          .x(d => d.y)
-          .y(d => d.x);
-      
-        g.selectAll('path').data(links)
-          .enter().append('path')
-            .attr('d', linkPathGenerator);
+    var pArray = {{ userdata| tojson | safe
+  }};
 
+  let data1 = pArray
+  var nest = d3.nest()
+    .key(function (d) { return d.casc; })
+    .key(function (d) { return d.Fy; })
+    .key(function (d) { return d.name; })
+    .key(function (d) { return d.ctitle; })
+  var data = d3.hierarchy({ values: nest.entries(data1) }, function (d) { if (d.key != 0) { return d.values; } })
+    .sort((a, b) => b.value - a.value);
 
-      
-        g.selectAll('text').data(root.descendants())
-          .enter().append('text')
-            .attr('x', d => d.y)
-            .attr('y', d => d.x)
-            .attr('dy', '0.32em')
-           // .attr('text-anchor', d => d.children ? 'middle' : 'start')
-            // .attr('font-size', d => 3.25 - d.depth + 'em')
-            // .text(d =>(d.data.data.key))
-            .text(d =>(d.data.data.key));
-     
-            let left = root;
-    let right = root;
-    root.eachBefore(node => {
-      if (g.x < left.x) left = node;
-      if (g.x > right.x) right = node;
+  const root = d3.hierarchy(data);
+  console.log(root)
+  const links = treeLayout(root).links();
+  const linkPathGenerator = d3.linkHorizontal()
+    .x(d => d.y)
+    .y(d => d.x);
 
-    
-    });
+  g.selectAll('path').data(links)
+    .enter().append('path')
+    .attr('d', linkPathGenerator);
+
+  g.selectAll('text').data(root.descendants())
+    .enter().append('text')
+    .attr('x', d => d.y)
+    .attr('y', d => d.x)
+    .attr('dy', '0.32em')
+    .attr('text-anchor', d => d.data.key ? 'middle' : 'start')
+    .attr('font-size', d => 3.25 - d.depth + 'em')
+    // .text(d =>(d.data.data.key))
+    .text(d => (d.data.data.key));
+
+  let left = root;
+  let right = root;
+  root.eachBefore(node => {
+    if (g.x < left.x) left = node;
+    if (g.x > right.x) right = node;
+  });
   }(d3));
-    </script>
-  
-  </body>
-  <!-- <script>
-    import select,json,tree, hierarchy,
-  linkHorizontal,
-  zoom,
-  event
- from 'd3';
+</script>
+</body>
 
-const svg = select('svg');
-const width = document.body.clientWidth;
-const height = document.body.clientHeight;
-
-const margin = { top: 0, right: 50, bottom: 0, left: 75};
-const innerWidth = width - margin.left - margin.right;
-const innerHeight = height - margin.top - margin.bottom;
-
-const treeLayout = tree().size([innerHeight, innerWidth]);
-
-const zoomG = svg
-    .attr('width', width)
-    .attr('height', height)
-  .append('g');
-
-const g = zoomG.append('g')
-    .attr('transform', `translate(${margin.left},${margin.top})`);
-
-svg.call(zoom().on('zoom', () => {
-  zoomG.attr('transform', event.transform);
-}));
-var pArray = {{userdata| tojson | safe}};
-let data1 = pArray
-var nest = d3.nest()
-    .key(function(d) { return d.casc; })
-    .key(function(d) { return d.Fy; })
-    // .key(function(d) { return d.number; })
-    // .key(function(d) { return Number(d.size!=0) ; })
-    //  .sortValues(function(a,b) { return Number(b.size) - Number(a.size); } )
-// var root = d3.hierarchy({values: d3.nest().key(function(d) { return d.casc; }).key(function(d) { return d.FY; }).key(function(d) { return d.size; }).entries(data)}, function(d) { return d.values; })
- var data= d3.hierarchy({values: nest.entries(data1)}, function(d) { if(d.key!=0){return d.values;} })
- .sort((a, b) => b.value - a.value);
-
-    const root = hierarchy(data);
-    concole.log(root)
-    const links = treeLayout(root).links();
-    const linkPathGenerator = linkHorizontal()
-      .x(d => d.y)
-      .y(d => d.x);
-  
-    g.selectAll('path').data(links)
-      .enter().append('path')
-        .attr('d', linkPathGenerator);
-    
-    g.selectAll('text').data(root.descendants())
-      .enter().append('text')
-        .attr('x', d => d.y)
-        .attr('y', d => d.x)
-        .attr('dy', '0.32em')
-        .attr('text-anchor', d => d.children? 'middle' : 'start')
-        .attr('font-size', d => 3.25 - d.depth + 'em')
-        .text(d => d.data.data.casc);
-  
-  </script> -->
 </html>
 {% endblock %}
