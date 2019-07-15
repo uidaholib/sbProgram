@@ -118,8 +118,8 @@
         <li><a href="{{ url_for('auth.revoke') }}">Logout</a></li>
         <li>
             <div class="search-container "> 
-            <form style="display: inline;" action="{{ url_for('main.search') }}" method="post" name="query">
-            <input type="text" class="blue " placeholder=" Search Here" name="search"></input>
+            <form style="display: inline;" action="{{ url_for('main.search')}}  "  method="post" name="query">
+            <input type="text" class="blue " placeholder=" Search Here" name="search" ></input>
             <button type="submit"></button></form>
           </div>
         {% else %}

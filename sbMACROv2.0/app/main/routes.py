@@ -1146,37 +1146,48 @@ def edit_profile():
 @login_required
 def search():
     current_user.search_form = SearchForm()
-    d= str(current_user.search_form.data)
-    d=d.split(':')
-    d=d[1]
-    d=d.split(',')
-    d=str(d[0])
-    d=d.strip("' '")
-    print(len(d))
-    print(d)
-
-    # Using Project.query.filter('%'+d+'%')
+    d= str(current_user.search_form.data['search'])
     if(len(d)==0):
-        courses=["Please Enter The Keyword To Search"]
-        return render_template('search_results.html', courses = courses, length=len(d))
+        userdata=["Please Enter The Keyword To Search"]
+        return render_template('search_results.html', userdata = userdata, length=len(d))
 
-    courses = MasterDetails.query.filter((MasterDetails.title.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
-    # courses = Project.query.filter(Project.name.like('%'+d+'%')) .all()
+    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
     length=len(courses)
-    print(courses)
-    
-    # userdata = { "data":[]}
+    # Adding Required Details to userData
     userdata=[]
     def add_user(user):
-        # userdata["data"].append(user) 
         userdata.append(user)
     for i in courses:
         user = {}
-        user["name"]=i.title
+        user["name"]=i.projectTitle
         user["casc"]=i.casc
         user["Fy"]=str(i.fy)
+        user["ctitle"]=i.title
         add_user(user)
-
-         
-    print(userdata)
     return render_template('searchTree.html',query=d, courses = courses, length= length, userdata=userdata)
+
+@bp.route('/searchBar/<query>', methods=['GET', 'POST'])
+@login_required
+def searchBar(query):
+
+    current_user.search_form = SearchForm()
+    d=query
+    if(len(d)==0):
+        userdata=["Please Enter The Keyword To Search"]
+        return render_template('search_results.html', userdata = userdata, length=len(d))
+
+    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
+    length=len(courses)
+    # Adding Required Details to userData
+    userdata=[]
+    def add_user(user):
+        userdata.append(user)
+    for i in courses:
+        user = {}
+        user["name"]=i.projectTitle
+        user["casc"]=i.casc
+        user["Fy"]=str(i.fy)
+        user["ctitle"]=i.title
+        user["size"]=i.projectSize
+        add_user(user)
+    return render_template('search_results.html', query=d, courses=courses, length=length, userdata=userdata)
