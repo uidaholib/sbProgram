@@ -106,7 +106,7 @@
     <li class="dropdown  left">Search Type
       <i class="fa fa-caret-down"></i>
       <ul>
-        <!-- <li class="active "><a href="/report">Vertical Chart</a></li> -->
+        
         <li class="active"><a href="/searchBar/{{query}}">Bar Chart</a></li>
 
       </ul>
@@ -181,8 +181,8 @@
     .attr('x', d => d.y)
     .attr('y', d => d.x)
     .attr('dy', '0.32em')
-    .attr('text-anchor', d => d.data.key ? 'middle' : 'start')
-    .attr('font-size', d => 3.25 - d.depth + 'em')
+    .attr('text-anchor', d => d.data.data.key? 'start' : 'middle')
+    .attr('font-size', d =>3.25-d.depth+ 'em')
     // .text(d =>(d.data.data.key))
     .text(d => (d.data.data.key));
 
