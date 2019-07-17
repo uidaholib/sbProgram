@@ -1191,3 +1191,29 @@ def searchBar(query):
         user["size"]=i.projectSize
         add_user(user)
     return render_template('search_results.html', query=d, courses=courses, length=length, userdata=userdata)
+
+@bp.route('/searchBack/<query>', methods=['GET', 'POST'])
+@login_required
+def searchBack(query):
+
+    current_user.search_form = SearchForm()
+    d=query
+    if(len(d)==0):
+        userdata=["Please Enter The Keyword To Search"]
+        return render_template('search_results.html', userdata = userdata, length=len(d))
+
+    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
+    length=len(courses)
+    # Adding Required Details to userData
+    userdata=[]
+    def add_user(user):
+        userdata.append(user)
+    for i in courses:
+        user = {}
+        user["name"]=i.projectTitle
+        user["casc"]=i.casc
+        user["Fy"]=str(i.fy)
+        user["ctitle"]=i.title
+        user["size"]=i.projectSize
+        add_user(user)
+    return render_template('searchTree.html', query=d, courses=courses, length=length, userdata=userdata)
