@@ -48,10 +48,10 @@ def before_request():
 @bp.route('/index', methods = ['GET', 'POST'])  # Default
 def index():
     # class F(GeneralForm):
-    #     def __init__(self, buttonText):
-    #         super(F, self).__init__()
-    #         # self.name = BooleanField('static field')
-    #         self.submit = SubmitField(buttonText)
+    #     def __init__(i, buttonText):
+    #         super(F, i).__init__()
+    #         # i.name = BooleanField('static field')
+    #         i.submit = SubmitField(buttonText)
 
     # form = F('Refresh Metadata')
 
@@ -300,7 +300,7 @@ def report():
         project = None
         item = None
 
-        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+        def __init__(i, obj_type, obj_db_id, fy_db_id, casc_db_id):
             """Initialize ReportItem class object.
 
             Arguments:
@@ -318,55 +318,55 @@ def report():
             sheet = {}
 
             if obj_type == 'project':
-                self.obj_type = obj_type
+                i.obj_type = obj_type
                 proj = db.session.query(Project).filter(
                     Project.id == obj_db_id).first()
                 if proj == None:
                     raise Exception  # It has to be there somewhere...
                 else:
-                    self.name = proj.name
-                    self.id = obj_db_id
-                    self.sb_id = proj.sb_id
-                    self.url = proj.url
+                    i.name = proj.name
+                    i.id = obj_db_id
+                    i.sb_id = proj.sb_id
+                    i.url = proj.url
                     # convert from MB -> GB
-                    self.data_in_project_GB = proj.total_data / 1000
-                    self.num_of_files = proj.files.count()
+                    i.data_in_project_GB = proj.total_data / 1000
+                    i.num_of_files = proj.files.count()
                     if fy_db_id is list:
-                        self.fiscal_year = []
-                        self.casc = []
-                        self.total_data_in_fy_GB = []
+                        i.fiscal_year = []
+                        i.casc = []
+                        i.total_data_in_fy_GB = []
                         for fy_id in fy_db_id:
                             fy = db.session.query(FiscalYear).get(fy_id)
-                            self.fiscal_year.append(fy.name)
+                            i.fiscal_year.append(fy.name)
                             casc_model = db.session.query(casc).get(fy.casc_id)
-                            self.casc.append(casc_model.name)
+                            i.casc.append(casc_model.name)
                             # convert from MB -> GB
-                            self.total_data_in_fy_GB.append(
+                            i.total_data_in_fy_GB.append(
                                 fy.total_data / 1000)
 
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
-                        self.fiscal_year = fy.name
+                        i.fiscal_year = fy.name
                         casc_model = db.session.query(casc).get(casc_db_id)
-                        self.casc = casc_model.name
+                        i.casc = casc_model.name
                         # convert from MB -> GB
-                        self.total_data_in_fy_GB = fy.total_data / 1000
-                    self.timestamp = proj.timestamp
-                    self.pi_list = []
+                        i.total_data_in_fy_GB = fy.total_data / 1000
+                    i.timestamp = proj.timestamp
+                    i.pi_list = []
                     for pi in proj.principal_investigators:
                         curr_pi = {'name': pi.name, 'email': pi.email}
-                        self.pi_list.append(curr_pi)
-                    self.summary = proj.summary
-                    self.products_received = []
+                        i.pi_list.append(curr_pi)
+                    i.summary = proj.summary
+                    i.products_received = []
                     for item in proj.items:
                         curr_item = {'name': item.name, 'url': item.url}
-                        self.products_received.append(curr_item)
+                        i.products_received.append(curr_item)
                     # Things that depend on user access level:
                     if current_user.is_authenticated:
                         if current_user.access_level > 0:
 
                             # Parse excel sheet
-                            sheet_name = get_sheet_name(self.casc)
+                            sheet_name = get_sheet_name(i.casc)
                             if sheet_name:
                                 values = []
                                 for vals in workbook[sheet_name].values:
@@ -383,41 +383,41 @@ def report():
                                 credentials)
                             try:
                                 # DMP Status
-                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+                                i.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
 
-                                    self.dmp_status = "No DMP status provided"
+                                    i.dmp_status = "No DMP status provided"
                                 # History
-                                self.history = sheet[proj.sb_id]['History']
-                                if self.history is None or self.history.isspace() or self.history == "":
-                                    self.history = "No data steward history provided"
+                                i.history = sheet[proj.sb_id]['History']
+                                if i.history is None or i.history.isspace() or i.history == "":
+                                    i.history = "No data steward history provided"
                                 # Potential Products
-                                self.potential_products = sheet[proj.sb_id]['Expected Products']
-                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
-                                    self.potential_products = "No data potential products provided"
+                                i.potential_products = sheet[proj.sb_id]['Expected Products']
+                                if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
+                                    i.potential_products = "No data potential products provided"
                             except KeyError:
-                                self.dmp_status = "Project not currently tracked by Data Steward"
-                                self.history = "Project not currently tracked by Data Steward"
-                                self.potential_products = "Project not currently tracked by Data Steward"
+                                i.dmp_status = "Project not currently tracked by Data Steward"
+                                i.history = "Project not currently tracked by Data Steward"
+                                i.potential_products = "Project not currently tracked by Data Steward"
 
                         else:
-                            self.dmp_status = "Please email administrators at"\
+                            i.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.history = "Please email administrators at"\
+                            i.history = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.potential_products = "Please email "\
+                            i.potential_products = "Please email "\
                                 + "administrators at {} to receive access "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "privileges to view this content."
                     else:
-                        self.dmp_status = "Please login to view this content."
-                        self.history = "Please login to view this content."
-                        self.potential_products = "Please login to view this content."
-                    self.file_breakdown = []
+                        i.dmp_status = "Please login to view this content."
+                        i.history = "Please login to view this content."
+                        i.potential_products = "Please login to view this content."
+                    i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
                         proj_file_list.append(sbfile.id)
@@ -433,7 +433,7 @@ def report():
                             temp_dict['label'] = _tuple[0]
                             temp_dict['count'] = _tuple[1]
                             proj_file_list.append(temp_dict)
-                        self.file_breakdown = sorted(
+                        i.file_breakdown = sorted(
                             proj_file_list,
                             key=lambda k: k['count'],
                             reverse=True)
@@ -511,7 +511,7 @@ def verticalbar():
         project = None
         item = None
 
-        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+        def __init__(i, obj_type, obj_db_id, fy_db_id, casc_db_id):
             """Initialize ReportItem class object.
 
             Arguments:
@@ -529,55 +529,55 @@ def verticalbar():
             sheet = {}
 
             if obj_type == 'project':
-                self.obj_type = obj_type
+                i.obj_type = obj_type
                 proj = db.session.query(Project).filter(
                     Project.id == obj_db_id).first()
                 if proj == None:
                     raise Exception  # It has to be there somewhere...
                 else:
-                    self.name = proj.name
-                    self.id = obj_db_id
-                    self.sb_id = proj.sb_id
-                    self.url = proj.url
+                    i.name = proj.name
+                    i.id = obj_db_id
+                    i.sb_id = proj.sb_id
+                    i.url = proj.url
                     # convert from MB -> GB
-                    self.data_in_project_GB = proj.total_data / 1000
-                    self.num_of_files = proj.files.count()
+                    i.data_in_project_GB = proj.total_data / 1000
+                    i.num_of_files = proj.files.count()
                     if fy_db_id is list:
-                        self.fiscal_year = []
-                        self.casc = []
-                        self.total_data_in_fy_GB = []
+                        i.fiscal_year = []
+                        i.casc = []
+                        i.total_data_in_fy_GB = []
                         for fy_id in fy_db_id:
                             fy = db.session.query(FiscalYear).get(fy_id)
-                            self.fiscal_year.append(fy.name)
+                            i.fiscal_year.append(fy.name)
                             casc_model = db.session.query(casc).get(fy.casc_id)
-                            self.casc.append(casc_model.name)
+                            i.casc.append(casc_model.name)
                             # convert from MB -> GB
-                            self.total_data_in_fy_GB.append(
+                            i.total_data_in_fy_GB.append(
                                 fy.total_data / 1000)
 
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
-                        self.fiscal_year = fy.name
+                        i.fiscal_year = fy.name
                         casc_model = db.session.query(casc).get(casc_db_id)
-                        self.casc = casc_model.name
+                        i.casc = casc_model.name
                         # convert from MB -> GB
-                        self.total_data_in_fy_GB = fy.total_data / 1000
-                    self.timestamp = proj.timestamp
-                    self.pi_list = []
+                        i.total_data_in_fy_GB = fy.total_data / 1000
+                    i.timestamp = proj.timestamp
+                    i.pi_list = []
                     for pi in proj.principal_investigators:
                         curr_pi = {'name': pi.name, 'email': pi.email}
-                        self.pi_list.append(curr_pi)
-                    self.summary = proj.summary
-                    self.products_received = []
+                        i.pi_list.append(curr_pi)
+                    i.summary = proj.summary
+                    i.products_received = []
                     for item in proj.items:
                         curr_item = {'name': item.name, 'url': item.url}
-                        self.products_received.append(curr_item)
+                        i.products_received.append(curr_item)
                     # Things that depend on user access level:
                     if current_user.is_authenticated:
                         if current_user.access_level > 0:
 
                             # Parse excel sheet
-                            sheet_name = get_sheet_name(self.casc)
+                            sheet_name = get_sheet_name(i.casc)
                             if sheet_name:
                                 values = []
                                 for vals in workbook[sheet_name].values:
@@ -594,41 +594,41 @@ def verticalbar():
                                 credentials)
                             try:
                                 # DMP Status
-                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+                                i.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
 
-                                    self.dmp_status = "No DMP status provided"
+                                    i.dmp_status = "No DMP status provided"
                                 # History
-                                self.history = sheet[proj.sb_id]['History']
-                                if self.history is None or self.history.isspace() or self.history == "":
-                                    self.history = "No data steward history provided"
+                                i.history = sheet[proj.sb_id]['History']
+                                if i.history is None or i.history.isspace() or i.history == "":
+                                    i.history = "No data steward history provided"
                                 # Potential Products
-                                self.potential_products = sheet[proj.sb_id]['Expected Products']
-                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
-                                    self.potential_products = "No data potential products provided"
+                                i.potential_products = sheet[proj.sb_id]['Expected Products']
+                                if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
+                                    i.potential_products = "No data potential products provided"
                             except KeyError:
-                                self.dmp_status = "Project not currently tracked by Data Steward"
-                                self.history = "Project not currently tracked by Data Steward"
-                                self.potential_products = "Project not currently tracked by Data Steward"
+                                i.dmp_status = "Project not currently tracked by Data Steward"
+                                i.history = "Project not currently tracked by Data Steward"
+                                i.potential_products = "Project not currently tracked by Data Steward"
 
                         else:
-                            self.dmp_status = "Please email administrators at"\
+                            i.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.history = "Please email administrators at"\
+                            i.history = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.potential_products = "Please email "\
+                            i.potential_products = "Please email "\
                                 + "administrators at {} to receive access "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "privileges to view this content."
                     else:
-                        self.dmp_status = "Please login to view this content."
-                        self.history = "Please login to view this content."
-                        self.potential_products = "Please login to view this content."
-                    self.file_breakdown = []
+                        i.dmp_status = "Please login to view this content."
+                        i.history = "Please login to view this content."
+                        i.potential_products = "Please login to view this content."
+                    i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
                         proj_file_list.append(sbfile.id)
@@ -644,7 +644,7 @@ def verticalbar():
                             temp_dict['label'] = _tuple[0]
                             temp_dict['count'] = _tuple[1]
                             proj_file_list.append(temp_dict)
-                        self.file_breakdown = sorted(
+                        i.file_breakdown = sorted(
                             proj_file_list,
                             key=lambda k: k['count'],
                             reverse=True)
@@ -724,7 +724,7 @@ def horizontalbar():
         project = None
         item = None
 
-        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+        def __init__(i, obj_type, obj_db_id, fy_db_id, casc_db_id):
             """Initialize ReportItem class object.
 
             Arguments:
@@ -742,53 +742,53 @@ def horizontalbar():
             sheet = {}
 
             if obj_type == 'project':
-                self.obj_type = obj_type
+                i.obj_type = obj_type
                 proj = db.session.query(Project).filter(Project.id == obj_db_id).first()
                 if proj == None:
                     raise Exception  # It has to be there somewhere...
                 else:
-                    self.name = proj.name
-                    self.id = obj_db_id
-                    self.sb_id = proj.sb_id
-                    self.url = proj.url
+                    i.name = proj.name
+                    i.id = obj_db_id
+                    i.sb_id = proj.sb_id
+                    i.url = proj.url
                     # convert from MB -> GB
-                    self.data_in_project_GB = proj.total_data / 1000
-                    self.num_of_files = proj.files.count()
+                    i.data_in_project_GB = proj.total_data / 1000
+                    i.num_of_files = proj.files.count()
                     if fy_db_id is list:
-                        self.fiscal_year = []
-                        self.casc = []
-                        self.total_data_in_fy_GB = []
+                        i.fiscal_year = []
+                        i.casc = []
+                        i.total_data_in_fy_GB = []
                         for fy_id in fy_db_id:
                             fy = db.session.query(FiscalYear).get(fy_id)
-                            self.fiscal_year.append(fy.name)
+                            i.fiscal_year.append(fy.name)
                             casc_model = db.session.query(casc).get(fy.casc_id)
-                            self.casc.append(casc_model.name)
+                            i.casc.append(casc_model.name)
                             # convert from MB -> GB
-                            self.total_data_in_fy_GB.append(fy.total_data / 1000)
+                            i.total_data_in_fy_GB.append(fy.total_data / 1000)
 
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
-                        self.fiscal_year = fy.name
+                        i.fiscal_year = fy.name
                         casc_model = db.session.query(casc).get(casc_db_id)
-                        self.casc = casc_model.name
+                        i.casc = casc_model.name
                         # convert from MB -> GB
-                        self.total_data_in_fy_GB = fy.total_data / 1000
-                    self.timestamp = proj.timestamp
-                    self.pi_list = []
+                        i.total_data_in_fy_GB = fy.total_data / 1000
+                    i.timestamp = proj.timestamp
+                    i.pi_list = []
                     for pi in proj.principal_investigators:
                         curr_pi = {'name': pi.name, 'email': pi.email}
-                        self.pi_list.append(curr_pi)
-                    self.summary = proj.summary
-                    self.products_received = []
+                        i.pi_list.append(curr_pi)
+                    i.summary = proj.summary
+                    i.products_received = []
                     for item in proj.items:
                         curr_item = {'name': item.name, 'url': item.url}
-                        self.products_received.append(curr_item)
+                        i.products_received.append(curr_item)
                     # Things that depend on user access level:
                     if current_user.is_authenticated:
                         if current_user.access_level > 0:
 
                             # Parse excel sheet
-                            sheet_name = get_sheet_name(self.casc)
+                            sheet_name = get_sheet_name(i.casc)
                             if sheet_name:
                                 values = []
                                 try:
@@ -808,42 +808,42 @@ def horizontalbar():
                             try:
                                 try:
                                     # DMP Status
-                                    self.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                    if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+                                    i.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                    if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
 
-                                        self.dmp_status = "No DMP status provided"
+                                        i.dmp_status = "No DMP status provided"
                                     # History
-                                    self.history = sheet[proj.sb_id]['History']
-                                    if self.history is None or self.history.isspace() or self.history == "":
-                                        self.history = "No data steward history provided"
+                                    i.history = sheet[proj.sb_id]['History']
+                                    if i.history is None or i.history.isspace() or i.history == "":
+                                        i.history = "No data steward history provided"
                                     # Potential Products
-                                    self.potential_products = sheet[proj.sb_id]['Expected Products']
-                                    if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
-                                        self.potential_products = "No data potential products provided"
+                                    i.potential_products = sheet[proj.sb_id]['Expected Products']
+                                    if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
+                                        i.potential_products = "No data potential products provided"
                                 except KeyError:
-                                    self.dmp_status = "Project not currently tracked by Data Steward"
-                                    self.history = "Project not currently tracked by Data Steward"
-                                    self.potential_products = "Project not currently tracked by Data Steward"
+                                    i.dmp_status = "Project not currently tracked by Data Steward"
+                                    i.history = "Project not currently tracked by Data Steward"
+                                    i.potential_products = "Project not currently tracked by Data Steward"
                             except:
                                 pass
                         else:
-                            self.dmp_status = "Please email administrators at"\
+                            i.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.history = "Please email administrators at"\
+                            i.history = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.potential_products = "Please email "\
+                            i.potential_products = "Please email "\
                                 + "administrators at {} to receive access "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "privileges to view this content."
                     else:
-                        self.dmp_status = "Please login to view this content."
-                        self.history = "Please login to view this content."
-                        self.potential_products = "Please login to view this content."
-                    self.file_breakdown = []
+                        i.dmp_status = "Please login to view this content."
+                        i.history = "Please login to view this content."
+                        i.potential_products = "Please login to view this content."
+                    i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
                         proj_file_list.append(sbfile.id)
@@ -859,7 +859,7 @@ def horizontalbar():
                             temp_dict['label'] = _tuple[0]
                             temp_dict['count'] = _tuple[1]
                             proj_file_list.append(temp_dict)
-                        self.file_breakdown = sorted(
+                        i.file_breakdown = sorted(
                             proj_file_list,
                             key=lambda k: k['count'],
                             reverse=True)
@@ -896,6 +896,7 @@ def treemap():
 
     excel_file = 'CASC Data Management Tracking for Projects - v2.xlsx'
     project_list = session["projects"]
+
     projects = []
     workbook = None
 
@@ -941,7 +942,7 @@ def treemap():
         project = None
         item = None
 
-        def __init__(self, obj_type, obj_db_id, fy_db_id, casc_db_id):
+        def __init__(i, obj_type, obj_db_id, fy_db_id, casc_db_id):
             """Initialize ReportItem class object.
 
             Arguments:
@@ -959,55 +960,55 @@ def treemap():
             sheet = {}
 
             if obj_type == 'project':
-                self.obj_type = obj_type
+                i.obj_type = obj_type
                 proj = db.session.query(Project).filter(
                     Project.id == obj_db_id).first()
                 if proj == None:
                     raise Exception  # It has to be there somewhere...
                 else:
-                    self.name = proj.name
-                    self.id = obj_db_id
-                    self.sb_id = proj.sb_id
-                    self.url = proj.url
+                    i.name = proj.name
+                    i.id = obj_db_id
+                    i.sb_id = proj.sb_id
+                    i.url = proj.url
                     # convert from MB -> GB
-                    self.data_in_project_GB = proj.total_data / 1000
-                    self.num_of_files = proj.files.count()
+                    i.data_in_project_GB = proj.total_data / 1000
+                    i.num_of_files = proj.files.count()
                     if fy_db_id is list:
-                        self.fiscal_year = []
-                        self.casc = []
-                        self.total_data_in_fy_GB = []
+                        i.fiscal_year = []
+                        i.casc = []
+                        i.total_data_in_fy_GB = []
                         for fy_id in fy_db_id:
                             fy = db.session.query(FiscalYear).get(fy_id)
-                            self.fiscal_year.append(fy.name)
+                            i.fiscal_year.append(fy.name)
                             casc_model = db.session.query(casc).get(fy.casc_id)
-                            self.casc.append(casc_model.name)
+                            i.casc.append(casc_model.name)
                             # convert from MB -> GB
-                            self.total_data_in_fy_GB.append(
+                            i.total_data_in_fy_GB.append(
                                 fy.total_data / 1000)
 
                     else:
                         fy = db.session.query(FiscalYear).get(fy_db_id)
-                        self.fiscal_year = fy.name
+                        i.fiscal_year = fy.name
                         casc_model = db.session.query(casc).get(casc_db_id)
-                        self.casc = casc_model.name
+                        i.casc = casc_model.name
                         # convert from MB -> GB
-                        self.total_data_in_fy_GB = fy.total_data / 1000
-                    self.timestamp = proj.timestamp
-                    self.pi_list = []
+                        i.total_data_in_fy_GB = fy.total_data / 1000
+                    i.timestamp = proj.timestamp
+                    i.pi_list = []
                     for pi in proj.principal_investigators:
                         curr_pi = {'name': pi.name, 'email': pi.email}
-                        self.pi_list.append(curr_pi)
-                    self.summary = proj.summary
-                    self.products_received = []
+                        i.pi_list.append(curr_pi)
+                    i.summary = proj.summary
+                    i.products_received = []
                     for item in proj.items:
                         curr_item = {'name': item.name, 'url': item.url}
-                        self.products_received.append(curr_item)
+                        i.products_received.append(curr_item)
                     # Things that depend on user access level:
                     if current_user.is_authenticated:
                         if current_user.access_level > 0:
 
                             # Parse excel sheet
-                            sheet_name = get_sheet_name(self.casc)
+                            sheet_name = get_sheet_name(i.casc)
                             if sheet_name:
                                 values = []
                                 for vals in workbook[sheet_name].values:
@@ -1024,41 +1025,41 @@ def treemap():
                                 credentials)
                             try:
                                 # DMP Status
-                                self.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                if self.dmp_status is None or self.dmp_status.isspace() or self.dmp_status == "":
+                                i.dmp_status = sheet[proj.sb_id]['DMP Status']
+                                if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
 
-                                    self.dmp_status = "No DMP status provided"
+                                    i.dmp_status = "No DMP status provided"
                                 # History
-                                self.history = sheet[proj.sb_id]['History']
-                                if self.history is None or self.history.isspace() or self.history == "":
-                                    self.history = "No data steward history provided"
+                                i.history = sheet[proj.sb_id]['History']
+                                if i.history is None or i.history.isspace() or i.history == "":
+                                    i.history = "No data steward history provided"
                                 # Potential Products
-                                self.potential_products = sheet[proj.sb_id]['Expected Products']
-                                if self.potential_products is None or self.potential_products.isspace() or self.potential_products == "":
-                                    self.potential_products = "No data potential products provided"
+                                i.potential_products = sheet[proj.sb_id]['Expected Products']
+                                if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
+                                    i.potential_products = "No data potential products provided"
                             except KeyError:
-                                self.dmp_status = "Project not currently tracked by Data Steward"
-                                self.history = "Project not currently tracked by Data Steward"
-                                self.potential_products = "Project not currently tracked by Data Steward"
+                                i.dmp_status = "Project not currently tracked by Data Steward"
+                                i.history = "Project not currently tracked by Data Steward"
+                                i.potential_products = "Project not currently tracked by Data Steward"
 
                         else:
-                            self.dmp_status = "Please email administrators at"\
+                            i.dmp_status = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.history = "Please email administrators at"\
+                            i.history = "Please email administrators at"\
                                 + " {} to receive access privileges to view "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "this content."
-                            self.potential_products = "Please email "\
+                            i.potential_products = "Please email "\
                                 + "administrators at {} to receive access "\
                                 .format(current_app.config['ADMINS'][0])\
                                 + "privileges to view this content."
                     else:
-                        self.dmp_status = "Please login to view this content."
-                        self.history = "Please login to view this content."
-                        self.potential_products = "Please login to view this content."
-                    self.file_breakdown = []
+                        i.dmp_status = "Please login to view this content."
+                        i.history = "Please login to view this content."
+                        i.potential_products = "Please login to view this content."
+                    i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
                         proj_file_list.append(sbfile.id)
@@ -1074,7 +1075,7 @@ def treemap():
                             temp_dict['label'] = _tuple[0]
                             temp_dict['count'] = _tuple[1]
                             proj_file_list.append(temp_dict)
-                        self.file_breakdown = sorted(
+                        i.file_breakdown = sorted(
                             proj_file_list,
                             key=lambda k: k['count'],
                             reverse=True)
@@ -1153,6 +1154,7 @@ def search():
 
     courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
     length=len(courses)
+    
     # Adding Required Details to userData
     userdata=[]
     def add_user(user):
@@ -1163,6 +1165,8 @@ def search():
         user["casc"]=i.casc
         user["Fy"]=str(i.fy)
         user["ctitle"]=i.title
+        user["sbId"]=i.sb_id
+        user["summary"]=i.summary
         add_user(user)
     return render_template('searchTree.html',query=d, courses = courses, length= length, userdata=userdata)
 
@@ -1215,5 +1219,92 @@ def searchBack(query):
         user["Fy"]=str(i.fy)
         user["ctitle"]=i.title
         user["size"]=i.projectSize
+        
         add_user(user)
     return render_template('searchTree.html', query=d, courses=courses, length=length, userdata=userdata)
+
+@bp.route('/searchTable/<query>', methods=['GET', 'POST'])
+@login_required
+def searchTable(query):
+    current_user.search_form = SearchForm()
+    d=query
+    if(len(d)==0):
+        userdata=["Please Enter The Keyword To Search"]
+        return render_template('search_results.html', userdata = userdata, length=len(d))
+
+    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
+    length=len(courses)
+    userdata=[]
+    def add_user(user):
+        userdata.append(user)
+    sheet = {}
+    for i in courses:
+        user = {}
+        user["name"]=i.projectTitle
+        user['sb_id']=i.sb_id
+        user["casc"]=i.casc
+        user["Fy"]=str(i.fy)
+        user["ctitle"]=i.title
+        user["size"]=i.projectSize
+        user['pi_list']=i.PI
+        user['summary']=i.summary
+        user['url']=i.url
+        user['ctitle']=i.title
+
+        if current_user.is_authenticated:
+            if current_user.access_level > 0:
+
+                # Parse excel sheet
+                sheet_name = get_sheet_name(i.casc)
+                if sheet_name:
+                    values = []
+                    for vals in workbook[sheet_name].values:
+                        if vals[0] is None:
+                            break
+                        values.append(vals)
+
+                    sheet = parse_values(values)
+
+                try:
+                    # DMP Status
+                    i.dmp_status = sheet[i.sb_id]['DMP Status']
+                    if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
+                        i.dmp_status = "No DMP status provided"
+                    user["dmp_status"]= i.dmp_status
+                    # History
+                    i.history = sheet[i.sb_id]['History']
+                    if i.history is None or i.history.isspace() or i.history == "":
+                        i.history = "No data steward history provided"
+                    user['history']=i.history
+                    # Potential Products
+                    i.potential_products = sheet[i.sb_id]['Expected Products']
+                    if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
+                        i.potential_products = "No data potential products provided"
+                    user['potential_products']= i.potential_products
+                except KeyError:
+                    i.dmp_status = "Project not currently tracked by Data Steward"
+                    i.history = "Project not currently tracked by Data Steward"
+                    i.potential_products = "Project not currently tracked by Data Steward"
+            else:
+                i.dmp_status = "Please email administrators at"\
+                    + " {} to receive access privileges to view "\
+                    .format(current_app.config['ADMINS'][0])\
+                    + "this content."
+                user["dmp_status"]= i.dmp_status
+                i.history = "Please email administrators at"\
+                    + " {} to receive access privileges to view "\
+                    .format(current_app.config['ADMINS'][0])\
+                    + "this content."
+                user['history']=i.history
+                i.potential_products = "Please email "\
+                    + "administrators at {} to receive access "\
+                    .format(current_app.config['ADMINS'][0])\
+                    + "privileges to view this content."
+                user['potential_products']= i.potential_products
+        else:
+            i.dmp_status = "Please login to view this content."
+            i.history = "Please login to view this content."
+            i.potential_products = "Please login to view this content."
+        i.file_breakdown = []
+        add_user(user)
+    return render_template('searchTableChart.html', query=d, courses=courses, length=length, userdata=userdata)

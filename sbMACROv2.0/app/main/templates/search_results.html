@@ -116,6 +116,7 @@
       <i class="fa fa-caret-down"></i>
       <ul>
         <li class="active"><a href="/searchBack/{{query}}">Tree Chart</a></li>
+        <li class="active"><a href="/searchTable/{{query}}">Table Chart</a></li>
 
       </ul>
     </li>
@@ -219,7 +220,7 @@
   var ymaxdomain = d3.max(data, function (d) { return d.size; });
   console.log(ymaxdomain)
   x.domain(data.map(function (d) {
-  d.casc = d.casc.slice(0, -4)
+    d.casc = d.casc.slice(0, -4)
     return d.casc
   }));
   y.domain([0, ymaxdomain]);
