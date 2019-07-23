@@ -108,6 +108,7 @@
       <ul>
         
         <li class="active"><a href="/searchBar/{{query}}">Bar Chart</a></li>
+        <li class="active"><a href="/searchTable/{{query}}">Table Chart</a></li>
 
       </ul>
     </li>
@@ -155,7 +156,6 @@
 
     var pArray = {{ userdata| tojson | safe
   }};
-
   let data1 = pArray
   var nest = d3.nest()
     .key(function (d) { return d.casc; })
@@ -166,26 +166,33 @@
     .sort((a, b) => b.value - a.value);
 
   const root = d3.hierarchy(data);
-  console.log(root)
+  // console.log(root)
   const links = treeLayout(root).links();
   const linkPathGenerator = d3.linkHorizontal()
     .x(d => d.y)
     .y(d => d.x);
-
+  
   g.selectAll('path').data(links)
     .enter().append('path')
-    .attr('d', linkPathGenerator);
+    .attr('d', linkPathGenerator)
+    .attr("class", "infoLine info")
+    .datum(links)
+    
 
   g.selectAll('text').data(root.descendants())
     .enter().append('text')
+   
     .attr('x', d => d.y)
     .attr('y', d => d.x)
     .attr('dy', '0.32em')
     .attr('text-anchor', d => d.data.data.key? 'start' : 'middle')
     .attr('font-size', d =>3.25-d.depth+ 'em')
+    .attr('data-toggle', 'modal')
+    .attr('data-target', '#myModal').style('cursor', 'pointer')
+    
     // .text(d =>(d.data.data.key))
     .text(d => (d.data.data.key));
-
+            
   let left = root;
   let right = root;
   root.eachBefore(node => {
@@ -193,7 +200,10 @@
     if (g.x > right.x) right = node;
   });
   }(d3));
+
+ 
 </script>
+
 </body>
 
 </html>
