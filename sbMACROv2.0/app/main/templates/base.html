@@ -163,7 +163,7 @@
           <a href="{{ url_for('main.index') }}" id="Nav-Home" class="collection-item teal lighten-1 white-text"> Home </a>
           <a href="{{ url_for('main.fiscalyear') }}" id="Nav-FiscalYear" class="collection-item teal lighten-1 white-text">Fiscal Year Report</a>
           <a href="{{ url_for('main.project') }}" id="Nav-Project" class="collection-item teal lighten-1 white-text">Project Report</a>
-          <a id="Nav-Item" class="collection-item grey grey-text text-darken-2">Item Report</a>
+          <a href="{{ url_for('main.proj_compare') }}" id="Nav-Proj-Compare" class="collection-item teal lighten-1 white-text">Project Comparison</a>
           <a id="Nav-Mixed" class="collection-item grey grey-text text-darken-2">Mixed Report</a>
           {% if current_user.is_authenticated %}
           <a href="{{ url_for('main.update_db') }}" id="Nav-Update" class="collection-item teal lighten-1 white-text">Update Database</a>

@@ -128,6 +128,8 @@
 	var casc_name = '';
 	var prev_casc_name = ''; // to track when to reset tag_to_search
 							 // if different from current (casc_name), reset tag_to_search
+
+	casc_details = {}		 // dictionary to hold num_projects and num_datasets per casc
 			
 	//Width and height of map
 	var width = 740;
@@ -159,6 +161,28 @@
 				.attr("width", width)
 				.attr("height", height);
 
+	// populate casc_details
+	for (var c of legendText) {
+		casc_details[c + ' CASC'] = {num_projects: 0, num_datasets: 0, total_sim: 0};
+	}
+	d3.json("{{ url_for('main.static', filename = 'item_dict.json') }}", function(item_dict) {
+		for (var item_id of Object.keys(item_dict)) {
+			casc_details[item_dict[item_id].casc].num_datasets += 1;
+		}
+	});
+	d3.json("{{ url_for('main.static', filename = 'proj_dict.json') }}", function(proj_dict) {
+		for (var proj_id of Object.keys(proj_dict)) {
+			casc_details[proj_dict[proj_id].casc].num_projects += 1;
+		}
+
+		d3.json("{{ url_for('main.static', filename = 'proj_dataset_matches.json') }}", function(matches) {
+			for (var proj_id of Object.keys(matches)) {
+				casc_details[proj_dict[proj_id].casc].total_sim += matches[proj_id].avg_item_sim;
+			}
+		});
+	});
+
+
 	// Load in my states data!
 	d3.csv("{{ url_for('main.static', filename = 'casc_groupings.csv') }}", function(data) {
 		color.domain([0, 1, 2, 3, 4, 5, 6, 7, 8]); // setting the range of the input data
@@ -180,12 +204,11 @@
 					var jsonState = json.features[j].properties.name;
 
 					if (dataState == jsonState) {
+						// Copy the data value into the JSON
+						json.features[j].properties.casc = dataValue;
 
-					// Copy the data value into the JSON
-					json.features[j].properties.casc = dataValue; 
-
-					// Stop looking through the JSON
-					break;
+						// Stop looking through the JSON
+						break;
 					}
 				}
 			}
@@ -216,14 +239,16 @@
 				    // Get data value
 					var value = d.properties.casc;
 				    casc_name = legendText[value];
-				    var state = d.properties.name;
+				    // var state = d.properties.name;
+				    var num_projects = casc_details[casc_name + ' CASC']['num_projects']
+				    var num_datasets = casc_details[casc_name + ' CASC']['num_datasets']
 
 				    // Show the tooltip
 				    d3.select('.tooltip')
 				        .style('visibility','visible')
 				        .style('top', d3.event.pageY+10 + 'px')
 				        .style('left', d3.event.pageX+10 + 'px')
-				        .html('<b>' + casc_name + '</b><br>(' + state + ')');
+				        .html('<b>' + casc_name + '</b><br>' + num_projects + ' projects<br>' + num_datasets + ' approved datasets');
 				})
 				.on('mouseout', function(d) {
 				    // Hide the tooltip
@@ -231,76 +256,84 @@
 				})
 				.on("click", function(d) {
 
-					d3.select("#tags").remove(); // remove the previous drop down list
-					window.words_to_exclude = []; // reset words_to_exclude
-
-				    // Set the modal header
 					var value = d.properties.casc;
-					window.casc_name = legendText[value];
-					casc_name = window.casc_name;
-					$('.projModal-header h4').html(casc_name.toUpperCase());
-					$('.centered_container h5').html(casc_name + ' Metadata');
+				    var casc_name = legendText[value];
+				    var num_projects = casc_details[casc_name + ' CASC']['num_projects']
+				    var num_datasets = casc_details[casc_name + ' CASC']['num_datasets']
 
-					// create drop down menu of tags for the selected casc
-					var tags_file = '/static/main/casc_tags/' + window.casc_name + '_tags.csv';
-					d3.csv(tags_file, function(data) {
-						var selectedIndex = 0;
+					displayCascProjects(casc_name, num_projects, num_datasets);
 
-						var dropdown = d3.select("#tag_drop_down")
-							.append("select")
-							.attr("id", "tags")
-							.style("width", "60%")
-							// .style("margin", "0 auto")
-							.style("display", "block");
 
-						dropdown.selectAll("option")
-							.data(data)
-							.enter()
-							.append("option")
-							.text(function(d, i) {
-								var tag = d['<tags>'];
-								if (tag == window.tag_to_search || tag.toLowerCase().includes('keyword')) { // the lowercase check is to cater for the FGDC tag format
-									selectedIndex = i;
-								}
-								return tag;
-							})
-							.attr("value", function (d, i) {
-								return i;
-							});
+					// d3.select("#tags").remove(); // remove the previous drop down list
+					// window.words_to_exclude = []; // reset words_to_exclude
+
+				 //    // Set the modal header
+					// var value = d.properties.casc;
+					// window.casc_name = legendText[value];
+					// casc_name = window.casc_name;
+					// $('.projModal-header h4').html(casc_name.toUpperCase());
+					// $('.centered_container h5').html(casc_name + ' Metadata');
+
+					// // create drop down menu of tags for the selected casc
+					// var tags_file = '/static/main/casc_tags/' + window.casc_name + '_tags.csv';
+					// d3.csv(tags_file, function(data) {
+					// 	var selectedIndex = 0;
+
+					// 	var dropdown = d3.select("#tag_drop_down")
+					// 		.append("select")
+					// 		.attr("id", "tags")
+					// 		.style("width", "60%")
+					// 		// .style("margin", "0 auto")
+					// 		.style("display", "block");
+
+					// 	dropdown.selectAll("option")
+					// 		.data(data)
+					// 		.enter()
+					// 		.append("option")
+					// 		.text(function(d, i) {
+					// 			var tag = d['<tags>'];
+					// 			if (tag == window.tag_to_search || tag.toLowerCase().includes('keyword')) { // the lowercase check is to cater for the FGDC tag format
+					// 				selectedIndex = i;
+					// 			}
+					// 			return tag;
+					// 		})
+					// 		.attr("value", function (d, i) {
+					// 			return i;
+					// 		});
 							
 
-						dropdown.property("selectedIndex", selectedIndex)
-								.on("change", function(d) {
-									selectedIndex = d3.select(this).property("value");
-									// reset words_to_exclude, tag_to_search and tag_header
-									window.words_to_exclude = [];
-									window.tag_to_search = d3.select('#tags option:checked').text();
-									window.tag_header = '<' + window.tag_to_search + '>';
+					// 	dropdown.property("selectedIndex", selectedIndex)
+					// 			.on("change", function(d) {
+					// 				selectedIndex = d3.select(this).property("value");
+					// 				// reset words_to_exclude, tag_to_search and tag_header
+					// 				window.words_to_exclude = [];
+					// 				window.tag_to_search = d3.select('#tags option:checked').text();
+					// 				window.tag_header = '<' + window.tag_to_search + '>';
 
-									getMetadata();
-									redoWordCloud();
-								});
-					})
+					// 				getMetadata();
+					// 				redoWordCloud();
+					// 			});
+					// })
 
-					// Add close functionality to the modal's close button
-					var span = $('#modal').find('.close');
-					span.on('click', function() {
-						let modal = document.getElementById('modal');
-						modal.style.display = 'none';
-					})
+					// // Add close functionality to the modal's close button
+					// var span = $('#modal').find('.close');
+					// span.on('click', function() {
+					// 	let modal = document.getElementById('modal');
+					// 	modal.style.display = 'none';
+					// })
 
-					// Create the word cloud
-					if (window.prev_casc_name != casc_name) {
-						window.words_to_exclude = []; // reset list of words to exclude
-						window.tag_to_search = 'keywords'; // reset tag_to_search
-						window.tag_header = '<' + window.tag_to_search + '>'; // reset tag_header
+					// // Create the word cloud
+					// if (window.prev_casc_name != casc_name) {
+					// 	window.words_to_exclude = []; // reset list of words to exclude
+					// 	window.tag_to_search = 'keywords'; // reset tag_to_search
+					// 	window.tag_header = '<' + window.tag_to_search + '>'; // reset tag_header
 
-						window.prev_casc_name = casc_name; // set new value for prev_casc_name
-					}
-					makeWordCloud();
+					// 	window.prev_casc_name = casc_name; // set new value for prev_casc_name
+					// }
+					// makeWordCloud();
 
-					// Display the modal
-					document.getElementById('modal').style.display = 'block';
+					// // Display the modal
+					// document.getElementById('modal').style.display = 'block';
 				})
 
 			// // Sub function to help select the last svg element
@@ -506,15 +539,15 @@ function update() {
 }
 
 function getMetadata() {
-       var someVar = $.ajax({
-           method: "POST",
-           url: "{{ url_for('main.metadata') }}",
-           async: false,
-           data: { casc_name: window.casc_name, tag_to_search: window.tag_to_search }
-       });
+   var someVar = $.ajax({
+       method: "POST",
+       url: "{{ url_for('main.metadata') }}",
+       async: false,
+       data: { casc_name: window.casc_name, tag_to_search: window.tag_to_search }
+   });
 
-       return ' ';
-   }
+   return ' ';
+}
 
 function redoWordCloud() {
 	var words_to_exclude = document.getElementById('words_to_exclude').value;
@@ -530,6 +563,12 @@ function redoWordCloud() {
 	makeWordCloud();
 }
 
+function displayCascProjects(casc_name, num_projects, num_datasets) {
+
+	var params = casc_name + '|' + num_projects + '|' + num_datasets;
+
+	window.location.href = 'casc_projects/' + params;
+}
 
 // Set navigation bar to highlight current page
 let currentPage = document.getElementById('Nav-Home');

@@ -1,0 +1,378 @@
+{% extends "base.html" %} {% block content %}
+
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}"/>
+	<style>
+		.accordion {
+			background-color: #eee;
+			color: #444;
+			cursor: pointer;
+			padding: 18px;
+			width: 100%;
+			border: none;
+			text-align: left;
+			outline: none;
+			font-size: 15px;
+			transition: 0.4s;
+		}
+
+		.active, .accordion:hover {
+			background-color: #ccc;
+		}
+
+		.accordion:after {
+			content: '\002B';
+			color: #777;
+			font-weight: bold;
+			float: right;
+			margin-left: 5px;
+		}
+
+		.active:after {
+			content: "\2212";
+		}
+
+		.panel {
+			padding: 0 18px;
+			background-color: white;
+			max-height: 0;
+			overflow: hidden;
+			transition: max-height 0.2s ease-out;
+		}
+
+		.word_button {
+			background-color: #008CBA;
+			border: none;
+			border-radius: 4px;
+			color: white;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 14px;
+			margin: 2px;
+			cursor: pointer;
+		}
+
+	</style>
+
+	<h2>Projects Overview</h2>
+	<br>
+	<!-- <p class="flow-text">This program can be used to generate macro-level reports for the data present under any Climate Adaptation Science Center (CASC) on ScienceBase. Use sbMACRO to understand your data at a higher level.</p> -->
+	<p class="flow-text">{{ casc_name }} CASC: {{ num_projects }} projects, {{ num_datasets }} approved datasets<br></p>
+
+	<p id = 'approved_p'></p>
+	<div id = 'approved_div'>
+	</div>
+
+	<p id = 'no_approved_p'></p>
+	<div id = 'no_approved_div'>
+	</div>
+
+	<!-- MODAL -->
+	<div id="modal" class="projModal">
+	  <!-- Modal content -->
+		<div class="projModal-content">
+			<div class="projModal-header">
+				<span class="close">&times;</span>
+				<h4></h4>
+			</div>
+
+			<div class="row">
+				<span style="font-size: 2vh;">
+					<strong><h5>Project Topics</h5></strong>
+					<div id = "proj_topics"></div>
+				</span>
+			</div>
+
+			<div class="row">
+				<span style="font-size: 2vh;">
+					<strong><h5>Item Topics</h5></strong>
+					<div id = "item_topics"></div>
+				</span>
+			</div>
+
+			<br>
+
+			<div class="row">
+				<span style="font-size: 2vh;">
+					<strong><h5>Matched Topics</h5></strong>
+					<table>
+						<thead>
+							<th>Project</th>
+							<th>Item</th>
+						</thead>
+						<tbody id = "matches_table"></tbody>
+					</table>
+				</span>
+			</div>
+
+			<br>
+
+			<div class="row">
+				<span style="font-size: 2vh;">
+					<strong><h5>Unmatched Topics</h5></strong>
+					<table>
+						<thead>
+							<th>Project</th>
+							<th>Item</th>
+						</thead>
+						<tbody id = "no_matches_table"></tbody>
+					</table>
+				</span>
+			</div>
+
+			<br>
+
+			<div class="projModal-footer">
+			<h8>sbMACRO</h8>
+			</div>
+
+		</div>
+
+	</div>
+
+	<script>
+
+		//=== These variables are for use within displayModal() ===
+		// var item_details;
+		// var proj_phrases;
+		//=========================================================
+
+		var proj_infos;
+		var acc = document.getElementsByClassName("accordion");
+		var projs_with_approved = 0;
+
+		var casc_name = '{{ casc_name }}' + ' CASC';
+		var proj_ids = [];
+		var item_titles = {};
+
+		// Populate item_titles
+		d3.json("{{ url_for('main.static', filename = 'item_dict.json') }}", function(item_dict) {
+			for (var item_id of Object.keys(item_dict)){
+				item_titles[item_id] = item_dict[item_id].title;
+			}
+		})
+
+		d3.json("{{ url_for('main.static', filename = 'proj_dict.json') }}", function(proj_dict) {
+
+			// Collect list of project ids
+			for (var proj_id of Object.keys(proj_dict)) {
+				if (proj_dict[proj_id].casc == casc_name) {
+					proj_ids.push(proj_id);
+				}
+			}
+
+			// Fill in accordion elements
+			d3.json("{{ url_for('main.static', filename = 'proj_dataset_matches.json') }}", function(proj_info) {
+				var approved_div = document.getElementById("approved_div");
+				var no_approved_div = document.getElementById("no_approved_div");
+
+				for (var i = 0; i < proj_ids.length; i++) {
+					var num_items = proj_info[proj_ids[i]].num_items;
+
+					// create button
+					var btn = document.createElement("button");
+					btn.classList.add('accordion');
+					var div = document.createElement("div");
+					div.classList.add('panel');
+					var paragraph = document.createElement("p");
+					div.appendChild(paragraph);
+
+					var proj_title = proj_dict[proj_ids[i]].title;
+					var proj_summary = proj_dict[proj_ids[i]].summary;
+
+					var proj_details = '<br><b>Project Summary:</b><br>' + proj_summary + '<br><br>';
+
+					if (num_items > 0) {
+
+						approved_div.appendChild(btn);
+						approved_div.appendChild(div);
+
+						if (num_items == 1) {
+							proj_details += '<b>Approved Datasets</b> (' + num_items + ' item)<br><br>';
+						}
+						else {
+							proj_details += '<b>Approved Datasets</b> (' + num_items + ' items)<br><br>';
+						}
+
+						var proj_items = proj_info[proj_ids[i]].proj_items;
+
+						for (var item_id of Object.keys(proj_items)){
+
+							var match = 100*proj_items[item_id].weighted_sim;
+
+							proj_details += '<li><a href = "' + proj_items[item_id].item_url + '" target = "_blank">' + item_titles[item_id] + '</a></li><br>';
+							proj_details += '<div class="progress" style = "width:50%"><div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="' + Math.round(match) + '" aria-valuemin="0" aria-valuemax="100" style="width:' + Math.round(match) + '%">' + match.toFixed(2) + '% project match</div><div><button type="button" class="btn waves-effect waves-light btn-xs" style = "float:right; height:100%" onclick = "displayModal(\'' + proj_ids[i] + '\', \'' + item_id + '\')">More</button></div></div>';
+						}
+
+						var btns = document.getElementById("approved_div").querySelectorAll(".accordion");
+						last_btn = btns[btns.length - 1];
+						last_btn.innerHTML = proj_title;
+						last_btn.nextElementSibling.innerHTML = proj_details + '<br>';
+
+						last_btn.addEventListener("click", function() {
+							this.classList.toggle("active");
+							var panel = this.nextElementSibling;
+							if (panel.style.maxHeight){
+								panel.style.maxHeight = null;
+							} else {
+								panel.style.maxHeight = panel.scrollHeight + "px";
+							} 
+						});
+
+						projs_with_approved += 1;
+					}
+					else {
+
+						no_approved_div.appendChild(btn);
+						no_approved_div.appendChild(div);
+
+						var btns = document.getElementById("no_approved_div").querySelectorAll(".accordion");
+						last_btn = btns[btns.length - 1];
+						last_btn.innerHTML = proj_title;
+						last_btn.nextElementSibling.innerHTML = proj_details;
+
+						last_btn.addEventListener("click", function() {
+							this.classList.toggle("active");
+							var panel = this.nextElementSibling;
+							if (panel.style.maxHeight){
+								panel.style.maxHeight = null;
+							} else {
+								panel.style.maxHeight = panel.scrollHeight + "px";
+							} 
+						});
+					}
+				}
+				document.getElementById('approved_p').innerHTML = '<b>Projects with approved datasets (' + projs_with_approved + ' projects):</b>';
+				document.getElementById('no_approved_p').innerHTML = '<b>Projects with no approved datasets (' + (proj_ids.length - projs_with_approved) + ' projects):</b>';
+			})
+
+		});
+
+		// When the user clicks anywhere outside of the modal, close it
+		window.onclick = function(event) {
+		  if ($(event.target).hasClass('projModal')) {
+		    let modal = document.getElementById(event.target.id);
+		    modal.style.display = 'none';
+		  }
+		}
+
+		function displayModal(proj_id, item_id) {
+
+			$('.projModal-header h4').html(window.item_titles[item_id]);
+			// $('.centered_container h5').html('Project Topics');
+
+			// clear previous modal contents
+			p_topic_div = document.getElementById('proj_topics');
+			i_topic_div = document.getElementById('item_topics');
+			matches_table = document.getElementById('matches_table');
+			no_matches_table = document.getElementById('no_matches_table');
+			while (p_topic_div.firstChild) {
+				p_topic_div.removeChild(p_topic_div.firstChild);
+			}
+			while (i_topic_div.firstChild) {
+				i_topic_div.removeChild(i_topic_div.firstChild);
+			}
+			while (matches_table.firstChild) {
+				matches_table.removeChild(matches_table.firstChild);
+			}
+			while (no_matches_table.firstChild) {
+				no_matches_table.removeChild(no_matches_table.firstChild);
+			}
+			
+			d3.json("{{ url_for('main.static', filename = 'proj_dataset_matches.json') }}", function(proj_info) {
+				var item_details = proj_info[proj_id].proj_items[item_id];
+				var proj_phrases = proj_info[proj_id].proj_phrases;
+
+				// append new content
+				for (var i = 0; i < proj_phrases.length; i++){
+					topic_btn = document.createElement('button');
+					topic_btn.classList.add('word_button');
+					topic_btn.innerHTML = proj_phrases[i];
+					p_topic_div.appendChild(topic_btn);
+				}
+				var item_phrases = item_details.item_phrases;
+				for (var i = 0; i < item_phrases.length; i++){
+					topic_btn = document.createElement('button');
+					topic_btn.classList.add('word_button');
+					topic_btn.innerHTML = item_phrases[i];
+					i_topic_div.appendChild(topic_btn);
+				}
+
+				var matches = item_details.similarities;
+				var proj_matches = {};
+				for (var i in Object.keys(matches)) {
+					item_match = matches[i][0];
+					proj_match = matches[i][1];
+					if (!(proj_match in proj_matches)) {
+						proj_matches[proj_match] = [];
+					}
+					proj_matches[proj_match].push(item_match);
+				}
+
+				// construct the tables
+				var proj_phrases_set = new Set();
+				var item_phrases_set = new Set();
+
+				var table_rows = '';
+				for (var proj_phrase in proj_matches) {
+
+					topic_btn = document.createElement('button');
+					topic_btn.classList.add('word_button');
+					topic_btn.innerHTML = proj_phrase;
+
+					table_rows += '<tr><td><button class = "word_button">' + proj_phrase + '</button></td>';
+					proj_phrases_set.add(proj_phrase);
+					item_phrase_list = proj_matches[proj_phrase];
+					table_rows += '<td>';
+					var phrase_list = '';
+					for (var item_phrase of item_phrase_list) {
+						phrase_list += '<button class = "word_button">' +  item_phrase + '</button>';
+						item_phrases_set.add(item_phrase);
+					}
+					table_rows += phrase_list + '</td></tr>';
+				}
+
+				$('#matches_table').append(table_rows);
+
+				var table_rows = '<tr><td>';
+				for (var proj_phrase of proj_phrases) {
+
+					if (!(proj_phrases_set.has(proj_phrase))) {
+
+						topic_btn = document.createElement('button');
+						topic_btn.classList.add('word_button');
+						topic_btn.innerHTML = proj_phrase;
+
+						table_rows += '<button class = "word_button">' + proj_phrase + '</button>';
+					}
+				}
+				table_rows += '</td><td>';
+				for (var item_phrase of item_phrases) {
+					if (!(item_phrases_set.has(item_phrase))) {
+						table_rows += '<button class = "word_button">' +  item_phrase + '</button>';
+					}
+				}
+				table_rows += '</td></tr>';
+
+				$('#no_matches_table').append(table_rows);
+			});
+
+			// Add close functionality to the modal's close button
+			var span = $('#modal').find('.close');
+			span.on('click', function() {
+				let modal = document.getElementById('modal');
+				modal.style.display = 'none';
+			})
+
+			// Display the modal
+			document.getElementById('modal').style.display = 'block';
+		}
+
+	</script>
+
+{% endblock %}
