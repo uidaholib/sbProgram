@@ -22,12 +22,16 @@ def save_master_details(app, item_details):
             projectId = detail['proj_id']
             projectTitle = detail['proj_title']
             projectSize = detail['proj_size']
+            num_files = detail['num_files']
+            start_date = detail['start_date']
+            end_date = detail['end_date']
+            pub_date = detail['pub_date']
             casc = detail['casc']
             fy = detail['FY']
             url = detail['url']
+            xml_urls = detail['xml_urls']
             relatedItemsUrl = detail['relatedItemsUrl']
             title = detail['title']
-            hasChildren = detail['hasChildren']
             summary = detail['summary']
             PI = ''
             CI = ''
@@ -43,12 +47,16 @@ def save_master_details(app, item_details):
                                             projectId = projectId,
                                             projectTitle = projectTitle,
                                             projectSize = projectSize,
+                                            num_files = num_files,
+                                            start_date = start_date,
+                                            end_date = end_date,
+                                            pub_date = pub_date,
                                             casc = casc,
                                             fy = fy,
                                             url = url,
+                                            xml_urls = xml_urls,
                                             relatedItemsUrl = relatedItemsUrl,
                                             title = title,
-                                            hasChildren = hasChildren,
                                             summary = summary,
                                             PI = PI,
                                             CI = CI)
@@ -65,19 +73,19 @@ def save_master_details(app, item_details):
         for e in errors:
             print(e)
 
-    # print('Testing items...')
-    # test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '57f41688e4b0bc0bec033f5d').first()
-    # if test is None:
-    #     print('nope!')
-    #     print('Done')
-    # else:
-    #     print('Success:')
-    #     print(test.casc)
-    #     print(test.fy)
-    #     print(test.title)
-    #     print(test.projectId)
-    #     print(test.projectSize)
-    #     print('Done!')
+    print('Testing items...')
+    test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '57d84c15e4b090824ff9ac75').first()
+    if test is None:
+        print('nope!')
+        print('Done')
+    else:
+        print('Success:')
+        print(test.num_files)
+        print(test.start_date)
+        print(test.end_date)
+        print(test.pub_date)
+        print(test.xml_urls)
+        print('Done!')
 
 
 def save_project_details(app, proj_details):
@@ -117,17 +125,17 @@ def save_project_details(app, proj_details):
         for e in errors:
             print(e)
 
-    # print('Testing projects...')
-    # test = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == '4f833dabe4b0e84f608680d5').first()
-    # if test is None:
-    #     print('nope!')
-    #     print('Done')
-    # else:
-    #     print('Success:')
-    #     print(test.casc)
-    #     print(test.fy)
-    #     print(test.title)
-    #     print('Done!')
+    print('Testing projects...')
+    test = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == '521cf67ce4b01458f7858040').first()
+    if test is None:
+        print('nope!')
+        print('Done')
+    else:
+        print('Success:')
+        print(test.casc)
+        print(test.fy)
+        print(test.title)
+        print('Done!')
 
 def save_casc(app, fiscal_year):
     """Save CASC data to a database.

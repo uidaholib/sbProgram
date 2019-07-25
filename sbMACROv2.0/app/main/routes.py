@@ -211,9 +211,23 @@ def updates():
     return render_template("updates.html", cascs_to_update = cascs_to_update)
 
 
-@bp.route('/projects', methods=['GET', 'POST'])
-@bp.route('/select_project', methods=['GET', 'POST'])
-@bp.route('/select_projects', methods=['GET', 'POST'])
+@bp.route('/casc_projects/<params>', methods = ['GET', 'POST'])
+def casc_projects(params):
+
+    casc_name, num_projects, num_datasets = params.split('|')
+
+    return render_template('casc_projects.html', casc_name = casc_name, num_projects = num_projects, num_datasets = num_datasets)
+
+
+@bp.route('/proj_compare', methods = ['GET', 'POST'])
+def proj_compare():
+
+    return render_template('proj_compare.html')
+
+
+@bp.route('/projects', methods = ['GET', 'POST'])
+@bp.route('/select_project', methods = ['GET', 'POST'])
+@bp.route('/select_projects', methods = ['GET', 'POST'])
 def project():
     """Display and implement selection/searching for projects by URL."""
     if request.method == 'POST':

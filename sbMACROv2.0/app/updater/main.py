@@ -200,6 +200,44 @@ def collect_item_details(casc, fy, proj_id, proj_title, proj_size, approved_data
         except:
             item_details['parentId'] = ''
 
+        xml_urls = ''
+        try:
+            for item_file in item_json['files']:
+                if 'xml' in item_file['contentType'] and 'xml' in item_file['name']:
+                    xml_urls += item_file['url'] + ',' # separate by commas
+            xml_urls = xml_urls.strip(',')
+        except:
+            pass
+        item_details['xml_urls'] = xml_urls
+
+        try:
+            item_details['num_files'] = len(item_json['files'])
+        except:
+            item_details['num_files'] = 0
+
+        item_details['pub_date'] = ''
+        item_details['start_date'] = ''
+        item_details['end_date'] = ''
+        try:
+            for date_item in item_json['dates']:
+                try:
+                    if date_item['type'].lower() == 'publication' or date_item['label'] == 'publication date':
+                        item_details['pub_date'] = date_item['dateString']
+                except:
+                    item_details['pub_date'] = ''
+                try:
+                    if date_item['type'].lower() == 'start':
+                        item_details['start_date'] = date_item['dateString']
+                except:
+                    item_details['start_date'] = ''
+                try:
+                    if date_item['type'].lower() == 'end':
+                        item_details['end_date'] = date_item['dateString']
+                except:
+                    item_details['end_date'] = ''
+        except:
+            pass
+
         item_details['contacts'] = []
         try:
             contacts = item_json['contacts']

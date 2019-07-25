@@ -1,0 +1,550 @@
+{% extends "base.html" %} {% block content %}
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}"/>
+
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+<script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="{{ url_for('main.static', filename='js/sankey.js') }}"></script>
+
+<style>
+
+	.node rect {
+	  cursor: move;
+	  fill-opacity: .9;
+	  shape-rendering: crispEdges;
+	}
+
+	.node text {
+	  pointer-events: none;
+	  text-shadow: 0 1px 0 #fff;
+	}
+
+</style>
+
+<h4>Project Comparison</h4>
+
+<p class="flow-text"><h5>Select two cascs whose projects you would like to compare for similarity.<br>(NB: Similarity is based solely on the project summary)</h5></p>
+
+<div id = 'tips' style = 'display: none'>
+	<p class="flow-text">
+		<h6><li>Hover over CASCs (the squares) or links (connections) for more information on them</li></h6>
+		<h6><li>Click on a CASC to open its Sciencebase page in a new tab</li></h6>
+		<h6><li>Click on a link (connection) to view details about the two connected projects</li></h6>
+		<h6><li>Move the slider below the visualization to filter out links with lower similarities<br>&nbsp&nbsp&nbsp&nbsp&nbsp(the slider range is set to the lowest and highest project similarity values for the selected CASCs)</li></h6>
+	</p>
+</div>
+
+<hr>
+
+<div id = 'casc1_drop_down' class = 'centered_container' style = "margin-left: 5%; float:left; width: 30%">
+	<label for = "cascs" class = 'inpt-field col s6' style="font-size:80%; text-align:left">Select CASC 1</label>
+</div>
+<div id = 'casc2_drop_down' class = 'centered_container' style = "margin-left: 5%; float:left; width: 30%; display:none">
+	<label for = "cascs" class = 'inpt-field col s6' style="font-size:80%; text-align:left">Select CASC 2</label>
+</div>
+<div id = "compare" style = "display:none">
+	<br>
+	<a id = "compare_btn" class = "waves-effect waves-light btn" onclick = "compareCASCProjects()">
+		Compare
+	</a>
+</div>
+<br>
+
+<div id = 'proj_counts' style = 'display: none'>
+	<p class = 'flow-text'></p>
+</div>
+
+<!-- Sankey diagram visualization -->
+<p id = "vis">
+<div id = filter style = 'display: none'>
+	<label id = 'label' for = "slider" class = 'inpt-field col s6' style="font-size:100%; text-align:left; float: left;"></label>
+	<br>
+	<div id = "slider" style = "width:40%;"></div>
+</div>
+<br><br>
+
+<!-- MODAL -->
+	<div id="modal" class="projModal">
+	  <!-- Modal content -->
+		<div class="projModal-content">
+			<div class="projModal-header">
+				<span class="close">&times;</span>
+				<h5></h5>
+			</div>
+
+			<div class="row">
+				<span style="font-size: 2vh;">
+					<div id = 'proj1_details' style = 'text-align: justify; text-justify: inter-word'></div>
+				</span>
+			</div>
+
+			<div class="row">
+				<span style="font-size: 2vh;">
+					<div id = 'proj2_details' style = 'text-align: justify; text-justify: inter-word'></div>
+				</span>
+			</div>
+
+			<br>
+
+			<div class="projModal-footer">
+			<h8>sbMACRO</h8>
+			</div>
+
+		</div>
+
+	</div>
+
+<script>
+
+	// create drop down menu cascs
+	var cascs1 = ["", "Alaska", "North Central", "Northeast", "Northwest", "Pacific", "South Central", "Southeast", "Southwest", "National"];
+
+	var selectedIndex1 = 0;
+
+	var dropdown1 = d3.select("#casc1_drop_down")
+		.append("select")
+		.attr("id", "dropdown1")
+		.style("width", "60%")
+		.style("display", "block");
+
+	dropdown1.selectAll("option")
+		.data(cascs1)
+		.enter()
+		.append("option")
+		.text(function(d, i) {
+			return d;
+		})
+		.attr("value", function (d, i) {
+			return i;
+		});
+		
+	dropdown1.property("selectedIndex", selectedIndex1)
+		.on("change", function(d) {
+			casc1_selection = d3.select('#dropdown1 option:checked').text();
+
+			if (casc1_selection === '') {
+				document.getElementById('casc2_drop_down').style.display = 'none';
+				document.getElementById('compare').style.display = 'none';
+			}
+			else {
+				var casc2_drop_down = document.getElementById('casc2_drop_down');
+				// empty previous casc2_drop_down contents
+				children = casc2_drop_down.childNodes;
+				for (var child of children) {
+					if (!(child.outerHTML && child.outerHTML.includes('label'))) {
+						casc2_drop_down.removeChild(child);
+					}
+				}
+				// display new casc2_drop_down contents
+				casc2_drop_down.style.display = 'block';
+
+				// create drop down menu cascs
+				var cascs2 = cascs1.filter(function(value, index, arr) {
+					return value != casc1_selection;
+				});
+				var selectedIndex2 = 0;
+				
+				var dropdown2 = d3.select("#casc2_drop_down")
+					.append("select")
+					.attr("id", "dropdown2")
+					.style("width", "60%")
+					.style("display", "block");
+
+				dropdown2.selectAll("option")
+					.data(cascs2)
+					.enter()
+					.append("option")
+					.text(function(d, i) {
+						return d;
+					})
+					.attr("value", function (d, i) {
+						return i;
+					});
+					
+				dropdown2.property("selectedIndex", selectedIndex2)
+					.on("change", function(d) {
+						casc2_selection = d3.select('#dropdown2 option:checked').text();
+						if (casc2_selection === '') {
+							document.getElementById('compare').style.display = 'none';
+						}
+						else {
+							document.getElementById('compare').style.display = 'block';
+						}
+					});
+			}
+		});
+
+
+	function compareCASCProjects() {
+
+		// hide filter div
+		document.getElementById('filter').style.display = 'none';
+		// hide proj_counts
+		document.getElementById('proj_counts').style.display = 'none';
+
+		casc1 = document.getElementById('dropdown1');
+		casc1 = casc1.options[casc1.selectedIndex].text;
+		casc2 = document.getElementById('dropdown2');
+		casc2 = casc2.options[casc2.selectedIndex].text;
+
+		json_file = '';
+
+		if (cascs1.indexOf(casc1) < cascs1.indexOf(casc2)) {
+			json_file = casc1.toLowerCase().replace(' ', '_') + '_' + casc2.toLowerCase().replace(' ', '_') + '_' + 'proj_graph.json';
+		}
+		else  {
+			json_file = casc2.toLowerCase().replace(' ', '_') + '_' + casc1.toLowerCase().replace(' ', '_') + '_' + 'proj_graph.json';
+		}
+
+		file_name = '/static/main/project_graphs/' + json_file;
+
+		// load the data
+		d3.json(file_name, function(error, graph) {
+
+			var h = d3.max([graph.num_sources, graph.num_targets]) * 21;
+
+			var margin = {top: 10, right: 50, bottom: 10, left: 50},
+			    width = 800 - margin.left - margin.right,
+			    height = h - margin.top - margin.bottom;
+
+			var color = d3.scale.category20b();
+
+		// remove previous svg content
+			d3.select('#vis_svg').remove();
+
+			// append new svg content
+			var svg = d3.select("#vis").append("svg")
+				.attr("id", "vis_svg")
+			    .attr("width", width + margin.left + margin.right)
+			    .attr("height", height + margin.top + margin.bottom)
+			    .append("g")
+			    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			// Set the sankey diagram properties
+			var sankey = d3.sankey()
+			    .nodeWidth(10)
+			    .nodePadding(25)
+			    .size([width, height]);
+
+			var path = d3.svg.diagonal()
+				.source(function(d) { return {"x":d.source.y, "y":d.source.x}; })            
+			    .target(function(d) { return {"x":d.target.y, "y":d.target.x}; })
+			    .projection(function(d) { return [d.y, d.x]; });
+
+		    sankey.nodes(graph.nodes)
+		    .links(graph.links)
+		    .layout(32);
+
+		    //node scale
+		    // var maxVal_node=d3.max(_.pluck(graph.nodes,"value"));
+		    // var minVal_node=d3.min(_.pluck(graph.nodes,"value"));
+		    // var nodeScale=d3.scale.sqrt()
+		    //                 .domain([minVal_node,maxVal_node])
+		    //                 .range([10,50]);
+
+		    //link scale
+		    var maxVal_links=d3.max(_.pluck(graph.links,"value"));
+		  	var minVal_links=d3.min(_.pluck(graph.links,"value"));
+		  	var linkScale=d3.scale.sqrt()
+		                    .domain([minVal_links,maxVal_links])
+		                    .range([1,10]);
+
+		    document.getElementById('label').innerHTML = 'Show links with similiarity greater than: ' + minVal_links.toFixed(2) + '%';
+		    
+		    $("#slider").slider({
+		    	value: minVal_links,
+				min: minVal_links,
+				max: maxVal_links,
+				slide: function( event, ui ) {
+					document.getElementById('label').innerHTML = 'Show links with similiarity greater than: ' + ui.value.toFixed(2) + '%';
+					updateLinks();
+				},
+				stop: function( event, ui ) {
+					// updateLinks();
+				}
+			});
+
+		    // add in the links
+		    var link = svg.append("g")
+		    	.attr("class", "links")
+		    	.selectAll(".link")
+		        .data(graph.links)
+		        .enter()
+		        .append("path")
+		        .attr("id", function(d,i){
+			        d.id = i;
+			        return "link-"+i;
+			      })
+		        .filter(function(d){ return d.value > $("#slider").slider("value");})
+		        .attr("class", "link")
+		        .attr("d", path)
+		        .style("fill", "none")
+		        .style("stroke", "tan")
+		        .style("stroke-opacity", ".2")
+		        .on("mouseover", function(d) { 
+		        	d3.select(this).style("stroke-opacity", ".5") } )
+		        .on("mouseout", function() { d3.select(this).style("stroke-opacity", ".2") } )
+		        .style("stroke-width", function (d) {
+		            return linkScale(d.value);
+		        })
+		        .sort(function (a, b) {
+		            return b.dy - a.dy;
+		        })
+		        .on("click",function(d, i){
+		        	displayModal(d);
+		        });
+
+		    // add the link titles
+		    link.append("title")
+		        .text(function (d) {
+		        	source_casc = d.source.casc.replace(' CASC', '');
+		        	target_casc = d.target.casc.replace(' CASC', '');
+		            return source_casc + ' (FY '+ d.source.fy + '): ' + d.source.name + '\n' 
+		            + target_casc + ' (FY ' + d.target.fy + '): ' + d.target.name + '\n' 
+		            + 'Similarity: ' + d.value.toFixed(2) + '%';
+		        });
+
+		    // add in the nodes
+		    var node = svg.append("g")
+		    	.attr("class", "nodes")
+		    	.selectAll(".node")
+		        .data(graph.nodes)
+		        .enter().append("g")
+		        .attr("class", "node")
+		        .attr("transform", function (d) {
+		            return "translate(" + d.x + "," + d.y + ")";
+		        })
+		        .on("mouseover",function(d, i){
+		        	var interact_mode = "hover";
+		        	highlight_node_links(d, i, this, interact_mode);
+		        })
+		        .on("mouseout",function(d, i){
+		        	var interact_mode = "hover";
+		        	highlight_node_links(d, i, this, interact_mode);
+		        })
+		        .on("click",function(d, i){
+		        	window.open(d.url);
+		        })
+
+			node.append("rect")
+				.attr("x", function (d) {
+			        return -sankey.nodeWidth()/2;
+			    })
+			    .attr("y", function (d) {
+			        return -sankey.nodeWidth()/2;
+			    })
+		      	.attr("width", sankey.nodeWidth())
+		      	.attr("height", sankey.nodeWidth())
+		      	.style("fill", function(d) {
+		      		return d.color = color(d.name.substring(2, d.name.length));
+		      	})
+		    	.append("title")
+				.text(function(d) {
+					return 'Project: ' + d.name 
+					+ '\nCASC: ' + d.casc.replace(' CASC', '') 
+					+ '\nFiscal Year: ' + d.fy;
+				});
+
+		    // the function for moving the nodes
+		    function dragmove(d) {
+		        d3.select(this).attr("transform",
+		            "translate(" + (
+		        d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))) + "," + (
+		        d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+		        sankey.relayout();
+		        link.attr("d", path);
+		    };
+
+		    function highlight_node_links(node, i, thisnode, mode){
+			    var remainingNodes=[],
+			        nextNodes=[];
+
+			    var stroke_opacity = 0;
+			    if ( d3.select(thisnode).attr(mode) == "1" ) {
+			    	d3.select(thisnode).attr(mode,"0");
+			    	stroke_opacity = 0.2;
+			    	if (mode==="click") {
+			    		d3.select(thisnode)
+			    		.on("mouseover",function(d,i) {
+			    			var interact_mode="hover";
+			    			highlight_node_links(d,i,this,interact_mode);
+			    		})
+			    		.on("mouseout",function(d,i) {
+			    			var interact_mode="hover";
+			    			highlight_node_links(d,i,this,interact_mode);
+			    		})
+			    	}
+			    }
+			    else {
+			    	d3.select(thisnode).attr(mode,"1");
+			    	stroke_opacity = 0.7;
+			    	if (mode==="click") d3.select(thisnode).on("mouseover",null);
+			    	if (mode==="click") d3.select(thisnode).on("mouseout",null);
+			    }
+
+			    var traverse = [{
+			                      linkType : "sourceLinks",
+			                      nodeType : "target"
+			                    },{
+			                      linkType : "targetLinks",
+			                      nodeType : "source"
+			                    }];
+
+			    traverse.forEach(function(step) {
+			    	node[step.linkType].forEach(function(link) {
+			    		remainingNodes.push(link[step.nodeType]);
+			    		highlight_link(link.id, stroke_opacity);
+			    	});
+
+			    });
+			}
+
+			function highlight_link(id, opacity) {
+				d3.select("#link-"+id).style("stroke-opacity", opacity);
+			}
+
+		    function updateLinks() {
+		    	d3.select(".links").selectAll("path").remove();
+		    	d3.select(".links").selectAll(".link")
+		    	.data(graph.links)
+		        .enter()
+		        .append("path")
+		        .attr("id", function(d,i){
+		        	d.id = i;
+		        	return "link-"+i;
+		        })
+		        .filter(function(d){ return d.value > $("#slider").slider("value");})
+		        .attr("class", "link")
+		        .attr("d", path)
+		        .style("fill", "none")
+		        .style("stroke", "tan")
+		        .style("stroke-opacity", ".33")
+		        .on("mouseover", function() { d3.select(this).style("stroke-opacity", ".7") } )
+		        .on("mouseout", function() { d3.select(this).style("stroke-opacity", ".2") } )
+		        .style("stroke-width", function (d) {
+		            return linkScale(d.value);
+		        })
+		        .sort(function (a, b) {
+		            return b.dy - a.dy;
+		        })
+		        .on("click",function(d, i){
+		        	displayModal(d);
+		        })
+		        .append("title")
+		        .text(function (d) {
+		        	source_casc = d.source.casc.replace(' CASC', '');
+		        	target_casc = d.target.casc.replace(' CASC', '');
+		            return source_casc + ' (FY '+ d.source.fy + '): ' + d.source.name + '\n' 
+		            + target_casc + ' (FY ' + d.target.fy + '): ' + d.target.name + '\n' 
+		            + 'Similarity: ' + d.value.toFixed(2) + '%';
+		        });
+		    }
+			    
+			// show proj_counts
+			var proj_counts = document.getElementById('proj_counts');
+			var count_details = '<h6>' + casc1 + ': ' + graph['num_sources'] + ' projects, ';
+			count_details += casc2 + ': ' + graph['num_targets'] + ' projects</h6>';
+			proj_counts.getElementsByTagName('p')[0].innerHTML = count_details;
+			proj_counts.style.fontSize = 'x-small';
+			proj_counts.style.display = 'block';
+
+		});
+	
+		// show filter div
+		document.getElementById('filter').style.display = 'block';
+		// show tips
+		document.getElementById('tips').style.display = 'block';
+	}
+
+	function displayModal(d) {
+
+		console.log(d.matches);
+
+		// set modal title
+		$('.projModal-header h5').html('Project Details (similarity: ' + d.value.toFixed(2) + '%)');
+
+		// Remove previous modal contents
+		proj1_details = document.getElementById('proj1_details');
+		proj2_details = document.getElementById('proj2_details');
+
+		while (proj1_details.firstChild) {
+			proj1_details.removeChild(proj1_details.firstChild);
+		}
+		while (proj2_details.firstChild) {
+			proj2_details.removeChild(proj2_details.firstChild);
+		}
+
+		// Append new content
+
+		// Project 1 details
+		// header line
+		details = '<h6><b>';
+		details += d.source.casc.replace(' CASC', '') + ' project (FY ' + d.source.fy + '): ';
+		details += '<br><p><a href = "' + d.source.url + '" target = "_blank">' + d.source.name + '</a></p>';
+		details += '</b></h6>';
+		// project summary
+		details += '<h6><b>Project Summary:</b><p>' + d.source.summary + '</p><br>';
+		// project datasets
+		details += '<b>Approved Datasets</b> (' + d.source.num_items + ')<br><br>';
+
+		items = d.source.items;
+
+		for (var item_id of Object.keys(items)){
+			details += '<li><a href = "' + items[item_id].url + '" target = "_blank">' + items[item_id].title + '</a></li><br>';
+		}
+
+		details += '</h6>';
+
+		proj1_details.innerHTML = details;
+
+		// Project 2 details
+		details = '<hr>';
+		// header line
+		details += '<h6><b>';
+		details += d.target.casc.replace(' CASC', '') + ' project (FY ' + d.target.fy + '): ';
+		details += '<br><p><a href = "' + d.target.url + '" target = "_blank">' + d.target.name + '</a></p>';
+		details += '</b></h6>';
+		// project summary
+		details += '<h6><b>Project Summary:</b><br><p>' + d.target.summary + '</p><br>';
+		// project datasets
+		details += '<b>Approved Datasets</b> (' + d.target.num_items + ')<br><br>';
+
+		items = d.target.items;
+
+		for (var item_id of Object.keys(items)){
+			details += '<li><a href = "' + items[item_id].url + '" target = "_blank">' + items[item_id].title + '</a></li><br>';
+		}
+
+		details += '</h6>';
+
+		proj2_details.innerHTML = details;
+
+		// Add close functionality to the modal's close button
+		var span = $('#modal').find('.close');
+		span.on('click', function() {
+			let modal = document.getElementById('modal');
+			modal.style.display = 'none';
+		})
+
+		// Display the modal
+		document.getElementById('modal').style.display = 'block';
+	}
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+		if ($(event.target).hasClass('projModal')) {
+			let modal = document.getElementById(event.target.id);
+			modal.style.display = 'none';
+		}
+	}
+
+	let currentPage = document.getElementById('Nav-Proj-Compare');
+	currentPage.classList.add("currentPage");
+
+</script>
+
+{% endblock %}
