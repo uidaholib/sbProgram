@@ -2,18 +2,27 @@
 
 <div>
 
-  <h1>sbMACRO Database Update</h1>
+  <h4>sbMACRO Database Update</h4>
 
   <br>
 
-  <p>The master details table will be updated.</p>
+  {% if update_search_table %}
+    <p>- The search table will be updated</p>
+  {% endif %}
+
+  {% if update_graphs %}
+    <p>- The project comparison graphs will be updated</p>
+  {% endif %}
+
+  {% if update_proj_matches %}
+    <p>- The project match dictionaries will be updated</p>
+  {% endif %}
 
   {% if cascs_to_update %}
-    <p>The following CASC(s) will also be updated:</p>
+    <p>- The following CASC(s) will be updated (estimated duration: {{ cascs_to_update|length * 1.5 }} minutes):</p>
     {% for casc in cascs_to_update %}
       <li>{{ casc }}</li>
     {% endfor %}
-    Estimated update duration: {{ cascs_to_update|length * 1.5 }} minutes
   {% endif %}
 
   <br>

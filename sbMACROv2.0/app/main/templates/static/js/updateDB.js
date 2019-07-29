@@ -15,28 +15,27 @@
 
 function processForm(e) {
     
-    // const boxes = document.getElementsByClassName("FY-Checkbox");
-    // console.log(boxes);
-    // let anyChecks = false;
-    // for(var i = 0; i < boxes.length; i++)
-    // {   
-    //     if(boxes[i].checked===true)
-    //     {
-    //         anyChecks = true;
-    //         console.log(boxes[i].checked);
-    //     }
-    // }
-    // if(anyChecks===true)
-    // {// You must return true to allow the default form behavior
-    //     return true;
-    // }
-    // else {
-    //     if (e.preventDefault) e.preventDefault();
-    //     DontShowLoading();
-    //     alert("Select at least one CASC");
-    //     // You must return false to prevent the default form behavior
-    //     return false;
-    // }
+    const boxes = document.getElementsByClassName("FY-Checkbox");
+    console.log(boxes);
+    let anyChecks = false;
+    for(var i = 0; i < boxes.length; i++)
+    {   
+        if(boxes[i].checked===true)
+        {
+            anyChecks = true;
+            console.log(boxes[i].checked);
+        }
+    }
+    if(anyChecks===true)
+    {
+        return true;
+    }
+    else {
+        if (e.preventDefault) e.preventDefault();
+        DontShowLoading();
+        alert("Nothing selected");
+        return false;
+    }
     /* do what you want with the form */
     
 }
