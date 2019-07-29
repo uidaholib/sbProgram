@@ -12,7 +12,7 @@ sys.path.insert(0, LOC)
 
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem, PrincipalInvestigator, MasterDetails, ProjectDetails
-from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs, refresh_master_tables
+from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs, update_search_table, update_graphs
 from config import Config
 
 
@@ -57,7 +57,7 @@ APP = App()
 # python -m cProfile -o ../test_files/profile_output.txt __init__.py
 # Then cd to test_files and run:
 # python profiler_datawrangle.py > profiler_report.txt; python profiler_datawrangle2.py
-def start(defined=None):
+def start(defined = None):
     """Start new sb_data_gather instance.
 
     Depending on the provided argument, this function calls either
@@ -72,15 +72,25 @@ def start(defined=None):
     else:
         defined_hard_search(APP)
 
-def update_master_tables(source = None):
+def graphs_update():
+    """Refresh project comparison graph files
+    """
+    update_graphs()
+
+def search_table_update(source = None):
     """Refresh database MasterDetails table
     Args:
         source -- 'file' if update should be done from local saved copy of file details
                   'sciencebase' if update should be done from sciencebase servers
     """
-    refresh_master_tables(APP, source)
+    update_search_table(APP, source)
 
-def update(casc_list = None):
+def proj_matches_update():
+    """Refresh proj_dataset_matches.json
+    """
+    update_proj_dataset_matches()
+
+def casc_update(casc_list = None):
     """Start new sb_data_gather instance.
     Args:
         casc_list -- List of cascs to be updated.

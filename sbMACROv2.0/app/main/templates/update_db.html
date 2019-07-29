@@ -16,16 +16,17 @@
 <h4>sbMACRO Database Update</h4>
 
 <br>
-<h5><b>Clicking 'Submit' will update the Master Search Tables by default</b>. You may select CASCs to be updated in addition.</h5>
+<h5>Select desired update(s) and click 'SUBMIT'</h5>
 <br>
 
-<h6>Select CASC(s) to update:</h6>
 <form method="POST" id="CASC-Select-Form">
 
   <div class="row">
+
     <div class="col s4 m4 l4">
         <div class="card blue-grey lighten-4">
             <div class="card-content">
+              Select CASC(s) to update<br>
               {% for casc_name in list_of_cascs: %}
                   {% set field_name = casc_name %}
                   {% set field = form|attr(field_name) %}
@@ -34,6 +35,37 @@
             </div>
         </div>
     </div>
+
+    <div class="col s4 m4 l4">
+
+      <div class="card blue-grey lighten-4">
+        <div class="card-content">
+          {% set field_name = 'update_search_table' %}
+          {% set field = form|attr(field_name) %}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Search Table') }}
+        </div>
+      </div>
+
+      <div class="card blue-grey lighten-4">
+        <div class="card-content">
+          {% set field_name = 'update_graphs' %}
+          {% set field = form|attr(field_name) %}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Comparison Graphs') }}
+        </div>
+      </div>
+
+      <div class="card blue-grey lighten-4">
+        <div class="card-content">
+          {% set field_name = 'update_proj_matches' %}
+          {% set field = form|attr(field_name) %}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Match Dictionaries') }}
+          <br><br>
+          <p>To ensure synchronized data, it is advisable to update the search table before updating the project dictionaries</p>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
   <div class = "row">
@@ -43,28 +75,8 @@
 
 </form>
 
-<!-- <h5>OR:</h5>
-
-<div>
-  <a id = "refresh_master_details" 
-  class = "waves-effect waves-light btn" 
-  onclick = "refresh_master_details()">Refresh_Search_Tables</a>
-</div>
-<br> -->
-
 <script src="{{ url_for('main.static', filename='js/updateDB.js') }}"></script>
 <script>
-
-  // function refresh_master_details() {
-  //   var someVar = $.ajax({
-  //      method: "POST",
-  //      url: "{{ url_for('main.update_db') }}",
-  //      async: true,
-  //      data: { refresh_master_details: 'yes' }
-  //   });
-
-  //   return ' ';
-  // }
 
   let currentPage = document.getElementById('Nav-Update');
   currentPage.classList.add("currentPage");

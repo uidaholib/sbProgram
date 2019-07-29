@@ -21,7 +21,7 @@ from app.main.metadata import write_metadata
 from app.main.forms import EditProfileForm, FyForm, GeneralForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
-from app.updater.__init__ import update, update_master_tables
+from app.updater.__init__ import casc_update, search_table_update, graphs_update, proj_matches_update
 import multiprocessing
 
 from nltk.corpus import stopwords
@@ -159,6 +159,9 @@ def fiscalyear():
 def update_db():
     """Retrieve CASCs and display for selection by user."""
 
+    update_graphs = False
+    update_search_table = False
+    update_proj_matches = False
     cascs_to_update = []
 
     list_of_cascs = ['Alaska', 'North Central', 'Northeast', 'Northwest', 'Pacific', 'South Central', 'Southeast', 'Southwest', 'National']
@@ -166,11 +169,25 @@ def update_db():
     class F(FyForm):
         pass
 
+    # set form attributs for 'update_search_table' checkbox
+    setattr(F, str('update_search_table'), BooleanField('update_search_table'))
+    # set form attributs for 'update_graphs' checkbox
+    setattr(F, str('update_graphs'), BooleanField('update_graphs'))
+    # set form attributs for 'update_proj_matches' checkbox
+    setattr(F, str('update_proj_matches'), BooleanField('update_proj_matches'))
+    # set form attributs for casc checkboxes
     for curr_casc in list_of_cascs:
         setattr(F, str(curr_casc), BooleanField(curr_casc))
 
     form = F()
     if form.validate_on_submit():
+
+        if getattr(form, 'update_search_table').data:
+            update_search_table = True
+        if getattr(form, 'update_graphs').data:
+            update_graphs = True
+        if getattr(form, 'update_proj_matches').data:
+            update_proj_matches = True
         
         for csc in list_of_cascs:
             csc_attr = getattr(form, csc)
@@ -179,6 +196,9 @@ def update_db():
             if selected:
                 cascs_to_update.append(csc)
 
+        session['update_graphs'] = update_graphs
+        session['update_search_table'] = update_search_table
+        session['update_proj_matches'] = update_proj_matches
         session['cascs_to_update'] = cascs_to_update
 
         return redirect(url_for('main.updates'))
@@ -193,22 +213,35 @@ def update_db():
 def updates():
     """Refresh master details table and update the cascs selected for update"""
 
-    print('Starting refresh process')
+    # --- select where to update from ---
+    source = 'sciencebase'
+    # source = 'file'
 
-    # source = 'sciencebase'
-    source = 'file'
+    update_graphs = session['update_graphs']
+    if update_graphs:
+        print('Starting graph update thread')
+        graph_upate_thread = multiprocessing.Process(target = graphs_update)
+        graph_upate_thread.start()
 
-    print('Starting thread thread')
-    master_refresh_thread = multiprocessing.Process(target = update_master_tables, args = (source,))
-    master_refresh_thread.start()
+    update_search_table = session['update_search_table']
+    if update_search_table:
+        print('Starting search table update thread')
+        search_table_update_thread = multiprocessing.Process(target = search_table_update, args = (source,))
+        search_table_update_thread.start()
+
+    update_proj_matches = session['update_proj_matches']
+    if update_proj_matches:
+        print('Starting project matches update thread')
+        proj_matches_update_thread = multiprocessing.Process(target = proj_matches_update)
+        proj_matches_update_thread.start()
 
     cascs_to_update = session['cascs_to_update']
     if cascs_to_update:
         print('Starting CASC updates...')
-        casc_update_thread = multiprocessing.Process(target = update, args = (cascs_to_update,))
+        casc_update_thread = multiprocessing.Process(target = casc_update, args = (cascs_to_update,))
         casc_update_thread.start()
 
-    return render_template("updates.html", cascs_to_update = cascs_to_update)
+    return render_template("updates.html", update_graphs = update_graphs, update_search_table = update_search_table, update_proj_matches = update_proj_matches, cascs_to_update = cascs_to_update)
 
 
 @bp.route('/casc_projects/<params>', methods = ['GET', 'POST'])
