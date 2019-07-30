@@ -580,7 +580,7 @@ def update_proj_dataset_matches():
     print('proj_dataset_matches done, saving to file...')
 
     # write proj_dataset_matches to file
-    with open('proj_dataset_matches.json', 'w') as output_file:
+    with open(file_path + 'proj_dataset_matches.json', 'w') as output_file:
         json.dump(proj_dataset_matches, output_file)
     print('proj_dataset_matches written to proj_dataset_matches.json')
 

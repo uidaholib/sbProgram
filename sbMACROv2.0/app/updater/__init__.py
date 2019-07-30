@@ -1,18 +1,18 @@
 """Initialization file for sb_data_gather package."""
-import sys
 import os
+import sys
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 # from tests import test_old_v_new_data
 
-LOC = os.path.dirname(os.path.realpath(__file__)) # LOC is 'updater'
+LOC = os.path.dirname(os.path.realpath(__file__)) # LOC is originally 'updater'
 LOC = os.path.dirname(LOC) # LOC is now 'app'
 LOC = os.path.dirname(LOC) # LOC is now 'sbMACRO'
 sys.path.insert(0, LOC)
 
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem, PrincipalInvestigator, MasterDetails, ProjectDetails
-from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs, update_search_table, update_graphs
+from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs, update_search_table, update_graphs, update_proj_dataset_matches
 from config import Config
 
 
@@ -119,5 +119,5 @@ def run_tests():
 
 
 if __name__ == "__main__":
-    update()
+    pass
     # start()

@@ -12,7 +12,6 @@ from wtforms.validators import ValidationError, DataRequired, Length, Email
 from wtforms.validators import Optional
 from app import db
 
-
 from app.main.forms import EditProfileForm, FyForm, SearchForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile, MasterDetails
 
