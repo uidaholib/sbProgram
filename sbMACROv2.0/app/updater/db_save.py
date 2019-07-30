@@ -16,7 +16,10 @@ def save_master_details(app, item_details):
     errors = set()
 
     for detail in item_details:
-        try:
+
+        item_row = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == detail['id']).first()
+
+        if item_row is None:
             sb_id = detail['id']
             parentId = detail['parentId']
             projectId = detail['proj_id']
@@ -62,29 +65,84 @@ def save_master_details(app, item_details):
                                             CI = CI)
             app.db.session.add(detail_row)
             changes_made = True
-        except Exception as e:
-            errors.add(e)
+        else:
+            if item_row.parentId != detail['parentId']:
+                item_row.parentId = detail['parentId']
+                changes_made = True
+            if item_row.projectId != detail['proj_id']:
+                item_row.projectId = detail['proj_id']
+                changes_made = True
+            if item_row.projectTitle != detail['proj_title']:
+                item_row.projectTitle = detail['proj_title']
+                changes_made = True
+            if item_row.projectSize != detail['proj_size']:
+                item_row.projectSize = detail['proj_size']
+                changes_made = True
+            if item_row.num_files != detail['num_files']:
+                item_row.num_files = detail['num_files']
+                changes_made = True
+            if item_row.start_date != detail['start_date']:
+                item_row.start_date = detail['start_date']
+                changes_made = True
+            if item_row.end_date != detail['end_date']:
+                item_row.end_date = detail['end_date']
+                changes_made = True
+            if item_row.pub_date != detail['pub_date']:
+                item_row.pub_date = detail['pub_date']
+                changes_made = True
+            if item_row.casc != detail['casc']:
+                item_row.casc = detail['casc']
+                changes_made = True
+            if item_row.fy != detail['FY']:
+                item_row.fy = detail['FY']
+                changes_made = True
+            if item_row.url != detail['url']:
+                item_row.url = detail['url']
+                changes_made = True
+            if item_row.xml_urls != detail['xml_urls']:
+                item_row.xml_urls = detail['xml_urls']
+                changes_made = True
+            if item_row.relatedItemsUrl != detail['relatedItemsUrl']:
+                item_row.relatedItemsUrl = detail['relatedItemsUrl']
+                changes_made = True
+            if item_row.title != detail['title']:
+                item_row.title = detail['title']
+                changes_made = True
+            if item_row.summary != detail['summary']:
+                item_row.summary = detail['summary']
+                changes_made = True
+            PI = ''
+            CI = ''
+            for contact in detail['contacts']:
+                if contact['type'] == 'Principal Investigator':
+                    PI = contact['name']
+                elif contact['type'] in ['Co-Investigator', 'Cooperator/Partner']:
+                    CI += contact['name'] + ';'
+            CI = CI.strip(';')
+            if item_row.PI != PI:
+                item_row.PI = PI
+                changes_made = True
+            if item_row.CI != CI:
+                item_row.CI = CI
+                changes_made = True
     
     if changes_made:
         app.db.session.commit()
-        print('Master details saved to database')
+        print('Search table details updated and saved to database')
     else:
-        print('Errors encountered:')
-        for e in errors:
-            print(e)
+        print('Search table details already up-to-date... no changes made')
 
-    print('Testing items...')
+    print('Testing search table with item id 57d84c15e4b090824ff9ac75:')
     test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '57d84c15e4b090824ff9ac75').first()
     if test is None:
-        print('nope!')
-        print('Done')
+        print('Not found! Something may be wrong')
     else:
-        print('Success:')
-        print(test.num_files)
-        print(test.start_date)
-        print(test.end_date)
-        print(test.pub_date)
-        print(test.xml_urls)
+        print('Success! Sample details for item id 57d84c15e4b090824ff9ac75:')
+        print('Number of files: {}'.format(test.num_files))
+        print('Start date: {}'.format(test.start_date))
+        print('End date: {}'.format(test.end_date))
+        print('Publication date: {}'.format(test.pub_date))
+        print('XML url(s): {}'.format(test.xml_urls))
         print('Done!')
 
 
@@ -97,10 +155,12 @@ def save_project_details(app, proj_details):
     """
     print('Saving project details to database...')
     changes_made = False
-    errors = set()
 
     for detail in proj_details:
-        try:
+
+        proj_row = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == detail['id']).first()
+    
+        if proj_row is None:
             sb_id = detail['id']
             casc = detail['casc']
             fy = detail['fy']
@@ -114,27 +174,35 @@ def save_project_details(app, proj_details):
                                             size = size)
             app.db.session.add(detail_row)
             changes_made = True
-        except Exception as e:
-            errors.add(e)
-    
+        else:
+            if proj_row.casc != detail['casc']:
+                proj_row.casc = detail['casc']
+                changes_made = True
+            if proj_row.fy != detail['fy']:
+                proj_row.fy = detail['fy']
+                changes_made = True
+            if proj_row.title != detail['title']:
+                proj_row.title = detail['title']
+                changes_made = True
+            if proj_row.size != detail['size']:
+                proj_row.size = detail['size']
+                changes_made = True
+
     if changes_made:
         app.db.session.commit()
-        print('Project details saved to database')
+        print('Project details updated and saved to database')
     else:
-        print('Errors encountered:')
-        for e in errors:
-            print(e)
+        print('Project details already up-to-date... no changes made')
 
-    print('Testing projects...')
+    print('Testing project details table with project id 521cf67ce4b01458f7858040:')
     test = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == '521cf67ce4b01458f7858040').first()
     if test is None:
-        print('nope!')
-        print('Done')
+        print('Not found! Something may be wrong')
     else:
-        print('Success:')
-        print(test.casc)
-        print(test.fy)
-        print(test.title)
+        print('Success! Sample details for project id 521cf67ce4b01458f7858040:')
+        print('CASC: {}'.format(test.casc))
+        print('Fiscal year: {}'.format(test.fy))
+        print('Title: {}'.format(test.title))
         print('Done!')
 
 def save_casc(app, fiscal_year):

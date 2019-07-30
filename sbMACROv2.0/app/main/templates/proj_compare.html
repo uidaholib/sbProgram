@@ -565,7 +565,7 @@
 		var svg = d3.select("#match_vis_div").append("svg").attr("width", 960).attr("height", 750).attr("id", "match_svg");
 		var g = svg.append("g").attr("transform","translate(200,50)");
 
-		var bp=viz.bP()
+		var bp = viz.bP()
 				.data(match_data)
 				.min(12)
 				.pad(1)
@@ -584,11 +584,12 @@
 				bp.mouseout(d);
 			})
 
-		g.selectAll(".mainBars").append("text").attr("class","label")
-			.attr("x",d=>(d.part=="primary"? -30: 30))
-			.attr("y",d=>+6)
-			.text(d=>d.key)
-			.attr("text-anchor",d=>(d.part=="primary"? "end": "start"));
+		g.selectAll(".mainBars").append("text")
+			.attr("class","label")
+			.attr("x", d => (d.part == "primary"? -30: 30))
+			.attr("y", d => +6)
+			.text(d => d.key)
+			.attr("text-anchor", d => (d.part == "primary"? "end": "start"));
 
 		d3.select(self.frameElement).style("height", "800px");
 
