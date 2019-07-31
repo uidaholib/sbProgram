@@ -1,8 +1,10 @@
 """Main module from which all Science Base data gathering branches."""
 import os
+import re
 import time
 import json
 import pickle
+import pandas as pd
 import sciencebasepy
 import app.updater.gl
 from datetime import datetime
@@ -13,6 +15,9 @@ from difflib import SequenceMatcher
 from textblob import TextBlob
 from textblob.np_extractors import ConllExtractor
 from textblob.np_extractors import FastNPExtractor
+
+sb = sciencebasepy.SbSession()
+chars_to_exclude = ",:;()&-–.’'`=<>/"
 
 file_path = os.getcwd() + '/app/main/templates/static/'
 conll = ConllExtractor()
@@ -36,6 +41,7 @@ def update_graphs():
 
     processed = set()
 
+    start = time.time()
     for casc1 in cascs:
         for casc2 in cascs:
             if casc1 == casc2 or casc2 in processed:
@@ -44,6 +50,14 @@ def update_graphs():
             
         processed.add(casc1)
     print('Graph updates completed!')
+
+    end = time.time()
+
+    duration = end - start
+    mins = int(duration/60)
+    secs = duration % 60
+
+    print('\nProject comparison graphs updated in {} minutes and {} seconds'.format(mins, secs))
 
 def create_graph(casc1, casc2):
     
@@ -75,7 +89,7 @@ def create_graph(casc1, casc2):
             proj_details2[proj_id] = {'title': proj_dict[proj_id]['title'], 'summary': proj_dict[proj_id]['summary'], 'casc': proj_dict[proj_id]['casc'], 'fy': proj_dict[proj_id]['fy'], 'url': proj_dict[proj_id]['url']}
             graph['num_targets'] += 1
             
-    print('{} sources, {} targets\n'.format(graph['num_sources'], graph['num_targets']))
+    print('{} sources, {} targets'.format(graph['num_sources'], graph['num_targets']))
 
     # build node details
     print('collecting node details...')
@@ -133,9 +147,21 @@ def create_graph_links(proj_details1, proj_details2):
     for id1 in proj_details1:
         node1 = proj_details1[id1]['node']
         text1 = proj_details1[id1]['summary']
+        # remove odd characters
+        for ch in chars_to_exclude:
+            if ch in text1:
+                text1 = text1.replace(ch, ' ')
+        # exclude single-letter words
+        text1 = ' '.join([word for word in text1.split() if len(word) > 1])
         for id2 in proj_details2:
             node2 = proj_details2[id2]['node']
             text2 = proj_details2[id2]['summary']
+            # remove odd characters
+            for ch in chars_to_exclude:
+                if ch in text2:
+                    text2 = text2.replace(ch, ' ')
+            # exclude single-letter words
+            text2 = ' '.join([word for word in text2.split() if len(word) > 1])
             sim, matches = get_similarity(text1, text2)
             graph_links.append({'source': node1, 'target': node2, 'value': sim, 'matches': matches})
             
@@ -211,7 +237,7 @@ def update_search_table(app, source):
 
 def get_details_from_source():
 
-    print('Collecting details...')
+    print('Collecting details from sciencebase...')
 
     casc_ids = {
         'Alaska':        '4f831626e4b0e84f6086809b',
@@ -276,7 +302,7 @@ def get_details_from_source():
 
     # write proj_details_list and item_details_list to file
     with open(file_path + 'proj_dict.pkl', 'wb') as output_file:
-        pickle.dump(proj_dict, output_file)
+        pickle.dump(proj_details_list, output_file)
     print('proj_details_list written to proj_dict.pkl')
     with open(file_path + 'master_details_full.pkl', 'wb') as output_file:
         pickle.dump(item_details_list, output_file)
@@ -295,12 +321,15 @@ def process_casc_ids(casc_ids, proj_details_list, item_details_list, proj_jsons,
         fy_ids = sb.get_child_ids(casc_id)
         num_items = process_proj_ids(casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
         total_items += num_items
-        print('\n========={} itmes=========\n'.format(num_items))
+        print('{} processed ({} items)\n'.format(casc, num_items))
+
     return total_items
 
 def process_proj_ids(casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
+    
+    print('Processing: {}'.format(casc))
+
     num_items = 0
-    print(casc + ':')
     for fy_id in fy_ids:
         time.sleep(pause_duration) # to ease pressure on sciencebase servers
         fy_json = sb.get_item(fy_id)
@@ -308,11 +337,11 @@ def process_proj_ids(casc, fy_ids, proj_details_list, item_details_list, proj_js
         if fy.isnumeric():
             proj_ids = sb.get_child_ids(fy_id)
             num_items += process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
+
     return num_items
 
 def process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
     num_items = 0
-
     for proj_id in proj_ids:
         #-----build project details-----
         approved_dataset_items = []
@@ -382,6 +411,7 @@ def get_approved_items(dataset_id):
 def collect_item_details(casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration):
     
     num_items = 0
+
     for item_id in approved_dataset_items:
         #-----build item details-----
         item_details = {}
@@ -513,6 +543,7 @@ def update_proj_dataset_matches():
         proj_dict = json.load(input_file)
 
     print('Building proj_dataset_matches...')
+    start = time.time()
     for pid in proj_dict:
         num_items = 0
         item_weighted_sims = []
@@ -578,6 +609,14 @@ def update_proj_dataset_matches():
         proj_dataset_matches[pid]['avg_item_sim'] = 0 if len(item_weighted_sims) == 0 else round(sum(item_weighted_sims)/len(item_weighted_sims), 4)
 
     print('proj_dataset_matches done, saving to file...')
+
+    end = time.time()
+
+    duration = end - start
+    mins = int(duration/60)
+    secs = duration % 60
+
+    print('\nProject match dictionary update completed in {} minutes and {} seconds'.format(mins, secs))
 
     # write proj_dataset_matches to file
     with open(file_path + 'proj_dataset_matches.json', 'w') as output_file:

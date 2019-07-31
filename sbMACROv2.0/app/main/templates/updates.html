@@ -7,7 +7,14 @@
   <br>
 
   {% if update_search_table %}
-    <p>- The search table will be updated</p>
+    <p>- The search table will be updated
+      <i>
+        <br>&nbsp&nbsp&nbsp&nbsp&nbsp The data will be updated by querying the sciencebase servers,
+        <br>&nbsp&nbsp&nbsp&nbsp&nbsp and in order to keep from overwhelming the servers, the query
+        <br>&nbsp&nbsp&nbsp&nbsp&nbsp frequency has been throttled. Estimated update duration is 
+        <br>&nbsp&nbsp&nbsp&nbsp&nbsp 1 hour 45 minutes.
+      </i>
+    </p>
   {% endif %}
 
   {% if update_graphs %}

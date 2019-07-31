@@ -17,6 +17,7 @@
 
 <br>
 <h5>Select desired update(s) and click 'SUBMIT'</h5>
+<p>To ensure synchronized data, it is advisable to update the master table before updating the project graphs or dictionaries</p>
 <br>
 
 <form method="POST" id="CASC-Select-Form">
@@ -42,7 +43,7 @@
         <div class="card-content">
           {% set field_name = 'update_search_table' %}
           {% set field = form|attr(field_name) %}
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Search Table') }}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Master Table') }}
         </div>
       </div>
 
@@ -59,8 +60,6 @@
           {% set field_name = 'update_proj_matches' %}
           {% set field = form|attr(field_name) %}
           {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Match Dictionaries') }}
-          <br><br>
-          <p>To ensure synchronized data, it is advisable to update the search table before updating the project dictionaries</p>
         </div>
       </div>
 
