@@ -223,21 +223,26 @@ def rescale(num, old_min, old_max, new_min, new_max):
 def update_search_table(app, source):
 
     # load or collect details
-    if source == 'file':
-        items_file_path = file_path + 'master_details_full.pkl'
-        projs_file_path = file_path + 'proj_details.pkl'
-        item_details = load_details_from_file(items_file_path)
-        proj_details = load_details_from_file(projs_file_path)
-    elif source == 'sciencebase':
-        item_details, proj_details = get_details_from_source()
+    # if source == 'file':
+    #     items_file_path = file_path + 'master_details_full.pkl'
+    #     projs_file_path = file_path + 'proj_dict.pkl'
+    #     item_details = load_details_from_file(items_file_path)
+    #     proj_details = load_details_from_file(projs_file_path)
+    # elif source == 'sciencebase':
+    item_details, proj_details = get_details(source)
 
     # write details to database
     db_save.save_master_details(app, item_details)
     db_save.save_project_details(app, proj_details)
 
-def get_details_from_source():
+    print('===== Master table update completed =====')
 
-    print('Collecting details from sciencebase...')
+def get_details(source):
+
+    msg = 'Collecting details'
+    msg += '...' if source == 'file' else ' from sciencebase...'
+
+    print(msg)
 
     casc_ids = {
         'Alaska':        '4f831626e4b0e84f6086809b',
@@ -254,30 +259,39 @@ def get_details_from_source():
     proj_details_list = []
     item_details_list = []
 
-    # dictionaries to save sb json files (to avoid having to go back to sciencebase for trivial updates)
+    # create empty dictionaries to save sb json files
+    # (to avoid having to go back to sciencebase for trivial updates)
     proj_jsons = {}
     item_jsons = {}
+
+    if source == 'file':
+        # read from files instead - no need to save from sciencebase along the way
+        with open(file_path + 'proj_jsons.json') as input_file:
+            proj_jsons = json.load(input_file)
+        with open(file_path + 'item_jsons.json') as input_file:
+            item_jsons = json.load(input_file)
 
     pause_duration = 2  # duration in seconds
 
     start = time.time()
-    total_items = process_casc_ids(casc_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
+    total_items = process_casc_ids(source, casc_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
     end = time.time()
 
     duration = end - start
     mins = int(duration/60)
     secs = duration % 60
 
-    print('\n{} total items collected in {} minutes and {} seconds'.format(total_items, mins, secs))
+    print('\n===== {} total items collected in {} minutes and {} seconds =====\n\n'.format(total_items, mins, secs))
 
     #========== Save data ==========
+    print('===== Saving data =====')
 
     # build and save dictionary of project and item details
     html_tags = re.compile('<.*?>')
     print('Building proj_dict...')
     proj_dict = {}
     for proj_detail in proj_details_list:
-        proj_dict[proj_detail['id']] = {'title': proj_detail['title'], 'size': proj_detail['size'], 'casc': proj_detail['casc'], 'fy': proj_detail['fy'], 'summary': re.sub(html_tags, '', proj_detail['summary']).replace('\n', ' ').replace('&nbsp;', ' ')}
+        proj_dict[proj_detail['id']] = {'title': proj_detail['title'], 'size': proj_detail['size'], 'casc': proj_detail['casc'], 'fy': proj_detail['fy'], 'summary': re.sub(html_tags, '', proj_detail['summary']).replace('\n', ' ').replace('&nbsp;', ' '), 'url': proj_detail['url']}
     # save proj_dict to file
     with open(file_path + 'proj_dict.json', 'w') as output_file:
         json.dump(proj_dict, output_file)
@@ -287,18 +301,19 @@ def get_details_from_source():
     item_dict = {}
     for item_detail in item_details_list:
         item_dict[item_detail['id']] = {'title': item_detail['title'], 'contacts': item_detail['contacts'], 'casc': item_detail['casc'], 'fy': item_detail['FY'], 'summary': re.sub(html_tags, '', item_detail['summary']).replace('\n', ' ').replace('&nbsp;', ' '), 'url': item_detail['url'], 'parentId': item_detail['parentId'], 'proj_id': item_detail['proj_id'], 'purpose': item_detail['purpose'], 'relatedItemsUrl': item_detail['relatedItemsUrl']}
-    # save proj_dict to file
+    # save item_dict to file
     with open(file_path + 'item_dict.json', 'w') as output_file:
         json.dump(item_dict, output_file)
     print('item_dict written to item_dict.json')
 
-    # write proj and item jsons to file
-    with open(file_path + 'proj_jsons.json', 'w') as output_file:
-        json.dump(proj_jsons, output_file)
-    print('proj_jsons written to proj_jsons.json')
-    with open(file_path + 'item_jsons.json', 'w') as output_file:
-        json.dump(item_jsons, output_file)
-    print('item_jsons written to item_jsons.json')
+    if source == 'sciencebase': # we have created new proj and item jsons
+        # write proj and item jsons to file
+        with open(file_path + 'proj_jsons.json', 'w') as output_file:
+            json.dump(proj_jsons, output_file)
+        print('proj_jsons written to proj_jsons.json')
+        with open(file_path + 'item_jsons.json', 'w') as output_file:
+            json.dump(item_jsons, output_file)
+        print('item_jsons written to item_jsons.json')
 
     # write proj_details_list and item_details_list to file
     with open(file_path + 'proj_dict.pkl', 'wb') as output_file:
@@ -306,11 +321,13 @@ def get_details_from_source():
     print('proj_details_list written to proj_dict.pkl')
     with open(file_path + 'master_details_full.pkl', 'wb') as output_file:
         pickle.dump(item_details_list, output_file)
-    print('item_details_list written to master_details_full.pkl')        
+    print('item_details_list written to master_details_full.pkl') 
+
+    print()       
 
     return item_details_list, proj_details_list
 
-def process_casc_ids(casc_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
+def process_casc_ids(source, casc_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
     
     total_items = 0
     for casc in casc_ids:
@@ -319,13 +336,13 @@ def process_casc_ids(casc_ids, proj_details_list, item_details_list, proj_jsons,
         casc += ' CASC'
         time.sleep(pause_duration)
         fy_ids = sb.get_child_ids(casc_id)
-        num_items = process_proj_ids(casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
+        num_items = process_proj_ids(source, casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
         total_items += num_items
         print('{} processed ({} items)\n'.format(casc, num_items))
 
     return total_items
 
-def process_proj_ids(casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
+def process_proj_ids(source, casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
     
     print('Processing: {}'.format(casc))
 
@@ -336,11 +353,11 @@ def process_proj_ids(casc, fy_ids, proj_details_list, item_details_list, proj_js
         fy = fy_json['title'].split()[1]
         if fy.isnumeric():
             proj_ids = sb.get_child_ids(fy_id)
-            num_items += process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
+            num_items += process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
 
     return num_items
 
-def process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
+def process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
     num_items = 0
     for proj_id in proj_ids:
         #-----build project details-----
@@ -351,12 +368,19 @@ def process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_lis
         proj_details['casc'] = casc
         proj_details['fy'] = fy
         
-        time.sleep(pause_duration) # to ease pressure on sciencebase servers
-        proj_json = sb.get_item(proj_id)
-        proj_jsons[proj_id] = proj_json # save proj_json
+        if source == 'file':
+            proj_json = proj_jsons[proj_id]
+        else:
+            time.sleep(pause_duration) # to ease pressure on sciencebase servers
+            proj_json = sb.get_item(proj_id)
+            proj_jsons[proj_id] = proj_json # save proj_json
         
         proj_details['title'] = proj_json['title']
         proj_details['size'] = 0
+        try:
+            proj_details['url'] = proj_json['link']['url']
+        except:
+            proj_details['url'] = ''
         try:
             proj_files = proj_json['files']
             for proj_file in proj_files:
@@ -384,7 +408,7 @@ def process_approved_ids(casc, fy, proj_ids, proj_details_list, item_details_lis
             dataset_json = sb.get_item(dataset_id)
             if dataset_json['title'].lower() == 'approved datasets':
                 approved_dataset_items = get_approved_items(dataset_id)
-                num_items += collect_item_details(casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration)
+                num_items += collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration)
         
     return num_items
 
@@ -408,7 +432,7 @@ def get_approved_items(dataset_id):
     
     return approved_items
 
-def collect_item_details(casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration):
+def collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration):
     
     num_items = 0
 
@@ -423,9 +447,12 @@ def collect_item_details(casc, fy, proj_id, proj_title, proj_size, approved_data
         item_details['proj_title'] = proj_title
         item_details['proj_size'] = proj_size
 
-        time.sleep(pause_duration) # to ease pressure on sciencebase servers
-        item_json = sb.get_item(item_id)
-        item_jsons[item_id] = item_json # save item_json
+        if source == 'file':
+            item_json = item_jsons[item_id]
+        else:
+            time.sleep(pause_duration) # to ease pressure on sciencebase servers
+            item_json = sb.get_item(item_id)
+            item_jsons[item_id] = item_json # save item_json
 
         try:
             item_details['title'] = item_json['title']
@@ -541,6 +568,8 @@ def update_proj_dataset_matches():
     item_details = pd.DataFrame(pd.read_pickle(file_path + 'master_details_full.pkl'))
     with open(file_path + 'proj_dict.json') as input_file:
         proj_dict = json.load(input_file)
+    with open(file_path + 'item_dict.json') as input_file:
+        item_dict = json.load(input_file)
 
     print('Building proj_dataset_matches...')
     start = time.time()

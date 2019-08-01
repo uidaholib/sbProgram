@@ -128,11 +128,11 @@ def save_master_details(app, item_details):
     
     if changes_made:
         app.db.session.commit()
-        print('Search table details updated and saved to database')
+        print('Master table updated and saved to database')
     else:
-        print('Search table details already up-to-date... no changes made')
+        print('Master table already up-to-date... no changes made')
 
-    print('Testing search table with item id 57d84c15e4b090824ff9ac75:')
+    print('Testing master table with item id 57d84c15e4b090824ff9ac75:')
     test = app.db.session.query(app.MasterDetails).filter(app.MasterDetails.sb_id == '57d84c15e4b090824ff9ac75').first()
     if test is None:
         print('Not found! Something may be wrong')
@@ -144,6 +144,7 @@ def save_master_details(app, item_details):
         print('Publication date: {}'.format(test.pub_date))
         print('XML url(s): {}'.format(test.xml_urls))
         print('Done!')
+        print()
 
 
 def save_project_details(app, proj_details):
@@ -204,6 +205,7 @@ def save_project_details(app, proj_details):
         print('Fiscal year: {}'.format(test.fy))
         print('Title: {}'.format(test.title))
         print('Done!')
+        print()
 
 def save_casc(app, fiscal_year):
     """Save CASC data to a database.
