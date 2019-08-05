@@ -11,6 +11,11 @@ from wtforms import BooleanField
 from wtforms.validators import ValidationError, DataRequired, Length, Email
 from wtforms.validators import Optional
 from app import db
+from lxml import etree
+import urllib
+import requests
+from xml.dom import minidom
+
 
 from app.main.forms import EditProfileForm, FyForm, SearchForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile, MasterDetails
@@ -22,6 +27,7 @@ from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
 from app.updater.__init__ import casc_update, search_table_update, graphs_update, proj_matches_update
 import multiprocessing
+import time
 
 from nltk.corpus import stopwords
 
@@ -1296,6 +1302,59 @@ def searchTable(query):
         user['summary']=i.summary
         user['url']=i.url
         user['ctitle']=i.title
+        user['xml']=i.xml_urls
+        if(i.xml_urls==''):
+            # print("no data")
+            user['xml']="Metadata Unavailable for this DataItem"
+            user['error']="No Validations"
+            user['curl']="No Xml Link Found"
+        else:
+            doc = etree.parse(os.path.join( '/home/sandy/Desktop/Sdn BaseTemplate/FGDC/FGDC-BDP/fgdc-std-001.1-1999.xsd'))
+            schema = etree.XMLSchema(doc)
+
+            #parse the url and convert to xml file 
+            url1=str(i.xml_urls)
+            URL = url1.split(',')[0]
+            user['curl']=URL
+            # print(URL)
+            try:
+                response = requests.get(URL)
+                with open('feed.xml', 'wb') as file:
+                    file.write(response.content)
+                # Schema to be validated.
+                custom = etree.parse(os.path.join('/home/sandy/Desktop/sbProgram/sbMACROv2.0/feed.xml'))
+
+                # Validate Schema
+                user['xml']=schema.validate(custom)
+                # print(schema.validate(custom))
+
+                def get_project(error):
+                    # return error.path.split('/')[-1]
+                    return error.message.split(':')[0].split(" ")[1].strip()
+
+
+                # If errors, we will find it in schema.error_log
+                user['error']=[]
+                for error in schema.error_log:
+                    # Mutiple attribute available in error
+                    # 'column', 'domain', 'domain_name', 'filename', 'level', 'level_name',
+                    # 'line', 'message', 'path', 'type', 'type_name'
+                    error1=str(error.message),"Error in Line Number: "+str(error.line)
+                    # print('ErrorMessage',error.message)
+                    user['error'].append(error1)           
+                result = {}
+                for error1 in schema.error_log:
+                    project = get_project(error1)
+                    if project not in result:
+                        result[project] = 0
+
+                    result[project] += 1
+                    # print(error.message)
+                # print(result)
+                user['countError']=str(result)
+            except:
+                user['cxml']="URL Associated with this Data Item is not working"
+                # print("url failed")
 
         if current_user.is_authenticated:
             if current_user.access_level > 0:
