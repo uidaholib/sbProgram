@@ -3,6 +3,10 @@
 <script src="{{ url_for('main.static', filename='js/reportSearchModal.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/projectSearchTable.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}" />
+<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> -->
+<!-- <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap"> -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script> -->
 
 <head>
     <h1>Search results for "{{ query }}":</h1>
@@ -24,6 +28,7 @@
             <th>Name</th>
             <th>More Info</th>
             <th style="display: none">Link</th>
+            <th>Validation Check</th>
             <th>Data in Project </th>
             <th>ChildItem</th>
         </thead>
@@ -37,14 +42,6 @@
         <div class="projModal-header">
             <span class="close">&times;</span>
             <h3 style="font-size: 6vh">Project Information</h3>
-        </div>
-        <div class="DMProw">
-            <div class="centered_container">
-                <span style="font-size: 3vh">DMP Status: </span>
-                <div class="DMPstatus DMPstatus_good">Approved</div>
-                <div class="DMPstatus DMPstatus_bad">Incomplete</div>
-                <div class="DMPstatus DMPstatus_neutral">Unknown / N/A</div>
-            </div>
         </div>
 
         <div class="row">
@@ -71,16 +68,42 @@
                 </span>
             </div>
         </div>
+        </br>
         <div class="row">
-            <div class="col s12 m6 l6 projModal_history">
-                <h5>Data Steward History</h5>
-                <p class="history"></p>
+            <div class="centered_container">
+                <span style="font-size: 2vh;">
+                    <strong>Metadata Validation Check: </strong><br />
+                    <span class="metadata" id="only_left_par"></span><br />
+                    <span class="url" id="only_left_par"></span>
+                </span>
             </div>
-            <div class="col s12 m6 l6">
-                <h5 style="font-size: 4vh">Uploaded Data Product Breakdown</h5>
-                <br />
-                <div id="modal_chart"></div>
+        </div>
+        <div class="row">
+            <div class="row">
+                <div class="col s12 m12 l12 ">
+                    <table>
+                        <tr>
+                            <strong>Validation Error Report</strong>
+                        </tr>
+                        <tr>
+                            <td class="countError" style="color:teal"></td></br>
+                        </tr>
+                    </table>
+                </div>
             </div>
+            <div class="row">
+                <div class=" col s12 m12 l12 ">
+                    <strong> Error Report With Line Numbers</strong>
+                     <ul>
+                        <li class="error" style="color: red; border: 2px solid red; padding: 5px"> </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m6 l6 projModal_history">
+            <h5>Data Steward History</h5>
+            <p class="history"></p>
         </div>
         <div class="row">
             <div class="col s12 m6 l6 projModal_potential_products">

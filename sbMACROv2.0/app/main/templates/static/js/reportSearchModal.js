@@ -60,6 +60,52 @@ function createModal(sbId, projectArray) {
   var summary = $('#' + modal_id).find('.summary')
   summary.text(project.summary)
 
+  // add errorReport
+  var errorTable = $('#' + modal_id).find('.error')
+  let perror = project.error
+  // console.log(perror)
+  if (perror) {
+    perror = project.error.toString()
+    perror = perror.replace(/,/g, '<p></p>')
+    errorTable.html(perror.replace(/\,/g, '<br/>'));
+  }
+
+  // add error Table
+  var errorTable2 = $('#' + modal_id).find('.countError')
+  var disp = project.countError
+  // console.log(disp)
+  if (disp == undefined) {
+    disp = "No data"
+    errorTable2.text(disp)
+  }
+  else if (disp) {
+    disp = disp.replace(/\'|\"|\{|\}/gi, '')
+
+    disp = disp.toUpperCase()
+    errorTable2.text(disp)
+  }
+
+  // add metadata
+  var metadata = $('#' + modal_id).find('.metadata')
+  var xmlData = project.xml.toString()
+  xmlData = xmlData.toUpperCase()
+  if (xmlData == 'TRUE') {
+    metadata.text("VALIDATION PASSED !").css("color", "green");
+  }
+  else if (xmlData == 'FALSE') {
+    metadata.text("VALIDATION FAILED ").css("color", "red");
+  }
+  else {
+    metadata.text("MetaData Item Not Found").css("color", "blue");
+  }
+  //add xml url
+  var xurl =  $('#' + modal_id).find('.url')
+  curl=project.curl.toString()
+  curl=curl.concat('&transform=1&allowOpen=true')
+  xurl.text(project.curl).wrap('<a href="' + curl + '" target="_blank"></a>')
+
+
+
   // add history
   var history = $('#' + modal_id).find('.history')
   let histText = project.history
@@ -108,7 +154,3 @@ window.onclick = function (event) {
     thead.style.display = 'table-header-group'
   }
 }
-
-// function closeModal(id) {
-
-// }
