@@ -17,6 +17,10 @@
 
 <br>
 <h5>Select desired update(s) and click 'SUBMIT'</h5>
+<p>
+  <li>Updates will happen in the background, so you can continue your work</li>
+  <li>To ensure synchronized data, it is advisable to update the master table before updating the project graphs or dictionaries</li>
+</p>
 <br>
 
 <form method="POST" id="CASC-Select-Form">
@@ -26,7 +30,8 @@
     <div class="col s4 m4 l4">
         <div class="card blue-grey lighten-4">
             <div class="card-content">
-              Select CASC(s) to update<br>
+              Select CASC(s) to update
+              <br>[Estimated duration: 1.5 mins per CASC]<br>
               {% for casc_name in list_of_cascs: %}
                   {% set field_name = casc_name %}
                   {% set field = form|attr(field_name) %}
@@ -42,7 +47,7 @@
         <div class="card-content">
           {% set field_name = 'update_search_table' %}
           {% set field = form|attr(field_name) %}
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Search Table') }}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Master Table<br>[Estimated duration: 1hr 45 mins]') }}
         </div>
       </div>
 
@@ -50,7 +55,7 @@
         <div class="card-content">
           {% set field_name = 'update_graphs' %}
           {% set field = form|attr(field_name) %}
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Comparison Graphs') }}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Comparison Graphs<br>[Estimated duration: 6 - 8 hrs]') }}
         </div>
       </div>
 
@@ -58,9 +63,7 @@
         <div class="card-content">
           {% set field_name = 'update_proj_matches' %}
           {% set field = form|attr(field_name) %}
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Match Dictionaries') }}
-          <br><br>
-          <p>To ensure synchronized data, it is advisable to update the search table before updating the project dictionaries</p>
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Match Dictionaries<br>[Estimated duration: 2 mins]') }}
         </div>
       </div>
 

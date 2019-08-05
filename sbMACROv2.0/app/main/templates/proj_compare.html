@@ -213,12 +213,17 @@
 
 		json_file = '';
 
-		if (cascs1.indexOf(casc1) < cascs1.indexOf(casc2)) {
-			json_file = casc1.toLowerCase().replace(' ', '_') + '_' + casc2.toLowerCase().replace(' ', '_') + '_' + 'proj_graph.json';
+		// To avoid redundancy and save space, only one graph file was created for each pair of cascs.
+		// For each pair (casc1, casc2), the files were named such that casc1 should appear before casc2 in the casc list array (cascs1)
+		// Hence to find the right graph file for each pair, we need to check the index if casc1 and casc2 and swap the names if necessary
+		if (cascs1.indexOf(casc1) > cascs1.indexOf(casc2)) {
+			// swap casc1 and casc2
+			temp = casc1
+			casc1 = casc2
+			casc2 = temp
 		}
-		else  {
-			json_file = casc2.toLowerCase().replace(' ', '_') + '_' + casc1.toLowerCase().replace(' ', '_') + '_' + 'proj_graph.json';
-		}
+
+		json_file = casc1.toLowerCase().replace(' ', '_') + '_' + casc2.toLowerCase().replace(' ', '_') + '_' + 'proj_graph.json';
 
 		file_name = '/static/main/project_graphs/' + json_file;
 
