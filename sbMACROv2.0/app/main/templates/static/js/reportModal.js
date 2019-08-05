@@ -78,7 +78,9 @@ function createModal(sbId, projectArray) {
   // add summary
   var summary = $('#' + modal_id).find('.summary')
   summary.text(project.summary)
-
+  
+  
+ 
   // add history
   var history = $('#' + modal_id).find('.history')
   let histText = project.history
@@ -150,7 +152,3 @@ window.onclick = function (event) {
     thead.style.display = 'table-header-group'
   }
 }
-
-// function closeModal(id) {
-
-// }
