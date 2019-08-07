@@ -120,6 +120,7 @@ def reset_password(token):
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user.set_password(form.password.data)
+        user.email_confirmed = True
         db.session.commit()
         return render_template(
             'successful_pass_reset.html', title="Password Reset")
