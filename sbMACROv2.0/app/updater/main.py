@@ -688,14 +688,18 @@ def update_cascs(app, casc_list):
 
     end = time.time()
 
-    print('Total time: ' + str(end - start))
+    duration = end - start
+    mins = int(duration/60)
+    secs = duration % 60
+
+    print('Total time: {} minutes and {} seconds'.format(mins, secs))
 
     if not fy_obj_list:
         print("""
 
     ===========================================================================
 
-                    CASC update completed.""")
+                    CASC update completed.\n""")
     #     exit(0)
     # print("WHY AM I HERE???")
     # assert False, "Should never get here!!!!"

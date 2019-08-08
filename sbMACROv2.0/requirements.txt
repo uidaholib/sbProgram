@@ -1,3 +1,4 @@
+mysqlclient
 alembic==1.0.10
 asn1crypto==0.24.0
 backports.csv==1.0.7
@@ -41,7 +42,6 @@ Mako==1.0.10
 MarkupSafe==1.1.1
 monotonic==1.5
 more-itertools==7.0.0
-mysqlclient==1.4.2
 nltk==3.4.3
 numpy==1.16.4
 oauthlib==3.0.1
