@@ -37,8 +37,8 @@ from pprint import pprint
 
 
 # my_root = os.path.dirname(os.path.abspath(__file__))
-# file_path = os.path.join(my_root, 'templates/static/')
-file_path = os.getcwd() + '/app/main/templates/static/'
+# path_to_static = os.path.join(my_root, 'templates/static/')
+path_to_static = os.getcwd() + '/app/main/templates/static/'
 
 
 @bp.before_app_request
@@ -79,7 +79,7 @@ def metadata():
     us_states_file_name = 'us-states.csv'
 
     us_states = []
-    with open(file_path + us_states_file_name, 'r') as file:
+    with open(path_to_static + us_states_file_name, 'r') as file:
         for state in file:
             us_states.append(state.strip().lower())
 
@@ -90,7 +90,7 @@ def metadata():
 
         metadata_urls = []
 
-        with open(file_path + url_file_name, 'r') as file:
+        with open(path_to_static + url_file_name, 'r') as file:
             for line in file:
                 casc, url = line.split(',')
                 if casc == casc_name:
@@ -1309,7 +1309,7 @@ def searchTable(query):
             user['error']="No Validations"
             user['curl']="No Xml Link Found"
         else:
-            doc = etree.parse(os.path.join( '/home/sandy/Desktop/Sdn BaseTemplate/FGDC/FGDC-BDP/fgdc-std-001.1-1999.xsd'))
+            doc = etree.parse(path_to_static + 'FGDC-BDP/fgdc-std-001.1-1999.xsd')
             schema = etree.XMLSchema(doc)
 
             #parse the url and convert to xml file 
@@ -1319,10 +1319,10 @@ def searchTable(query):
             # print(URL)
             try:
                 response = requests.get(URL)
-                with open('feed.xml', 'wb') as file:
+                with open(path_to_static + 'feed.xml', 'wb') as file:
                     file.write(response.content)
                 # Schema to be validated.
-                custom = etree.parse(os.path.join('/home/sandy/Desktop/sbProgram/sbMACROv2.0/feed.xml'))
+                custom = etree.parse(path_to_static + 'feed.xml')
 
                 # Validate Schema
                 user['xml']=schema.validate(custom)

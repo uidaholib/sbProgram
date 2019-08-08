@@ -26,7 +26,7 @@
   {% endif %}
 
   {% if cascs_to_update %}
-    <p>- The following CASC(s) will be updated (estimated duration: {{ cascs_to_update|length * 1.5 }} minutes):</p>
+    <p>- The following CASC(s) will be updated (estimated duration: {{ cascs_to_update|length * 2 }} minutes):</p>
     {% for casc in cascs_to_update %}
       <li>{{ casc }}</li>
     {% endfor %}

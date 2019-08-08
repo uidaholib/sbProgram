@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml packageId="KDM.4.2" system="knb" xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 eml.xsd"> <access authSystem="knb" order="allowFirst"> <allow><principal>public</principal>
+ <permission>read</permission>
+ </allow>
+ </access>
+ <dataset> <title>Water temperature at near town of Pateros, Methow River, WA USA, 1 January 2009 to 19 April 2013</title>
+ <creator id="1372267986299"> <individualName><salutation>Dr.</salutation>
+ <givenName>Patrick</givenName>
+ <surName>Connolly</surName>
+ </individualName>
+ <organizationName>USGS</organizationName>
+ <positionName>Research Fisheries Biologist</positionName>
+ <address><deliveryPoint>5501a Cook Underwood Rd</deliveryPoint>
+ <city>Cook</city>
+ <administrativeArea>Washington</administrativeArea>
+ <postalCode>98605</postalCode>
+ <country>USA</country>
+ </address>
+ <phone phonetype="voice">509 538-2299</phone>
+ <electronicMailAddress>pconnolly@usgs.gov</electronicMailAddress>
+ </creator>
+ <creator id="1372268117190"><individualName><salutation>Dr.</salutation>
+ <givenName>Joseph</givenName>
+ <surName>Benjamin</surName>
+ </individualName>
+ <positionName>Fishereis Biologist</positionName>
+ <address><city>Boise</city>
+ <administrativeArea>Idaho</administrativeArea>
+ </address>
+ <electronicMailAddress>joe@qcinc.org</electronicMailAddress>
+ </creator>
+ <creator id="1372268246942"><individualName><salutation>Mr.</salutation>
+ <givenName>Kyle</givenName>
+ <surName>Martens</surName>
+ </individualName>
+ <organizationName>USGS</organizationName>
+ <positionName>Fisheries Biologist</positionName>
+ <address><deliveryPoint>5501a Cook Underwood Rd</deliveryPoint>
+ <city>Cook</city>
+ <administrativeArea>Washington</administrativeArea>
+ <postalCode>98605</postalCode>
+ <country>USA</country>
+ </address>
+ <phone phonetype="voice">509 538-2299</phone>
+ <electronicMailAddress>kmartens@usgs.gov</electronicMailAddress>
+ </creator>
+ <abstract><para>This is the temperature data used in the science product &quot;Spatio-temporal variability in movement, age, and growth, of mountain whitefish (Prosopium williamsoni) in a river network based upon PIT tagging and otolith chemistry.</para>
+ </abstract>
+ <keywordSet><keyword>Mountain whitefish</keyword>
+ <keyword>Methow River</keyword>
+ <keyword>PIT tags</keyword>
+ <keyword>Otoloith chemistry</keyword>
+ <keyword>movment</keyword>
+ </keywordSet>
+ <keywordSet><keyword>water temperature data</keyword>
+ </keywordSet>
+ <intellectualRights><para>The data you have secured from the U.S. Geological Survey (USGS) database have not recieved USGS approval and as such are proovisional and subject to revision.  The data are released on the condition that neither the USGS nor the U.S. Government may be held liable for any damages resulting from its authorized or unauthorized use.</para>
+ </intellectualRights>
+ <coverage><geographicCoverage><geographicDescription>This study took place on the Methow Riverwatershed.  Some of the fish from this study moved into the Columbia and Entiait rivers.</geographicDescription>
+ <boundingCoordinates><westBoundingCoordinate>-116.375</westBoundingCoordinate>
+ <eastBoundingCoordinate>-111.375</eastBoundingCoordinate>
+ <northBoundingCoordinate>53.75</northBoundingCoordinate>
+ <southBoundingCoordinate>48.125</southBoundingCoordinate>
+ </boundingCoordinates>
+ </geographicCoverage>
+ <temporalCoverage><rangeOfDates><beginDate><calendarDate>2009-03-01</calendarDate>
+ </beginDate>
+ <endDate><calendarDate>2013-04-30</calendarDate>
+ </endDate>
+ </rangeOfDates>
+ </temporalCoverage>
+ </coverage>
+ <contact><references>1372267986299</references>
+ </contact>
+ <contact><references>1372268246942</references>
+ </contact>
+ <contact><references>1372268117190</references>
+ </contact>
+ <methods><methodStep><description><section><title>Temperature data</title>
+ <para>Daily temperature data for temperature logger near the mouth of the Methow river.  We used a nonlinear air-water temperature relationship (Mohseni et al. 1998) which has been used successfully in the region (Benjamin et al. 2013).  Air temperature was obatined from the National Climate Data Center(http://www.ncdc.noaa.gov/oa/ncdc.html). MOhseni,O., Stefan,H.G., and Erickson, T.R. 1998.  A nonlinear regression model for weekly stream temperatures.  Water Resor. Res. 34(10):2685-2692. doi. 10.1029/98WR01877. and Benjamin, J.R., Connolly P.J, Romine, J.G., and Perry, R. 2013.  Effects of climate change on life history trajectories of juvenile ONcorhynchus mykiss. Trans. Am Fish. Soc. 142(1):208-220.</para>
+ </section>
+ </description>
+ </methodStep>
+ <sampling><studyExtent><description><para>This data was gathered from a air temperature station located near the town of Pateros washington.</para>
+ </description>
+ </studyExtent>
+ <samplingDescription><para>Air temperature recorded at a weather station near the mouth of the Methow River and was obatined from teh National Climate Data Center (http://www.ncdc.noaa.gov/oa/ncdc.html).</para>
+ </samplingDescription>
+ </sampling>
+ </methods>
+ <project><title>Spatio-temporal variability in movement, age, and growth, of mountain whitefish (Prosopium williamsoni) in a river network based upon PIT tagging and otolith chemistry</title>
+ <personnel><references>1372267986299</references>
+ <role>Principal Investigator</role>
+ </personnel>
+ </project>
+ <dataTable id="1372275623882"><entityName>Temp_CSC</entityName>
+<entityDescription>Temperature data for 2009-2013</entityDescription>
+<physical><objectName>Temp_CSC.xlsx</objectName>
+<dataFormat> <externallyDefinedFormat><formatName>application/vnd.ms-excel</formatName>
+</externallyDefinedFormat>
+</dataFormat>
+<distribution><online><url>ecogrid://knb/KDM.5.1</url>
+</online>
+</distribution>
+</physical>
+<attributeList><attribute id="1372275623898"><attributeName>Month_obs</attributeName>
+<attributeLabel>Date of daily temperature reading</attributeLabel>
+<attributeDefinition>Date in mm/dd/yyyy format</attributeDefinition>
+<storageType typeSystem="excell">date</storageType>
+<measurementScale><ordinal><nonNumericDomain><textDomain><definition>date</definition>
+</textDomain>
+</nonNumericDomain>
+</ordinal>
+</measurementScale>
+</attribute>
+<attribute id="1372275623913"><attributeName>WaterTemp_Pateros</attributeName>
+<attributeLabel>daily water temp</attributeLabel>
+<attributeDefinition>Daily water temp in Celcius</attributeDefinition>
+<storageType typeSystem="excell">integrator</storageType>
+<measurementScale><ordinal><nonNumericDomain><textDomain><definition>degree celcius</definition>
+</textDomain>
+</nonNumericDomain>
+</ordinal>
+</measurementScale>
+</attribute>
+</attributeList>
+</dataTable>
+</dataset>
+ </eml:eml>
