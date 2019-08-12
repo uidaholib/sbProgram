@@ -1,6 +1,6 @@
 # sbMACRO
 
-This is a program and web app meant to work with the ScienceBase.gov REST API to generate reports useful for USGS CSC Data Managers. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects in the Northwest and Southwest Climate Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
+This is a program and web app meant to work with the ScienceBase.gov REST API to generate reports useful for USGS CASC Data Managers. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects from any Climate Adaptation Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
 
 
 Entire commit history and contributor history can be found here: https://github.com/uidaholib/sbProgram
@@ -97,5 +97,5 @@ THE SOFTWARE.
 ## Acknowledgments
 
 * Thanks to everyone who helped me learn so much by working on this program, including the countless people on the internet willing to answer the questions of a stranger
-* Thanks to Jeremy Kenyon, the University of Idaho, and the USGS Climate Science Center for supporting this project professionally and fiscally
+* Thanks to Jeremy Kenyon, the University of Idaho, and the USGS Climate Adaptation Science Center program for supporting this project professionally and fiscally
 * Thanks to the USGS ScienceBase team who made such a wonderful API.
