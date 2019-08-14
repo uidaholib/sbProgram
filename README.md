@@ -9,7 +9,7 @@ Entire commit history and contributor history can be found here: https://github.
 
 ### Prerequisites
 
-[Python 3.6](https://www.python.org/downloads/) is required to run this program. The program is currently best used on a recent version of Google Chrome.
+[Python 3](https://www.python.org/downloads/) is required to run this program. The program is currently best used on a recent version of Google Chrome.
 
 Libraries you need to install to run sbMACRO Web App are listed in sbMACROv2.0/requirements.txt. The recommended way to make sure you have all dependencies/prerequisites is to download the `requirements.txt` file and run
 `python -m pip install -r requirements.txt` in the sbMACROv2.0 directory.
