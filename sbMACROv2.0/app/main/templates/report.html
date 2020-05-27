@@ -18,6 +18,7 @@
 
 <script>
   var projectArray = {{ projects| tojson | safe }};
+  console.log(projectArray)
   buildProjectTable(projectArray);
 </script>
 
@@ -99,14 +100,14 @@
       <span class="close">&times;</span>
       <h3 style="font-size: 6vh">Project Information</h3>
     </div>
-    <div class="DMProw">
+ <!--    <div class="DMProw">
       <div class="centered_container">
         <span style="font-size: 3vh">DMP Status: </span>
         <div class="DMPstatus DMPstatus_good">Approved</div>
         <div class="DMPstatus DMPstatus_bad">Incomplete</div>
         <div class="DMPstatus DMPstatus_neutral">Unknown / N/A</div>
       </div>
-    </div>
+    </div> -->
 
     <div class="row">
       <div class="centered_container">
