@@ -306,7 +306,12 @@ def report():
     """Gather appropriate report information and display."""
 
     excel_file = 'CASC Data Management Tracking for Projects - v2.xlsx'
-    project_list = session["projects"]
+    try:
+        project_list = session["projects"]
+    except KeyError:
+        return render_template("error.html", message="Please select Fiscal Year First To Generate Report")
+    # except TypeError:
+    #     return render_template("error.html", message="Please Login ")
     projects = []
     workbook = None
 
