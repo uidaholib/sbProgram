@@ -42,26 +42,26 @@
 
 </style>
 
-<h4>Project Comparison</h4>
+<h4 style="color:#444242;font-family: arial">Project Comparison</h4>
 
-<p class="flow-text"><h5>Select two cascs whose projects you would like to compare for similarity.<br>(NB: Similarity is based solely on the project summary)</h5></p>
+<p class="flow-text"> Select two cascs whose projects you would like to compare for similarity.<br>(NB: Similarity is based solely on the project summary)</p>
 
-<div id = 'tips' style = 'display: none'>
-	<p class="flow-text">
-		<h6><li>Hover over CASCs (the squares) or links (connections) for more information on them</li></h6>
-		<h6><li>Click on a CASC to open its Sciencebase page in a new tab</li></h6>
-		<h6><li>Click on a link (connection) to view details about the two connected projects</li></h6>
-		<h6><li>Move the slider below the visualization to filter out links with lower similarities<br>&nbsp&nbsp&nbsp&nbsp&nbsp(the slider range is set to the lowest and highest project similarity values for the selected CASCs)</li></h6>
+<div id = 'tips' style = "display: none; color:#444242;font-family: arial">
+	<p>
+		<h6><li >Hover over CASCs (the squares) or links (connections) for more information on them</li></h6>
+		<h6><li >Click on a CASC to open its Sciencebase page in a new tab</li></h6>
+		<h6><li >Click on a link (connection) to view details about the two connected projects</li></h6>
+		<h6><li >Move the slider below the visualization to filter out links with lower similarities<br>&nbsp&nbsp&nbsp&nbsp&nbsp(the slider range is set to the lowest and highest project similarity values for the selected CASCs)</li></h6>
 	</p>
 </div>
 
 <hr>
 
-<div id = 'casc1_drop_down' class = 'centered_container' style = "margin-left: 5%; float:left; width: 30%">
-	<label for = "cascs" class = 'inpt-field col s6' style="font-size:80%; text-align:left">Select CASC 1</label>
+<div id = 'casc1_drop_down' class = 'centered_container' style = "margin-left: 5%; float:left; width: 30%;">
+	<label for = "cascs" class = 'inpt-field col s6' style="font-size:80%; text-align:left"><b style ="color:#444242;font-family: arial; font-size:16px;">Select CASC 1</b></label>
 </div>
 <div id = 'casc2_drop_down' class = 'centered_container' style = "margin-left: 5%; float:left; width: 30%; display:none">
-	<label for = "cascs" class = 'inpt-field col s6' style="font-size:80%; text-align:left">Select CASC 2</label>
+	<label for = "cascs" class = 'inpt-field col s6' style="font-size:80%; text-align:left"><b style ="color:#444242;font-family: arial;font-size:16px;">Select CASC 2</b></label>
 </div>
 <div id = "compare" style = "display:none">
 	<br>
@@ -117,6 +117,7 @@
 		</div>
 
 	</div>
+
 
 <script>
 
@@ -623,3 +624,12 @@
 </script>
 
 {% endblock %}
+
+<!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->

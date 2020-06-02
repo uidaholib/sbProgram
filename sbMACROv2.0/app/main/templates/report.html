@@ -48,13 +48,13 @@
    </div>
 <div>
   <br></br>
-  <h1>sbMACRO Query Results</h1>
+  <h4 style="color:#444242;font-family: arial;">sbMACRO Query Results</h4>
   <br />
-  <p>
+  <p class="font_format">
     Below is a table showing your query results from
     <a href="http://www.sciencebase.gov">ScienceBase.gov</a>
   </p>
-  <p>Currently You are visualizing Data Based on Size - Vertically</p>
+  <p class="font_format">Currently You are visualizing Data Based on Size - Vertically</p>
 </div>
 <div id="container">
   <div id="wrapper"></div>
@@ -98,7 +98,7 @@
   <div class="projModal-content">
     <div class="projModal-header">
       <span class="close">&times;</span>
-      <h3 style="font-size: 6vh">Project Information</h3>
+      <h4 style="font-size: 5vh">Project Information</h4>
     </div>
  <!--    <div class="DMProw">
       <div class="centered_container">
@@ -109,37 +109,37 @@
       </div>
     </div> -->
 
-    <div class="row">
-      <div class="centered_container">
+    <div class="row" style="color:#444242;font-family: arial">
+      <div class="centered_container" style="text-align: left;">
         <span style="font-size: 2vh;">
-          <strong>Title: </strong><br />
+          <strong class="font_format">Title: </strong><br />
           <span class="title"></span>
         </span>
       </div>
     </div>
-    <div class="row">
-      <div class="centered_container">
+    <div class="row" style="color:#444242;font-family: arial">
+      <div class="centered_container" style="text-align: left;>
         <span style="font-size: 2vh;">
-          <strong>Principal Investigators: </strong><br />
+          <strong class="font_format">Principal Investigators: </strong><br />
           <span class="PI"></span>
         </span>
       </div>
     </div>
-    <div class="row">
-      <div class="centered_container">
+    <div class="row" style="color:#444242;font-family: arial">
+      <div class="centered_container" style="text-align: left;>
         <span style="font-size: 2vh;">
-          <strong>Summary: </strong><br />
+          <strong class = "font_format">Summary: </strong><br />
           <span class="summary" id="only_left_par"></span>
         </span>
       </div>
     </div>
-    <div class="row">
+    <div class="row" style="color:#444242;font-family: arial">
       <div class="col s12 m6 l6 projModal_history">
-        <h5>Data Steward History</h5>
+        <h5 style="color:#444242;font-family: arial">Data Steward History</h5>
         <p class="history"></p>
       </div>
       <div class="col s12 m6 l6">
-        <h5  style="font-size: 4vh">Uploaded Data Product Breakdown</h5>
+        <h5 style="font-size: 4vh,color:#444242;font-family: arial">Uploaded Data Product Breakdown</h5>
         <br />
         <div id="modal_chart"></div>
       </div>
@@ -150,15 +150,16 @@
         <p class="potential_products"></p>
       </div>
       <div class="col s12 m6 l6 projModal_products_received">
-        <h5>Products Recieved</h5>
+        <h5 style="color:#444242;font-family: arial">Products Recieved</h5>
         <p class="products_received"></p>
       </div>
     </div>
-    <div class="projModal-footer">
+   <!--  <div class="projModal-footer">
       <h3>sbMACRO</h3>
-    </div>
+    </div> -->
   </div>
 </div>
+
 
 <script>
   projectBarGraph(projectArray) //from /static/js/DataVisualization/projectBarGraph.js
@@ -189,4 +190,13 @@
   currentPage.classList.add("currentPage");
 </script> -->
 {% endblock %}
+
+  <!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->
 

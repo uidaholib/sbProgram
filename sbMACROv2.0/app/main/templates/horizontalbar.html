@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block content %}
+<!-- {% extends "base.html" %} {% block content %} -->
 
 <link rel="stylesheet" href="static/css/custom.css" />
 <link
@@ -17,12 +17,10 @@
 
 <script
   type="text/javascript"
-  src="http://oss.sheetjs.com/js-xlsx/xlsx.full.min.js"
-></script>
+  src="http://oss.sheetjs.com/js-xlsx/xlsx.full.min.js"></script>
 
 <!-- <script src="{{ url_for('main.static', filename='js/node_modules/file-saverjs/FileSaver.js') }}"></script>
--->
-<!-- <script src="{{ url_for('main.static', filename='js/node_modules/tableexport/src/stable/js/tableexport.js') }}"></script> -->
+<script src="{{ url_for('main.static', filename='js/node_modules/tableexport/src/stable/js/tableexport.js') }}"></script> -->
 
 <script src="{{ url_for('main.static', filename='js/DataVisualization/FY_BarGraph.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/DataVisualization/fileBreakdownPieChart.js') }}"></script>
@@ -33,8 +31,7 @@
 <script src="{{ url_for('main.static', filename='js/jquery.floatThead.min.js') }}"></script>
 <link
   rel="stylesheet"
-  href="{{ url_for('main.static', filename='css/graphs.css') }}"
-/>
+  href="{{ url_for('main.static', filename='css/graphs.css') }}"/>
 
 <script>
   var projectArray = {{ projects| tojson | safe }};
@@ -68,9 +65,9 @@
    </div>
 <div>
   <br></br>
-  <h1>sbMACRO Query Results</h1>
+  <h4 style="color:#444242;font-family: arial;">sbMACRO Query Results</h4>
   <br />
-  <p>
+  <p class="font_format">
     Below is a table showing your query results from
     <a href="http://www.sciencebase.gov">ScienceBase.gov</a>
   </p>
@@ -91,8 +88,7 @@
   <div id="table_wrapper">
     <table
       class="bordered highlight striped centered responsive-table"
-      id="reportTable"
-    >
+      id="reportTable">
       <thead id="table_head">
         <th>Number</th>
         <th>Climate Adaptation Science Center</th>
@@ -120,14 +116,14 @@
       <h3 style="font-size: 6vh">Project Information</h3>
     </div>
     <div class="DMProw">
-      <div class="centered_container">
+       <div class="centered_container">
         <span style="font-size: 3vh">DMP Status: </span>
         <div class="DMPstatus DMPstatus_good">Approved</div>
         <div class="DMPstatus DMPstatus_bad">Incomplete</div>
         <div class="DMPstatus DMPstatus_neutral">Unknown / N/A</div>
       </div>
     </div>
-
+ 
     <div class="row">
       <div class="centered_container">
         <span style="font-size: 2vh;">

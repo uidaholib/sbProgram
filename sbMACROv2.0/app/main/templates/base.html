@@ -23,25 +23,54 @@
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
       } */
+
+      /*copyright footer*/
+
+      .projModal-footer {
+        padding: 6px 16px;
+        background-color: #f5b423;
+        color: white;
+        text-align: center;
+        margin-top: 10%;
+        font-size: 15px;
+        margin-left: -100%;
+        margin-right: -100%;
+        color:#fff;
+      }
+
+
+      .nav-wrapper {
+      position: relative;
+      height: 100%;
+      background-color: #f5b423; 
+      margin-left: -85%;
+      font-weight: bold;
+      }
+
+    teal.lighten-1 {
+    background-color: #f5b423!important;
+      }
       
       .topnav {
         overflow: hidden;
         background-color: #e9e9e9;
+        
       }
       
       .topnav a {
         float: left;
         display: block;
         color: white;
-        text-align: center;
+        /*text-align: center;*/
         /* padding: 10px 10px; */
         text-decoration: none;
         font-size: 18px;
+        margin-left:-43%;
       }
       
       .topnav a:hover {
-        background-color:lightblue;
-        color: black;
+        /*background-color:#000;*/
+          color: #403838;
       }
       
       .topnav a.active {
@@ -99,23 +128,25 @@
   
   </style>
 <body>
-  <div id="loading_container">
+<!--   <div id="loading_container">
       <h4 id="loading_title">Please wait...</h4>
       <img src="static/loading.gif" id="loading">
-  </div>
+  </div> -->
   <!-- Navbar goes here -->
-  <nav id="nav" class="topnav blue darken-4">
+  <nav id="nav">
     <div class="nav-wrapper">
       <a href="{{ url_for('main.index') }}" class="brand-logo center" style="font-size: 30px ">sbMACRO</a>
       <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
-        <li id="get_report"><a href="{{ url_for('main.report') }}">Report</a></li>
+        <li><a href="{{ url_for('main.index') }}" id="Nav-Home"> HOME </a></li>
+        <li><a href="{{ url_for('main.fiscalyear') }}" id="Nav-FiscalYear"> FISCAL YEAR REPORT</a></li>
+        <li><a href="{{ url_for('main.project') }}" id="Nav-Project"> PROJECT REPORT </a></li>
+        <li><a href="{{ url_for('main.proj_compare') }}" id="Nav-Proj-Compare"> PROJECT COMPARISON</a></li>
+        <li id="get_report"><a href="{{ url_for('main.report') }}"> REPORT </a></li>
         {% if current_user.is_authenticated %}
-
-       
-        </li>
-        <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-        <li><a href="{{ url_for('auth.revoke') }}">Logout</a></li>
+        <li></li>
+        <li><a href="{{ url_for('main.user', username=current_user.username) }}">PROFILE</a></li>
+        <li><a href="{{ url_for('auth.revoke') }}">LOGOUT</a></li>
         <li>
             <div class="search-container "> 
             <form style="display: inline;" action="{{ url_for('main.search')}}  "  method="post" name="query">
@@ -123,7 +154,7 @@
             <button type="submit"></button></form>
           </div>
         {% else %}
-        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+        <li><a href="{{ url_for('auth.login') }}">LOGIN</a></li>
         {% endif %}
       </ul>
     </div>
@@ -131,13 +162,14 @@
   </nav>
   <!-- Side Nave hidden menu -->
   <ul class="sidenav" id="mobile-demo">
-    <li id="get_report"><a href="{{ url_for('main.report') }}">Report</a></li>
+    <li id="get_report"><a href="{{ url_for('main.report') }}">REPORT</a></li>
     {% if current_user.is_authenticated %}
-    
-    <li ><a href="{{ url_for('main.user', username=current_user.username) }} ">Profile</a></li>
-    <li><a href="{{ url_for('auth.revoke') }}">Logout</a></li>
+    <li></li>
+    <li ><a href="{{ url_for('main.user', username=current_user.username) }} ">PROFILE</a></li>
+    <li><a href="{{ url_for('main.update_db') }}" id="Nav-Update">UPDATE DATABASE</a></li>
+    <li><a href="{{ url_for('auth.revoke') }}">LOGOUT</a></li>
     {% else %}
-    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+    <li><a href="{{ url_for('auth.login') }}">LOGIN</a></li>
     {% endif %}
   </ul>
 
@@ -159,15 +191,13 @@
                 12-columns-wide on small screens  
               For active one add class="active amber accent-4"-->
 
-        <div class="collection grey-text text-darken4">
-          <a href="{{ url_for('main.index') }}" id="Nav-Home" class="collection-item teal lighten-1 white-text"> Home </a>
-          <a href="{{ url_for('main.fiscalyear') }}" id="Nav-FiscalYear" class="collection-item teal lighten-1 white-text">Fiscal Year Report</a>
-          <a href="{{ url_for('main.project') }}" id="Nav-Project" class="collection-item teal lighten-1 white-text">Project Report</a>
-          <a href="{{ url_for('main.proj_compare') }}" id="Nav-Proj-Compare" class="collection-item teal lighten-1 white-text">Project Comparison</a>
+        <div>
+          
+         
+         
+          
           <!-- <a id="Nav-Mixed" class="collection-item grey grey-text text-darken-2">Mixed Report</a> -->
-          {% if current_user.is_authenticated %}
-          <a href="{{ url_for('main.update_db') }}" id="Nav-Update" class="collection-item teal lighten-1 white-text">Update Database</a>
-          {% endif %}
+          
         </div>
     
       </div>
@@ -269,5 +299,14 @@
       // $('.sidenav').sidenav();
 
     </script>
+
+    <!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->
 </body>
 </html>

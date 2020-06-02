@@ -116,9 +116,9 @@ text {
    </div>
 <div>
   <br></br>
-  <h1>sbMACRO Query Results</h1>
+  <h4 style="color:#444242;font-family: arial;">sbMACRO Query Results</h4>
   <br />
-  <p>
+  <p class="font_format">
     Below is a table showing your query results from
     <a href="http://www.sciencebase.gov">ScienceBase.gov</a>
   </p>
@@ -250,4 +250,13 @@ text {
   currentPage.classList.add("currentPage");
 </script> -->
 {% endblock %}
+
+<!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3" style= " margin-left: -4%;">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->
 

@@ -3,8 +3,11 @@
 <!-- OLD Compiled and minified CSS for correct formatting of checkboxes -->
 <link
   rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"
-/>
+  href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"/>
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 
 <!-- OLD Compiled and minified JavaScript for correct formatting of checkboxes -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
@@ -12,47 +15,79 @@
 <!-- Must import again to supersede the newest materialize imports -->
 <link rel="stylesheet" href="static/css/custom.css" />
 
-<h4>Welcome to SB MACRO</h4>
+
+<h4 style="color:#444242;font-family: arial;margin-top: 23px;">Welcome to sbMACRO</h4>
 <br />
-<p>
+<p class = "font_format">
   This program can be used to better understand the data present in one or
   multiple fiscal years under any CASC on ScienceBase.
 </p>
-<p>
+<p class="font_format">
   Choose the fiscal year(s) under your desired Climate Adaptation Science Center
   from which you want a report generated:
 </p>
-<h4>Select Fiscal Year(s)</h4>
+<!-- <div class="row" align="left">
+    <input class="btn btn-primary" name="Select Fiscal Year(s)" type="submit" value="Select Fiscal Year(s)" onclick="togglediv(this)">
+  </div> -->
+<h4 class = "font_format" style="font-weight: bold;" onclick="togglediv(this);" >Select Fiscal Year(s)</h4>
 <form method="POST" id="FY-Select-Form">
   <div class="row" align="right">
     {{ form.submit(class="btn btn-primary") }}
   </div>
   {{ form.hidden_tag() }}
   <div class="row">
-    {% set count = namespace(a=-1) %} {% set mod_num = 3 %} {% for casc_name,
-    casc_info in cascs_and_fys.items(): %} {% set count.a = count.a + 1 %} {% if
-    count.a % mod_num == 0 %}
+    {% set count = namespace(a=-1) %} {% set mod_num = 3 %} 
+    {% for casc_name,
+    casc_info in cascs_and_fys.items(): %} {% set count.a = count.a + 1 %} 
+    {% if count.a % mod_num == 0 %}
   </div>
-  <div class="row" id="{{ number }}">
+
+
+  
+
+<script> 
+$( document ).ready(function() {
+   //hide all div on ready
+    $(".fy_content").hide();
+});
+
+  function togglediv(divid){
+  $(divid).click(function(){
+    //hide all div
+   // alert("inside clcick");
+   // $(".fy_content").hide();
+  //clicked div only show
+    $(".fy_content").toggle("slow");
+  });
+}
+</script>
+
+    <div class="row" id="{{ number }}">
     {% endif %}
     <div class="col s4 m4 l4">
-      <div class="card blue-grey lighten-4">
-        <div class="card-content">
-          <span class="card-title">
+      <div class="card blue-grey lighten-4" >
+        <div class="card-content" style="background-color: white;" >
+          <span class="card-title" style="background: #26a69a;color: white;margin: -24px;padding: 15px;
+    margin-bottom: -15px;">
             <p>
-              <strong>{{ casc_name }}</strong>
+               <div class="fy_title" ><strong>{{ casc_name }}</strong></div>
+              
             </p>
           </span>
+<div class="fy_content" >
           {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %} {%
           set field_name = "fy" ~ fiscal_year["id"] %} {% set field =
           form|attr(field_name) %}
           <br />
           {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label }}
-          amruta testing
-          <br />
-          {% for error in field.errors %}
-          <span style="color: red;">{{ error }}</span>
-          {% endfor %} {% endfor %}
+          <br /> 
+          
+            {% for error in field.errors %}
+            <span style="color: red;">{{ error }}</span>
+            {% endfor %} 
+          {% endfor %}
+</div>
+        
         </div>
       </div>
     </div>
@@ -68,3 +103,14 @@
 </script>
 
 {% endblock %}
+
+
+
+  <!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->
