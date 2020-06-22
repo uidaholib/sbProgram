@@ -1,8 +1,6 @@
 """Authentification-related url routes."""
 
-from datetime import datetime
 from itsdangerous import URLSafeTimedSerializer
-import google_auth_oauthlib.flow
 import google.oauth2.credentials
 from app.auth.email import send_password_reset_email, send_confirmation_email
 from app.models import User
@@ -12,11 +10,9 @@ from app.auth import bp
 from app import db
 from flask_login import login_user, logout_user, current_user
 from werkzeug.urls import url_parse
-import googleapiclient.discovery
 import requests
 import flask
-import os
-from flask import render_template, redirect, url_for, flash, request, session, current_app
+from flask import render_template, redirect, url_for, flash, request, current_app
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -27,24 +23,24 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(
-            username=form.username.data.lower()).first()
+            username=form.username.data.lower()
+        ).first()
+
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password', 'error')
-            return redirect(url_for('auth.login'))
-        if user.email_confirmed == False:
+            return render_template('login.html', title='Sign In', form=form), 401
+
+        if not user.email_confirmed:
             flash("Please confirm your email address to activate your Account", 'error')
-            return redirect(url_for('auth.login'))
+            return render_template('login.html', title='Sign In', form=form), 401
+
         login_user(user, remember=form.remember_me.data)
+
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('main.index')
         return redirect(next_page)
-        if login(username, password):
-            return redirect(url_for('auth.login'))
-        else:
-            raise flask('Invalid login')
-
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template('login.html', title='Sign In', form=form), 401
 
 
 @bp.route('/logout')
@@ -81,7 +77,7 @@ def reset_password_request():
     if form.validate_on_submit():
         try:
             user = User.query.filter_by(email=form.email.data).first_or_404()
-        except:
+        except Exception:
             flash('This Email ID is Not Registered', 'error')
             return render_template('password_reset_request.html', form=form)
 
@@ -96,17 +92,6 @@ def reset_password_request():
         return redirect(url_for('auth.login'))
 
     return render_template('password_reset_request.html', form=form)
-    # if current_user.is_authenticated:
-    #     return redirect(url_for('main.index'))
-    # form = ResetPasswordRequestForm()
-    # if form.validate_on_submit():
-    #     user = User.query.filter_by(email=form.email.data).first()
-    #     if user:
-    #         send_password_reset_email(user)
-    #     return render_template('post_pass_reset_request.html',
-    #                            title="Reset Password")
-    # return render_template(
-    #     'password_reset_request.html', title="Reset Password", form=form)
 
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
@@ -175,8 +160,7 @@ def confirm_email(token):
             current_app.config['SECRET_KEY'])
         cemail = confirm_serializer.loads(
             token, salt='email-confirmation-salt', max_age=3600)[0]
-
-    except:
+    except Exception:
         flash('The confirmation link is invalid or has expired.', 'error')
         return redirect(url_for('auth.login'))
 
@@ -185,8 +169,7 @@ def confirm_email(token):
     if user.email_confirmed:
         flash('Account already confirmed. Please login.', 'error')
     else:
-        user.email_confirmed = True
-        user.email_confirmed_on = datetime.now()
+        user.set_email_confirmation()
         db.session.add(user)
         db.session.commit()
         flash('Thank you for confirming your email address!', 'success')
