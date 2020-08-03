@@ -157,7 +157,7 @@ def fiscalyear():
     return render_template('fiscalYears.html',
                            form=form,
                            cascs_and_fys=cascs_and_fys,
-                           title="Select Fiscal Years")
+                           title="Select Fiscal Years"),400
 
 
 @bp.route('/update_db', methods=['GET', 'POST'])
@@ -211,7 +211,7 @@ def update_db():
     elif request.method == 'GET':
         pass
 
-    return render_template('update_db.html', form = form, list_of_cascs = list_of_cascs)
+    return render_template('update_db.html', form = form, list_of_cascs = list_of_cascs),400
 
 # @socketio.on('connect', namespace='/test')
 @bp.route('/updates')
@@ -298,7 +298,7 @@ def project():
             session["projects"] = projects
         return redirect(url_for('main.report'))
 
-    return(render_template('projects.html', title="Select Projects to Report"))
+    return(render_template('projects.html', title="Select Projects to Report")),400
 
 
 @bp.route('/report')
@@ -1189,14 +1189,14 @@ def edit_profile():
             user.set_password(form.password.data)
             db.session.add(user)
         db.session.commit()
-        return redirect(url_for('main.user', username=current_user.username))
+        return redirect(url_for('main.user', username=current_user.username)),400
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about.data = current_user.about
         form.email.data = current_user.email
 
     return render_template(
-        'edit_profile.html', title='Edit Profile', form=form)
+        'edit_profile.html', title='Edit Profile', form=form),400
 
 
 
@@ -1206,8 +1206,8 @@ def search():
     current_user.search_form = SearchForm()
     d= str(current_user.search_form.data['search'])
     if(len(d)==0):
-        userdata=["Please Enter The Keyword To Search"]
-        return render_template('search_results.html', userdata = userdata, length=len(d))
+        message=["Please Enter The Keyword To Search"]
+        return render_template('error.html', message = message, length=len(d)),400
 
     courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
     length=len(courses)

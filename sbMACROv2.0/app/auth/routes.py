@@ -67,7 +67,7 @@ def register():
               'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', title='Register',
-                           form=form)
+                           form=form),417
 
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
@@ -79,7 +79,7 @@ def reset_password_request():
             user = User.query.filter_by(email=form.email.data).first_or_404()
         except Exception:
             flash('This Email ID is Not Registered', 'error')
-            return render_template('password_reset_request.html', form=form)
+            return render_template('password_reset_request.html', form=form), 400
 
         if user:
             send_password_reset_email(user)
@@ -91,7 +91,7 @@ def reset_password_request():
                 'Your email address must be confirmed before attempting a password reset.', 'error')
         return redirect(url_for('auth.login'))
 
-    return render_template('password_reset_request.html', form=form)
+    return render_template('password_reset_request.html', form=form), 400
 
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
@@ -110,7 +110,7 @@ def reset_password(token):
         return render_template(
             'successful_pass_reset.html', title="Password Reset")
     return render_template('reset_password.html', title="Password Reset",
-                           form=form)
+                           form=form), 417
 
 
 @bp.route('/revoke')
