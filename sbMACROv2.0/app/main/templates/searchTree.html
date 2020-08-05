@@ -7,8 +7,8 @@
 <html>
 
 <head>
-  <h1>Search results for "{{ query }}":</h1>
-  <h4 style="color: green ">Number of DataSets found: {{length}}</h4>
+  <h4 style="color:#444242;font-family: arial">Search results for "{{ query }}":</h4>
+  <h5 style="color:#444242;font-family: arial">Number of DataSets found: {{length}}</h5>
   <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
   <script src="https://unpkg.com/d3@5.6.0/dist/d3.min.js"></script>
 </head>
@@ -54,7 +54,7 @@
   }
 
   .dropdown :hover {
-    background-color: white;
+    /*background-color: white;*/
     color: black;
   }
 
@@ -102,8 +102,8 @@
 </style>
 <div>
 
-  <ul class="header btn wave-effect waves-teal">
-    <li class="dropdown  left">Search Type
+  <ul class="header btn wave-effect waves-teal" style="width:15%; height:50px;">
+    <li class="dropdown  left" style="margin-left: 10px;">Search Type
       <i class="fa fa-caret-down"></i>
       <ul>
         

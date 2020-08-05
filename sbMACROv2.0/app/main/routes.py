@@ -139,7 +139,7 @@ def fiscalyear():
             selected = fy_attr.data
             if selected:
                 id_list.append(fy.replace("fy", ""))
-
+        print('length of id_list:', len(id_list))
         for i in id_list:
             fy_model = db.session.query(FiscalYear).get(i)
             for proj in fy_model.projects:
@@ -150,6 +150,7 @@ def fiscalyear():
                 projects.append(project_dict)
 
         session["projects"] = projects
+        print('length of projects:', len(projects))
         return redirect(url_for('main.report'))
     elif request.method == 'GET':
         pass
@@ -1413,3 +1414,16 @@ def searchTable(query):
         i.file_breakdown = []
         add_user(user)
     return render_template('searchTableChart.html', query=d, courses=courses, length=length, userdata=userdata)
+
+
+# adding new code Burst and Trends.html
+
+@bp.route('/trends', methods = ['GET', 'POST'])
+def trends():
+
+    return render_template('trends.html')
+
+@bp.route('/bursts', methods = ['GET', 'POST'])
+def bursts():
+
+    return render_template('bursts.html')

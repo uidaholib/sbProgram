@@ -1,129 +1,430 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<eml:eml packageId="KDM.4.2" system="knb" xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 eml.xsd"> <access authSystem="knb" order="allowFirst"> <allow><principal>public</principal>
- <permission>read</permission>
- </allow>
- </access>
- <dataset> <title>Water temperature at near town of Pateros, Methow River, WA USA, 1 January 2009 to 19 April 2013</title>
- <creator id="1372267986299"> <individualName><salutation>Dr.</salutation>
- <givenName>Patrick</givenName>
- <surName>Connolly</surName>
- </individualName>
- <organizationName>USGS</organizationName>
- <positionName>Research Fisheries Biologist</positionName>
- <address><deliveryPoint>5501a Cook Underwood Rd</deliveryPoint>
- <city>Cook</city>
- <administrativeArea>Washington</administrativeArea>
- <postalCode>98605</postalCode>
- <country>USA</country>
- </address>
- <phone phonetype="voice">509 538-2299</phone>
- <electronicMailAddress>pconnolly@usgs.gov</electronicMailAddress>
- </creator>
- <creator id="1372268117190"><individualName><salutation>Dr.</salutation>
- <givenName>Joseph</givenName>
- <surName>Benjamin</surName>
- </individualName>
- <positionName>Fishereis Biologist</positionName>
- <address><city>Boise</city>
- <administrativeArea>Idaho</administrativeArea>
- </address>
- <electronicMailAddress>joe@qcinc.org</electronicMailAddress>
- </creator>
- <creator id="1372268246942"><individualName><salutation>Mr.</salutation>
- <givenName>Kyle</givenName>
- <surName>Martens</surName>
- </individualName>
- <organizationName>USGS</organizationName>
- <positionName>Fisheries Biologist</positionName>
- <address><deliveryPoint>5501a Cook Underwood Rd</deliveryPoint>
- <city>Cook</city>
- <administrativeArea>Washington</administrativeArea>
- <postalCode>98605</postalCode>
- <country>USA</country>
- </address>
- <phone phonetype="voice">509 538-2299</phone>
- <electronicMailAddress>kmartens@usgs.gov</electronicMailAddress>
- </creator>
- <abstract><para>This is the temperature data used in the science product &quot;Spatio-temporal variability in movement, age, and growth, of mountain whitefish (Prosopium williamsoni) in a river network based upon PIT tagging and otolith chemistry.</para>
- </abstract>
- <keywordSet><keyword>Mountain whitefish</keyword>
- <keyword>Methow River</keyword>
- <keyword>PIT tags</keyword>
- <keyword>Otoloith chemistry</keyword>
- <keyword>movment</keyword>
- </keywordSet>
- <keywordSet><keyword>water temperature data</keyword>
- </keywordSet>
- <intellectualRights><para>The data you have secured from the U.S. Geological Survey (USGS) database have not recieved USGS approval and as such are proovisional and subject to revision.  The data are released on the condition that neither the USGS nor the U.S. Government may be held liable for any damages resulting from its authorized or unauthorized use.</para>
- </intellectualRights>
- <coverage><geographicCoverage><geographicDescription>This study took place on the Methow Riverwatershed.  Some of the fish from this study moved into the Columbia and Entiait rivers.</geographicDescription>
- <boundingCoordinates><westBoundingCoordinate>-116.375</westBoundingCoordinate>
- <eastBoundingCoordinate>-111.375</eastBoundingCoordinate>
- <northBoundingCoordinate>53.75</northBoundingCoordinate>
- <southBoundingCoordinate>48.125</southBoundingCoordinate>
- </boundingCoordinates>
- </geographicCoverage>
- <temporalCoverage><rangeOfDates><beginDate><calendarDate>2009-03-01</calendarDate>
- </beginDate>
- <endDate><calendarDate>2013-04-30</calendarDate>
- </endDate>
- </rangeOfDates>
- </temporalCoverage>
- </coverage>
- <contact><references>1372267986299</references>
- </contact>
- <contact><references>1372268246942</references>
- </contact>
- <contact><references>1372268117190</references>
- </contact>
- <methods><methodStep><description><section><title>Temperature data</title>
- <para>Daily temperature data for temperature logger near the mouth of the Methow river.  We used a nonlinear air-water temperature relationship (Mohseni et al. 1998) which has been used successfully in the region (Benjamin et al. 2013).  Air temperature was obatined from the National Climate Data Center(http://www.ncdc.noaa.gov/oa/ncdc.html). MOhseni,O., Stefan,H.G., and Erickson, T.R. 1998.  A nonlinear regression model for weekly stream temperatures.  Water Resor. Res. 34(10):2685-2692. doi. 10.1029/98WR01877. and Benjamin, J.R., Connolly P.J, Romine, J.G., and Perry, R. 2013.  Effects of climate change on life history trajectories of juvenile ONcorhynchus mykiss. Trans. Am Fish. Soc. 142(1):208-220.</para>
- </section>
- </description>
- </methodStep>
- <sampling><studyExtent><description><para>This data was gathered from a air temperature station located near the town of Pateros washington.</para>
- </description>
- </studyExtent>
- <samplingDescription><para>Air temperature recorded at a weather station near the mouth of the Methow River and was obatined from teh National Climate Data Center (http://www.ncdc.noaa.gov/oa/ncdc.html).</para>
- </samplingDescription>
- </sampling>
- </methods>
- <project><title>Spatio-temporal variability in movement, age, and growth, of mountain whitefish (Prosopium williamsoni) in a river network based upon PIT tagging and otolith chemistry</title>
- <personnel><references>1372267986299</references>
- <role>Principal Investigator</role>
- </personnel>
- </project>
- <dataTable id="1372275623882"><entityName>Temp_CSC</entityName>
-<entityDescription>Temperature data for 2009-2013</entityDescription>
-<physical><objectName>Temp_CSC.xlsx</objectName>
-<dataFormat> <externallyDefinedFormat><formatName>application/vnd.ms-excel</formatName>
-</externallyDefinedFormat>
-</dataFormat>
-<distribution><online><url>ecogrid://knb/KDM.5.1</url>
-</online>
-</distribution>
-</physical>
-<attributeList><attribute id="1372275623898"><attributeName>Month_obs</attributeName>
-<attributeLabel>Date of daily temperature reading</attributeLabel>
-<attributeDefinition>Date in mm/dd/yyyy format</attributeDefinition>
-<storageType typeSystem="excell">date</storageType>
-<measurementScale><ordinal><nonNumericDomain><textDomain><definition>date</definition>
-</textDomain>
-</nonNumericDomain>
-</ordinal>
-</measurementScale>
-</attribute>
-<attribute id="1372275623913"><attributeName>WaterTemp_Pateros</attributeName>
-<attributeLabel>daily water temp</attributeLabel>
-<attributeDefinition>Daily water temp in Celcius</attributeDefinition>
-<storageType typeSystem="excell">integrator</storageType>
-<measurementScale><ordinal><nonNumericDomain><textDomain><definition>degree celcius</definition>
-</textDomain>
-</nonNumericDomain>
-</ordinal>
-</measurementScale>
-</attribute>
-</attributeList>
-</dataTable>
-</dataset>
- </eml:eml>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>Andrew From</origin>
+        <origin>Michael Osland</origin>
+        <origin>Richard Day</origin>
+        <origin>Jack Larriviere</origin>
+        <origin>Mark Hester</origin>
+        <origin>Jonathan Willis</origin>
+        <origin>Erik Yando</origin>
+        <pubdate>Unknown</pubdate>
+        <title>Dataset 8: New soil data collection: site-level physicochemical properties</title>
+        <geoform>maps and data</geoform>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>Winter climate change has the potential to have a large impact on coastal wetlands in the southeastern U.S. Warmer winter temperatures and reductions in the intensity of freeze events would likely lead to mangrove forest range expansion and salt marsh displacement in parts of the U.S. Gulf of Mexico and Atlantic coast. The objective of this research was to better understand some of the ecological implications of mangrove forest migration and salt marsh displacement. The potential ecological effects of mangrove migration are diverse ranging from important biotic impacts (e.g., coastal fisheries, land bird migration; colonial nesting wading birds) to ecosystem stability (e.g., response to sea level rise and drought; habitat loss; coastal protection) to biogeochemical processes (e.g., carbon storage; water quality). In this research, our focus was on the impact of mangrove forest migration on coastal wetland soil processes and the consequent implications for coastal wetland responses to sea level rise, ecosystem resilience, and carbon storage. Our study specifically addressed the following questions: (1) How do ecological processes and ecosystem properties differ between salt marshes and mangrove forests; (2) As mangrove forests develop, how do their ecosystem properties change and how do these properties compare to salt marshes; (3) How do plant-soil interactions across mangrove forest structural gradients differ among three distinct locations that span the northern Gulf of Mexico; and (4) What are the implications of mangrove forest encroachment and development into salt marsh in terms of soil development, carbon and nitrogen storage, and soil strength? To address these questions, we utilized the salt marshes and natural mangrove forest structural gradients present at three distinct locations in the northern Gulf of Mexico: Cedar Key (Florida), Port Fourchon (Louisiana), and Port Aransas (Texas). Each of these locations represents a distinct combination of climate-driven abiotic conditions. We quantified relationships between plant community composition and structure, soil and porewater physicochemical properties, hydroperiod, and climatic conditions. The suite of measurements that we collected provide initial insights into how different geographic areas of an ecotone, with different environmental conditions, may be impacted by mangrove forest expansion and development, and how these changes may alter the supply of specific ecosystem goods and services. This file includes the site-level soil physicochemical properties data.&#xD;
+&#xD;
+This work was conducted via a collaborative effort between scientists at the U.S. Geological Survey National Wetland Research Center and the Department of Biology of the University of Louisiana at Lafayette.</abstract>
+      <purpose>Winter climate change has the potential to have a large impact on coastal wetlands in the southeastern U.S. Warmer winter temperatures and reductions in the intensity of freeze events would likely lead to mangrove forest range expansion and salt marsh displacement in parts of the U.S. Gulf of Mexico and Atlantic coast. The objective of this research was to better understand some of the ecological implications of mangrove forest migration and salt marsh displacement. The potential ecological effects of mangrove migration are diverse ranging from important biotic impacts (e.g., coastal fisheries, land bird migration; colonial nesting wading birds) to ecosystem stability (e.g., response to sea level rise and drought; habitat loss; coastal protection) to biogeochemical processes (e.g., carbon storage; water quality). In this research, our focus was on the impact of mangrove forest migration on coastal wetland soil processes and the consequent implications for coastal wetland responses to sea level rise, ecosystem resilience, and carbon storage. Our study specifically addressed the following questions: (1) How do ecological processes and ecosystem properties differ between salt marshes and mangrove forests; (2) As mangrove forests develop, how do their ecosystem properties change and how do these properties compare to salt marshes; (3) How do plant-soil interactions across mangrove forest structural gradients differ among three distinct locations that span the northern Gulf of Mexico; and (4) What are the implications of mangrove forest encroachment and development into salt marsh in terms of soil development, carbon and nitrogen storage, and soil strength?</purpose>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <rngdates>
+          <begdate>20121201</begdate>
+          <enddate>20131031</enddate>
+        </rngdates>
+      </timeinfo>
+      <current>ground condition</current>
+    </timeperd>
+    <status>
+      <progress>complete</progress>
+    </status>
+    <keywords>
+      <theme>
+        <themekt>ISO 19115 Topic Category</themekt>
+        <themekey>soil</themekey>
+        <themekey>bulk density</themekey>
+        <themekey>moisture</themekey>
+        <themekey>soil organic matter</themekey>
+        <themekey>soil inorganic matter</themekey>
+        <themekey>total carbon</themekey>
+        <themekey>total nitrogen</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS Biocomplexity Thesaurus</themekt>
+        <themekey>soil</themekey>
+        <themekey>bulk density</themekey>
+        <themekey>moisture</themekey>
+        <themekey>soil organic matter</themekey>
+        <themekey>soil inorganic matter</themekey>
+        <themekey>total carbon</themekey>
+        <themekey>total nitrogen</themekey>
+      </theme>
+      <place>
+        <placekt>Geographic Names Information System</placekt>
+        <placekey>Gulf of Mexico</placekey>
+        <placekey>United States of America</placekey>
+        <placekey>Port Aransas</placekey>
+        <placekey>State of Texas</placekey>
+        <placekey>Port Fourchon</placekey>
+        <placekey>State of Louisiana</placekey>
+        <placekey>Cedar Key</placekey>
+        <placekey>State of Florida</placekey>
+      </place>
+    </keywords>
+    <taxonomy>
+      <taxonsys>
+        <ider>
+          <cntinfo>
+            <cntaddr>
+              <addrtype>mailing and physical</addrtype>
+            </cntaddr>
+          </cntinfo>
+        </ider>
+        <vouchers>
+          <reposit>
+            <cntinfo>
+              <cntaddr>
+                <addrtype>mailing and physical</addrtype>
+              </cntaddr>
+            </cntinfo>
+          </reposit>
+        </vouchers>
+      </taxonsys>
+    </taxonomy>
+    <accconst>none</accconst>
+    <useconst>Below, we've included several statements concerning the ethical use of this dataset. We've adopted the following statement regarding data archiving and sharing from Wright et al. 2004: "The authors believe that the archiving and sharing of large datasets is important for advancing ecology as a discipline. At the same time, for data sharing to be successful and sustainable, it is imperative that all those involved in data acquisition, archiving and use do so in an ethical manner. In particular, we believe that those individuals whose time, efforts and intellect designed and created the studies are acknowledged appropriately." Text in quotation from: Wright, I. J., P. B. Reich, M. Westoby, D. D. Ackerly, Z. Baruch, F. Bongers, J. Cavender-Bares, T. Chapin, J. H. Cornelissen, and M. Diemer. 2004. The worldwide leaf economics spectrum. Nature 428:821-827.&#xD;
+&#xD;
+As a condition for use of this data set, users agree:										&#xD;
+(1) To notify the lead investigator (Michael Johannes Osland) if the dataset is to be used in any publication;&#xD;
+(2) To provide formal recognition that, at our discretion, may include co-authorship or acknowledgements on publications;																		&#xD;
+(3) To recognize that we may be using these data for scientific analyses, papers or publications that are currently planned or in preparation, and that such activities have precedence over any that that you might wish to prepare.</useconst>
+    <tool>
+      <toolcont>
+        <cntinfo>
+          <cntaddr>
+            <addrtype>mailing and physical</addrtype>
+          </cntaddr>
+        </cntinfo>
+      </toolcont>
+    </tool>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>No formal attribute accuracy tests were conducted</attraccr>
+    </attracc>
+    <logic>No formal logical accuracy tests were conducted</logic>
+    <posacc>
+      <horizpa>
+        <horizpar>No formal positional accuracy tests were conducted</horizpar>
+      </horizpa>
+    </posacc>
+    <lineage>
+      <method>
+        <methtype>lab</methtype>
+        <methdesc>Soil samples were collected to 30-cm depth using a customized stainless steel split-coring cylinder (diameter: 4.7 cm; cylinder was split horizontally and a piano hinge was attached to facilitate opening and closing.) Each 30-cm core was separated into three sampling depth increments: 0-5 cm, 5-15 cm and 15-30 cm.</methdesc>
+        <methcite>
+          <citeinfo>
+            <origin>Osland, Michael J.</origin>
+            <pubdate>Unknown</pubdate>
+            <title>Ecosystem Development After Mangrove Wetland Creation: Plant-Soil Change Across a 20- Year Chronosequence</title>
+            <onlink>http://link.springer.com/article/10.1007/s10021-012-9551-1</onlink>
+          </citeinfo>
+        </methcite>
+      </method>
+      <procstep>
+        <procdesc>No process steps have been described for this data set</procdesc>
+        <procdate>Unknown</procdate>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <indspref>GNIS placenames: Port Aransas, Texas, Fourchon, Louisiana, Cedar Key, Florida USA</indspref>
+    <direct>vector</direct>
+  </spdoinfo>
+  <eainfo>
+    <detailed>
+      <enttyp>
+        <enttypl>Dataset 8: New soil data collection: site-level physicochemical properties</enttypl>
+        <enttypd>A spreadsheet containing each soils samples' bulk density, moisture content, SOM, SIC, TC, TN, percent sand, percent silt and percent clay.</enttypd>
+        <enttypds>Producer defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>State</attrlabl>
+        <attrdef>The state a site is located in</attrdef>
+        <attrdefs>producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Florida (FL) Louisiana (LA) or Texas (TX)</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Habitat</attrlabl>
+        <attrdef>Mangrove forest (MF) or salt marsh (SM)</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <udom>Either MF or SM</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Typeid</attrlabl>
+        <attrdef>The number assigned to the site based on the location and habitat combination</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1</rdommin>
+            <rdommax>9</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Site</attrlabl>
+        <attrdef>Label given to each site identifying the state, habitat, and sequence</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <udom>label for each site, state-habitat-number, i.e., LAMF1</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depth</attrlabl>
+        <attrdef>The depth increment from which the soil sample was collected beneath the soil surface</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>30</rdommax>
+            <attrunit>centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depthbegin</attrlabl>
+        <attrdef>The depth a sample starts; this column is included to facilitate data management</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>15</rdommax>
+            <attrunit>centimeters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Sample_all</attrlabl>
+        <attrdef>The complete label of the sample</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <udom>Label</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>BD</attrlabl>
+        <attrdef>Bulk density (BD)</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.13</rdommin>
+            <rdommax>1.48</rdommax>
+            <attrunit>g/cm^3</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Moisture</attrlabl>
+        <attrdef>Moisture content; mass basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>22.46</rdommin>
+            <rdommax>74.99</rdommax>
+            <attrunit>percent</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SOM</attrlabl>
+        <attrdef>Soil organic matter (SOM); mass basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1.25</rdommin>
+            <rdommax>44.97</rdommax>
+            <attrunit>percent</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SIC</attrlabl>
+        <attrdef>Soil inorganic carbon (SIC) matter; soil inorganic carbonates; mass basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.42</rdommin>
+            <rdommax>4.68</rdommax>
+            <attrunit>percent</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TC</attrlabl>
+        <attrdef>Total carbon; mass basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.377</rdommin>
+            <rdommax>17.425</rdommax>
+            <attrunit>percent</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TN</attrlabl>
+        <attrdef>total nitrogen; mass basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.010</rdommin>
+            <rdommax>1.365</rdommax>
+            <attrunit>percent</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SOMvol</attrlabl>
+        <attrdef>Soil organic matter (SOM); volumetric basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1.486</rdommin>
+            <rdommax>10.747</rdommax>
+            <attrunit>g/cm^3</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SICMvol</attrlabl>
+        <attrdef>Soil inorganic carbon (SIC) matter; soil inorganic carbonates; volumetric basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.399</rdommin>
+            <rdommax>2.645</rdommax>
+            <attrunit>g/cm^3</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TCvol</attrlabl>
+        <attrdef>Total carbon; volumetric basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.00451</rdommin>
+            <rdommax>0.03751</rdommax>
+            <attrunit>g/cm^3</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TNvol</attrlabl>
+        <attrdef>total nitrogen; volumetric basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.00015</rdommin>
+            <rdommax>0.00277</rdommax>
+            <attrunit>g/cm^3</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SOMarea</attrlabl>
+        <attrdef>Soil organic matter (SOM); area basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>94.650</rdommin>
+            <rdommax>1612.047</rdommax>
+            <attrunit>kg/m^2</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SICMarea</attrlabl>
+        <attrdef>Soil inorganic carbon (SIC) matter; soil inorganic carbonates; area basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>19.929</rdommin>
+            <rdommax>396.784</rdommax>
+            <attrunit>kg/m^2</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TCarea</attrlabl>
+        <attrdef>Total carbon; area basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.344</rdommin>
+            <rdommax>5.626</rdommax>
+            <attrunit>kg/m^2</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>TNarea</attrlabl>
+        <attrdef>Total nitrogen; area basis</attrdef>
+        <attrdefs>producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0.022</rdommin>
+            <rdommax>0.390</rdommax>
+            <attrunit>kg/m^2</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntperp>
+          <cntper>U.S. Geological Survey, National Wetlands Research Center</cntper>
+        </cntperp>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>700 Cajundome Blvd</address>
+          <city>Lafayette</city>
+          <state>LA</state>
+          <postal>70506</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>337-266-8500</cntvoice>
+        <cntemail>none</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>Although these data have been processed successfully on a computer system at the U.S. Geological Survey, no warranty expressed or implied is made regarding the accuracy or utility of the data on any other system or for general or scientific purposes, nor shall the act of distribution constitute any such warranty. This disclaimer applies both to individual use of the data and aggregate use with other data. It is strongly recommended that these data are directly acquired from the U.S. Geological Survey server, and not indirectly through other sources which may have changed the data in some way. It is also strongly recommended that careful attention be paid to the contents of the metadata associated with this data. The U.S. Geological Survey shall not be held liable for improper or incorrect use of the data described and/or contained herein.</distliab>
+  </distinfo>
+  <metainfo>
+    <metd>20141103</metd>
+    <metc>
+      <cntinfo>
+        <cntperp>
+          <cntper>Michael Osland</cntper>
+          <cntorg>U.S. Geological Survey, National Wetlands Research Center</cntorg>
+        </cntperp>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>700 Cajundome Blvd</address>
+          <city>Lafayette</city>
+          <state>LA</state>
+          <postal>70506</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>337-266-8664</cntvoice>
+        <cntemail>mosland@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>FDGC Content Standard for Digital Geospatial Metadata and Biological Data Profile</metstdn>
+    <metstdv>FDGC-STD-001-1998</metstdv>
+  </metainfo>
+  <mercury>
+    <mercury_status>draft</mercury_status>
+  </mercury>
+</metadata>
+

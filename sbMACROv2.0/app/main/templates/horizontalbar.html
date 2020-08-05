@@ -1,4 +1,4 @@
-<!-- {% extends "base.html" %} {% block content %} -->
+ {% extends "base.html" %} {% block content %} 
 
 <link rel="stylesheet" href="static/css/custom.css" />
 <link
@@ -60,17 +60,21 @@
     })
   })
 </script>
-<div class="output">
+<!-- <div class="output">
+    {% include 'dropdownHorizontal.html' %}
+   </div> -->
+<div>
+  <h4 style="color:#444242;font-family: arial;">sbMACRO Query Results</h4>
+  <div class="gradient-line"></div>
+  <div class="output">
     {% include 'dropdownHorizontal.html' %}
    </div>
-<div>
-  <br></br>
-  <h4 style="color:#444242;font-family: arial;">sbMACRO Query Results</h4>
-  <br />
+   <br>
   <p class="font_format">
     Below is a table showing your query results from
     <a href="http://www.sciencebase.gov">ScienceBase.gov</a>
   </p>
+  <br>
 </div>
 <div id="container">
   <div id="wrapper"></div>
@@ -196,6 +200,12 @@
   window.addEventListener('resize', catchResize)
   // var $table = $('table#reportTable');
   // $table.floatThead();
+
+
+// adding new script for top menu
+
+
+
 </script> 
 
 

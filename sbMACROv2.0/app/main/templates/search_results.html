@@ -4,17 +4,24 @@
 <meta charset="utf-8">
 
 <head>
-  <h1>Search results for "{{ query }}":</h1>
-  <h4 style="color: green ">Number of DataSets found:{{length}}</h4>
+  <h4 style="color:#444242;font-family: arial">Search results for "{{ query }}":</h4>
+  <h5 style="color:#444242;font-family: arial">Number of DataSets found:{{length}}</h5>
 </head>
 <style>
+
+  .gradient-line {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 2), rgba(0, 0, 0, 0));
+}
   .bar {
     fill: steelblue;
-    stroke: black
+    stroke: white;
   }
 
   .bar:hover {
-    fill: yellowgreen;
+    fill: #9e9e9e;
+
   }
 
   .axis--x path {
@@ -57,7 +64,7 @@
   }
 
   .dropdown :hover {
-    background-color: white;
+    /*background-color: white;*/
     color: black;
   }
 
@@ -78,11 +85,11 @@
 
   body {
     margin: 15px;
-    background-color: #F1F3F3
+    background-color: #F1F3F3;
   }
 
   .bar {
-    fill: rgb(137, 56, 148);
+    fill: rgb(31, 119, 180);
   }
 
   .axis path,
@@ -105,14 +112,17 @@
     background: none repeat scroll 0 0 white;
     border: 1px solid #6F257F;
     padding: 14px;
-    text-align: center;
+    text-align: justify;
+    color: #444242;
+    font-family:arial;
+}
   }
 </style>
 
 <div>
 
-  <ul class="header btn wave-effect waves-teal">
-    <li class="dropdown  left">Search Type
+  <ul class="header btn wave-effect waves-teal" style="width: 15%; height:50px;">
+    <li class="dropdown  left" style="margin-left: 10px;">Search Type
       <i class="fa fa-caret-down"></i>
       <ul>
         <li class="active"><a href="/searchBack/{{query}}">Tree Chart</a></li>
@@ -127,8 +137,10 @@
   <svg width="960" height="500" id="svg1"></svg>
 
   </br>
+  <br>
+  <div class="gradient-line"></div>
   </br>
-  <svg width="600" height="600" id="svg2"></svg>
+  <svg width="800" height="600" id="svg2"></svg>
 
 </div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -265,6 +277,7 @@
       existing_FYs.push(data[i].Fy)
     }
   }
+
 
   //Legend
   var legend = svg.selectAll(".legend")

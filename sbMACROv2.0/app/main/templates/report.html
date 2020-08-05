@@ -18,7 +18,7 @@
 
 <script>
   var projectArray = {{ projects| tojson | safe }};
-  console.log(projectArray)
+  // console.log(projectArray)
   buildProjectTable(projectArray);
 </script>
 
@@ -43,19 +43,26 @@
     })
   })
 </script>
-<div class="output">
+<!-- <div class="output">
     {% include 'dropdown.html' %}
-   </div>
+</div> -->
 <div>
-  <br></br>
+  <!-- <br> -->
   <h4 style="color:#444242;font-family: arial;">sbMACRO Query Results</h4>
-  <br />
+  <!-- <br /> -->
+  <div class="gradient-line"></div>
+  <div class="output">
+    {% include 'dropdown.html' %}
+</div>
+<br>
   <p class="font_format">
     Below is a table showing your query results from
     <a href="http://www.sciencebase.gov">ScienceBase.gov</a>
   </p>
   <p class="font_format">Currently You are visualizing Data Based on Size - Vertically</p>
+  <br>
 </div>
+
 <div id="container">
   <div id="wrapper"></div>
   <div id="fyGraphWrapper"></div>
@@ -72,8 +79,7 @@
   <div id="table_wrapper">
     <table
       class="bordered highlight striped centered responsive-table"
-      id="reportTable"
-    >
+      id="reportTable">
       <thead id="table_head">
         <th>Number</th>
         <th>Climate Adaptation Science Center</th>

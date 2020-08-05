@@ -20,8 +20,8 @@
   padding: 6px;
 }
 .dropdown {
-  color: #FFF;
-  position: relative;
+  /*color: #FFF;*/
+  /*position: relative;*/
   text-align: left;
 }
 .dropdown ul {
@@ -30,9 +30,10 @@
   /* and here */
   top: 100%;
   left: 0;
-  color: white;
-  width: auto;
+  color: black;
+  width: 100%;
   display: none;
+  background: white;
   
 }
 .dropdown:hover ul {
@@ -40,9 +41,8 @@
   border: black;
 }
 .dropdown :hover {
-        background-color:#f9f8f8;
-        color: black;
-        font-weight: bold;
+        color: #444242;
+        /*font-weight: bold;*/
       }
 .main {
   margin-top: 20px;
@@ -61,7 +61,7 @@
 </head>
 <body>
         <ul class="header btn wave-effect waves-teal">
-          <li class="dropdown  left">Data Chart Type
+          <li class="dropdown  left" style="margin-left: 10px;">Data Chart Type
               <i class="fa fa-caret-down"></i>
             <ul>
                     <li class="active "><a href="/report">Vertical Chart</a></li>

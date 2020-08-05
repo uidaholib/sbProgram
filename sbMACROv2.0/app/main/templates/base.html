@@ -12,17 +12,29 @@
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+    
     {{ moment.include_moment() }}
     <!-- <link rel="stylesheet" href="../static/bootstrap.min.css"> -->
     <link rel="stylesheet" href="../../static/css/custom.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+   
+
     <style>
+
       * {box-sizing: border-box;}
       
       /* body {
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
       } */
+
+
+/*----------------------------------------------------------*/
+      .gradient-line {
+      border: 0;
+      height: 1px;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 2), rgba(0, 0, 0, 0));
+      }
 
       /*copyright footer*/
 
@@ -31,14 +43,14 @@
         background-color: #f5b423;
         color: white;
         text-align: center;
-        margin-top: 10%;
+        margin-top: 5%;
         font-size: 15px;
         margin-left: -100%;
         margin-right: -100%;
         color:#fff;
       }
 
-
+/*top menubar*/
       .nav-wrapper {
       position: relative;
       height: 100%;
@@ -46,6 +58,7 @@
       margin-left: -85%;
       font-weight: bold;
       }
+
 
     teal.lighten-1 {
     background-color: #f5b423!important;
@@ -128,50 +141,82 @@
   
   </style>
 <body>
+
 <!--   <div id="loading_container">
       <h4 id="loading_title">Please wait...</h4>
       <img src="static/loading.gif" id="loading">
   </div> -->
   <!-- Navbar goes here -->
-  <nav id="nav">
+
+
+<!-- ----------------------------------------- -->
+
+
+
+   <nav id="nav">
     <div class="nav-wrapper">
       <a href="{{ url_for('main.index') }}" class="brand-logo center" style="font-size: 30px ">sbMACRO</a>
-      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">Menu</i></a>
+
       <ul class="right hide-on-med-and-down">
         <li><a href="{{ url_for('main.index') }}" id="Nav-Home"> HOME </a></li>
-        <li><a href="{{ url_for('main.fiscalyear') }}" id="Nav-FiscalYear"> FISCAL YEAR REPORT</a></li>
-        <li><a href="{{ url_for('main.project') }}" id="Nav-Project"> PROJECT REPORT </a></li>
-        <li><a href="{{ url_for('main.proj_compare') }}" id="Nav-Proj-Compare"> PROJECT COMPARISON</a></li>
-        <li id="get_report"><a href="{{ url_for('main.report') }}"> REPORT </a></li>
-        {% if current_user.is_authenticated %}
-        <li></li>
+        <li id="get_report"><a href="{{ url_for('main.report') }}"> REPORT </a> 
+          <ul id="report_menu" style="position: absolute;">
+
+            <li><a href="{{ url_for('main.fiscalyear') }}" id="Nav-FiscalYear" style = "background-color: #f5b423;width:130px;"> FISCAL YEAR</a></li>
+            <br>
+            <li><a href="{{ url_for('main.project') }}" id="Nav-Project" style="background-color: #f5b423;width:130px;">PROJECT</a></li>
+            <br>
+            <li><a href="{{ url_for('main.proj_compare') }}" id="Nav-Proj-Compare" style = "background-color: #f5b423;width:130px;"> COMPARISON </a></li>
+
+          </ul> 
+        </li>
+        <li id ="get_trends"><a href="{{ url_for('main.trends') }}" id="Nav-Home"> TRENDS </a>
+          <ul id="trends_menu" style="position: absolute;">
+
+            <li><a href="{{ url_for('main.bursts') }}" id="Nav-Bursts" style = "background-color: #f5b423;width:90px;"> BURSTS</a></li>
+            <br>
+          </ul> 
+        </li>
+         {% if current_user.is_authenticated %} 
+        <li><a href="{{ url_for('main.update_db') }}" id="Nav-Update">UPDATE DATABASE</a></li>
         <li><a href="{{ url_for('main.user', username=current_user.username) }}">PROFILE</a></li>
         <li><a href="{{ url_for('auth.revoke') }}">LOGOUT</a></li>
         <li>
-            <div class="search-container "> 
+          <div class="search-container "> 
             <form style="display: inline;" action="{{ url_for('main.search')}}  "  method="post" name="query">
-            <input type="text" class="blue " placeholder=" Search Here" name="search" ></input>
-            <button type="submit"></button></form>
+            <input type="text" class="white " placeholder=" Search Here" name="search" style="border-radius: 5px;  width: 85%; margin: 0 0 0 0 ;"></input>
+            <button type="submit"></button> 
+            </form>
           </div>
+        </li>
         {% else %}
         <li><a href="{{ url_for('auth.login') }}">LOGIN</a></li>
+
         {% endif %}
       </ul>
     </div>
   
   </nav>
+
+
+
+
+        
+
   <!-- Side Nave hidden menu -->
-  <ul class="sidenav" id="mobile-demo">
+ <!-- <ul class="sidenav" id="mobile-demo">
     <li id="get_report"><a href="{{ url_for('main.report') }}">REPORT</a></li>
+
     {% if current_user.is_authenticated %}
     <li></li>
     <li ><a href="{{ url_for('main.user', username=current_user.username) }} ">PROFILE</a></li>
-    <li><a href="{{ url_for('main.update_db') }}" id="Nav-Update">UPDATE DATABASE</a></li>
+    
     <li><a href="{{ url_for('auth.revoke') }}">LOGOUT</a></li>
     {% else %}
     <li><a href="{{ url_for('auth.login') }}">LOGIN</a></li>
     {% endif %}
-  </ul>
+  </ul> -->
 
 <!-- Page Layout here -->
 
@@ -181,6 +226,8 @@
     <!-- Page Layout here -->
     <div class="row">
     
+
+
       <div class="col s12 m4 l2">
         <!-- Note that "m4 l3" was added -->
         <!-- Grey navigation panel
@@ -191,14 +238,15 @@
                 12-columns-wide on small screens  
               For active one add class="active amber accent-4"-->
 
-        <div>
+     <!--  <div>
+
           
          
          
           
-          <!-- <a id="Nav-Mixed" class="collection-item grey grey-text text-darken-2">Mixed Report</a> -->
+          <a id="Nav-Mixed" class="collection-item grey grey-text text-darken-2">Mixed Report</a>
           
-        </div>
+     </div> -->
     
       </div>
     
@@ -227,6 +275,8 @@
     
     </div>
   </div>
+
+
     <script>
       $(document).ready(function () {
         var $nav = $("#nav");
@@ -298,9 +348,43 @@
       //Initialize the sidenav-trigger line of nav bar
       // $('.sidenav').sidenav();
 
-    </script>
 
-    <!-- Footer Copyright -->
+
+// adding new code for top menu dropdown
+
+
+$(document).ready(function(){
+  $('#report_menu').hide();
+      $("#get_report").mouseenter(function() {
+
+          $('#report_menu').stop(true, true).slideDown('medium');
+      });
+      
+      $("#get_report").mouseleave(function() {
+        if(!$('#get_report').is(':hover')){
+          $('#report_menu').hide();
+        };
+      });
+});
+
+$(document).ready(function(){
+  $('#trends_menu').hide();
+      $("#get_trends").mouseenter(function() {
+
+          $('#trends_menu').stop(true, true).slideDown('medium');
+      });
+      
+      $("#get_trends").mouseleave(function() {
+        if(!$('#get_trends').is(':hover')){
+          $('#trends_menu').hide();
+        };
+      });
+});
+
+
+</script>
+
+ <!-- Footer Copyright -->
   <div class="projModal-footer">
   <div class="footer-copyright text-center py-3">© 2020 Copyright:
    <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
