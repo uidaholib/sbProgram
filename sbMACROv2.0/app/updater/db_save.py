@@ -36,6 +36,7 @@ def save_master_details(app, item_details):
             relatedItemsUrl = detail['relatedItemsUrl']
             title = detail['title']
             summary = detail['summary']
+            item_type = detail['item_type']
             PI = ''
             CI = ''
             for contact in detail['contacts']:
@@ -62,7 +63,8 @@ def save_master_details(app, item_details):
                                             title = title,
                                             summary = summary,
                                             PI = PI,
-                                            CI = CI)
+                                            CI = CI,
+                                            item_type = item_type)
             app.db.session.add(detail_row)
             changes_made = True
         else:
@@ -111,6 +113,9 @@ def save_master_details(app, item_details):
             if item_row.summary != detail['summary']:
                 item_row.summary = detail['summary']
                 changes_made = True
+            if item_row.item_type != detail['item_type']:
+                item_row.item_type = detail['item_type']
+                changes_made = True
             PI = ''
             CI = ''
             for contact in detail['contacts']:
@@ -138,6 +143,7 @@ def save_master_details(app, item_details):
         print('Not found! Something may be wrong')
     else:
         print('Success! Sample details for item id 57d84c15e4b090824ff9ac75:')
+        print('Item type: {}'.format(test.item_type))
         print('Number of files: {}'.format(test.num_files))
         print('Start date: {}'.format(test.start_date))
         print('End date: {}'.format(test.end_date))

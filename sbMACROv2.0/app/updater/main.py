@@ -348,9 +348,12 @@ def process_proj_ids(source, casc, fy_ids, proj_details_list, item_details_list,
 
     num_items = 0
     for fy_id in fy_ids:
-        time.sleep(pause_duration) # to ease pressure on sciencebase servers
-        fy_json = sb.get_item(fy_id)
-        fy = fy_json['title'].split()[1]
+        try:
+            time.sleep(pause_duration) # to ease pressure on sciencebase servers
+            fy_json = sb.get_item(fy_id)
+            fy = fy_json['title'].split()[1]
+        except:
+            continue
         if fy.isnumeric():
             proj_ids = sb.get_child_ids(fy_id)
             num_items += process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
@@ -360,6 +363,17 @@ def process_proj_ids(source, casc, fy_ids, proj_details_list, item_details_list,
 def process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
     num_items = 0
     for proj_id in proj_ids:
+        # get project information
+        if source == 'file':
+            proj_json = proj_jsons[proj_id]
+        else:
+            try:
+                time.sleep(pause_duration) # to ease pressure on sciencebase servers
+                proj_json = sb.get_item(proj_id)
+                proj_jsons[proj_id] = proj_json # save proj_json
+            except:
+                continue
+        
         #-----build project details-----
         approved_dataset_items = []
         proj_details = {}
@@ -367,13 +381,6 @@ def process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_det
         proj_details['id'] = proj_id
         proj_details['casc'] = casc
         proj_details['fy'] = fy
-        
-        if source == 'file':
-            proj_json = proj_jsons[proj_id]
-        else:
-            time.sleep(pause_duration) # to ease pressure on sciencebase servers
-            proj_json = sb.get_item(proj_id)
-            proj_jsons[proj_id] = proj_json # save proj_json
         
         proj_details['title'] = proj_json['title']
         proj_details['size'] = 0
@@ -404,19 +411,23 @@ def process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_det
         # build approved dataset list
         dataset_ids = sb.get_child_ids(proj_id)
         for dataset_id in dataset_ids:
-            time.sleep(pause_duration) # to ease pressure on sciencebase servers
-            dataset_json = sb.get_item(dataset_id)
-            if dataset_json['title'].lower() == 'approved datasets':
-                approved_dataset_items = get_approved_items(dataset_id)
-                num_items += collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration)
+            try:
+                time.sleep(pause_duration) # to ease pressure on sciencebase servers
+                dataset_json = sb.get_item(dataset_id)
+                item_type = dataset_json['title'].lower()
+                if item_type in ['approved datasets', 'approved products']:
+                    approved_dataset_items = get_approved_items(dataset_id, item_type.split()[1][:-1])
+                    num_items += collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration)
+            except:
+                continue
         
     return num_items
 
-def get_approved_items(dataset_id):
+def get_approved_items(dataset_id, item_type):
         
     approved_items = []
     
-    def get_items(parent_id):
+    def get_items(parent_id, item_type):
         child_id_list = sb.get_child_ids(parent_id)
         for child_id in child_id_list:
             try:
@@ -424,11 +435,11 @@ def get_approved_items(dataset_id):
                 if child_json['hasChildren']:
                     get_items(child_id)
                 else:
-                    approved_items.append(child_id)
+                    approved_items.append((child_id, item_type))
             except:
                 pass
     
-    get_items(dataset_id)
+    get_items(dataset_id, item_type)
     
     return approved_items
 
@@ -436,23 +447,29 @@ def collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, appro
     
     num_items = 0
 
-    for item_id in approved_dataset_items:
+    for item_id, item_type in approved_dataset_items:
+
+        # get item informatino
+        if source == 'file':
+            item_json = item_jsons[item_id]
+        else:
+            try:
+                time.sleep(pause_duration) # to ease pressure on sciencebase servers
+                item_json = sb.get_item(item_id)
+                item_jsons[item_id] = item_json # save item_json
+            except:
+                continue
+
         #-----build item details-----
         item_details = {}
 
         item_details['id'] = item_id
+        item_details['item_type'] = item_type
         item_details['casc'] = casc
         item_details['FY'] = fy
         item_details['proj_id'] = proj_id
         item_details['proj_title'] = proj_title
         item_details['proj_size'] = proj_size
-
-        if source == 'file':
-            item_json = item_jsons[item_id]
-        else:
-            time.sleep(pause_duration) # to ease pressure on sciencebase servers
-            item_json = sb.get_item(item_id)
-            item_jsons[item_id] = item_json # save item_json
 
         try:
             item_details['title'] = item_json['title']
