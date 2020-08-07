@@ -33,7 +33,7 @@ def login():
         if not user.email_confirmed:
             flash("Please confirm your email address to activate your Account", 'error')
             return render_template('login.html', title='Sign In', form=form), 401
-
+          
         login_user(user, remember=form.remember_me.data)
 
         next_page = request.args.get('next')

@@ -1,0 +1,1348 @@
+{% extends "base.html" %} {% block content %}
+
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}"/>
+
+<style>
+
+	/* CHART TRIAL */
+	/* Text wrapping for the legend: https://stackoverflow.com/questions/12677878/change-svg-text-to-css-word-wrapping */
+
+	path {
+	    stroke: #ccc;
+	    stroke-width: 2;
+	    fill: none;
+	}
+	.axis path,
+	.axis line {
+	    fill: none;
+	    stroke: grey;
+	    stroke-width: 1;
+	    shape-rendering: crispEdges;
+	}
+	#vbc_casc_dropdown
+	{
+		position:absolute;
+		width: 210px;
+		/*left: 38%;*/
+	}
+	#hbc_casc_dropdown{
+		position:absolute;
+		width: 210px;
+		left: 32%;
+		margin-left: -9%;
+	}
+	#hbc_year_dropdown{
+		position:absolute;
+		width: 210px;
+		left: 32%;
+	}
+	#phrases_label{
+		position:relative;
+		top:18px;
+		width: 20px;
+	}
+	div.input{
+		border-radius:5px;
+		padding:5px 10px;
+		background:#999;
+		border:0;
+		color:#fff;
+	}
+	#showAll{
+		position:relative;
+		top: 20px;
+		left: 0px;
+	}
+	#clearAll{
+		position: relative;
+		top: 22px;
+	}
+	#legendContainer{
+		position: relative;
+		float: left;
+		top: 30px;
+		width: 110px;
+	}
+	#legend{
+		position: relative;
+		width: 100px;
+		/*height:300px;*/
+	}
+	.chart_legend {
+	    font-size: 12px;
+	    font-weight: normal;
+	    text-anchor: left;
+	}
+	.legendcheckbox{
+		cursor: pointer;
+	}
+
+	/* Custom Tooltip */
+	div.tooltip {   
+	 	position: absolute;
+		text-align: center;              
+		padding: 2px;             
+		font: 12px sans-serif;
+		border: 0px;      
+		border-radius: 8px;           
+		pointer-events: none;         
+	}
+	input[type=range]{
+	    width: 80%;
+	    margin: 15px 7px 0 0;
+	}
+	.slidecontainer {
+		/*margin: 0 auto;*/
+		margin-top: 30px;
+		margin-left: 40%;
+		width: 25%;
+		margin-left: 12%;
+	}
+	.slider {
+		height: 15px;
+	}
+	input[type=range]::-webkit-slider-runnable-track {
+	    height: 5px;
+	    background: #ddd;
+	    border: none;
+	    border-radius: 3px;
+	}
+	input[type=range]::-webkit-slider-thumb {
+	    -webkit-appearance: none;
+	    border: none;
+	    height: 16px;
+	    width: 16px;
+	    border-radius: 50%;
+	    background: goldenrod;
+	    margin-top: -4px;
+	}
+	input[type=range]:focus {
+	    outline: none;
+	}
+	input[type=range]:focus::-webkit-slider-runnable-track {
+	    background: #ccc;
+	}
+	input[type=range]:focus::-ms-fill-lower {
+	    background: rgb(0, 0, 255);
+	}
+	input[type=range]:focus::-ms-fill-upper {
+	    background: #ccc;
+	}
+	.double-line {
+	    border: none;
+	    border-top: 3px double #333;
+	    color: #333;
+	    overflow: visible;
+	    text-align: center;
+	    height: 5px;
+	}
+	.double-line:after {
+	    background: #fff;
+	    content: '*';
+	    padding: 0 4px;
+	    position: relative;
+	    top: -10px;
+	}
+	/*  https://css-tricks.com/examples/hrs/  */
+	.gradient-line {
+	    border: 0;
+	    height: 1px;
+	    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 2), rgba(0, 0, 0, 0));
+	}
+
+</style>
+
+<h4 style="color: #444242;font-family: arial;">Research Trends</h4>
+<!-- <hr size="20" noshade="noshade"> -->
+<div class = "gradient-line"></div>
+
+
+<!-- VERTICAL BAR CHART -->
+<br>
+<p><h5 style="text-align: left;color: #444242;font-family: arial;font-size: 30px;">Total Project/Item Count per Year</h5></p>
+<!-- <hr class="double-line" width="39%"> -->
+<div style="margin-left: 10%">
+
+	<div style="padding: 2%;">
+		<div id = 'vbc_casc_dropdown'></div>
+
+		<button class="btn wave-effect waves-teal" style="margin-left: 17%; margin-top: 2px" onclick="downloadCSVFromJson('counts')">
+			Download Counts
+		</button>
+	</div>
+
+	<div id = 'counts'>
+
+	</div>
+</div>
+<br>
+<div class="gradient-line"></div>
+<p></p>
+<p></p>
+
+<br>
+<p><h5 style="text-align: left;color: #444242;
+    font-family: arial;font-size: 30px;">Topic Trends by CASC and Year</h5></p>
+    <br>
+<!-- <hr class="double-line" width="36%"> -->
+
+<!-- PHRASE COUNTS -->
+<div>
+	<div>
+		<div id = 'hbc_casc_dropdown'>
+			<!-- <label for = "cascs" style="font-size:80%; text-align:left">CASCs</label> -->
+		</div>
+		<div id = 'hbc_year_dropdown'>
+			<!-- <label for = "cascs" style="font-size:80%; text-align:left">CASCs</label> -->
+		</div>
+		<button class="btn wave-effect waves-teal" style="margin-left: 41%; margin-top: 2px" onclick="downloadCSVFromJson('trends')">
+			Download Trends
+		</button>
+	</div>
+</div>
+<br>
+<div class="slidecontainer">
+	<output id="num_phrases"></output>
+	<input id="num_phrases" type="range" class="slider">
+	<output id="num_display"></output>
+</div>
+
+
+<div>
+	<p><hr class="gradient-line" width="80%"></p>
+	<!-- HORIZONTAL BAR CHART -->
+	<div id="horiz_barchart"></div>
+
+	<p><hr class="gradient-line" width="80%"></p>
+	<!-- LINE CHART -->
+	<div>
+		<div class="tooltip"></div> <!-- To display tooltip on mouseover -->
+		<div>
+			<div id = "chart_div" style="float: left; width: 80%"></div>
+			<div style="float: left; width: 20%">
+				<div id = 'phrases_label'>
+					<label  style="font-size:80%; text-align:left">PHRASES</label>
+				</div>
+				<div id="showAll">
+					<input name="showAllButton"
+					 type="button"
+					 value="Show All"
+					 onclick="showAll()" />
+				</div>
+
+				<div id="clearAll">
+					<input name="clearAllButton"
+					 type="button"
+					 value="Clear All"
+					 onclick="clearAll()" />
+				</div>
+
+				<div id="legendContainer" class="legendContainer">
+					<svg id="lineChart_legend"></svg>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="projModal">
+  <!-- Modal content -->
+	<div class="projModal-content">
+		<div class="projModal-header">
+			<span class="close">&times;</span>
+			<h5></h5>
+		</div>
+
+		<div class="row">
+			<span style="font-size: 2vh;">
+				<div id = 'details_div' style = 'text-align: justify; text-justify: inter-word'></div>
+			</span>
+		</div>
+
+		<div class="projModal-footer">
+		<h8>sbMACRO</h8>
+		</div>
+
+	</div>
+
+</div>
+
+<script>
+
+	// ========= Universal Variables =========
+	var cascs = [
+					"All CASCs",
+					"Alaska",
+					"North Central",
+					"Northeast",
+					"Northwest",
+					"Pacific",
+					"South Central",
+					"Southeast",
+					"Southwest",
+					"National"
+				],
+		lc_years = ["All Years", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018"],
+		data_path = '/static/main/counts/';
+
+	// ========= SVG dimensions & axes =========
+	// Vertical Bar Chart
+	var vbc_margin = {top: 20, right: 20, bottom: 30, left: 40},
+	    vbc_width = 760 - vbc_margin.left - vbc_margin.right,
+	    vbc_height = 300 - vbc_margin.top - vbc_margin.bottom;
+
+    var x0 = d3.scale.ordinal().rangeRoundBands([0, vbc_width], .1)
+		x1 = d3.scale.ordinal()
+		vbc_y = d3.scale.linear().range([vbc_height, 0]);
+
+	var vbc_xAxis = d3.svg.axis()
+						  .scale(x0)
+						  .tickSize(0)
+						  .orient("bottom");
+
+	var vbc_yAxis = d3.svg.axis()
+					      .scale(vbc_y)
+					      .orient("left");
+
+
+	var vbc_dropdown = d3.select("#vbc_casc_dropdown")
+						 .append("select")
+						 .attr("id", "vbc_casc_dropdown")
+						 .style("width", "60%")
+						 .style("display", "block");
+
+	vbc_dropdown.selectAll("option")
+				.data(cascs)
+				.enter()
+				.append("option")
+				.text(function(d, i) { return d; })
+				.attr("value", function (d, i) { return i; });
+		
+	vbc_dropdown.property("selectedIndex", vbc_selectedIndex)
+				.on("change", function(d) {
+					new_data_file = '';
+					vbc_selectedCascIndex = vbc_dropdown.property('selectedIndex'); 				  	
+					var selected_casc = cascs[vbc_selectedCascIndex]; 
+
+					if (selected_casc === cascs[0]) {
+						new_data_file = 'all_counts.json';
+					}
+					else {
+						new_data_file = selected_casc.toLowerCase().replace(' ', '_') + '_counts.json';
+					}
+
+					updateVBarChart(new_data_file);
+				});
+
+	// Horizontal Bar Chart
+	var hbc_margin = { top: 15, right: 25, bottom: 15, left: 220 },
+		hbc_width = 800 - hbc_margin.left - hbc_margin.right,
+        hbc_bar_size = 40, // vertical thickness of each bar (includes spacing between bars)
+        hbc_height = 0, // will be calculated within updateHBarChart
+        max_num_phrases = 15,
+		hbc_svg = d3.select("#horiz_barchart").append("svg")
+		            .attr("width", hbc_width + hbc_margin.left + hbc_margin.right)
+		            .attr("height", hbc_height + hbc_margin.top + hbc_margin.bottom)
+		            .append("g")
+		            .attr("transform", "translate(" + hbc_margin.left + "," + hbc_margin.top + ")");
+
+
+	// Line Chart
+	var lc_margin = {top: 10, right: 20, bottom: 30, left: 40},
+		lc_main_width = 700,
+		lc_main_height = 400,
+	    lc_width = lc_main_width - lc_margin.left - lc_margin.right,
+	    lc_height = lc_main_height - lc_margin.top - lc_margin.bottom,
+	    lc_tooltip = { width: 100, height: 100, x: 10, y: -30 };
+	    
+	var lc_svg = d3.select("#chart_div")
+						   .append("svg")
+						   .attr("width", lc_width + lc_margin.left + lc_margin.right)
+						   .attr("height", lc_height + lc_margin.top + lc_margin.bottom)
+						   // .attr("viewBox", "0 0 " + 700 + " " + 400)
+						   // .attr("preserveAspectRatio", "xMinYMin meet")
+						   .append("g")
+						   .attr("transform", "translate(" + lc_margin.left + "," + lc_margin.top + ")");
+
+	color_dict = {};
+	color_status = [];
+	colors = d3.merge([d3.schemePaired, [d3.schemeSet1[0]], [d3.schemeSet1[5]], [d3.schemeCategory10[5]]]);
+	colors.forEach(function(d) {
+		color_status.push('available');
+	})
+
+	var lc_x = d3.scale.linear().range([0, lc_width]);
+	var lc_y = d3.scale.linear().range([lc_height, 0]);
+
+	var lc_xAxis = d3.svg.axis()
+						 .scale(lc_x)
+						 .orient("bottom")
+						 .tickFormat(d3.format(".0"));
+
+	var lc_yAxis = d3.svg.axis()
+						 .scale(lc_y)
+						 .orient("left");
+
+	var phraseline = d3.svg.line()
+						   .interpolate("monotone")
+						   .x(function(d) { return lc_x(d[0]); })
+						   .y(function(d) { return lc_y(d[1]); });
+
+	var hbc_casc_dropdown = d3.select("#hbc_casc_dropdown")
+								.append("select")
+								.attr("id", "hbc_casc_dropdown")
+								.style("width", "60%")
+								.style("display", "block");
+
+	hbc_casc_dropdown.selectAll("option")
+					  .data(cascs)
+					  .enter()
+					  .append("option")
+					  .text(function(d, i) { return d; })
+					  .attr("value", function (d, i) { return i; });
+
+    hbc_casc_dropdown.property("selectedIndex", hbc_selectedCascIndex)
+				     .on("change", function() {
+				     	
+				     	// get selected CASC
+						hbc_selectedCascIndex = hbc_casc_dropdown.property('selectedIndex');
+						var selected_casc = cascs[hbc_selectedCascIndex];
+
+						// display all years when a new casc is selected
+						var selected_year = "All Years";
+
+						yr_counts_file = selected_casc.toLowerCase().replace(' cascs', '').replace(' ', '_') + '_yr_phrase_counts.json';
+						phrase_counts_file = selected_casc.toLowerCase().replace(' cascs', '').replace(' ', '_') + '_phrase_counts.json';
+
+						//re-populate hbc_year_dropdown
+						d3.json(data_path + yr_counts_file, function(data) {
+							var new_yr_list = ["All Years"];
+							data.forEach(function(d) {
+								new_yr_list.push(d.year);
+							});
+
+							// remove previous contents
+							d3.selectAll("#hbc_year_dropdown option").remove();
+
+							hbc_year_dropdown = d3.select("#hbc_year_dropdown")
+														.append("select")
+														.attr("id", "hbc_year_dropdown")
+														.style("width", "60%")
+														.style("display", "block");
+
+							hbc_year_dropdown.selectAll("option")
+											  .data(new_yr_list)
+											  .enter()
+											  .append("option")
+											  .text(function(d, i) { return d; })
+											  .attr("value", function (d, i) { return i; });
+
+							hbc_selectedYearIndex = 0;
+							hbc_year_dropdown.property("selectedIndex", hbc_selectedYearIndex)
+										     .on("change", function() {
+
+												// get selected CASC
+												hbc_selectedCascIndex = hbc_casc_dropdown.property('selectedIndex');
+												var selected_casc = cascs[hbc_selectedCascIndex];
+
+												// get selected year
+												hbc_selectedYearIndex = hbc_year_dropdown.property('selectedIndex');
+												var selected_year = (hbc_selectedYearIndex == 0)? "All Years" : new_yr_list[hbc_selectedYearIndex];
+												new_num_to_plot = +d3.select("output#num_display").property("value");
+												updateHBarChart(selected_casc, selected_year, new_num_to_plot);
+											 });
+						});
+
+				     	curr_num_to_plot = +d3.select("output#num_display").property("value");
+
+				     	curr_num_to_plot = +d3.select("output#num_display").property("value"); 
+				     	updateLineChart(yr_counts_file, phrase_counts_file, curr_num_to_plot); 
+				     	updateHBarChart(selected_casc, selected_year, curr_num_to_plot);
+					 });
+
+	var hbc_year_dropdown = d3.select("#hbc_year_dropdown")
+								.append("select")
+								.attr("id", "hbc_year_dropdown")
+								.style("width", "60%")
+								.style("display", "block");
+
+	hbc_year_dropdown.selectAll("option")
+					  .data(lc_years)
+					  .enter()
+					  .append("option")
+					  .text(function(d, i) { return d; })
+					  .attr("value", function (d, i) { return i; });
+
+	hbc_year_dropdown.property("selectedIndex", hbc_selectedYearIndex)
+				     .on("change", function() {
+
+						// get selected CASC
+						hbc_selectedCascIndex = hbc_casc_dropdown.property('selectedIndex');
+						var selected_casc = cascs[hbc_selectedCascIndex];
+
+						// get selected year
+						hbc_selectedYearIndex = hbc_year_dropdown.property('selectedIndex');
+						var selected_year = (hbc_selectedYearIndex == 0)? "All Years" : lc_years[hbc_selectedYearIndex - 1];
+
+						new_num_to_plot = +d3.select("output#num_display").property("value");
+						updateHBarChart(selected_casc, selected_year, new_num_to_plot);
+					 });
+
+	// ========= Misc. Variables =========
+	// Vertical Bar Chart
+	var default_vbc_file = 'all_counts.json',
+	    vbc_legend_text = ['Projects', 'Items'],
+	    project_bar_color = '#0571b0',
+	    item_bar_color = '#92c5de',
+		vbc_color = d3.scale.ordinal().range([project_bar_color, item_bar_color]),
+	    vbc_delay_time = 500,
+	    vbc_selectedIndex = 0;
+
+	// Horizontal Bar Chart
+	var default_hbc_file = 'all_phrase_counts.json'
+		phrase_bar_color = '#5f89ad';
+
+	// Line Chart
+	// var lc_color_map = null,
+	var result = null,
+		lc_legend = null,
+		dataNest = null,
+		hbc_selectedCascIndex = 0,
+		hbc_selectedYearIndex = 0,
+		total_num_phrases = 0,
+		default_num_to_plot = 5;
+
+
+
+    // VERTICAL BAR CHART
+    // https://bl.ocks.org/bricedev/0d95074b6d83a77dc3ad (compare with https://observablehq.com/@d3/grouped-bar-chart)
+	function updateVBarChart(data_file) {
+
+		var file_name = data_path + data_file;
+
+		d3.json(file_name, function(error, data) {
+
+		  var yearGroup = data.map(function(d) { return d.year; });
+		  var countType = ['project_count', 'item_count'];
+
+		  // remove previous svg content
+		  d3.select('#counts svg').remove();
+
+		  var svg = d3.select('#counts').append("svg")
+				      .attr("width", vbc_width + vbc_margin.left + vbc_margin.right)
+				      .attr("height", vbc_height + vbc_margin.top + vbc_margin.bottom)
+				      .append("g")
+				      .attr("transform", "translate(" + vbc_margin.left + "," + vbc_margin.top + ")");
+
+		  x0.domain(yearGroup);
+		  x1.domain(countType).rangeRoundBands([0, x0.rangeBand()]);
+		  vbc_y.domain([0, d3.max(data, d => d3.max(countType, key => d[key]))]).nice();
+
+		  svg.append("g")
+		      .attr("class", "x axis")
+		      .attr("transform", "translate(0," + vbc_height + ")")
+		      .call(vbc_xAxis);
+
+		  svg.append("g")
+		      .attr("class", "y axis")
+		      .style('opacity','0')
+		      .call(vbc_yAxis)
+		      .append("text")
+		      .attr("transform", "rotate(-90)")
+		      .attr("y", 6)
+		      .attr("dy", ".71em")
+		      .style("text-anchor", "end")
+		      .style('font-weight','bold')
+		      .text("Count");
+
+		  svg.select('.y').transition().duration(vbc_delay_time).style('opacity','1');
+
+		  // years
+		  var slice = svg.selectAll(".slice")
+		      .data(data)
+		      .enter().append("g")
+		      .attr("class", "g")
+		      .attr("transform",function(d) { return "translate(" + x0(d.year) + ",0)"; });
+
+		  // x-axis labels (count type)
+		  // {"year":2008,"project_count":5,"item_count":36}
+		  slice.selectAll("rect")
+		      .data(function(d) { return Object.entries(d).slice(1); })
+		      .enter()
+		      .append("rect")
+		      .attr("width", x1.rangeBand())
+		      .attr("x", function(d) { return x1(d[0]); })
+		      .style("fill", function(d) { return vbc_color(d[0]) })
+		      .attr("y", function(d) { return vbc_y(0); })
+		      .attr("height", function(d) { return vbc_height - vbc_y(0); })
+		      .on("mouseover", function(d) {
+		          d3.select(this).style("fill", d3.rgb(vbc_color(d[0])).darker(2));
+		      })
+		      .on("mouseout", function(d) {
+		          d3.select(this).style("fill", vbc_color(d[0]));
+		      });
+
+		  // bar heights (count values)
+		  slice.selectAll("rect")
+		      .transition()
+		      .duration(vbc_delay_time)
+		      .attr("y", function(d) { return vbc_y(d[1]); })
+		      .attr("height", function(d) { return vbc_height - vbc_y(d[1]); });
+
+		  // bar labels
+		  slice.selectAll("text")
+		      .data(function(d) { return Object.entries(d).slice(1); })
+		      .enter()
+		  	  .append("text")
+		      .transition()
+		      .duration(vbc_delay_time)
+		  	  .attr("x", function(d) { return x1(d[0]) + x1.rangeBand() / 3; })
+		  	  .attr("y", function (d) { return vbc_y(d[1]); })
+		  	  .attr("dy", "-0.2em")
+		  	  .style('font-size', '80%')
+		  	  .text(function (d) { return d[1]; });
+
+		  // Legend
+		  var legend = svg.selectAll(".legend")
+		      .data(vbc_legend_text)
+		      .enter().append("g")
+		      .attr("class", "legend")
+		      .attr("transform", function(d,i) { return "translate(0," + i * 20 + ")"; })
+		      .style("opacity","0");
+
+		  legend.append("rect")
+		      .attr("x", vbc_width - 18)
+		      .attr("width", 18)
+		      .attr("height", 18)
+		      .style("fill", function(d) { return vbc_color(d); });
+
+		  legend.append("text")
+		      .attr("x", vbc_width - 24)
+		      .attr("y", 9)
+		      .attr("dy", ".35em")
+		      .style("text-anchor", "end")
+		      .text(function(d) { return d; });
+
+		  legend.transition().duration(vbc_delay_time / 2).style("opacity", "1");
+
+		});
+	}
+
+	// HORIZONTAL BAR CHART
+	// https://bl.ocks.org/hrecht/f84012ee860cb4da66331f18d588eee3
+	function updateHBarChart(casc, year, num_to_plot) {
+
+		var file_postfix = (year == "All Years")? '_phrase_counts.json' : '_yr_phrase_counts.json';
+		var phrase_counts_file = casc.toLowerCase().replace(' cascs', '').replace(' ', '_') + file_postfix;
+
+		d3.json(data_path + phrase_counts_file, function(data) {
+
+			if (year != "All Years") {
+				// fetch the data for desired year
+				data = data.filter(function(d) {
+					return d.year == year;
+				});
+
+				if (data.length == 0) {
+					// clear current svg content
+					d3.select("#horiz_barchart svg").remove();
+
+					alert("No data for " + casc + " " + year);
+
+					return;
+				}
+
+				// reorganize the retrieved data
+				var new_data = [];
+				for (p in data[0].phrase_counts) {
+					new_data.push({
+						'phrase': p,
+						'count': data[0].phrase_counts[p]
+					})
+				}
+
+				// replace data with the new data
+				data = new_data;
+			}
+
+			// remove previous svg content
+			d3.select("#horiz_barchart svg").remove();
+
+			hbc_height = num_to_plot * hbc_bar_size;
+			hbc_svg = d3.select("#horiz_barchart").append("svg")
+			            .attr("width", hbc_width + hbc_margin.left + hbc_margin.right)
+			            .attr("height", hbc_height + hbc_margin.top + hbc_margin.bottom)
+			            .append("g")
+			            .attr("transform", "translate(" + hbc_margin.left + "," + hbc_margin.top + ")");
+
+			//sort bars based on count
+	        data = data.sort(function (a, b) {
+	            return d3.descending(a.count, b.count);
+	        })
+			
+			data = data.slice(0, num_to_plot);
+
+	        var hbc_x = d3.scale.linear()
+					            .range([0, hbc_width])
+					            .domain([0, d3.max(data, function (d) {
+					                return d.count;
+					            })]);
+
+	        var hbc_y = d3.scale.ordinal()
+					            .rangeRoundBands([0, hbc_height], .1)
+					            .domain(data.map(function (d) {
+					                return d.phrase;
+					            }));
+
+	        //make y axis to show bar names
+	        var hbc_yAxis = d3.svg.axis()
+					              .scale(hbc_y)
+					              .tickSize(0) //no tick marks
+					              .orient("left");
+
+	        hbc_svg.append("g")
+	               .attr("class", "y axis")
+	               .call(hbc_yAxis)
+	               .selectAll("text")
+	               .call(wrap, hbc_margin.left)
+
+	        var hbc_bars = hbc_svg.selectAll(".bar")
+					              .data(data)
+					              .enter()
+					              .append("g")
+
+	        //append rects
+	        hbc_bars.append("rect")
+		            .attr("class", "bar")
+		            .attr("y", function (d) {
+		                return hbc_y(d.phrase);
+		            })
+		            .style("fill", phrase_bar_color)
+		            .attr("height", hbc_y.rangeBand())
+		            .attr("x", 0)
+		            .attr("width", function (d) {
+		                return hbc_x(d.count);
+		            })
+		            .on("mouseover", function() {
+		            	d3.select(this)
+		            	  .style("cursor", "pointer")
+		            	  .style("opacity", 0.7);
+		            })
+		            .on("mouseout", function(d) {
+		            	d3.select(this)
+		            	  .style("opacity", 1);
+		            })
+		            .on("click", function(d) {
+		            	displayModal(d);
+		            });
+
+	        //add a count label to the right of each bar
+	        hbc_bars.append("text")
+	            .attr("class", "label")
+	            //y position of the label is halfway down the bar
+	            .attr("y", function (d) {
+	                return hbc_y(d.phrase) + hbc_y.rangeBand() / 2 + 4;
+	            })
+	            //x position is 3 pixels to the right of the bar
+	            .attr("x", function (d) {
+	                return hbc_x(d.count) + 3;
+	            })
+	            .text(function (d) {
+	                return d.count;
+	            });
+		});
+	}
+
+	// ------ LINE CHART ------
+	// source: http://bl.ocks.org/jhubley/17aa30fd98eb0cc7072f
+	function updateLineChart(yr_counts_file, phrase_counts_file, num_to_plot) {
+
+		// https://github.com/d3/d3-scale-chromatic
+		// lc_color_map = d3.scale.linear().domain(d3.extent([0, num_to_plot - 1])).range([0, 1]);
+		
+		// remove previous svg content
+		lc_svg.selectAll(".axis").remove();
+		lc_svg.selectAll(".line").remove();
+		d3.select('lc_svg').remove();
+		d3.select('hbc_casc_dropdown').remove();
+		d3.select('phr_line').remove();
+		d3.select('#lineChart_legend').selectAll('text').remove();
+
+		// reset years for x axis
+		lc_years = [];
+	    
+		// Get the data
+		d3.json(data_path + phrase_counts_file, function(error, phrase_counts) {
+
+			total_num_phrases = d3.min([max_num_phrases, phrase_counts.length]);
+
+			// set slider display texts
+			d3.select("output#num_display").text(num_to_plot);
+
+			if (num_to_plot == 0) { d3.select("output#num_phrases").text(""); }
+			else if (num_to_plot == 1) { d3.select("output#num_phrases").text("Top phrase"); }
+			else { d3.select("output#num_phrases").text("Top " + num_to_plot + " phrases"); }
+
+			//sort bars based on count
+	        phrase_counts = phrase_counts.sort(function (a, b) {
+	            return d3.descending(a.count, b.count);
+	        })
+
+			// pick out the desired number of top n phrase counts
+			phrase_counts = phrase_counts.slice(0, num_to_plot);
+
+			// extract just the phrases
+			phrases = [];
+			phrase_counts.forEach(function(d) {
+				phrases.push(d.phrase);
+			});
+
+			d3.json(data_path + yr_counts_file, function(error, yr_phrase_counts) {
+
+				// build an array of the years
+				Object.keys(yr_phrase_counts).forEach(function(k) {
+					lc_years.push(yr_phrase_counts[k]['year']);
+				}); 
+
+				lc_xAxis.ticks(lc_years.length);
+
+				// get the phrase counts per year
+				var year_counts = [];
+				phrases.forEach(function(p) {
+					year_counts.push(getYearCounts(p, yr_phrase_counts));
+				});
+
+				// construct the needed data structure
+				var count_dict = [];
+				phrases.forEach(function(p, i) {
+					count_dict.push({
+						phrase: p,
+						counts: year_counts[i]
+					});
+				});
+
+			    // Scale the range of the data
+			    // reduce() function: http://learnjsdata.com/iterate_data.html
+			    var maxval = count_dict.reduce(function(maxv, d) { return d3.max(d3.merge([[maxv], arrayColumn(d.counts, 1)])); }, 0);
+
+			    lc_x.domain(d3.extent(lc_years, function(d) { return d; }));
+			    lc_y.domain([0, maxval]);
+
+			    lc_yAxis.ticks(maxval);
+
+			    // Nest the entries by phrase
+			 //    dataNest = d3.nest()
+				// 	         .key(function(d) { return d.phrase; })
+				// 	         .entries(count_dict);
+
+		 	// 	result = dataNest.filter(function(val, idx, arr){
+				// 	return $("." + val.key).attr("fill") != "#ccc" 
+				// })
+
+				current_phrases = count_dict.map(d => d.phrase);
+				// modify curr_list and color_dict
+				dict_phrases = Object.keys(color_dict);
+				dict_phrases.forEach(function(phrase) {
+					if (current_phrases.indexOf(phrase) < 0) {
+						// mark this phrase's color as available
+						available_color = color_dict[phrase];
+						available_index = colors.indexOf(available_color);
+						color_status[available_index] = 'available';
+						// delete 'phrase' from the dictionary
+						delete color_dict[phrase];
+					}
+				})
+
+				lc_legend = d3.select("#lineChart_legend")
+									  .attr("height", num_to_plot * 15)
+									  .selectAll("text")
+									  .data(count_dict, function(d){ return d.phrase });
+				
+				//checkboxes
+				lc_legend.enter()
+						 .append("rect")
+						 .attr("width", 10)
+						 .attr("height", 10)
+						 .attr("x", 0)
+						 .attr("y", function (d, i) { return 0 + i*15; })  // spacing
+						 .attr("fill", function(d) {
+
+						 	if (Object.keys(color_dict).indexOf(d.phrase) < 0) {
+						 		// assign next available color
+						 		available_index = color_status.indexOf('available');
+						 		available_color = colors[available_index];
+						 		color_dict[d.phrase] = available_color;
+						 		// mark this color as unavailable
+						 		color_status[available_index] = 'unavailable';
+						 	}
+
+						  	return color_dict[d.phrase];
+						    
+						 })
+						 .attr("class", function(d) { return "legendcheckbox " + d.phrase })
+						 .on("click", function(d){
+
+						 	// flip the rectangle color
+							d3.select(this).attr("fill", function(d){
+								if(d3.select(this).attr("fill")  == "#ccc"){
+									return color_dict[d.phrase];
+								}else {
+									return "#ccc";
+								}
+							})
+
+							// flip the line opacity the selected phrase
+							// var line_color = d3.interpolateWarm(lc_color_map(i));
+							var line_color = color_dict[d.phrase];
+							d3.selectAll(".line").each(function(d) {
+								if (color_dict[d.phrase] == line_color) {
+									var opacity = d3.select(this).style("opacity");
+									d3.select(this).style("opacity", 1 - opacity);
+								}
+							});
+											
+						 })
+
+				lc_legend.exit().remove();
+
+			    // Add the Legend text
+			    lc_legend.enter()
+				    	 .append("text")
+					     .attr("x", 15)
+					     .attr("y", function(d, i){ return 10 + i*15; })
+					     .attr("class", "chart_legend")
+			             .on("mouseover", function() {
+			            	d3.select(this)
+			            	  .style("cursor", "pointer");
+			             })
+			             .on("click", function(d) {
+			            	displayModal(d);
+			             });
+
+				lc_legend.style("fill", "#777" )
+						 .text(function(d) { return d.phrase; });
+
+			 	var phr_line = lc_svg.selectAll(".line")
+			 					     .data(count_dict, function(d){ return d.phrase })
+			 					     .enter()
+			 					     .append("path")
+			 					     .attr("class", "line")
+								     .on('mouseover', function(d) {
+										// Show tl_tooltip only if the line is currently visible
+								     	if (d3.select(this).style("opacity") == 1) {
+										    d3.select('.tooltip')
+									          .style('visibility','visible')
+									          .style('top', d3.event.pageY + 10 + 'px')
+									          .style('left', d3.event.pageX + 10 + 'px')
+									          .html('<b>' + d.phrase);
+									      }
+								     })
+								    .on('mouseout', function(d) {
+									    // Hide tooltip
+									    d3.select('.tooltip').style('visibility','hidden');
+								    });
+
+				phr_line.transition()
+						// .style("stroke", function(d, i) { return d.color = d3.interpolateWarm(lc_color_map(i)); })
+						.style("stroke", function(d, i) { return color_dict[d.phrase]; })
+						.attr("id", function(d){ return d.phrase.replace(/\s+/g, '');}) // assign ID
+						.attr("d", function(d){
+							return phraseline(d.counts);
+						});
+
+				// phr_line.exit().remove();
+
+			    // Add the X Axis
+			    lc_svg.append("g")
+						      .attr("class", "x axis")
+						      .attr("transform", "translate(0," + lc_height + ")")
+						      .call(lc_xAxis);
+
+			    // Add the Y Axis
+			    lc_svg.append("g")
+						      .attr("class", "y axis")
+						      .call(lc_yAxis)
+						      .append("text")
+						      .attr("transform", "rotate(-90)")
+						      .attr("y", 6)
+						      .attr("dy", ".71em")
+						      .style("text-anchor", "end")
+						      .style('font-weight','bold')
+						      .text("Count");
+
+				d3.select("input[type = range]#num_phrases")
+				  .attr("min", 0)
+				  .attr("max", total_num_phrases)
+				  .attr("step", 1)
+				  .attr("value", num_to_plot)
+				  .on("input", function() {
+				  	d3.select("output#num_display").text(this.value);
+				  })
+				  .on("change", function() {
+					  num_phrases_to_plot = this.value;
+					  updateLineChart(yr_counts_file, phrase_counts_file, num_phrases_to_plot);
+
+					  // get selected CASC
+					  hbc_selectedCascIndex = hbc_casc_dropdown.property('selectedIndex');
+					  var selected_casc = cascs[hbc_selectedCascIndex];
+
+					  // get selected year
+					  hbc_selectedYearIndex = hbc_year_dropdown.property('selectedIndex');
+					  var selected_year = (hbc_selectedYearIndex == 0)? "All Years" : +d3.select("#hbc_year_dropdown option:checked").text();
+
+					  new_num_to_plot = +d3.select("output#num_display").property("value");
+					  updateHBarChart(selected_casc, selected_year, num_phrases_to_plot);
+				  });
+			});
+		});
+
+	};
+
+
+	function getYearCounts(phrase, yr_phrase_counts) {
+		var yr_counts = [];
+
+		yr_phrase_counts.forEach(function(d, i) {
+			if (Object.keys(d.phrase_counts).indexOf(phrase) >= 0) {
+				yr_counts.push([lc_years[i], d.phrase_counts[phrase]]);
+			}
+			else {
+				yr_counts.push([lc_years[i], 0]);
+			}
+		});
+
+		return yr_counts;
+	}
+
+var arrayColumn = (arr, i) => arr.map(row => +row[i]); // select the ith column from an array 'arr'
+var dictColumn = (dict, key) => dict.map(entry => entry[key]);
+
+function showAll(){
+
+	// fill in all rectangle colors
+	d3.select("#lineChart_legend").selectAll("rect")
+	  .attr("fill",function(d) {
+	  	return color_dict[d.phrase];
+	  });
+
+	// make all lines visible
+	d3.selectAll(".line")
+	  .style("opacity", 1);
+
+};
+
+function clearAll(){
+
+	// grey out all rectangles
+	d3.select("#lineChart_legend").selectAll("rect")
+	  .attr("fill", "#ccc");
+
+	// hide all lines
+	d3.selectAll(".line")
+	  .style("opacity", 0);
+
+};
+
+// https://stackoverflow.com/a/55584453/8379443
+// convert JSON to CSV
+function downloadCSVFromJson(source) {
+	
+	const replacer = (key, value) => value === null ? '' : value // specify how you want to handle null values here
+
+	if (source == 'counts') {
+		selectedIndex = vbc_dropdown.property('selectedIndex');
+		selected_casc = cascs[selectedIndex].toLowerCase().replace(' cascs', '').replace(' ', '_');
+		input_file = selected_casc + '_counts.json';
+		output_file = selected_casc + '_counts.csv'
+	}
+	else{
+		// get selected CASC
+		hbc_selectedCascIndex = hbc_casc_dropdown.property('selectedIndex');
+		selected_casc = cascs[hbc_selectedCascIndex].toLowerCase().replace(' cascs', '').replace(' ', '_');
+
+		// get selected year
+		hbc_selectedYearIndex = hbc_year_dropdown.property('selectedIndex');
+		selected_year = (hbc_selectedYearIndex == 0)? "All Years" : lc_years[hbc_selectedYearIndex - 1];
+
+		file_postfix = (selected_year == "All Years")? '_phrase_counts.json' : '_yr_phrase_counts.json';
+		input_file = selected_casc.toLowerCase().replace(' cascs', '').replace(' ', '_') + file_postfix;
+
+		output_file = (selected_year == "All Years")? selected_casc + '_phrase_counts.csv' : selected_casc + '_phrase_counts_' + selected_year + '.csv'
+	}
+
+	d3.json(data_path + input_file, function(data) {
+
+		if (source == 'trends') {
+
+			if (selected_year != "All Years") {
+				// filter the data for desired year
+				data = data.filter(function(d) {
+					return d.year == selected_year;
+				});
+
+				if (data.length == 0) {
+					// clear current svg content
+					d3.select("#horiz_barchart svg").remove();
+
+					alert("No data for " + selected_casc + " " + selected_year);
+
+					return;
+				}
+
+				// reorganize the retrieved data
+				new_data = [];
+				for (p in data[0].phrase_counts) {
+					new_data.push({
+						'phrase': p,
+						'count': data[0].phrase_counts[p]
+					})
+				}
+
+				// replace data with the new data
+				data = new_data;
+			}
+
+		}
+
+		header = Object.keys(data[0]);
+
+		// let csv = data.map(function(row) {
+		// 		return header.map(function(fieldName) {
+		// 				entry = (['begin', 'end'].indexOf(fieldName) > -1)? years[row[fieldName]] : (fieldName == 'label')? row[fieldName].replace(',', '') : row[fieldName]
+		// 				return JSON.stringify(entry, replacer)
+		// 			}
+		// 		).join(',')
+		// 	}
+		// )
+
+		let csv = data.map(function(row) {
+				return header.map(function(fieldName) {
+						return JSON.stringify(row[fieldName], replacer)
+					}
+				).join(',')
+			}
+		)
+
+		// csv_header = header.map(h => header_dict[h])
+		// csv.unshift(csv_header.join(','))
+		csv.unshift(header.join(','))
+		csv = csv.join('\r\n')
+
+		// Create link and download
+		link = document.createElement('a');
+		link.setAttribute('href', 'data:text/csv;charset=utf-8,%EF%BB%BF' + encodeURIComponent(csv));
+		link.setAttribute('download', output_file);
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	})
+
+}
+
+// https://bl.ocks.org/mbostock/7555321
+function wrap(text, width) {
+  	text.each(function() {
+	    var text = d3.select(this),
+	        words = text.text().split(/\s+/).reverse(),
+	        word,
+	        line = [],
+	        lineNumber = 0,
+	        lineHeight = 1.1, // ems
+	        y = text.attr("y"),
+	        dy = parseFloat(text.attr("dy")),
+	        tspan = text.text(null).append("tspan").attr("x", -2).attr("y", y).attr("dy", dy + "em");
+	    while (word = words.pop()) {
+			line.push(word);
+			tspan.text(line.join(" "));
+			if (tspan.node().getComputedTextLength() > width) {
+				line.pop();
+				tspan.text(line.join(" ")).attr("y", y - 7);
+				line = [word];
+				tspan = text.append("tspan").attr("x", -2).attr("y", y - 7).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+			}
+		}
+	});
+}
+
+function processText(text) {
+
+	// https://stackoverflow.com/a/49123671/8379443
+
+	text = text.toLowerCase();
+	text = text.replace(/(<.*?>)/g, s0 => '');
+	text = text.replace(/([\.\(\)\[\]/])/g, s0 => ' ');
+	text = text.replace(/(&nbsp;)/g, s0 => ' ');
+	text = text.replace(/(’)/g, s0 => '');
+
+	return text;
+}
+
+function displayModal(data_item) {
+
+	phrase = data_item.phrase;
+
+	// set modal title
+	$('.projModal-header h5').html(phrase);
+
+	// create regex that that will be used to search each summary for this phrase
+	words = phrase.split(" ");
+	if (words.length == 2) {
+		// create regex for phrase
+		regex_filter = " *[a-z\(\)\-]* *"; // first word + 0 or more spaces + 0 or more characters + 0 or more spaces + second word
+		phrase = words.join(regex_filter);
+	}
+	phrase = '[^a-z]' + phrase;
+	regexp = new RegExp(`${phrase}`, "gi");
+
+	// get the current casc and year
+	selected_casc = d3.select("#hbc_casc_dropdown option:checked").text();
+	selected_year = d3.select("#hbc_year_dropdown option:checked").text();
+	selected_year = (selected_year == "All Years")? selected_year : +selected_year;
+
+
+		// testString = ' climate and variability with hydroclimate variability as the “new normal” -climate and variability';
+		// ts1 = '[^a-z] climate';
+		// // ts2 = ' [a-z\(\)\-]+ ';
+		// ts2 = " *[a-z\(\)\-]* *";
+		// ts3 = 'variability';
+		// // regexp = /past [a-z]+ decades/gi;
+		// regexp = new RegExp(`${ts1}${ts2}${ts3}`, "gi");
+		// // regexp = /past three/gi;
+		// matches = testString.match(regexp);
+		// console.log(matches);
+		// if (matches) {
+		// 	end = 0;
+		// 	matches.forEach(function(match) {
+		// 		start = testString.indexOf(match.slice(1), end);
+		// 		end = start + match.length - 1;
+		// 		console.log(testString.slice(start, end));
+		// 	})
+		// 	// end_index = testString.indexOf('variability', matches.index) + 'variability'.length;
+		// 	// console.log(testString.slice(matches.index + 1, matches.index + end_index));
+		// }
+
+	d3.json(data_path + 'master_details.json', function(data) {
+
+		if (selected_casc != "All CASCs") {
+			// filter for selected casc
+			data = data.filter(function(d) {
+				return d.casc.replace(" CASC", "") == selected_casc;
+			});
+		}
+
+		if (selected_year != "All Years") {
+			// filter for selected year
+			data = data.filter(function(d) {
+				return d.year == selected_year;
+			});
+		}
+
+		//get all rows whose summary contains this phrase
+		data = data.filter(function(d) {
+
+			summary = ' ' + processText(d.summary); // prepend a space for our regex matching to match occurences at the start of the string
+			match = summary.match(regexp);
+
+			return match !== null;
+		});
+
+		// Modal details
+		details = '';
+		// get set of projects for this filtered data
+		projects = new Set(dictColumn(data, 'projectTitle'))
+		// for each project:
+		proj_num = 0;
+		num_projects = projects.size;
+		projects.forEach(function(proj_title) {
+			// get the data subset containing this project title
+			proj_group = data.filter(function(d) {
+				return d.projectTitle == proj_title;
+			});
+
+			casc_set = new Set(dictColumn(proj_group, 'casc'));
+			
+			proj_num += 1;
+			details += '<h6><p><b>Project ' + proj_num + '/' + num_projects + ' (' + Array.from(casc_set).join(', ') + ' ' + proj_group[0].year + ')</b><p><h6>';
+			// details += '<b>Project ' + proj_num + '</b>';
+			details += '<p><b><a href = "' + proj_group[0].project_url + '" target = "_blank">' + proj_title + '</a></b><p>';
+			details += '<p><b>Items</b><p>';
+
+			// get set of items for this project group
+			items = new Set(dictColumn(proj_group, 'title'));
+			// for each item:
+			item_num = 0;
+			num_items = items.size;
+			items.forEach(function(item_title) {
+				// get the project group subset containing this item title
+				item_group = proj_group.filter(function(d) {
+					return d.title == item_title;
+				});
+
+				item_num += 1;
+				details += '<p>' + item_num + '/' + num_items + ') <a href = "' + item_group[0].url + '" target = "_blank">' + item_title + '</a></p>';
+				details += 'Abstract';
+				// display abstract, highlighting occurences of phrase
+				details += '<p>';
+				s = ' ' + item_group[0].summary // prepend a space for our regex matching to match occurences at the start of the string
+				matches = s.match(regexp);
+				if (matches) {
+					end = 0;
+					matches.forEach(function(match) {
+						start = s.indexOf(match.slice(1), end);
+						details += s.slice(end, start);
+						end = start + match.length - 1;
+						details += '<mark>' + s.slice(start, end) + '</mark>';
+					})
+					// append whatever abstract is leftover and close out the paragraph
+					details += s.slice(end) + '</p><br>';
+				}
+			});
+
+			details += '<hr>'; // draw a line between projects
+		});
+
+		// write details to the modal
+		details_div = document.getElementById('details_div');
+		details_div.innerHTML = details;
+	});
+
+	// Add close functionality to the modal's close button
+	var span = $('#modal').find('.close');
+	span.on('click', function() {
+		let modal = document.getElementById('modal');
+		modal.style.display = 'none';
+	})
+
+	// Display the modal
+	document.getElementById('modal').style.display = 'block';
+}
+
+	// generate initial charts
+	updateVBarChart(default_vbc_file);
+	updateHBarChart("All CASCs", "All Years", default_num_to_plot);
+	updateLineChart('all_yr_phrase_counts.json', 'all_phrase_counts.json', default_num_to_plot);
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+		if ($(event.target).hasClass('projModal')) {
+			let modal = document.getElementById(event.target.id);
+			modal.style.display = 'none';
+		}
+	}
+
+	// let currentPage = document.getElementById('Nav-Proj-Compare');
+	// currentPage.classList.add("currentPage");
+
+</script>
+
+{% endblock %}

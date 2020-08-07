@@ -56,6 +56,26 @@ label {
 }
 
 .collection-item.currentPage {
-  background-color: #ffab00 !important;
+  background-color: #f5b423 !important;
   color: white;
+}
+
+.font_format{
+  color:#444242;
+  font-family: arial;
+  font-size: 18px;
+}
+
+
+/*Cpoyrightfooter*/
+.projModal-footer {
+  padding: 6px 16px;
+  background-color: #f5b423;
+  color: white;
+  text-align: center;
+  margin-top: 5%;
+  font-size: 15px;
+  margin-left: 0%;
+  margin-right: 0%;
+  color:#fff;
 }

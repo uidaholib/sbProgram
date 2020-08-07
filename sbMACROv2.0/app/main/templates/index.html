@@ -14,6 +14,8 @@
 		fill-opacity: .7;
 	}
 
+
+
 	/* Style for Custom Tooltip */
 	div.tooltip {   
 	 	position: absolute;
@@ -23,7 +25,8 @@
 		background: white;   
 		border: 0px;      
 		border-radius: 8px;           
-		pointer-events: none;         
+		pointer-events: none; 
+
 	}
 
 	/* Legend Position Style */
@@ -31,15 +34,23 @@
 		/*left:800px;*/
 		/*top:350px;*/
 	}
+	 .gradient-line {
+      border: 0;
+      height: 1px;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 2), rgba(0, 0, 0, 0));
+      }
 
 </style>
 
-<h4>Welcome to sbMACRO</h4>
+<h4 style="color:#444242;font-family: arial">{{ title }}</h4>
+<!-- <br> -->
+<div class = "gradient-line"></div>
 <br>
-<!-- <p class="flow-text">This program can be used to generate macro-level reports for the data present under any Climate Adaptation Science Center (CASC) on ScienceBase. Use sbMACRO to understand your data at a higher level.</p> -->
-<p class="flow-text">Click on a CASC in the map below for a project-dataset overview.</p>
 
-<p class="flow-text">You may also select a menu item on the left for reports and other data visualizations.</p>
+<!-- <p class="flow-text">This program can be used to generate macro-level reports for the data present under any Climate Adaptation Science Center (CASC) on ScienceBase. Use sbMACRO to understand your data at a higher level.</p> -->
+<p class="font_format">Click on a CASC in the map below for a project-dataset overview.</p>
+
+<p class="font_format">You may also select a menu item on the left for reports and other data visualizations.</p>
 
 <div class="tooltip"></div> <!-- Element to help display tooltip on map mouseover -->
 
@@ -57,7 +68,7 @@
     </div>
 
     <div class="row">
-      <div class="centered_container">
+      <div class="centered_container" style="margin-left:15%;">
         <span style="font-size: 2vh;">
           <strong></strong><br />
           <span class="title"></span>
@@ -66,7 +77,7 @@
     </div>
 
     <div class="row">
-      <div class="centered_container">
+      <div class="centered_container" style="margin-left:15%;">
         <span style="font-size: 2vh;">
           <strong><h5></h5></strong>
           (Click on a word in the wordcloud to read it more clearly)
@@ -151,8 +162,11 @@
 
 			
 	// Define linear scale for output
+	// var color = d3.scale.linear()
+	// 					.range(["rgb(208, 203, 203)", "rgb(216, 87, 87)", "rgb(111, 187, 155)", "rgb(95, 169, 94)", "rgb(33, 33, 33)", "rgb(236, 188, 80)", "rgb(173, 175, 174)", "rgb(38, 119, 189, 0.75)", "rgb(219, 222, 222)"]);
+
 	var color = d3.scale.linear()
-						.range(["rgb(213,222,217)", "rgb(69,173,168)", "rgb(0, 128, 255)", "rgb(217,91,67)", "rgb(0, 191, 255)", "rgb(0, 255, 255)", "rgb(0, 255, 191)", "rgb(255, 0, 255)", "rgb(120, 200, 100)"]);
+						.range(["rgb(210, 215, 220)", "rgb(92, 157, 214)", "rgb(181, 206, 228)", "rgb(56, 147, 226)", "rgb(217, 223, 228)", "rgb(160, 192, 220)", "rgb(202, 219, 234)", "rgb(38, 119, 189)", "rgb(194, 208, 220)"]);
 
 	var legendText = ["Alaska", "North Central", "Northeast", "Northwest", "Pacific", "South Central", "Southeast", "Southwest", "National"];
 
@@ -577,3 +591,12 @@ currentPage.classList.add("currentPage");
 </script>
 
 {% endblock %}
+
+<!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->

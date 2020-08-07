@@ -9,8 +9,8 @@
 <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script> -->
 
 <head>
-    <h1>Search results for "{{ query }}":</h1>
-    <h4 style="color: green ">Number of DataSets found: {{length}}</h4>
+    <h4 style="color:#444242;font-family: arial">Search results for "{{ query }}":</h4>
+    <h5 style="color:#444242;font-family: arial">Number of DataSets found: {{length}}</h5>
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
     <script src="https://unpkg.com/d3@5.6.0/dist/d3.min.js"></script>
 </head>
@@ -38,7 +38,8 @@
 <!-- The Modal -->
 <div id="BaseModal" class="projModal">
     <!-- Modal content -->
-    <div class="projModal-content">
+    <div class="projModal-content" style = "color: #444242;
+    font-family: arial;">
         <div class="projModal-header">
             <span class="close">&times;</span>
             <h3 style="font-size: 6vh">Project Information</h3>
@@ -47,6 +48,7 @@
         <div class="row">
             <div class="centered_container">
                 <span style="font-size: 2vh;">
+                    <br>
                     <strong>Title: </strong><br />
                     <span class="title"></span>
                 </span>
@@ -61,7 +63,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="centered_container">
+            <div class="centered_container" style="text-align: justify;">
                 <span style="font-size: 2vh;">
                     <strong>Summary: </strong><br />
                     <span class="summary" id="only_left_par"></span>
@@ -111,9 +113,10 @@
                 <p class="potential_products"></p>
             </div>
         </div>
-        <div class="projModal-footer">
+        <br>
+        <!-- <div class="projModal-footer">
             <h3>sbMACRO</h3>
-        </div>
+        </div> -->
     </div>
 </div>
 {% endblock %}

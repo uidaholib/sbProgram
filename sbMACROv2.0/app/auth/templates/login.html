@@ -1,5 +1,11 @@
 {% extends "base.html" %} {% block content %}
-<h1>Sign In</h1>
+<h1 style="
+    color: #444242;
+    font-family: arial;
+    margin-top: 50px;
+    font-size: 42px;
+">Sign In</h1>
+<!-- <div class="gradient-line"></div> -->
 <form action="" method="post" novalidate>
   {{ form.csrf_token }}
   {{ form.name }}
@@ -24,7 +30,8 @@
     {{ form.submit() }}
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-    <div class="{{ category }}">{{ message }}</div>
+      <div class="{{ category }}">{{ message }}
+      </div>
     {% endfor %}
     {% endwith %}
   </p>
@@ -47,3 +54,13 @@
 
 </form>
 {% endblock %}
+
+
+<!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->

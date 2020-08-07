@@ -13,23 +13,29 @@
 <!-- To enable us call a function synchronously in routes.py -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-<h4>sbMACRO Database Update</h4>
-
+<h4 style="color:#444242;font-family: arial;margin-top: 23px;">sbMACRO Database Update</h4>
+<div class="gradient-line"></div>
 <br>
-<h5>Select desired update(s) and click 'SUBMIT'</h5>
+<h5 class = "font_format" >Select desired update(s) and click 'SUBMIT'</h5>
 <p>
-  <li>Updates will happen in the background, so you can continue your work</li>
-  <li>To ensure synchronized data, it is advisable to update the master table before updating the project graphs or dictionaries</li>
+  <li class = "font_format" >Updates will happen in the background, so you can continue your work</li>
+  <li class = "font_format" >To ensure synchronized data, it is advisable to update the master table before updating the project graphs or dictionaries</li>
 </p>
 <br>
 
 <form method="POST" id="CASC-Select-Form">
 
-  <div class="row">
+  <div class="row" >
 
     <div class="col s4 m4 l4">
         <div class="card blue-grey lighten-4">
-            <div class="card-content">
+            <div class="card-content" style="
+    background: #f5f5f5;
+    font-size: 16px;
+    font-family: arial;
+    color: #444242;
+
+">
               Select CASC(s) to update
               <br>[Estimated duration: 2 mins per CASC]<br>
               {% for casc_name in list_of_cascs: %}
@@ -44,7 +50,12 @@
     <div class="col s4 m4 l4">
 
       <div class="card blue-grey lighten-4">
-        <div class="card-content">
+        <div class="card-content" style="
+    background: #f5f5f5;
+    font-size: 16px;
+    font-family: arial;
+    color: #444242;
+">
           {% set field_name = 'update_search_table' %}
           {% set field = form|attr(field_name) %}
           {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Master Table<br>[Estimated duration: 1hr 45 mins]') }}
@@ -52,7 +63,12 @@
       </div>
 
       <div class="card blue-grey lighten-4">
-        <div class="card-content">
+        <div class="card-content" style="
+    background: #f5f5f5;
+    font-size: 16px;
+    font-family: arial;
+    color: #444242;
+">
           {% set field_name = 'update_graphs' %}
           {% set field = form|attr(field_name) %}
           {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Comparison Graphs<br>[Estimated duration: 6 - 8 hrs]') }}
@@ -60,7 +76,12 @@
       </div>
 
       <div class="card blue-grey lighten-4">
-        <div class="card-content">
+        <div class="card-content" style="
+    background: #f5f5f5;
+    font-size: 16px;
+    font-family: arial;
+    color: #444242;
+">
           {% set field_name = 'update_proj_matches' %}
           {% set field = form|attr(field_name) %}
           {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Match Dictionaries<br>[Estimated duration: 2 mins]') }}
@@ -71,7 +92,7 @@
 
   </div>
 
-  <div class = "row">
+  <div class = "row" >
     {{ form.submit(class="btn btn-primary") }}
   </div>
   {{ form.hidden_tag() }}
