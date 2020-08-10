@@ -4,11 +4,13 @@ from app.updater import gl
 from app.updater import fiscal_years
 from app.models import MasterDetails, ProjectDetails
 
+
 def save_master_details(app, item_details):
     """Save item details relevant to searching..
 
     Arguments:
-        item_details -- (List) A list of items, where each item is a dictionary containing
+        item_details -- (List) A list of items, \
+            where each item is a dictionary containing
                         item fields and values.
     """
     print('Saving master details to database...')
@@ -45,24 +47,24 @@ def save_master_details(app, item_details):
                     CI += contact['name'] + ';'
             CI = CI.strip(';')
 
-            detail_row = app.MasterDetails(sb_id = sb_id,
-                                            parentId = parentId,
-                                            projectId = projectId,
-                                            projectTitle = projectTitle,
-                                            projectSize = projectSize,
-                                            num_files = num_files,
-                                            start_date = start_date,
-                                            end_date = end_date,
-                                            pub_date = pub_date,
-                                            casc = casc,
-                                            fy = fy,
-                                            url = url,
-                                            xml_urls = xml_urls,
-                                            relatedItemsUrl = relatedItemsUrl,
-                                            title = title,
-                                            summary = summary,
-                                            PI = PI,
-                                            CI = CI)
+            detail_row = app.MasterDetails(sb_id=sb_id,
+                                           parentId=parentId,
+                                           projectId=projectId,
+                                           projectTitle=projectTitle,
+                                           projectSize=projectSize,
+                                           num_files=num_files,
+                                           start_date=start_date,
+                                           end_date=end_date,
+                                           pub_date=pub_date,
+                                           casc=casc,
+                                           fy=fy,
+                                           url=url,
+                                           xml_urls=xml_urls,
+                                           relatedItemsUrl=relatedItemsUrl,
+                                           title=title,
+                                           summary=summary,
+                                           PI=PI,
+                                           CI=CI)
             app.db.session.add(detail_row)
             changes_made = True
         else:
@@ -116,7 +118,8 @@ def save_master_details(app, item_details):
             for contact in detail['contacts']:
                 if contact['type'] == 'Principal Investigator':
                     PI = contact['name']
-                elif contact['type'] in ['Co-Investigator', 'Cooperator/Partner']:
+                elif (contact['type'] in
+                             ['Co-Investigator', 'Cooperator/Partner']):
                     CI += contact['name'] + ';'
             CI = CI.strip(';')
             if item_row.PI != PI:
@@ -125,7 +128,7 @@ def save_master_details(app, item_details):
             if item_row.CI != CI:
                 item_row.CI = CI
                 changes_made = True
-    
+
     if changes_made:
         app.db.session.commit()
         print('Master table updated and saved to database')
@@ -151,7 +154,8 @@ def save_project_details(app, proj_details):
     """Save project details relevant to searching..
 
     Arguments:
-        proj_details -- (List) A list of projects, where each project is a dictionary containing
+        proj_details -- (List) A list of projects, \
+            where each project is a dictionary containing
                         project fields and values.
     """
     print('Saving project details to database...')
@@ -160,7 +164,7 @@ def save_project_details(app, proj_details):
     for detail in proj_details:
 
         proj_row = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == detail['id']).first()
-    
+
         if proj_row is None:
             sb_id = detail['id']
             casc = detail['casc']
@@ -168,11 +172,11 @@ def save_project_details(app, proj_details):
             title = detail['title']
             size = detail['size']
 
-            detail_row = app.ProjectDetails(sb_id = sb_id,
-                                            casc = casc,
-                                            fy = fy,
-                                            title = title,
-                                            size = size)
+            detail_row = app.ProjectDetails(sb_id=sb_id,
+                                            casc=casc,
+                                            fy=fy,
+                                            title=title,
+                                            size=size)
             app.db.session.add(detail_row)
             changes_made = True
         else:
@@ -195,17 +199,20 @@ def save_project_details(app, proj_details):
     else:
         print('Project details already up-to-date... no changes made')
 
-    print('Testing project details table with project id 521cf67ce4b01458f7858040:')
+    print('Testing project details table with project id \
+        521cf67ce4b01458f7858040:')
     test = app.db.session.query(app.ProjectDetails).filter(app.ProjectDetails.sb_id == '521cf67ce4b01458f7858040').first()
     if test is None:
         print('Not found! Something may be wrong')
     else:
-        print('Success! Sample details for project id 521cf67ce4b01458f7858040:')
+        print('Success! Sample details for project id \
+            521cf67ce4b01458f7858040:')
         print('CASC: {}'.format(test.casc))
         print('Fiscal year: {}'.format(test.fy))
         print('Title: {}'.format(test.title))
         print('Done!')
         print()
+
 
 def save_casc(app, fiscal_year):
     """Save CASC data to a database.
@@ -244,7 +251,8 @@ def save_casc(app, fiscal_year):
             casc.url = url
         casc.total_data = -1  # Reset so we know it needs done.
     app.db.session.commit()
-    print("---------SQL--------- [casc] Done with {}.".format(name.encode('utf-8')))
+    print("---------SQL--------- [casc]\
+        Done with {}.".format(name.encode('utf-8')))
     return casc
 
 
@@ -300,7 +308,6 @@ def save_fy(app, fiscal_year, casc_model):
     print("---------SQL--------- [FiscalYear] Done with {}."
           .format(fiscal_year.name.encode('utf-8')))
     return fy
-
 
 
 def save_proj(app, project, fy_model, casc_model):
@@ -370,7 +377,8 @@ def save_proj(app, project, fy_model, casc_model):
 
             # Many-to-many relationships (need db model):
             # Check if the casc is already related to the project by iterating
-            # through proj.cascs and seeing if the ids match. If not found, add it.
+            # through proj.cascs and seeing
+            # if the ids match. If not found, add it.
             if not (any(casc.id == casc_model.id for casc in proj.cascs)):
                 proj.cascs.append(casc_model)
             if not (any(fy.id == fy_model.id for fy in proj.fiscal_years)):
@@ -390,7 +398,8 @@ def save_proj(app, project, fy_model, casc_model):
     except Exception as e:
         print('Commit error: ' + str(e))
 
-    print("---------SQL--------- [Project] Done with {}.".format(proj.name.encode('utf-8')))
+    print("---------SQL--------- \
+        [Project] Done with {}.".format(proj.name.encode('utf-8')))
     return proj
 
 
@@ -399,7 +408,7 @@ def get_pi_list(app, project):
 
     Arguments:
         project -- (JSON) the Science Base JSON for a project item.
-    
+
     Returns:
         pi_list -- (list) a list of PrincipalInvestigator models (defined in
                    models.py) that are related to the project.
@@ -427,20 +436,13 @@ def get_pi_list(app, project):
                         PI.email = email
                 app.db.session.commit()
                 pi_list.append(PI)
-                # if PI.name == "Scott Rupp":
+                #     if PI.name == "Scott Rupp":
                 #     print("""
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                 #     Name: {0}
                 #     Email: {1}
                 #     email variable: {2}
-                #     """.format(PI.name.encode('utf-8'), PI.email.encode('utf-8'), email.encode('utf-8')))
+                #     """.format(PI.name.encode('utf-8'),
+                #     PI.email.encode('utf-8'), email.encode('utf-8')))
                 #     exit(0)
         except KeyError:
             continue
@@ -503,7 +505,7 @@ def save_item(app, sb_item, proj_model, fy_model, casc_model):
         item = app.Item(sb_id=sb_item.ID,
                         url=sb_item.URL,
                         name=sb_item.name,
-                        #Convert bytes to megabytes:
+                        # Convert bytes to megabytes:
                         total_data=(sb_item.size/1000000),
                         file_count=sb_item.num_files,
                         start_date=get_sb_date("start", sb_item.sb_json),
@@ -543,7 +545,8 @@ def save_item(app, sb_item, proj_model, fy_model, casc_model):
         item.timestamp = datetime.utcnow()
 
     app.db.session.commit()
-    print("---------SQL--------- [Item] Done with {}.".format(item.name.encode('utf-8')))
+    print("---------SQL--------- \
+        [Item] Done with {}.".format(item.name.encode('utf-8')))
     return item
 
 
@@ -580,10 +583,10 @@ def save_file(app, file_json, item_model, proj_model, fy_model, casc_model):
         print("\t\t---------SQL--------- [SbFile] Could not find " +
               "{} in database...".format(file_json["name"].encode('utf-8')))
         sb_file = app.SbFile(url=file_json["url"],
-                           name=file_json["name"],
-                           # Convert bytes to megabytes:
-                           size=(file_json["size"]/1000000),
-                           content_type=file_json["contentType"])
+                             name=file_json["name"],
+                             # Convert bytes to megabytes:
+                             size=(file_json["size"]/1000000),
+                             content_type=file_json["contentType"])
         # Many-to-many relationship definitions:
         sb_file.cascs.append(casc_model)
         sb_file.fiscal_years.append(fy_model)
