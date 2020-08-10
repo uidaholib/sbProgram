@@ -1,7 +1,6 @@
 function findModalBtns(projectArray) {
   $(document).ready(function () {
     var modalBtns = document.getElementsByClassName('modalbtn')
-    console.log(modalBtns)
     for (var i = 0; i < modalBtns.length; i++) {
       let m_id = modalBtns[i].id
 
