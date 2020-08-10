@@ -236,7 +236,7 @@ def updates():
         graph_upate_thread = multiprocessing.Process(target=graphs_update)
         graph_upate_thread.start()
 
-    update_search_table = session['update_search_table']
+    update_search_table = session['update_search_table'] # same as master table
     if update_search_table:
         print('Starting search table update thread')
         search_table_update_thread = multiprocessing.Process(
@@ -266,9 +266,38 @@ def updates():
                            cascs_to_update=cascs_to_update
                            )
 
+@bp.route('/trends', methods = ['GET', 'POST'])
+def trends():
 
-@bp.route('/casc_projects/<params>',
-          methods=['GET', 'POST'])
+    return render_template('trends.html')
+
+@bp.route('/bursts', methods = ['GET', 'POST'])
+def bursts():
+
+    return render_template('bursts.html')
+
+@bp.route('/write_exclusions', methods = ['GET', 'POST'])
+def write_exclusions():
+
+    if request.method == 'POST':
+        exclusion_list = request.form.getlist('exclusions[]')
+        exclusion_file_name = 'exclusions.csv'
+
+        write_header = False
+        if not os.path.exists(path_to_static + exclusion_file_name):
+            write_header = True
+
+        with open(path_to_static + exclusion_file_name, 'a') as file:
+            if write_header:
+                file.write('phrase\n')
+            for phrase in exclusion_list:
+                file.write(phrase + '\n')
+
+        file.close()
+
+    return ''
+
+@bp.route('/casc_projects/<params>', methods = ['GET', 'POST'])
 def casc_projects(params):
 
     casc_name, num_projects, num_datasets = params.split('|')

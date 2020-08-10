@@ -15,6 +15,7 @@
 <script src="https://d3js.org/d3-color.v1.min.js"></script>
 <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}"/>
@@ -22,12 +23,6 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
-<!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script> -->
-<!-- <script src="http://vizjs.org/viz.v1.1.0.min.js"></script> -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script> -->
-<!-- <script src="{{ url_for('main.static', filename='js/sankey.js') }}"></script> -->
 
 <style>
 	path {
@@ -109,7 +104,7 @@
 		/*margin: 0 auto;*/
 		margin-top: 5px;
 		/*margin-left: 40%;*/
-		width: 25%;
+		/*width: 50%;*/
 	}
 	.slider {
 		height: 10px;
@@ -261,12 +256,11 @@
 	}
 </style>
 
-	<h4 style="color: #444242;font-family: arial;"> 
+	<h4>
 		Research Pulses & Bursts
 		<img id="pulse_burst_info" src = "{{ url_for('main.static', filename='info.png') }}" class = "header_info_icon">
 	</h4>
-<!-- <hr size="20" noshade="noshade"> -->
-<div class="gradient-line"></div>
+<hr size="20" noshade="noshade">
 
 <!-- Tooltips -->
 <div class="tl_tooltip"></div> <!-- Timeline tooltip -->
@@ -275,22 +269,21 @@
 <!-- PULSES -->
 <br>
 <p>
-	<h5 style="text-align: left;color: #444242;font-family: arial;font-size: 35px;">Pulses</h5>
+	<h5>PULSES</h5>
+	<blockquote>
+		<i>A <b>pulse</b> is an upward trend in the frequency of occurrence of a phrase or topic</i>
+	</blockquote>
 </p>
 <!-- <hr class="double-line" width="39%"> -->
 
-<div>
-	<div style="margin-left: 10%">
-		<div>
-			<div id = 'tl_casc_dropdown' >
-				<!-- <label for = "cascs" style="font-size:80%; text-align:left">CASCs</label> -->
-			</div>
-
-			<button class="btn wave-effect waves-teal" style="margin-left: 16%; margin-top: 2px" onclick="downloadCSVFromJson('timeline')">
-				Download Pulses
-			</button>
-		</div>
+<div style="margin-left: 10%">
+	<div id = 'tl_casc_dropdown' >
+		<!-- <label for = "cascs" style="font-size:80%; text-align:left">CASCs</label> -->
 	</div>
+
+	<button class="btn wave-effect waves-teal" style="margin-left: 20%; margin-top: 2px" onclick="downloadCSVFromJson('timeline')">
+		Download Pulses
+	</button>
 </div>
 
 <br>
@@ -325,20 +318,46 @@
 				</label>
 			</div>
 	</fieldset>
-	<div class="slidecontainer" style="margin-top: 40px">
-		<output id="num_phrases"></output>
-		<input id="num_phrases" type="range" class="slider">
-		<output id="num_display"></output>
-	</div>
-	<br><br>
+	<fieldset style="width: 40%; margin-top: 20px; margin-bottom: 20px; float: left;">
+		<legend>Number of Pulses</legend>
+		<div class="slidecontainer">
+			<output id="num_phrases"></output>
+			<input id="num_phrases" type="range" class="slider">
+			<output id="num_display"></output>
+		</div>
+		<div style="width: 50%">
+			<button class="btn wave-effect waves-teal" style="margin-top: 10px; font-size: 12px; padding: 0 8px; float: left;" onclick="updateCharts()">
+				Update Pulses
+			</button>
+		</div>
+		<text style="font-size: 12px; margin-top: 10px"><br>&nbsp;&nbsp;<--&nbsp;useful after excluding phrases</text>
+	</fieldset>
+	<fieldset style="width: 40%; margin-left: 5%; margin-top: 20px; margin-bottom: 20px; float:left;">
+		<legend>Exclusion List</legend>
+		<div>
+			<select id="ex_list" multiple style="margin-left: 5px; height: 100px; width: 70%; float: left; display: block;"></select>
+			<button class="btn wave-effect waves-teal" style="margin-left: 10px; margin-top: 55px; font-size: 12px; padding: 0 8px;" onclick="writeExclusionList()">
+				Confirm
+			</button>
+		</div>
+	</fieldset>
+	<div style="clear: both;"></div>
+	<b>Pulses are shaded by intensity: deeper shades => stronger pulses</b><br>
+	<i>- Click on a phrase or bar below for more information on the pulse items</i><br>
+	<i>- Ctrl + click on a phrase or bar below to exclude it from any further analysis</i><br>
+	<i>- Ctrl + click on a phrase in the exclusion list above to restore it</i><br>
+	<br>
 	<div id = "timeline"></div>
 </div>
 
 <!-- BURSTS -->
-<br><br>
+<br>
 <p><hr class="gradient-line" width="80%"></p>
 <p>
-	<h5 style="text-align: left;color: #444242;font-family: arial;font-size: 35px;">Bursts</h5>
+	<h5>BURSTS</h5>
+	<blockquote>
+		<i>A <b>burst</b> occurs when a pulse crosses a specified threshold</i>
+	</blockquote>
 </p>
 <!-- <hr class="double-line" width="39%"> -->
 
@@ -350,7 +369,7 @@
 				<!-- <label for = "cascs" style="font-size:80%; text-align:left">CASCs</label> -->
 			</div>
 
-			<button class="btn wave-effect waves-teal" style="margin-left: 16%; margin-top: 2px" onclick="downloadCSVFromJson('linechart')">
+			<button class="btn wave-effect waves-teal" style="margin-left: 20%; margin-top: 2px" onclick="downloadCSVFromJson('linechart')">
 				Download Bursts
 			</button>
 
@@ -396,6 +415,15 @@
 				<br>
 				<output id="threshold_bursts_display"></output>
 			</fieldset>
+
+			<p><hr class="gradient-line" width="80%"></p>
+			<div>
+				<i>Click the colored legend rectangles below to select/deselect bursts</i><br>
+				<i>Click on a phrase in the legend for more information on the burst items</i><br>
+				<br>
+				<i>Ctrl + click on a phrase in the legend below to exclude it from any further analysis</i><br>
+				<i>Ctrl + click on a phrase in the exclusion list above to restore it</i>
+			</div>
 
 		</fieldset>
 	</div>
@@ -472,9 +500,13 @@
 				],
 	years = [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018],
 	default_casc = "All CASCs";
+	exclusion_list = [];
+	all_excluded_phrases = [];
+	exclusions_file = 'exclusions.csv';
 	// timeline
 	sort_labels = ['Strength', 'Start', 'End', 'Duration'],
 	default_sort_option = 0,
+	static_data_path = '/static/main/',
 	bursts_data_path = '/static/main/bursts/',
 	counts_data_path = '/static/main/counts/',
 	tl_selectedIndex = 0,
@@ -496,7 +528,7 @@
 
     // default burst computation variables
 	max_num_bursts = 15;
-	default_num_bursts = 5;
+	default_num_bursts = 10;
 	max_win_size = 10;
 	default_win_size = 1;
     default_p_threshold = 0.0007,
@@ -700,278 +732,393 @@
 
 	function updateTimeline(casc, num_to_plot, sort_type, ascending) {
 
+		// remove previous content
+		d3v5.select("#timeline svg").remove();
+		d3v5.select(".tl_tooltip").remove();
+
 		var burst_file = casc.toLowerCase().replace(' cascs', '').replace(' ', '_') + '_bursts.json';
+
+		yr_counts_file = casc.toLowerCase().replace(' cascs', '').replace(' ', '_') + '_yr_phrase_counts.json';
+		d3.json(counts_data_path + yr_counts_file, function(yr_phrase_counts) {
+
+			// get years for this casc
+			casc_years = [];
+			// build an array of the years
+			Object.keys(yr_phrase_counts).forEach(function(k) {
+				casc_years.push(yr_phrase_counts[k]['year']);
+			});
 	
-		d3v5.json(bursts_data_path + burst_file).then(function(burst_data) {
+			d3v5.json(bursts_data_path + burst_file).then(function(burst_data) {
 
-			// remove previous content
-			d3v5.select("#timeline svg").remove();
-			d3v5.select(".tl_tooltip").remove();
-
-
-			// get number of bursts to display
-			total_num_bursts = d3v5.min([50, burst_data.length]);
-
-			// set slider display texts
-			d3v5.select("output#num_display").text(num_to_plot);
-
-			data = burst_data.map(d => {
-				return {
-					name: d.label,
-					burst_start: parseDate(years[d.begin]),
-					burst_end: parseDate(years[d.end]),
-					weight: d.weight
-				}
-			});
-
-			category = '';
-			switch (sort_type) {
-				case 'strength':
-					if (ascending) {
-						category = 'Weakest';
-						data = data.sort(function(a, b) {
-							return d3v5.ascending(a.weight, b.weight);
-						});
-					}
-					else {
-						category = 'Strongest';
-						data = data.sort(function(a, b) {
-							return d3v5.descending(a.weight, b.weight);
-						});
-					}
-					break;
-				case 'start':
-					if (ascending) {
-						category = 'Latest';
-						data = data.sort(function(a, b) {
-							return d3v5.descending(a.burst_start, b.burst_start);
-						});
-					}
-					else {
-						category = 'Earliest';
-						data = data.sort(function(a, b) {
-							return d3v5.ascending(a.burst_start, b.burst_start);
-						});						
-					}
-					break;
-				case 'end':
-					if (ascending) {
-						category = 'Earliest';
-						data = data.sort(function(a, b) {
-							return d3v5.ascending(a.burst_end, b.burst_end);
-						});
-					}
-					else {						
-						category = 'Latest';
-						data = data.sort(function(a, b) {
-							return d3v5.descending(a.burst_end, b.burst_end);
-						});
-					}
-					break;
-				case 'duration':
-					if (ascending) {
-						category = 'Shortest';
-						data = data.sort(function(a, b) {
-							return d3v5.ascending(a.burst_end - a.burst_start, b.burst_end - b.burst_start);
-						});
-					}
-					else {
-						category = 'Longest';
-						data = data.sort(function(a, b) {
-							return d3v5.descending(a.burst_end - a.burst_start, b.burst_end - b.burst_start);
-						});
-					}
-					break;	
-			}
-
-			// set the slider header text
-			description = (sort_type == 'start' || sort_type == 'end')? 'pulse ' + sort_type : 'pulse';
-			if (num_to_plot == 0) { d3v5.select("output#num_phrases").text(""); }
-			else if (num_to_plot == 1) { d3v5.select("output#num_phrases").text(category + " " + description); }
-			else { d3v5.select("output#num_phrases").text(category + " " + num_to_plot + " " + description + "s"); }
-
-
-			data = data.slice(0, num_to_plot);
-
-			color_map = d3v5.scaleLinear()
-							.domain([d3v5.min(data, d => d.weight), d3v5.max(data, d => d.weight)])
-							.range([0, 1]);
-			mid_domain = (color_map.domain()[0] + color_map.domain()[1])/2;
-
-			dimensions = ({
-				phrase: data.length,
-				barHeight: 20,
-				barPadding: 10,
-				width: 700,
-				get height() {
-					return (this.phrase * (this.barHeight + this.barPadding)) + (margin.top + this.barPadding) + margin.bottom
-				}
-			});
-
-			tl_x = d3v5.scaleTime()
-					.domain([d3v5.min(data, d => d.burst_start), d3v5.max(data, d => d.burst_end)])
-					.range([margin.left, dimensions.width - margin.right]);
-
-			tl_y = d3v5.scaleLinear()
-				 	.range([0,dimensions.height - margin.bottom - margin.top]);
-
-			// create the svg
-			tl_svg = d3v5.select("#timeline")
-					  .append("svg")
-					  .attr("width", dimensions.width)
-					  .attr("height", dimensions.height)
-					  .attr("viewBox", [0, 0, dimensions.width*scale_factor, dimensions.height*scale_factor]);
-
-			// // moving reference line
-			// line = tl_svg.append("line")
-			// 		  .attr("y1", margin.top)
-			// 		  .attr("y2", dimensions.height - margin.bottom)
-			// 		  .attr("stroke", "rgba(128, 0, 0, 0.33333)")
-			// 		  .style("pointer-events","none");
-
-			// tl_svg.on("mousemove", function(d) {
-			// 	let [x, y] = d3v5.mouse(this);
-			// 	line.attr("transform", `translate(${x} 0)`);
-			// })
-
-			// set up tooltips
-			tl_tooltip = d3v5.select("body")
-			              .append("div")
-			              .attr("class", "tl_tooltip")
-			              .style("position", "absolute")
-			              .style("opacity", 0);
-
-			info_tooltip = d3v5.select("body")
-				               .append("div")
-				               .attr("class", "info_tooltip")
-				               .style("position", "absolute")
-				               .style("opacity", 0);
-
-			// top axis
-			tl_svg.append("g")
-			 .call(d3v5.axisTop(tl_x).ticks(d3v5.timeYear))
-			 .attr("font-size", 14)
-			 .attr("font-family", "-apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif")
-			 .attr("transform", `translate(0, ${margin.top})`);
-
-			// bottom axis
-			tl_svg.append("g")
-			 .call(d3v5.axisBottom(tl_x).ticks(d3v5.timeYear))
-			 .attr("font-size", 14)
-			 .attr("font-family", "-apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif")
-			 .attr("transform", `translate(0, ${dimensions.height - margin.bottom})`);
-
-			// gridlines
-			tl_svg.append("g")
-			 .call(d3v5.axisTop(tl_x)
-			         .tickFormat("")
-			         .tickSize(-(dimensions.height - margin.top - margin.bottom))
-			      )
-			 .attr("transform", `translate(0, ${margin.top})`)
-			 .attr("stroke-width", "1px")
-			 .attr("opacity", "0.125");
-
-			// plot the data
-			tl_svg.append("g")
-			.selectAll("rect")
-			.data(data)
-			.join("rect")
-			.attr("class", "phrase")
-			.attr("x", function(d, i) {return tl_x(d.burst_start)})
-			.attr("y", function(d, i) {return ((margin.top + dimensions.barPadding) + (i * (dimensions.barHeight + dimensions.barPadding)))})
-			// .attr("width", function(d, i) {return (d.burst_end ? tl_x(d.burst_end) : tl_x(today)) - tl_x(d.burst_start)})
-			.attr("width", function(d, i) { return 20 + tl_x(d.burst_end) - tl_x(d.burst_start); })
-			.attr("height", dimensions.barHeight)
-			.attr("fill", function(d) {
-				return (d3v5.interpolateBlues(color_map(d.weight)));
-			})
-            .on("click", function(d) {
-            	displayModal(d, 'name');
-            });
-
-			// add labels
-			tl_svg.append("g")
-			.selectAll("text")
-			.data(data)
-			.join("text")
-			.text(function(d) {return d.name})
-			.style("font-size", 14)
-			.attr("class", "phrase")
-			.attr("fill", function(d){
-				return (d.weight > mid_domain && d.burst_start.getFullYear() != d3v5.max(tl_x.domain()).getFullYear() && this.getBBox().width < tl_x(d.burst_end) - tl_x(d.burst_start))? "#fff" : "#004d66";
-			})
-			.attr("x", function(d, i) {
-				// https://stackoverflow.com/a/14569745/8379443
-				if ((d.burst_start.getFullYear() == d3v5.max(tl_x.domain()).getFullYear())) {
-					return tl_x(d.burst_start) - this.getBBox().width - (dimensions.barPadding * 0.3);
-				}
-				else{ 
-					return (this.getBBox().width > 20 + tl_x(d.burst_end) - tl_x(d.burst_start))? 20 + tl_x(d.burst_start) + 0.3*dimensions.barPadding : tl_x(d.burst_start) + 0.66667*dimensions.barPadding;
-				}
-			})
-			.attr("y", function(d, i) {
-				return ((margin.top * 2.175) + (i * (dimensions.barHeight + dimensions.barPadding)));
-			})
-            .on("click", function(d) {
-            	displayModal(d, 'name');
-            });
-
-			tl_svg.selectAll(".phrase")
-			   .attr("cursor", "pointer")
-			   .on("mouseover", function(d) {
-
-				    tl_tooltip.transition()		
-				           .duration(200)		
-				           .style("opacity", 1);
+				d3v5.csv(static_data_path + exclusions_file).then(function(excluded_phrases) {
 				
-				    tl_tooltip.html(`<b>${d.name}</b><br>Began: ${d.burst_start.getFullYear()}<br>Ended: ${d.burst_end.getFullYear()}`)
-				           .style("top", (d3v5.event.pageY - 10)+"px").style("left",(d3v5.event.pageX + 10)+"px");
-			    
-			    })
-			 	.on("mouseout", function(d) {		
-			    	tl_tooltip.transition()		
-			           	   .duration(200)		
-			           	   .style("opacity", 0);	
-			    });
+					all_excluded_phrases = d3v5.merge([dictColumn(excluded_phrases, 'phrase'), exclusion_list]);
 
-			d3v5.select("input[type = range]#num_phrases")
-				.attr("min", 0)
-				.attr("max", total_num_bursts)
-				.attr("step", 1)
-				.attr("value", num_to_plot)
-				.on("input", function() {
-				  	d3v5.select("output#num_display").text(this.value);
+					// filter out exclusion_list
+					burst_data = burst_data.filter(function(d) {
+						return all_excluded_phrases.indexOf(d.label) == -1;
+					})
+
+					// get number of bursts to display
+					total_num_bursts = d3v5.min([50, burst_data.length]);
+
+					// set slider display texts
+					d3v5.select("output#num_display").text(num_to_plot);
+
+					data = burst_data.map(d => {
+						return {
+							name: d.label,
+							burst_start: parseDate(casc_years[d.begin]),
+							burst_end: parseDate(casc_years[d.end]),
+							weight: d.weight
+						}
+					});
+
+					category = '';
+					switch (sort_type) {
+						case 'strength':
+							if (ascending) {
+								category = 'Weakest';
+								data = data.sort(function(a, b) {
+									return d3v5.ascending(a.weight, b.weight);
+								});
+							}
+							else {
+								category = 'Strongest';
+								data = data.sort(function(a, b) {
+									return d3v5.descending(a.weight, b.weight);
+								});
+							}
+							break;
+						case 'start':
+							if (ascending) {
+								category = 'Latest';
+								data = data.sort(function(a, b) {
+									return d3v5.descending(a.burst_start, b.burst_start);
+								});
+							}
+							else {
+								category = 'Earliest';
+								data = data.sort(function(a, b) {
+									return d3v5.ascending(a.burst_start, b.burst_start);
+								});						
+							}
+							break;
+						case 'end':
+							if (ascending) {
+								category = 'Earliest';
+								data = data.sort(function(a, b) {
+									return d3v5.ascending(a.burst_end, b.burst_end);
+								});
+							}
+							else {						
+								category = 'Latest';
+								data = data.sort(function(a, b) {
+									return d3v5.descending(a.burst_end, b.burst_end);
+								});
+							}
+							break;
+						case 'duration':
+							if (ascending) {
+								category = 'Shortest';
+								data = data.sort(function(a, b) {
+									return d3v5.ascending(a.burst_end - a.burst_start, b.burst_end - b.burst_start);
+								});
+							}
+							else {
+								category = 'Longest';
+								data = data.sort(function(a, b) {
+									return d3v5.descending(a.burst_end - a.burst_start, b.burst_end - b.burst_start);
+								});
+							}
+							break;	
+					}
+
+					// set the slider header text
+					description = (sort_type == 'start' || sort_type == 'end')? 'pulse ' + sort_type : 'pulse';
+					if (num_to_plot == 0) { d3v5.select("output#num_phrases").text(""); }
+					else if (num_to_plot == 1) { d3v5.select("output#num_phrases").text(category + " " + description); }
+					else { d3v5.select("output#num_phrases").text(category + " " + num_to_plot + " " + description + "s"); }
+
+
+					data = data.slice(0, num_to_plot);
+
+					color_map = d3v5.scaleLinear()
+									.domain([d3v5.min(data, d => d.weight), d3v5.max(data, d => d.weight)])
+									.range([0, 1]);
+					mid_domain = (color_map.domain()[0] + color_map.domain()[1])/2;
+
+					dimensions = ({
+						phrase: data.length,
+						barHeight: 20,
+						barPadding: 10,
+						width: 700,
+						get height() {
+							return (this.phrase * (this.barHeight + this.barPadding)) + (margin.top + this.barPadding) + margin.bottom
+						}
+					});
+
+					tl_x = d3v5.scaleTime()
+							.domain([d3v5.min(data, d => d.burst_start), d3v5.max(data, d => d.burst_end)])
+							.range([margin.left, dimensions.width - margin.right]);
+
+					tl_y = d3v5.scaleLinear()
+						 	.range([0,dimensions.height - margin.bottom - margin.top]);
+
+					// create the svg
+					tl_svg = d3v5.select("#timeline")
+							  .append("svg")
+							  .attr("width", dimensions.width)
+							  .attr("height", dimensions.height)
+							  .attr("viewBox", [0, 0, dimensions.width*scale_factor, dimensions.height*scale_factor]);
+
+					// // moving reference line
+					// line = tl_svg.append("line")
+					// 		  .attr("y1", margin.top)
+					// 		  .attr("y2", dimensions.height - margin.bottom)
+					// 		  .attr("stroke", "rgba(128, 0, 0, 0.33333)")
+					// 		  .style("pointer-events","none");
+
+					// tl_svg.on("mousemove", function(d) {
+					// 	let [x, y] = d3v5.mouse(this);
+					// 	line.attr("transform", `translate(${x} 0)`);
+					// })
+
+					// set up tooltips
+					tl_tooltip = d3v5.select("body")
+					              .append("div")
+					              .attr("class", "tl_tooltip")
+					              .style("position", "absolute")
+					              .style("opacity", 0);
+
+					info_tooltip = d3v5.select("body")
+						               .append("div")
+						               .attr("class", "info_tooltip")
+						               .style("position", "absolute")
+						               .style("opacity", 0);
+
+					// top axis
+					tl_svg.append("g")
+					 .call(d3v5.axisTop(tl_x).ticks(d3v5.timeYear))
+					 .attr("font-size", 14)
+					 .attr("font-family", "-apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif")
+					 .attr("transform", `translate(0, ${margin.top})`);
+
+					// bottom axis
+					tl_svg.append("g")
+					 .call(d3v5.axisBottom(tl_x).ticks(d3v5.timeYear))
+					 .attr("font-size", 14)
+					 .attr("font-family", "-apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif")
+					 .attr("transform", `translate(0, ${dimensions.height - margin.bottom})`);
+
+					// gridlines
+					tl_svg.append("g")
+					 .call(d3v5.axisTop(tl_x)
+					         .tickFormat("")
+					         .tickSize(-(dimensions.height - margin.top - margin.bottom))
+					      )
+					 .attr("transform", `translate(0, ${margin.top})`)
+					 .attr("stroke-width", "1px")
+					 .attr("opacity", "0.125");
+
+					// plot the data
+					tl_svg.append("g")
+						.selectAll("rect")
+						.data(data)
+						.join("rect")
+						.attr("id", function(d) { return "bar_" + getID(d.name); })
+						.attr("class", "phrase")
+						.attr("x", function(d, i) {return tl_x(d.burst_start)})
+						.attr("y", function(d, i) {return ((margin.top + dimensions.barPadding) + (i * (dimensions.barHeight + dimensions.barPadding)))})
+						// .attr("width", function(d, i) {return (d.burst_end ? tl_x(d.burst_end) : tl_x(today)) - tl_x(d.burst_start)})
+						.attr("width", function(d, i) { return 20 + tl_x(d.burst_end) - tl_x(d.burst_start); })
+						.attr("height", dimensions.barHeight)
+						.attr("fill", function(d) {
+							return (d3v5.interpolateBlues(color_map(d.weight)));
+						})
+			            .on("click", function(d) {
+			            	// https://octoperf.com/blog/2018/04/18/d3-js-drag-and-drop-tutorial/
+			            	if (d3v5.event.ctrlKey) {
+			            		exclusion_list.push(d.name);
+					            // d3v5.select(this).remove();
+					            // d3v5.select("text[class=phrase]#bar_" + getID(d.name)).remove();
+					            d3.selectAll("#line_" + getID(d.name)).remove();
+							    d3.selectAll("#bar_" + getID(d.name)).remove();
+					            tl_tooltip.style("opacity", 0);
+					        } else {
+			            		displayModal(d, 'name');
+					        }
+					        d3v5.event.stopPropagation();
+
+					        // display exclusion list
+							ex_list = d3v5.select("#ex_list")
+										  .selectAll("option")
+									      .data(exclusion_list)
+									      .enter()
+									      .append("option")
+									      .text(function(phrase, i) { return phrase; })
+									      .attr("value", function (phrase, i) { return i; })
+									      .on("click", function(phrase) {
+										      	if (d3v5.event.ctrlKey) {
+										      		// remove phrase from exclusion_list and redo timeline
+										      		var index = exclusion_list.indexOf(phrase);
+										      		if (index > -1) { exclusion_list.splice(index, 1); }
+										            d3v5.select(this).remove();
+										            updateCharts();
+										        }
+										        d3v5.event.stopPropagation();
+									      })
+									      .exit()
+									      .remove();
+			            });
+
+					// add labels
+					tl_svg.append("g")
+						.selectAll("text")
+						.data(data)
+						.join("text")
+						.text(function(d) { return d.name; })
+						.style("font-size", 14)
+						.attr("id", function(d) { return "bar_" + getID(d.name); })
+						.attr("class", "phrase")
+						.attr("fill", function(d){
+							return (d.weight > mid_domain && d.burst_start.getFullYear() != d3v5.max(tl_x.domain()).getFullYear() && this.getBBox().width < tl_x(d.burst_end) - tl_x(d.burst_start))? "#fff" : "#004d66";
+						})
+						.attr("x", function(d, i) {
+							// https://stackoverflow.com/a/14569745/8379443
+							if ((d.burst_start.getFullYear() == d3v5.max(tl_x.domain()).getFullYear())) {
+								return tl_x(d.burst_start) - this.getBBox().width - (dimensions.barPadding * 0.3);
+							}
+							else{ 
+								return (this.getBBox().width > 20 + tl_x(d.burst_end) - tl_x(d.burst_start))? 20 + tl_x(d.burst_start) + 0.3*dimensions.barPadding : tl_x(d.burst_start) + 0.66667*dimensions.barPadding;
+							}
+						})
+						.attr("y", function(d, i) {
+							return ((margin.top * 2.175) + (i * (dimensions.barHeight + dimensions.barPadding)));
+						})
+			            .on("click", function(d) {
+			            	// https://octoperf.com/blog/2018/04/18/d3-js-drag-and-drop-tutorial/
+			            	if (d3v5.event.ctrlKey) {
+		            			exclusion_list.push(d.name);
+					            // d3v5.select(this).remove();
+					            // d3v5.select("rect[class=phrase]#bar_" + getID(d.name)).remove();
+					            d3.selectAll("#line_" + getID(d.name)).remove();
+							    d3.selectAll("#bar_" + getID(d.name)).remove();
+					            tl_tooltip.style("opacity", 0);
+					        } else {
+			            		displayModal(d, 'name');
+					        }
+					        d3v5.event.stopPropagation();
+
+					        // display exclusion list
+							ex_list = d3v5.select("#ex_list")
+										  .selectAll("option")
+									      .data(exclusion_list)
+									      .enter()
+									      .append("option")
+									      .text(function(phrase, i) { return phrase; })
+									      .attr("value", function (phrase, i) { return i; })
+									      .on("click", function(phrase) {
+										      	if (d3v5.event.ctrlKey) {
+										      		// remove phrase from exclusion_list
+										      		var index = exclusion_list.indexOf(phrase);
+										      		if (index > -1) { exclusion_list.splice(index, 1); }
+										            d3v5.select(this).remove();
+										            updateCharts();
+										        }
+
+										        d3v5.event.stopPropagation();
+									      })
+									      .exit()
+									      .remove();
+			            });
+
+					tl_svg.selectAll(".phrase")
+					   .attr("cursor", "pointer")
+					   .on("mouseover", function(d) {
+
+						    tl_tooltip.transition()		
+						           .duration(200)		
+						           .style("opacity", 1);
+						
+						    tl_tooltip.html(`<b>${d.name}</b><br>Began: ${d.burst_start.getFullYear()}<br>Ended: ${d.burst_end.getFullYear()}`)
+						           .style("top", (d3v5.event.pageY - 10)+"px").style("left",(d3v5.event.pageX + 10)+"px");
+					    
+					    })
+					 	.on("mouseout", function(d) {		
+					    	tl_tooltip.transition()		
+					           	   .duration(200)		
+					           	   .style("opacity", 0);	
+					    });
+
+					d3v5.select("input[type = range]#num_phrases")
+						.attr("min", 0)
+						.attr("max", total_num_bursts)
+						.attr("step", 1)
+						.attr("value", num_to_plot)
+						.on("input", function() {
+						  	d3v5.select("output#num_display").text(this.value);
+						})
+						.on("change", function() {
+							num_bursts_to_plot = this.value;
+							// get selected CASC
+							tl_selectedCascIndex = tl_casc_dropdown.property('selectedIndex');
+							var selected_casc = cascs[tl_selectedCascIndex];
+
+							new_num_to_plot = +d3v5.select("output#num_display").property("value");
+							updateTimeline(selected_casc, num_bursts_to_plot, tl_selected_sort, ascending);
+						 });
+
+
+					// var deltaX, deltaY;
+
+					// dragHandler = d3v5.drag()
+					// 			      .on("start", function () {
+					// 			        current = d3v5.select(this);
+					// 			        deltaX = current.attr("x") - d3v5.event.x;
+					// 			        deltaY = current.attr("y") - d3v5.event.y;
+					// 			      })
+					// 			      .on("drag", function () {
+					// 			        d3v5.select(this)
+					// 			            .attr("x", d3v5.event.x + deltaX)
+					// 			            .attr("y", d3v5.event.y + deltaY);
+					// 			      });
+
+					// dragHandler(tl_svg.selectAll("rect"));
+
 				})
-				.on("change", function() {
-					num_bursts_to_plot = this.value;
-					// get selected CASC
-					tl_selectedCascIndex = tl_casc_dropdown.property('selectedIndex');
-					var selected_casc = cascs[tl_selectedCascIndex];
-
-					new_num_to_plot = +d3v5.select("output#num_display").property("value");
-					updateTimeline(selected_casc, num_bursts_to_plot, tl_selected_sort, ascending);
-				 });
+				.catch(function(error) {
+					console.log(exclusions_file + ' does not exist yet.');
+				});
+			});
 
 		});
 	}
 
-	function processText(text) {
+	function processText(text, lowercase = false) {
 
 		// https://stackoverflow.com/a/49123671/8379443
-
-		text = text.toLowerCase();
+		if (lowercase) { text = text.toLowerCase(); }
 		text = text.replace(/(<.*?>)/g, s0 => '');
-		text = text.replace(/([\.\(\)\[\]/])/g, s0 => ' ');
+		// text = text.replace(/([\.\(\)\[\]/])/g, s0 => ' ');
 		text = text.replace(/(&nbsp;)/g, s0 => ' ');
 		text = text.replace(/(’)/g, s0 => '');
 
 		return text;
 	}
 
+	function getID(phrase) {
+
+		phrase = processText(phrase);
+		phrase = phrase.replace(/\s+/g, '_').replace(/(%)/g, s0 => '').replace(/(=)/g, s0 => '');
+
+		return phrase;
+
+	}
+
 	var dictColumn = (dict, key) => dict.map(entry => entry[key]);
 
 	function displayModal(burst, phrase_key) {
-		console.log(burst);
 
 		phrase = burst[phrase_key];
 
@@ -1017,7 +1164,7 @@
 			//get all rows whose summary contains this phrase
 			data = data.filter(function(d) {
 
-				summary = ' ' + processText(d.summary); // prepend a space for our regex matching to match occurences at the start of the string
+				summary = ' ' + processText(d.summary, lowercase = true); // prepend a space for our regex matching to match occurences at the start of the string
 				match = summary.match(regexp);
 
 				return match !== null;
@@ -1058,9 +1205,10 @@
 					item_num += 1;
 					details += '<p>' + item_num + '/' + num_items + ') <a href = "' + item_group[0].url + '" target = "_blank">' + item_title + '</a></p>';
 					details += 'Abstract';
-					// display abstract, highlighting occurences of phrase
+					// display summary, highlighting occurences of phrase
 					details += '<p>';
-					s = ' ' + item_group[0].summary // prepend a space for our regex matching to match occurences at the start of the string
+					// prepend a space for our regex matching to match occurences at the start of the string
+					s = ' ' + processText(item_group[0].summary);
 					matches = s.match(regexp);
 					if (matches) {
 						end = 0;
@@ -1068,9 +1216,10 @@
 							start = s.indexOf(match.slice(1), end);
 							details += s.slice(end, start);
 							end = start + match.length - 1;
+							// highlight the match
 							details += '<mark>' + s.slice(start, end) + '</mark>';
 						})
-						// append whatever abstract is leftover and close out the paragraph
+						// append whatever summary is leftover and close out the paragraph
 						details += s.slice(end) + '</p><br>';
 					}
 				});
@@ -1113,6 +1262,11 @@
 
 		d3v5.json(bursts_data_path + burst_file).then(function(burst_data) {
 
+			// filter out all_excluded_phrases
+			burst_data = burst_data.filter(function(d) {
+				return all_excluded_phrases.indexOf(d.label) == -1;
+			})
+
 			if (source == 'timeline') {
 
 				filename = selected_casc + '_pulses.csv'
@@ -1130,7 +1284,6 @@
 
 				filename = selected_casc + '_bursts.csv'
 
-				// header = Object.keys(burst_data[0]).reverse()
 				header = ['phrase', 'm', 'baseline_prop']
 				header_dict = {
 					'm': 'burst strength',
@@ -1165,6 +1318,59 @@
 
 	};
 
+	function writeExclusionList() {
+
+		if (exclusion_list.length == 0) {
+			swal("Oops!", "The exclusion list is empty.", "error");
+			return;
+		}
+
+		$.ajax({
+			method: "POST",
+			url: "{{ url_for('main.write_exclusions') }}",
+			async: true,
+			data: { exclusions: exclusion_list }
+		});
+
+		exclusion_list = [];
+
+		d3v5.select("#ex_list")
+		    .selectAll("option")
+	        .remove();
+
+	    // sweet alert
+	    swal("Exclusions confirmed!", "The removed phrases will no longer be included in future analysis.", "success");
+
+	    // wait half a second to allow exclusion_list to be written to file before pulse updates
+	    setTimeout(() => {
+	    	updateCharts();
+	    }, 500);
+
+	}
+
+	function updateCharts() {
+
+		// timeline
+		tl_selectedCascIndex = tl_casc_dropdown.property('selectedIndex');
+		selected_casc = cascs[tl_selectedCascIndex];
+		new_num_to_plot = +d3v5.select("output#num_display").property("value");
+		updateTimeline(selected_casc, new_num_to_plot, tl_selected_sort, ascending);
+
+		// line chart
+		tl_selectedCascIndex = lc_casc_dropdown.property('selectedIndex');
+		selected_casc = cascs[tl_selectedCascIndex];
+		new_threshold = +d3v5.select("output#threshold_display").property("value");
+		new_win_size = +d3v5.select("output#win_size_display").property("value");
+		new_num_bursts = +d3v5.select("output#num_bursts_display").property("value");
+		updateLineChart(selected_casc, new_threshold, new_win_size, new_num_bursts);
+
+	}
+
+	function updateLines() {
+
+
+	}
+
 	function updateLineChart(casc, p_threshold, win_size, num_bursts) {
 
 		// remove previous svg content
@@ -1174,6 +1380,7 @@
 		d3v5.select('lc_casc_dropdown').remove();
 		d3v5.select('phr_line').remove();
 		d3v5.select('#lineChart_legend').selectAll('text').remove();
+		d3v5.select('#lineChart_legend').selectAll('rect').remove();
 
 		// set slider values
 		d3v5.select("output#threshold_display").text(p_threshold);
@@ -1191,312 +1398,358 @@
 
 		d3v5.json(bursts_data_path + phrase_trends_file).then(function(phrase_trends_data) {
 
-			burst_count = phrase_trends_data.filter(function(d) {
-				return d.baseline_prop >= p_threshold;
-			});
+			d3v5.csv(static_data_path + exclusions_file).then(function(excluded_phrases) {
+				
+				all_excluded_phrases = d3v5.merge([dictColumn(excluded_phrases, 'phrase'), exclusion_list]);
 
-			d3v5.select("output#threshold_bursts_display").text(burst_count.length);
-			num_bursts = d3v5.min([num_bursts, burst_count.length]);
+				// filter out all_excluded_phrases
+				phrase_trends_data = phrase_trends_data.filter(function(d) {
+					return all_excluded_phrases.indexOf(d.phrase) == -1;
+				})
 
-			// re-map burst domain to the color range
-			lc_spreader = d3.scale.linear().domain(d3.extent([0, num_bursts - 1])).range([0, max_num_bursts - 1]);
-			// colors = [];
-			// for (i = 0; i < num_bursts; i++) {
-			// 	colors.push(d3.interpolateWarm(lc_color_map(lc_spreader(i))));
-			// }
-			
-			// max value of baseline_prop
-			threshold_max = phrase_trends_data.reduce(function(maxv, d) {
-				return d3.max([maxv, d.baseline_prop]); 
-			}, 0);
-
-			trending_phrases = phrase_trends_data.filter(function(d) {
-				return d.baseline_prop >= p_threshold;
-			}).sort(function(a, b) {
-				return d3v5.descending(a.m, b.m);
-			}).slice(0, num_bursts);
-
-			trending_phrases.forEach(function(d) {
-				top_phrases.push(d.phrase);
-				// initialize r_dict
-				r_dict[d.phrase] = {
-					'phrase': d.phrase,
-					'values': []
-				};
-			})
-
-			d3v5.json(bursts_data_path + r_file).then(function(r_data) {
-
-				r_data = r_data.filter(function(d) {
-					return top_phrases.indexOf(d.phrase) >= 0;
+				burst_count = phrase_trends_data.filter(function(d) {
+					return d.baseline_prop >= p_threshold;
 				});
 
-				r_data.forEach(function(d) {
-					r_dict[d.phrase].values.push(d.value);
-				});
+				d3v5.select("output#threshold_bursts_display").text(burst_count.length);
+				num_bursts = d3v5.min([num_bursts, burst_count.length]);
 
-				d3v5.json(counts_data_path + counts_file).then(function(counts_data) {
+				// re-map burst domain to the color range
+				lc_spreader = d3.scale.linear().domain(d3.extent([0, num_bursts - 1])).range([0, max_num_bursts - 1]);
+				// colors = [];
+				// for (i = 0; i < num_bursts; i++) {
+				// 	colors.push(d3.interpolateWarm(lc_color_map(lc_spreader(i))));
+				// }
+				
+				// max value of baseline_prop
+				threshold_max = phrase_trends_data.reduce(function(maxv, d) {
+					return d3.max([maxv, d.baseline_prop]); 
+				}, 0);
 
-					maxval = 0;
-					burst_data = [];
+				trending_phrases = phrase_trends_data.filter(function(d) {
+					return d.baseline_prop >= p_threshold;
+				}).sort(function(a, b) {
+					return d3v5.descending(a.m, b.m);
+				}).slice(0, num_bursts);
 
-					counts_data = counts_data.sort(function(a, b) {
-						return d3v5.ascending(a.year, b.year);
+				trending_phrases.forEach(function(d) {
+					top_phrases.push(d.phrase);
+					// initialize r_dict
+					r_dict[d.phrase] = {
+						'phrase': d.phrase,
+						'values': []
+					};
+				})
+
+				d3v5.json(bursts_data_path + r_file).then(function(r_data) {
+
+					r_data = r_data.filter(function(d) {
+						return top_phrases.indexOf(d.phrase) >= 0;
 					});
 
-					proj_counts = dictColumn(counts_data, 'project_count');
-					casc_years = dictColumn(counts_data, 'year');
+					r_data.forEach(function(d) {
+						r_dict[d.phrase].values.push(d.value);
+					});
 
-					// divide r by proj_counts
-					for (phrase in r_dict) {
-						for (i = 0; i < proj_counts.length; i++) {
-							r_dict[phrase].values[i] = r_dict[phrase].values[i]/proj_counts[i];
-						}
-					}
+					d3v5.json(counts_data_path + counts_file).then(function(counts_data) {
 
-					// calculate the rolling mean for each column in r
-					for (phrase in r_dict) {
-						r_dict[phrase].values = rollingMean(r_dict[phrase].values, win_size);
-					}
+						maxval = 0;
+						burst_data = [];
 
-					// fill in missing years
-					for (phrase in r_dict) {
-						new_values = [];
-						for (i = 0; i < years.length; i++) {
-							val = 0;
-							index = casc_years.indexOf(years[i]);
-							if (index >= 0 && r_dict[phrase].values[index] != null) {
-
-								val = +r_dict[phrase].values[index];
-
-								if (val > maxval) { maxval = val; }
-							}
-							new_values.push([years[i], val]);
-						}
-						r_dict[phrase].values = new_values;
-						burst_data.push({
-							'phrase': phrase,
-							'values': new_values
+						counts_data = counts_data.sort(function(a, b) {
+							return d3v5.ascending(a.year, b.year);
 						});
-					}
 
-				    y.domain([0, maxval]).nice();
+						proj_counts = dictColumn(counts_data, 'project_count');
+						casc_years = dictColumn(counts_data, 'year');
 
-					// // Nest the entries by phrase
-				 //    dataNest = d3v5.nest()
-					// 	           .key(function(d) { return d.phrase; })
-					// 	           .entries(Object.values(r_dict));
-
-					// burst_data.forEach(function(d, i) {
-					// 	d.color = d3.interpolateWarm(lc_color_map(lc_spreader(i)));
-					// })
-
-					active_list = burst_data.map(d => d.phrase);
-					// modify curr_list and color_dict
-					// curr_list = (slice_mode == 'threshold')? curr_list.slice(-num_bursts) : curr_list.slice(0, num_bursts);
-					current_phrases = Object.keys(color_dict);
-					current_phrases.forEach(function(phrase) {
-						if (active_list.indexOf(phrase) < 0) {
-							// mark this phrase's color as available
-							available_color = color_dict[phrase];
-							available_index = colors.indexOf(available_color);
-							color_status[available_index] = 'available';
-							// delete 'phrase' from the dictionary
-							delete color_dict[phrase];
+						// divide r by proj_counts
+						for (phrase in r_dict) {
+							for (i = 0; i < proj_counts.length; i++) {
+								r_dict[phrase].values[i] = r_dict[phrase].values[i]/proj_counts[i];
+							}
 						}
-					})
 
-					lc_legend = d3.select("#lineChart_legend")
-								  .attr("height", num_bursts * 15)
-								  .selectAll("text")
-								  .data(burst_data, function(d){ return d.phrase });
-					
-					// reduceC = (col, c) => col.substring(4, col.length - 1).replace(/ /g, '').split(',').map(s => s.split('').map(d => c[0] += +d));
+						// calculate the rolling mean for each column in r
+						for (phrase in r_dict) {
+							r_dict[phrase].values = rollingMean(r_dict[phrase].values, win_size);
+						}
 
-					//checkboxes
-					lc_legend.enter()
-							 .append("rect")
-							 .attr("width", 10)
-							 .attr("height", 10)
-							 .attr("x", 0)
-							 .attr("y", function (d, i) { return 0 + i*15; })  // spacing
-							 .attr("fill", function(d, i) {
+						// fill in missing years
+						for (phrase in r_dict) {
+							new_values = [];
+							for (i = 0; i < years.length; i++) {
+								val = 0;
+								index = casc_years.indexOf(years[i]);
+								if (index >= 0 && r_dict[phrase].values[index] != null) {
 
-							 	// assign each phrase/line color
-							 	if (Object.keys(color_dict).indexOf(d.phrase) < 0) {
-							 		// get next available color
-							 		available_index = color_status.indexOf('available');
-							 		available_color = colors[available_index];
-							 		color_dict[d.phrase] = available_color;
-							 		// mark this color as unavailable
-							 		color_status[available_index] = 'unavailable';
-							 	}
+									val = +r_dict[phrase].values[index];
 
-							 	// curr_list.push(d.phrase);
-							 	// console.log(color_dict[d.phrase]);
-							  	// return colors[i];
-							  	return color_dict[d.phrase];
-							    
-							 })
-							 .attr("class", function(d, i) { return "legendcheckbox " + d.phrase })
-							 .on("click", function(d, i){
+									if (val > maxval) { maxval = val; }
+								}
+								new_values.push([years[i], val]);
+							}
+							r_dict[phrase].values = new_values;
+							burst_data.push({
+								'phrase': phrase,
+								'values': new_values
+							});
+						}
 
-							 	// flipped_on = false;
+					    y.domain([0, maxval]).nice();
 
-							 	// flip the rectangle color
-								d3.select(this).attr("fill", function(d){
-									if(d3.select(this).attr("fill")  == "#ccc"){
-										return color_dict[d.phrase];
-									}else {
-										return "#ccc";
-									}
+						// // Nest the entries by phrase
+					 //    dataNest = d3v5.nest()
+						// 	           .key(function(d) { return d.phrase; })
+						// 	           .entries(Object.values(r_dict));
+
+						// burst_data.forEach(function(d, i) {
+						// 	d.color = d3.interpolateWarm(lc_color_map(lc_spreader(i)));
+						// })
+
+						active_list = burst_data.map(d => d.phrase);
+						// modify curr_list and color_dict
+						// curr_list = (slice_mode == 'threshold')? curr_list.slice(-num_bursts) : curr_list.slice(0, num_bursts);
+						current_phrases = Object.keys(color_dict);
+						current_phrases.forEach(function(phrase) {
+							if (active_list.indexOf(phrase) < 0) {
+								// mark this phrase's color as available
+								available_color = color_dict[phrase];
+								available_index = colors.indexOf(available_color);
+								color_status[available_index] = 'available';
+								// delete 'phrase' from the dictionary
+								delete color_dict[phrase];
+							}
+						})
+
+						lc_legend = d3.select("#lineChart_legend")
+									  .attr("height", num_bursts * 15)
+									  .selectAll("text")
+									  .data(burst_data, function(d){ return d.phrase });
+						
+						// reduceC = (col, c) => col.substring(4, col.length - 1).replace(/ /g, '').split(',').map(s => s.split('').map(d => c[0] += +d));
+
+						//checkboxes
+						lc_legend.enter()
+								 .append("rect")
+								 .attr("id", function(d){ return "line_" + getID(d.phrase); })
+								 .attr("width", 10)
+								 .attr("height", 10)
+								 .attr("x", 0)
+								 .attr("y", function (d, i) { return 0 + i*15; })  // spacing
+								 .attr("fill", function(d, i) {
+
+								 	// assign each phrase/line color
+								 	if (Object.keys(color_dict).indexOf(d.phrase) < 0) {
+								 		// get next available color
+								 		available_index = color_status.indexOf('available');
+								 		available_color = colors[available_index];
+								 		color_dict[d.phrase] = available_color;
+								 		// mark this color as unavailable
+								 		color_status[available_index] = 'unavailable';
+								 	}
+
+								 	// curr_list.push(d.phrase);
+								 	// console.log(color_dict[d.phrase]);
+								  	// return colors[i];
+								  	return color_dict[d.phrase];
+								    
+								 })
+								 .attr("class", function(d, i) { return "legendcheckbox " + d.phrase })
+								 .on("click", function(d, i){
+
+								 	// flipped_on = false;
+
+								 	// flip the rectangle color
+									d3.select(this).attr("fill", function(d){
+										if(d3.select(this).attr("fill")  == "#ccc"){
+											return color_dict[d.phrase];
+										}else {
+											return "#ccc";
+										}
+									})
+
+									var line_color = color_dict[d.phrase];
+									d3.selectAll(".line").each(function(d) {
+										if (color_dict[d.phrase] == line_color) {
+											var opacity = d3.select(this).style("opacity");
+											// flip the opacity
+											d3.select(this).style("opacity", 1 - opacity);
+
+										}
+									});
+
+								 });
+
+					    // Add the Legend text
+					    lc_legend.enter()
+						    	 .append("text")
+								 .attr("id", function(d){ return "line_" + getID(d.phrase); })
+							     .attr("x", 15)
+							     .attr("y", function(d, i){ return 10 + i*15; })
+							     .attr("class", "chart_legend")
+					             .on("mouseover", function() {
+					            	d3.select(this).style("cursor", "pointer");
+					             })
+					             .on("click", function(d) {
+					             	// https://octoperf.com/blog/2018/04/18/d3-js-drag-and-drop-tutorial/
+					            	if (d3.event.ctrlKey) {
+					            		exclusion_list.push(d.phrase);
+							            // d3.select(this).remove();
+							            // remove the corresponding line and legend checkbox (they have the same id)
+							            d3.selectAll("#line_" + getID(d.phrase)).remove();
+							            d3.selectAll("#bar_" + getID(d.phrase)).remove();
+							            // d3.select("rect#" + getID(d.phrase)).remove();
+							        } else {
+					            		displayModal(d, 'phrase');
+							        }
+							        d3.event.stopPropagation();
+
+							        // display exclusion list
+									ex_list = d3v5.select("#ex_list")
+												  .selectAll("option")
+											      .data(exclusion_list)
+											      .enter()
+											      .append("option")
+											      .text(function(phrase, i) { return phrase; })
+											      .attr("value", function (phrase, i) { return i; })
+											      .on("click", function(phrase) {
+												      	if (d3v5.event.ctrlKey) {
+												      		// remove phrase from exclusion_list and redo line chart
+												      		var index = exclusion_list.indexOf(phrase);
+												      		if (index > -1) { exclusion_list.splice(index, 1); }
+												            d3v5.select(this).remove();
+												            updateCharts();
+												        }
+												        d3v5.event.stopPropagation();
+											      })
+											      .exit()
+											      .remove();
+					             });
+
+						lc_legend.style("fill", "#777" )
+								 .text(function(d) { return d.phrase; });
+
+						lc_legend.exit().remove();
+
+
+					    x.domain(d3.extent(years, function(d) { return d; }));
+
+						var phr_line = lc_svg.selectAll(".line")
+					 					     .data(burst_data, function(d) { return d.phrase })
+					 					     .enter()
+					 					     .append("path")
+					 					     .attr("class", "line")
+										     .on('mouseover', function(d) {
+											    // Show tl_tooltip only if the line is currently visible
+											    if (d3.select(this).style("opacity") == 1) {
+												    d3.select('.lc_tooltip')
+											          .style('visibility','visible')
+											          .style('top', d3.event.pageY + 10 + 'px')
+											          .style('left', d3.event.pageX + 10 + 'px')
+											          .html('<b>' + d.phrase);										    	
+											    }
+										     })
+										     .on('mouseout', function(d) {
+											    // Hide tl_tooltip
+											    d3.select('.lc_tooltip').style('visibility', 'hidden');
+										    });
+
+						phr_line.transition()
+								.style("stroke", function(d, i) { 
+									// return d.color = colors[i % num_bursts];
+									return color_dict[d.phrase];
 								})
-
-								var line_color = color_dict[d.phrase];
-								d3.selectAll(".line").each(function(d) {
-									if (color_dict[d.phrase] == line_color) {
-										var opacity = d3.select(this).style("opacity");
-										// flip the opacity
-										d3.select(this).style("opacity", 1 - opacity);
-
-									}
+								.attr("id", function(d){ return "line_" + getID(d.phrase);})
+								.attr("d", function(d){
+									return phraseline(d.values);
 								});
 
-							 })
+						// phr_line.exit().remove();
 
-				    // Add the Legend text
-				    lc_legend.enter()
-					    	 .append("text")
-						     .attr("x", 15)
-						     .attr("y", function(d, i){ return 10 + i*15; })
-						     .attr("class", "chart_legend")
-				             .on("mouseover", function() {
-				            	d3.select(this)
-				            	  .style("cursor", "pointer");
-				             })
-				             .on("click", function(d) {
-				            	displayModal(d, 'phrase');
-				             });
+					    // Add the X Axis
+					    lc_svg.append("g")
+						      .attr("class", "x axis")
+						      .attr("transform", "translate(0," + lc_height + ")")
+						      .call(xAxis);
 
-					lc_legend.style("fill", "#777" )
-							 .text(function(d) { return d.phrase; });
+					    // Add the Y Axis
+					    lc_svg.append("g")
+						      .attr("class", "y axis")
+						      .call(yAxis)
+						      .append("text")
+						      .attr("transform", "rotate(-90)")
+						      .attr("y", 6)
+						      .attr("dy", ".71em")
+						      .style("text-anchor", "end")
+						      // .style('font-weight','bold')
+						      .text("Relative Frequency");
 
-					lc_legend.exit().remove();
-
-
-				    x.domain(d3.extent(years, function(d) { return d; }));
-
-					var phr_line = lc_svg.selectAll(".line")
-				 					     .data(burst_data, function(d) { return d.phrase })
-				 					     .enter()
-				 					     .append("path")
-				 					     .attr("class", "line")
-									     .on('mouseover', function(d) {
-										    // Show tl_tooltip only if the line is currently visible
-										    if (d3.select(this).style("opacity") == 1) {
-											    d3.select('.lc_tooltip')
-										          .style('visibility','visible')
-										          .style('top', d3.event.pageY + 10 + 'px')
-										          .style('left', d3.event.pageX + 10 + 'px')
-										          .html('<b>' + d.phrase);										    	
-										    }
-									     })
-									     .on('mouseout', function(d) {
-										    // Hide tl_tooltip
-										    d3.select('.lc_tooltip').style('visibility', 'hidden');
-									    });
-
-					phr_line.transition()
-							.style("stroke", function(d, i) { 
-								// return d.color = colors[i % num_bursts];
-								return color_dict[d.phrase];
+						d3v5.select("input[type = range]#threshold")
+							.attr("min", 0)
+							.attr("max", threshold_max)
+							.attr("step", threshold_max/100)
+							.attr("value", p_threshold)
+							.on("input", function() {
+							  	d3v5.select("output#threshold_display").text(this.value);
 							})
-							.attr("id", function(d){ return d.phrase.replace(/\s+/g, '');}) // assign ID
-							.attr("d", function(d){
-								return phraseline(d.values);
-							});
+							.on("change", function() {
+								new_threshold = +this.value;
 
-					// phr_line.exit().remove();
+								// get selected CASC
+								tl_selectedCascIndex = lc_casc_dropdown.property('selectedIndex');
+								var selected_casc = cascs[tl_selectedCascIndex];
 
-				    // Add the X Axis
-				    lc_svg.append("g")
-					      .attr("class", "x axis")
-					      .attr("transform", "translate(0," + lc_height + ")")
-					      .call(xAxis);
+								new_win_size = +d3v5.select("output#win_size_display").property("value");
+								new_num_bursts = +d3v5.select("output#num_bursts_display").property("value");
+								updateLineChart(selected_casc, new_threshold, new_win_size, new_num_bursts);
+							 });
 
-				    // Add the Y Axis
-				    lc_svg.append("g")
-					      .attr("class", "y axis")
-					      .call(yAxis)
-					      .append("text")
-					      .attr("transform", "rotate(-90)")
-					      .attr("y", 6)
-					      .attr("dy", ".71em")
-					      .style("text-anchor", "end")
-					      // .style('font-weight','bold')
-					      .text("Relative Frequency");
+						d3v5.select("input[type = range]#win_size")
+							.attr("min", 1)
+							.attr("max", max_win_size)
+							.attr("step", 1)
+							.attr("value", win_size)
+							.on("input", function() {
+							  	d3v5.select("output#win_size_display").text(this.value);
+							})
+							.on("change", function() {
+								new_win_size = +this.value;
+								// get selected CASC
+								tl_selectedCascIndex = lc_casc_dropdown.property('selectedIndex');
+								var selected_casc = cascs[tl_selectedCascIndex];
 
-					d3v5.select("input[type = range]#threshold")
-						.attr("min", 0)
-						.attr("max", threshold_max)
-						.attr("step", threshold_max/100)
-						.attr("value", p_threshold)
-						.on("input", function() {
-						  	d3v5.select("output#threshold_display").text(this.value);
-						})
-						.on("change", function() {
-							new_threshold = +this.value;
+								new_threshold = +d3v5.select("output#threshold_display").property("value");
+								new_num_bursts = +d3v5.select("output#num_bursts_display").property("value");
+								updateLineChart(selected_casc, new_threshold, new_win_size, new_num_bursts);
+							 });
 
-							// get selected CASC
-							tl_selectedCascIndex = lc_casc_dropdown.property('selectedIndex');
-							var selected_casc = cascs[tl_selectedCascIndex];
+						d3v5.select("input[type = range]#num_bursts")
+							.attr("min", 1)
+							.attr("max", max_num_bursts)
+							.attr("step", 1)
+							.attr("value", num_bursts)
+							.on("input", function() {
+							  	d3v5.select("output#num_bursts_display").text(this.value);
+							})
+							.on("change", function() {
+								new_num_bursts = +this.value;
 
-							new_win_size = +d3v5.select("output#win_size_display").property("value");
-							new_num_bursts = +d3v5.select("output#num_bursts_display").property("value");
-							updateLineChart(selected_casc, new_threshold, new_win_size, new_num_bursts);
-						 });
+								// get selected CASC
+								tl_selectedCascIndex = lc_casc_dropdown.property('selectedIndex');
+								var selected_casc = cascs[tl_selectedCascIndex];
 
-					d3v5.select("input[type = range]#win_size")
-						.attr("min", 1)
-						.attr("max", max_win_size)
-						.attr("step", 1)
-						.attr("value", win_size)
-						.on("input", function() {
-						  	d3v5.select("output#win_size_display").text(this.value);
-						})
-						.on("change", function() {
-							new_win_size = +this.value;
-							// get selected CASC
-							tl_selectedCascIndex = lc_casc_dropdown.property('selectedIndex');
-							var selected_casc = cascs[tl_selectedCascIndex];
+								new_threshold = +d3v5.select("output#threshold_display").property("value");
+								new_win_size = +d3v5.select("output#win_size_display").property("value");
+								updateLineChart(selected_casc, new_threshold, new_win_size, new_num_bursts);
+							 });
 
-							new_threshold = +d3v5.select("output#threshold_display").property("value");
-							new_num_bursts = +d3v5.select("output#num_bursts_display").property("value");
-							updateLineChart(selected_casc, new_threshold, new_win_size, new_num_bursts);
-						 });
-
-					d3v5.select("input[type = range]#num_bursts")
-						.attr("min", 1)
-						.attr("max", max_num_bursts)
-						.attr("step", 1)
-						.attr("value", num_bursts)
-						.on("input", function() {
-						  	d3v5.select("output#num_bursts_display").text(this.value);
-						})
-						.on("change", function() {
-							new_num_bursts = +this.value;
-
-							// get selected CASC
-							tl_selectedCascIndex = lc_casc_dropdown.property('selectedIndex');
-							var selected_casc = cascs[tl_selectedCascIndex];
-
-							new_threshold = +d3v5.select("output#threshold_display").property("value");
-							new_win_size = +d3v5.select("output#win_size_display").property("value");
-							updateLineChart(selected_casc, new_threshold, new_win_size, new_num_bursts);
-						 });
+					});
 
 				});
-
+			})
+			.catch(function(error) {
+				console.log(exclusions_file + ' does not exist yet.');
 			});
 
 		});
