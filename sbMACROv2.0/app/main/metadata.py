@@ -2,7 +2,7 @@ import os
 import sciencebasepy
 from xml.dom import minidom
 from urllib.request import urlopen
-from nltk.corpus import stopwords
+# from nltk.corpus import stopwords
 from pattern.en import singularize
 
 
@@ -25,10 +25,10 @@ casc_id = {
     'Southwest':     '4f8c6580e4b0546c0c397b4e'
 }
 
+
 def get_item_ids(casc_name):
-    
     print('Collecting item ids...')
-    
+
     # root_ids will start with fiscal year ids
     root_ids = sb.get_child_ids(casc_id[casc_name])
 
@@ -37,8 +37,11 @@ def get_item_ids(casc_name):
     # id_level 3 => items (approved items)
 
     id_level = 1
-    child_id_lists = [] # a list of lists
-    child_ids = [] # a list of strings
+    # a list of lists
+    child_id_lists = []
+
+    # a list of strings
+    child_ids = []
 
     proj_ids = []
     aprvd_ids = []
@@ -50,7 +53,7 @@ def get_item_ids(casc_name):
             try:
                 result = sb.get_child_ids(child_id)
                 if result:
-                    child_id_lists.append(result)       
+                    child_id_lists.append(result)
             except:
                 pass
 
@@ -80,15 +83,16 @@ def get_item_ids(casc_name):
         child_ids = []
         child_id_lists = []
         id_level += 1
-        
+
     print('{} item ids collected\n'.format(len(item_ids)))
-        
+
     return item_ids
 
+
 def get_metadata_urls(item_ids):
-    
+
     print('Collecting urls...')
-    
+
     metadata_urls = []
 
     for item_id in item_ids:
@@ -98,14 +102,15 @@ def get_metadata_urls(item_ids):
         for info in item_info:
             if 'xml' in info['contentType'] and 'xml' in info['name']:
                 metadata_urls.append(info['url'])
-                
+
     print('{} urls collected\n'.format(len(metadata_urls)))
-                
+
     return metadata_urls
+
 
 def applyNLP(metadata, chars_to_exclude, stop_words):
     print('Processing metadata')
-    
+
     processed_list = []
 
     for line in metadata:
@@ -115,13 +120,15 @@ def applyNLP(metadata, chars_to_exclude, stop_words):
         words = line.split()
         for w in [word for word in words if word.lower() not in stop_words]:
             if len(w) > 2:
-                w = singularize(w) # collapse plurals into singulars
+                # collapse plurals into singulars
+                w = singularize(w)
                 processed_list.append(w.lower())
-            
+
     return processed_list
 
+
 def collectData(data_nodes):
-    
+
     def getData(data_list, l, rel):
         if data_list.childNodes:
             for data in data_list.childNodes:
@@ -130,49 +137,51 @@ def collectData(data_nodes):
                     getData(data, l, children)
                 else:
                     l.append(data)
-    
+
     l = []
     children = []
     for data_list in data_nodes:
         getData(data_list, l, children)
-        
+
     return l, children
 
+
 def processNode(node, children, nodeNames, data):
-    
+
     global tabValue
-    
+
     tabValue = 0
-    
+
     def processParentNode(node, children):
         global tabValue
         if node.parentNode.nodeName in children:
             processParentNode(node.parentNode, children)
-        
+
         nodeName = node.parentNode.nodeName
         if nodeName not in nodeNames:
-#             print(' '*tabValue, end = '')
-#             print(nodeName)
+            # print(' '*tabValue, end = '')
+            # print(nodeName)
             nodeNames.add(nodeName)
-            
         tabValue += 1
-    
+
     if node.nodeValue and node.nodeValue.split():
         processParentNode(node, children)
-#         print(' '*tabValue, end = '')
+        # print(' '*tabValue, end = '')
         if node.parentNode.nodeName[-2:].lower() == 'kt':
             pass
-#             print('[' + node.nodeValue.upper() + ']')
+        # print('[' + node.nodeValue.upper() + ']')
         else:
             data.append(node.nodeValue)
-#             print(node.nodeValue)
+        # print(node.nodeValue)
 
-def get_data(metadata_urls, tag_header, tag_to_search, chars_to_exclude, stop_words):
-    
+
+def get_data(metadata_urls, tag_header, tag_to_search,
+             chars_to_exclude, stop_words):
+
     print('Getting metadata...')
-    
+
     data = []
-    
+
     for url in metadata_urls:
         try:
             xml_content = minidom.parse(urlopen(url))
@@ -184,12 +193,13 @@ def get_data(metadata_urls, tag_header, tag_to_search, chars_to_exclude, stop_wo
 
             for node in nodes:
                 processNode(node, children, nodeNames, data)
-        except:
+        except Exception:
             pass
 
     metadata = [tag_header] + applyNLP(data, chars_to_exclude, stop_words)
-            
+
     return metadata
+
 
 def write_metadata(casc_name, tag_to_search, metadata_urls, stop_words):
 
@@ -202,7 +212,8 @@ def write_metadata(casc_name, tag_to_search, metadata_urls, stop_words):
 
         tag_header = '<' + tag_to_search + '>'
 
-        metadata = get_data(metadata_urls, tag_header, tag_to_search, chars_to_exclude, stop_words)
+        metadata = get_data(metadata_urls, tag_header,
+                            tag_to_search, chars_to_exclude, stop_words)
 
         # write data to file
         print('Writing tag contents to ' + filename)

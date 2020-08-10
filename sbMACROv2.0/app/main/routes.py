@@ -49,8 +49,9 @@ def before_request():
         db.session.commit()
         current_user.search_form = SearchForm()
 
-@bp.route('/', methods = ['GET', 'POST'])  # Also accepts
-@bp.route('/index', methods = ['GET', 'POST'])  # Default
+
+@bp.route('/', methods=['GET', 'POST'])  # Also accepts
+@bp.route('/index', methods=['GET', 'POST'])  # Default
 def index():
     # class F(GeneralForm):
     #     def __init__(i, buttonText):
@@ -66,10 +67,11 @@ def index():
     form = F()
 
     """Render splash page for sbMACRO."""
-    return(render_template('index.html', **locals(), title = "Welcome to sbMACRO"))
+    return(render_template('index.html', **locals(),
+                           title="Welcome to sbMACRO"))
 
 
-@bp.route('/metadata', methods = ['GET', 'POST'])
+@bp.route('/metadata', methods=['GET', 'POST'])
 def metadata():
 
     tag_to_search = request.form['tag_to_search']
@@ -158,7 +160,7 @@ def fiscalyear():
     return render_template('fiscalYears.html',
                            form=form,
                            cascs_and_fys=cascs_and_fys,
-                           title="Select Fiscal Years"),400
+                           title="Select Fiscal Years"), 400
 
 
 @bp.route('/update_db', methods=['GET', 'POST'])
@@ -170,8 +172,10 @@ def update_db():
     update_proj_matches = False
     cascs_to_update = []
 
-    list_of_cascs = ['Alaska', 'North Central', 'Northeast', 'Northwest', 'Pacific', 'South Central', 'Southeast', 'Southwest', 'National']
-    
+    list_of_cascs = ['Alaska', 'North Central', 'Northeast',
+                     'Northwest', 'Pacific', 'South Central',
+                     'Southeast', 'Southwest', 'National']
+
     class F(FyForm):
         pass
 
@@ -194,7 +198,7 @@ def update_db():
             update_graphs = True
         if getattr(form, 'update_proj_matches').data:
             update_proj_matches = True
-        
+
         for csc in list_of_cascs:
             csc_attr = getattr(form, csc)
 
@@ -212,9 +216,12 @@ def update_db():
     elif request.method == 'GET':
         pass
 
-    return render_template('update_db.html', form = form, list_of_cascs = list_of_cascs),400
+    return render_template('update_db.html',
+                           form=form, list_of_cascs=list_of_cascs), 400
 
 # @socketio.on('connect', namespace='/test')
+
+
 @bp.route('/updates')
 def updates():
     """Refresh master details table and update the cascs selected for update"""
@@ -226,29 +233,38 @@ def updates():
     update_graphs = session['update_graphs']
     if update_graphs:
         print('Starting graph update thread')
-        graph_upate_thread = multiprocessing.Process(target = graphs_update)
+        graph_upate_thread = multiprocessing.Process(target=graphs_update)
         graph_upate_thread.start()
 
     update_search_table = session['update_search_table'] # same as master table
     if update_search_table:
         print('Starting search table update thread')
-        search_table_update_thread = multiprocessing.Process(target = search_table_update, args = (source,))
+        search_table_update_thread = multiprocessing.Process(
+                                     target=search_table_update, args=(source,)
+                                    )
         search_table_update_thread.start()
 
     update_proj_matches = session['update_proj_matches']
     if update_proj_matches:
         print('Starting project matches update thread')
-        proj_matches_update_thread = multiprocessing.Process(target = proj_matches_update)
+        proj_matches_update_thread = multiprocessing.Process(
+                                     target=proj_matches_update
+                                    )
         proj_matches_update_thread.start()
 
     cascs_to_update = session['cascs_to_update']
     if cascs_to_update:
         print('Starting CASC updates...')
-        casc_update_thread = multiprocessing.Process(target = casc_update, args = (cascs_to_update,))
+        casc_update_thread = multiprocessing.Process(
+                             target=casc_update, args=(cascs_to_update,)
+                            )
         casc_update_thread.start()
 
-    return render_template("updates.html", update_graphs = update_graphs, update_search_table = update_search_table, update_proj_matches = update_proj_matches, cascs_to_update = cascs_to_update)
-
+    return render_template("updates.html", update_graphs=update_graphs,
+                           update_search_table=update_search_table,
+                           update_proj_matches=update_proj_matches,
+                           cascs_to_update=cascs_to_update
+                           )
 
 @bp.route('/trends', methods = ['GET', 'POST'])
 def trends():
@@ -286,18 +302,22 @@ def casc_projects(params):
 
     casc_name, num_projects, num_datasets = params.split('|')
 
-    return render_template('casc_projects.html', casc_name = casc_name, num_projects = num_projects, num_datasets = num_datasets)
+    return render_template('casc_projects.html',
+                           casc_name=casc_name,
+                           num_projects=num_projects,
+                           num_datasets=num_datasets
+                           )
 
 
-@bp.route('/proj_compare', methods = ['GET', 'POST'])
+@bp.route('/proj_compare', methods=['GET', 'POST'])
 def proj_compare():
 
     return render_template('proj_compare.html')
 
 
-@bp.route('/projects', methods = ['GET', 'POST'])
-@bp.route('/select_project', methods = ['GET', 'POST'])
-@bp.route('/select_projects', methods = ['GET', 'POST'])
+@bp.route('/projects', methods=['GET', 'POST'])
+@bp.route('/select_project', methods=['GET', 'POST'])
+@bp.route('/select_projects', methods=['GET', 'POST'])
 def project():
     """Display and implement selection/searching for projects by URL."""
     if request.method == 'POST':
@@ -330,7 +350,8 @@ def project():
             session["projects"] = projects
         return redirect(url_for('main.report'))
 
-    return(render_template('projects.html', title="Select Projects to Report")),400
+    return(render_template('projects.html',
+           title="Select Projects to Report")), 400
 
 
 @bp.route('/report')
@@ -341,7 +362,10 @@ def report():
     try:
         project_list = session["projects"]
     except KeyError:
-        return render_template("error.html", message="Please select Fiscal Year First To Generate Report")
+        return render_template("error.html",
+                               message="Please select Fiscal Year \
+                                     First To Generate Report"
+                               )
     # except TypeError:
     #     return render_template("error.html", message="Please Login ")
     projects = []
@@ -357,11 +381,11 @@ def report():
                     print('Opening {}...'.format(excel_file))
                     workbook = openpyxl.load_workbook(excel_file)
                     print('Successfully opened {}'.format(excel_file))
-                except:
+                except Exception:
                     print('File error: {}'.format(excel_file))
                 # No need to continue if workbook has just been loaded
                 break
-    
+
     class ReportItem(object):
         """Object to be passed to front-end for display in table and modal."""
 
@@ -410,7 +434,7 @@ def report():
                 i.obj_type = obj_type
                 proj = db.session.query(Project).filter(
                     Project.id == obj_db_id).first()
-                if proj == None:
+                if proj is None:
                     raise Exception  # It has to be there somewhere...
                 else:
                     i.name = proj.name
@@ -473,21 +497,34 @@ def report():
                             try:
                                 # DMP Status
                                 i.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
+                                if i.dmp_status is None or\
+                                   i.dmp_status.isspace() or\
+                                   i.dmp_status == "":
 
                                     i.dmp_status = "No DMP status provided"
                                 # History
                                 i.history = sheet[proj.sb_id]['History']
-                                if i.history is None or i.history.isspace() or i.history == "":
-                                    i.history = "No data steward history provided"
+                                if i.history is None or\
+                                   i.history.isspace() or\
+                                   i.history == "":
+                                    i.history = "No data steward \
+                                                history provided"
                                 # Potential Products
-                                i.potential_products = sheet[proj.sb_id]['Expected Products']
-                                if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
-                                    i.potential_products = "No data potential products provided"
+                                i.potential_products = \
+                                    sheet[proj.sb_id]['Expected Products']
+                                if i.potential_products is None or\
+                                   i.potential_products.isspace() or\
+                                   i.potential_products == "":
+                                    i.potential_products = "No data potential \
+                                                            products \
+                                                            provided"
                             except KeyError:
-                                i.dmp_status = "Project not currently tracked by Data Steward"
-                                i.history = "Project not currently tracked by Data Steward"
-                                i.potential_products = "Project not currently tracked by Data Steward"
+                                i.dmp_status = "Project not currently \
+                                               tracked by Data Steward"
+                                i.history = "Project not currently \
+                                            tracked by Data Steward"
+                                i.potential_products = "Project not currently \
+                                                       tracked by Data Steward"
 
                         else:
                             i.dmp_status = "Please email administrators at"\
@@ -505,7 +542,8 @@ def report():
                     else:
                         i.dmp_status = "Please login to view this content."
                         i.history = "Please login to view this content."
-                        i.potential_products = "Please login to view this content."
+                        i.potential_products = "Please login \
+                                               to view this content."
                     i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
@@ -515,7 +553,9 @@ def report():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
+                                        # sqlalchemy max query items is 999
+                                        SbFile.id.in_(\
+                                            proj_file_list[:999])).all()
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -544,10 +584,14 @@ def report():
                 # front-end yet.
     for project in project_list:
         new_obj = ReportItem(
-            'project', project['proj_id'], project['fy_id'], project['casc_id'])
+            'project', project['proj_id'],
+            project['fy_id'],
+            project['casc_id']
+                            )
         projects.append(new_obj.__dict__)
 
     return render_template("report.html", projects=projects)
+
 
 @bp.route('/verticalbar')
 def verticalbar():
@@ -568,7 +612,7 @@ def verticalbar():
                     print('Opening {}...'.format(excel_file))
                     workbook = openpyxl.load_workbook(excel_file)
                     print('Successfully opened {}'.format(excel_file))
-                except:
+                except Exception:
                     print('File error: {}'.format(excel_file))
                 # No need to continue if workbook has just been loaded
                 break
@@ -621,7 +665,7 @@ def verticalbar():
                 i.obj_type = obj_type
                 proj = db.session.query(Project).filter(
                     Project.id == obj_db_id).first()
-                if proj == None:
+                if proj is None:
                     raise Exception  # It has to be there somewhere...
                 else:
                     i.name = proj.name
@@ -684,21 +728,33 @@ def verticalbar():
                             try:
                                 # DMP Status
                                 i.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
+                                if i.dmp_status is None or\
+                                   i.dmp_status.isspace() or\
+                                   i.dmp_status == "":
 
                                     i.dmp_status = "No DMP status provided"
                                 # History
                                 i.history = sheet[proj.sb_id]['History']
-                                if i.history is None or i.history.isspace() or i.history == "":
-                                    i.history = "No data steward history provided"
+                                if i.history is None or i.history.isspace() or\
+                                   i.history == "":
+                                    i.history = "No data steward \
+                                                history provided"
                                 # Potential Products
-                                i.potential_products = sheet[proj.sb_id]['Expected Products']
-                                if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
-                                    i.potential_products = "No data potential products provided"
+                                i.potential_products = \
+                                    sheet[proj.sb_id]['Expected Products']
+                                if i.potential_products is None or\
+                                   i.potential_products.isspace() or\
+                                   i.potential_products == "":
+                                    i.potential_products = "No data potential\
+                                                            products provided"
                             except KeyError:
-                                i.dmp_status = "Project not currently tracked by Data Steward"
-                                i.history = "Project not currently tracked by Data Steward"
-                                i.potential_products = "Project not currently tracked by Data Steward"
+                                i.dmp_status = "Project not currently \
+                                                tracked by Data Steward"
+                                i.history = "Project not currently \
+                                            tracked by Data Steward"
+                                i.potential_products = "Project not currently \
+                                                        tracked by \
+                                                        Data Steward"
 
                         else:
                             i.dmp_status = "Please email administrators at"\
@@ -716,7 +772,8 @@ def verticalbar():
                     else:
                         i.dmp_status = "Please login to view this content."
                         i.history = "Please login to view this content."
-                        i.potential_products = "Please login to view this content."
+                        i.potential_products = "Please login \
+                                                to view this content."
                     i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
@@ -726,7 +783,9 @@ def verticalbar():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
+                                        # sqlalchemy max query items is 999
+                                        SbFile.id.in_(\
+                                            proj_file_list[:999])).all()
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -756,7 +815,10 @@ def verticalbar():
 
     for project in project_list:
         new_obj = ReportItem(
-            'project', project['proj_id'], project['fy_id'], project['casc_id'])
+            'project', project['proj_id'],
+            project['fy_id'],
+            project['casc_id']
+                            )
         projects.append(new_obj.__dict__)
 
     return render_template("verticalbar.html", projects=projects)
@@ -781,7 +843,7 @@ def horizontalbar():
                     print('Opening {}...'.format(excel_file))
                     workbook = openpyxl.load_workbook(excel_file)
                     print('Successfully opened {}'.format(excel_file))
-                except:
+                except Exception:
                     print('File error: {}'.format(excel_file))
                 # No need to continue if workbook has just been loaded
                 break
@@ -832,8 +894,9 @@ def horizontalbar():
 
             if obj_type == 'project':
                 i.obj_type = obj_type
-                proj = db.session.query(Project).filter(Project.id == obj_db_id).first()
-                if proj == None:
+                proj = db.session.query(Project)\
+                    .filter(Project.id == obj_db_id).first()
+                if proj is None:
                     raise Exception  # It has to be there somewhere...
                 else:
                     i.name = proj.name
@@ -887,7 +950,7 @@ def horizontalbar():
                                         values.append(vals)
 
                                     sheet = parse_values(values)
-                                except:
+                                except Exception:
                                     pass
 
     # ACTION ITEM: In a production app, you likely
@@ -897,23 +960,37 @@ def horizontalbar():
                             try:
                                 try:
                                     # DMP Status
-                                    i.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                    if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
+                                    i.dmp_status = \
+                                        sheet[proj.sb_id]['DMP Status']
+                                    if i.dmp_status is None or\
+                                       i.dmp_status.isspace() or\
+                                       i.dmp_status == "":
 
                                         i.dmp_status = "No DMP status provided"
                                     # History
                                     i.history = sheet[proj.sb_id]['History']
-                                    if i.history is None or i.history.isspace() or i.history == "":
-                                        i.history = "No data steward history provided"
+                                    if i.history is None or\
+                                       i.history.isspace() or\
+                                       i.history == "":
+                                        i.history = "No data \
+                                            steward history provided"
                                     # Potential Products
-                                    i.potential_products = sheet[proj.sb_id]['Expected Products']
-                                    if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
-                                        i.potential_products = "No data potential products provided"
+                                    i.potential_products = \
+                                        sheet[proj.sb_id]['Expected Products']
+                                    if i.potential_products is None or\
+                                       i.potential_products.isspace() or\
+                                       i.potential_products == "":
+                                        i.potential_products = "No data potential \
+                                                            products provided"
                                 except KeyError:
-                                    i.dmp_status = "Project not currently tracked by Data Steward"
-                                    i.history = "Project not currently tracked by Data Steward"
-                                    i.potential_products = "Project not currently tracked by Data Steward"
-                            except:
+                                    i.dmp_status = "Project not currently \
+                                                    tracked by Data Steward"
+                                    i.history = "Project not currently \
+                                                tracked by Data Steward"
+                                    i.potential_products = "Project not \
+                                                            currently tracked \
+                                                            by Data Steward"
+                            except Exception:
                                 pass
                         else:
                             i.dmp_status = "Please email administrators at"\
@@ -931,7 +1008,8 @@ def horizontalbar():
                     else:
                         i.dmp_status = "Please login to view this content."
                         i.history = "Please login to view this content."
-                        i.potential_products = "Please login to view this content."
+                        i.potential_products = "Please login to \
+                                                view this content."
                     i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
@@ -941,7 +1019,8 @@ def horizontalbar():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
+                                        # sqlalchemy max query items is 999
+                                        SbFile.id.in_(proj_file_list[:999])).all()
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -971,11 +1050,13 @@ def horizontalbar():
 
     for project in project_list:
         new_obj = ReportItem(
-            'project', project['proj_id'], project['fy_id'], project['casc_id'])
+            'project',
+            project['proj_id'],
+            project['fy_id'],
+            project['casc_id'])
         projects.append(new_obj.__dict__)
 
     return render_template("horizontalbar.html", projects=projects)
-
 
 
 @bp.route('/treemap')
@@ -999,7 +1080,7 @@ def treemap():
                     print('Opening {}...'.format(excel_file))
                     workbook = openpyxl.load_workbook(excel_file)
                     print('Successfully opened {}'.format(excel_file))
-                except:
+                except Exception:
                     print('File error: {}'.format(excel_file))
                 # No need to continue if workbook has just been loaded
                 break
@@ -1052,7 +1133,7 @@ def treemap():
                 i.obj_type = obj_type
                 proj = db.session.query(Project).filter(
                     Project.id == obj_db_id).first()
-                if proj == None:
+                if proj is None:
                     raise Exception  # It has to be there somewhere...
                 else:
                     i.name = proj.name
@@ -1115,21 +1196,33 @@ def treemap():
                             try:
                                 # DMP Status
                                 i.dmp_status = sheet[proj.sb_id]['DMP Status']
-                                if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
+                                if i.dmp_status is None or\
+                                   i.dmp_status.isspace() or\
+                                   i.dmp_status == "":
 
                                     i.dmp_status = "No DMP status provided"
                                 # History
                                 i.history = sheet[proj.sb_id]['History']
-                                if i.history is None or i.history.isspace() or i.history == "":
-                                    i.history = "No data steward history provided"
+                                if i.history is None or\
+                                   i.history.isspace() or\
+                                   i.history == "":
+                                    i.history = "No data \
+                                        steward history provided"
                                 # Potential Products
-                                i.potential_products = sheet[proj.sb_id]['Expected Products']
-                                if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
-                                    i.potential_products = "No data potential products provided"
+                                i.potential_products = \
+                                    sheet[proj.sb_id]['Expected Products']
+                                if i.potential_products is None or\
+                                   i.potential_products.isspace() or\
+                                   i.potential_products == "":
+                                    i.potential_products = "No data potential \
+                                                            products provided"
                             except KeyError:
-                                i.dmp_status = "Project not currently tracked by Data Steward"
-                                i.history = "Project not currently tracked by Data Steward"
-                                i.potential_products = "Project not currently tracked by Data Steward"
+                                i.dmp_status = "Project not currently \
+                                                tracked by Data Steward"
+                                i.history = "Project not currently \
+                                            tracked by Data Steward"
+                                i.potential_products = "Project not \
+                                            currently tracked by Data Steward"
 
                         else:
                             i.dmp_status = "Please email administrators at"\
@@ -1147,7 +1240,8 @@ def treemap():
                     else:
                         i.dmp_status = "Please login to view this content."
                         i.history = "Please login to view this content."
-                        i.potential_products = "Please login to view this content."
+                        i.potential_products = "Please login \
+                                                to view this content."
                     i.file_breakdown = []
                     proj_file_list = []
                     for sbfile in proj.files:
@@ -1157,7 +1251,9 @@ def treemap():
                             SbFile.content_type, db.func.count(
                                 SbFile.content_type)).group_by(
                                     SbFile.content_type).filter(
-                                        SbFile.id.in_(proj_file_list[:999])).all()  # sqlalchemy max query items is 999
+                                        # sqlalchemy max query items is 999
+                                        SbFile.id.in_(\
+                                            proj_file_list[:999])).all()
                         proj_file_list[:] = []
                         for _tuple in file_breakdown_list:
                             temp_dict = {}
@@ -1187,10 +1283,14 @@ def treemap():
 
     for project in project_list:
         new_obj = ReportItem(
-            'project', project['proj_id'], project['fy_id'], project['casc_id'])
+            'project',
+            project['proj_id'],
+            project['fy_id'],
+            project['casc_id'])
         projects.append(new_obj.__dict__)
 
     return render_template("treemap.html", projects=projects)
+
 
 @bp.route('/user/<username>')
 @login_required
@@ -1221,138 +1321,166 @@ def edit_profile():
             user.set_password(form.password.data)
             db.session.add(user)
         db.session.commit()
-        return redirect(url_for('main.user', username=current_user.username)),400
+        return redirect(url_for('main.user',
+                        username=current_user.username)), 400
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about.data = current_user.about
         form.email.data = current_user.email
 
     return render_template(
-        'edit_profile.html', title='Edit Profile', form=form),400
-
+        'edit_profile.html',
+        title='Edit Profile', form=form), 400
 
 
 @bp.route('/search', methods=['GET', 'POST'])
 @login_required
 def search():
     current_user.search_form = SearchForm()
-    d= str(current_user.search_form.data['search'])
-    if(len(d)==0):
-        message=["Please Enter The Keyword To Search"]
-        return render_template('error.html', message = message, length=len(d)),400
+    d = str(current_user.search_form.data['search'])
+    if(len(d) == 0):
+        message = ["Please Enter The Keyword To Search"]
+        return render_template('error.html',
+                               message=message, length=len(d)), 400
 
-    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
-    length=len(courses)
-    
+    courses = MasterDetails.query.filter(
+                                (MasterDetails.projectTitle.like('%'+d+'%')) |
+                                (MasterDetails.PI.like('%'+d+'%'))) .all()
+    length = len(courses)
+
     # Adding Required Details to userData
-    userdata=[]
+    userdata = []
+
     def add_user(user):
         userdata.append(user)
     for i in courses:
         user = {}
-        user["name"]=i.projectTitle
-        user["casc"]=i.casc
-        user["Fy"]=str(i.fy)
-        user["ctitle"]=i.title
-        user["sbId"]=i.sb_id
-        user["summary"]=i.summary
+        user["name"] = i.projectTitle
+        user["casc"] = i.casc
+        user["Fy"] = str(i.fy)
+        user["ctitle"] = i.title
+        user["sbId"] = i.sb_id
+        user["summary"] = i.summary
         add_user(user)
-    return render_template('searchTree.html',query=d, courses = courses, length= length, userdata=userdata)
+    return render_template('searchTree.html',
+                           query=d, courses=courses,
+                           length=length, userdata=userdata)
+
 
 @bp.route('/searchBar/<query>', methods=['GET', 'POST'])
 @login_required
 def searchBar(query):
 
     current_user.search_form = SearchForm()
-    d=query
-    if(len(d)==0):
-        userdata=["Please Enter The Keyword To Search"]
-        return render_template('search_results.html', userdata = userdata, length=len(d))
+    d = query
+    if(len(d) == 0):
+        userdata = ["Please Enter The Keyword To Search"]
+        return render_template('search_results.html',
+                               userdata=userdata, length=len(d))
 
-    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
-    length=len(courses)
+    courses = MasterDetails.query.filter(
+                                (MasterDetails.projectTitle.like('%'+d+'%')) |
+                                (MasterDetails.PI.like('%'+d+'%'))) .all()
+    length = len(courses)
     # Adding Required Details to userData
-    userdata=[]
+    userdata = []
+
     def add_user(user):
         userdata.append(user)
     for i in courses:
         user = {}
-        user["name"]=i.projectTitle
-        user["casc"]=i.casc
-        user["Fy"]=str(i.fy)
-        user["ctitle"]=i.title
-        user["size"]=i.projectSize
+        user["name"] = i.projectTitle
+        user["casc"] = i.casc
+        user["Fy"] = str(i.fy)
+        user["ctitle"] = i.title
+        user["size"] = i.projectSize
         add_user(user)
-    return render_template('search_results.html', query=d, courses=courses, length=length, userdata=userdata)
+    return render_template('search_results.html',
+                           query=d, courses=courses,
+                           length=length, userdata=userdata)
+
 
 @bp.route('/searchBack/<query>', methods=['GET', 'POST'])
 @login_required
 def searchBack(query):
 
     current_user.search_form = SearchForm()
-    d=query
-    if(len(d)==0):
-        userdata=["Please Enter The Keyword To Search"]
-        return render_template('search_results.html', userdata = userdata, length=len(d))
+    d = query
+    if(len(d) == 0):
+        userdata = ["Please Enter The Keyword To Search"]
+        return render_template('search_results.html',
+                               userdata=userdata, length=len(d))
 
-    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
-    length=len(courses)
+    courses = MasterDetails.query.filter(
+                            (MasterDetails.projectTitle.like('%'+d+'%')) |
+                            (MasterDetails.PI.like('%'+d+'%'))) .all()
+    length = len(courses)
     # Adding Required Details to userData
-    userdata=[]
+    userdata = []
+
     def add_user(user):
         userdata.append(user)
     for i in courses:
         user = {}
-        user["name"]=i.projectTitle
-        user["casc"]=i.casc
-        user["Fy"]=str(i.fy)
-        user["ctitle"]=i.title
-        user["size"]=i.projectSize
-        
+        user["name"] = i.projectTitle
+        user["casc"] = i.casc
+        user["Fy"] = str(i.fy)
+        user["ctitle"] = i.title
+        user["size"] = i.projectSize
+
         add_user(user)
-    return render_template('searchTree.html', query=d, courses=courses, length=length, userdata=userdata)
+    return render_template('searchTree.html',
+                           query=d, courses=courses,
+                           length=length, userdata=userdata)
+
 
 @bp.route('/searchTable/<query>', methods=['GET', 'POST'])
 @login_required
 def searchTable(query):
     current_user.search_form = SearchForm()
-    d=query
-    if(len(d)==0):
-        userdata=["Please Enter The Keyword To Search"]
-        return render_template('search_results.html', userdata = userdata, length=len(d))
+    d = query
+    if(len(d) == 0):
+        userdata = ["Please Enter The Keyword To Search"]
+        return render_template('search_results.html',
+                               userdata=userdata,
+                               length=len(d))
 
-    courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
-    length=len(courses)
-    userdata=[]
+    courses = MasterDetails.query.filter(
+                                (MasterDetails.projectTitle.like('%'+d+'%')) |
+                                (MasterDetails.PI.like('%'+d+'%'))) .all()
+    length = len(courses)
+    userdata = []
+
     def add_user(user):
         userdata.append(user)
     sheet = {}
     for i in courses:
         user = {}
-        user["name"]=i.projectTitle
-        user['sb_id']=i.sb_id
-        user["casc"]=i.casc
-        user["Fy"]=str(i.fy)
-        user["ctitle"]=i.title
-        user["size"]=i.projectSize
-        user['pi_list']=i.PI
-        user['summary']=i.summary
-        user['url']=i.url
-        user['ctitle']=i.title
-        user['xml']=i.xml_urls
-        if(i.xml_urls==''):
+        user["name"] = i.projectTitle
+        user['sb_id'] = i.sb_id
+        user["casc"] = i.casc
+        user["Fy"] = str(i.fy)
+        user["ctitle"] = i.title
+        user["size"] = i.projectSize
+        user['pi_list'] = i.PI
+        user['summary'] = i.summary
+        user['url'] = i.url
+        user['ctitle'] = i.title
+        user['xml'] = i.xml_urls
+        if(i.xml_urls == ''):
             # print("no data")
-            user['xml']="Metadata Unavailable for this DataItem"
-            user['error']="No Validations"
-            user['curl']="No Xml Link Found"
+            user['xml'] = "Metadata Unavailable for this DataItem"
+            user['error'] = "No Validations"
+            user['curl'] = "No Xml Link Found"
         else:
-            doc = etree.parse(path_to_static + 'FGDC-BDP/fgdc-std-001.1-1999.xsd')
+            doc = etree.parse(path_to_static +
+                              'FGDC-BDP/fgdc-std-001.1-1999.xsd')
             schema = etree.XMLSchema(doc)
 
-            #parse the url and convert to xml file 
-            url1=str(i.xml_urls)
+            # parse the url and convert to xml file
+            url1 = str(i.xml_urls)
             URL = url1.split(',')[0]
-            user['curl']=URL
+            user['curl'] = URL
             # print(URL)
             try:
                 response = requests.get(URL)
@@ -1362,23 +1490,24 @@ def searchTable(query):
                 custom = etree.parse(path_to_static + 'feed.xml')
 
                 # Validate Schema
-                user['xml']=schema.validate(custom)
+                user['xml'] = schema.validate(custom)
                 # print(schema.validate(custom))
 
                 def get_project(error):
                     # return error.path.split('/')[-1]
                     return error.message.split(':')[0].split(" ")[1].strip()
 
-
                 # If errors, we will find it in schema.error_log
-                user['error']=[]
+                user['error'] = []
                 for error in schema.error_log:
                     # Mutiple attribute available in error
-                    # 'column', 'domain', 'domain_name', 'filename', 'level', 'level_name',
+                    # 'column', 'domain', 'domain_name',
+                    # 'filename', 'level', 'level_name'
                     # 'line', 'message', 'path', 'type', 'type_name'
-                    error1=str(error.message),"Error in Line Number: "+str(error.line)
+                    error1 = str(error.message),
+                    "Error in Line Number: "+str(error.line)
                     # print('ErrorMessage',error.message)
-                    user['error'].append(error1)           
+                    user['error'].append(error1)
                 result = {}
                 for error1 in schema.error_log:
                     project = get_project(error1)
@@ -1388,9 +1517,10 @@ def searchTable(query):
                     result[project] += 1
                     # print(error.message)
                 # print(result)
-                user['countError']=str(result)
-            except:
-                user['cxml']="URL Associated with this Data Item is not working"
+                user['countError'] = str(result)
+            except Exception:
+                user['cxml'] = "URL Associated with this \
+                                Data Item is not working"
                 # print("url failed")
 
         if current_user.is_authenticated:
@@ -1410,56 +1540,68 @@ def searchTable(query):
                 try:
                     # DMP Status
                     i.dmp_status = sheet[i.sb_id]['DMP Status']
-                    if i.dmp_status is None or i.dmp_status.isspace() or i.dmp_status == "":
+                    if i.dmp_status is None or\
+                       i.dmp_status.isspace() or\
+                       i.dmp_status == "":
                         i.dmp_status = "No DMP status provided"
-                    user["dmp_status"]= i.dmp_status
+                    user["dmp_status"] = i.dmp_status
                     # History
                     i.history = sheet[i.sb_id]['History']
-                    if i.history is None or i.history.isspace() or i.history == "":
+                    if i.history is None or\
+                       i.history.isspace() or\
+                       i.history == "":
                         i.history = "No data steward history provided"
-                    user['history']=i.history
+                    user['history'] = i.history
                     # Potential Products
                     i.potential_products = sheet[i.sb_id]['Expected Products']
-                    if i.potential_products is None or i.potential_products.isspace() or i.potential_products == "":
-                        i.potential_products = "No data potential products provided"
-                    user['potential_products']= i.potential_products
+                    if i.potential_products is None or\
+                       i.potential_products.isspace() or\
+                       i.potential_products == "":
+                        i.potential_products = "No data potential\
+                                               products provided"
+                    user['potential_products'] = i.potential_products
                 except KeyError:
-                    i.dmp_status = "Project not currently tracked by Data Steward"
-                    i.history = "Project not currently tracked by Data Steward"
-                    i.potential_products = "Project not currently tracked by Data Steward"
+                    i.dmp_status = "Project not currently tracked \
+                        by Data Steward"
+                    i.history = "Project not currently tracked by \
+                        Data Steward"
+                    i.potential_products = "Project not currently tracked by \
+                        Data Steward"
             else:
                 i.dmp_status = "Please email administrators at"\
                     + " {} to receive access privileges to view "\
                     .format(current_app.config['ADMINS'][0])\
                     + "this content."
-                user["dmp_status"]= i.dmp_status
+                user["dmp_status"] = i.dmp_status
                 i.history = "Please email administrators at"\
                     + " {} to receive access privileges to view "\
                     .format(current_app.config['ADMINS'][0])\
                     + "this content."
-                user['history']=i.history
+                user['history'] = i.history
                 i.potential_products = "Please email "\
                     + "administrators at {} to receive access "\
                     .format(current_app.config['ADMINS'][0])\
                     + "privileges to view this content."
-                user['potential_products']= i.potential_products
+                user['potential_products'] = i.potential_products
         else:
             i.dmp_status = "Please login to view this content."
             i.history = "Please login to view this content."
             i.potential_products = "Please login to view this content."
         i.file_breakdown = []
         add_user(user)
-    return render_template('searchTableChart.html', query=d, courses=courses, length=length, userdata=userdata)
+    return render_template('searchTableChart.html', query=d, courses=courses,
+                           length=length, userdata=userdata)
 
 
 # adding new code Burst and Trends.html
 
-@bp.route('/trends', methods = ['GET', 'POST'])
+@bp.route('/trends', methods=['GET', 'POST'])
 def trends():
 
     return render_template('trends.html')
 
-@bp.route('/bursts', methods = ['GET', 'POST'])
+
+@bp.route('/bursts', methods=['GET', 'POST'])
 def bursts():
 
     return render_template('bursts.html')

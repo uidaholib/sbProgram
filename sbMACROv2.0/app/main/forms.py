@@ -19,7 +19,18 @@ class EditProfileForm(FlaskForm):
         'About me', validators=[Optional(), Length(min=0, max=140)])
     password = PasswordField(
         'New Password (optional)', validators=[Optional(),
-                                               DataRequired(), Length(min=8, max=32), Regexp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', message="Should contain atleast 1 Lowercase, UpperCase, Digit and SpecialSymbol ")])
+                                               DataRequired(),
+                                               Length(min=8, max=32),
+                                               Regexp('^(?=.*[a-z]) \
+                                                     (?=.*[A-Z]) (?=.*\d) \
+                                                     (?=.*[@$!%*?&]) \
+                                                     [A-Za-z\d@$!%*?&] {8,}$',
+                                                      message="Should contain atleast 1 Lowercase,\
+                                                               UpperCase,\
+                                                               Digit and \
+                                                               SpecialSymbol ")
+                                               ]
+                            )
     password2 = PasswordField('Repeat New Password (optional)')
     submit = SubmitField('Submit')
 
@@ -93,8 +104,7 @@ class GeneralForm(FlaskForm):
     name = BooleanField('static field')
     submit = SubmitField('Submit')
 
+
 class SearchForm(FlaskForm):
     search = StringField('search', validators=[DataRequired()])
     submit = SubmitField('Submit')
-
-
