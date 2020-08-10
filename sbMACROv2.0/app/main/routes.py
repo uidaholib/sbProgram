@@ -139,7 +139,7 @@ def fiscalyear():
             selected = fy_attr.data
             if selected:
                 id_list.append(fy.replace("fy", ""))
-
+        print('length of id_list:', len(id_list))
         for i in id_list:
             fy_model = db.session.query(FiscalYear).get(i)
             for proj in fy_model.projects:
@@ -150,6 +150,7 @@ def fiscalyear():
                 projects.append(project_dict)
 
         session["projects"] = projects
+        print('length of projects:', len(projects))
         return redirect(url_for('main.report'))
     elif request.method == 'GET':
         pass
@@ -157,7 +158,7 @@ def fiscalyear():
     return render_template('fiscalYears.html',
                            form=form,
                            cascs_and_fys=cascs_and_fys,
-                           title="Select Fiscal Years")
+                           title="Select Fiscal Years"),400
 
 
 @bp.route('/update_db', methods=['GET', 'POST'])
@@ -211,7 +212,7 @@ def update_db():
     elif request.method == 'GET':
         pass
 
-    return render_template('update_db.html', form = form, list_of_cascs = list_of_cascs)
+    return render_template('update_db.html', form = form, list_of_cascs = list_of_cascs),400
 
 # @socketio.on('connect', namespace='/test')
 @bp.route('/updates')
@@ -329,7 +330,7 @@ def project():
             session["projects"] = projects
         return redirect(url_for('main.report'))
 
-    return(render_template('projects.html', title="Select Projects to Report"))
+    return(render_template('projects.html', title="Select Projects to Report")),400
 
 
 @bp.route('/report')
@@ -337,7 +338,12 @@ def report():
     """Gather appropriate report information and display."""
 
     excel_file = 'CASC Data Management Tracking for Projects - v2.xlsx'
-    project_list = session["projects"]
+    try:
+        project_list = session["projects"]
+    except KeyError:
+        return render_template("error.html", message="Please select Fiscal Year First To Generate Report")
+    # except TypeError:
+    #     return render_template("error.html", message="Please Login ")
     projects = []
     workbook = None
 
@@ -1215,14 +1221,14 @@ def edit_profile():
             user.set_password(form.password.data)
             db.session.add(user)
         db.session.commit()
-        return redirect(url_for('main.user', username=current_user.username))
+        return redirect(url_for('main.user', username=current_user.username)),400
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about.data = current_user.about
         form.email.data = current_user.email
 
     return render_template(
-        'edit_profile.html', title='Edit Profile', form=form)
+        'edit_profile.html', title='Edit Profile', form=form),400
 
 
 
@@ -1232,8 +1238,8 @@ def search():
     current_user.search_form = SearchForm()
     d= str(current_user.search_form.data['search'])
     if(len(d)==0):
-        userdata=["Please Enter The Keyword To Search"]
-        return render_template('search_results.html', userdata = userdata, length=len(d))
+        message=["Please Enter The Keyword To Search"]
+        return render_template('error.html', message = message, length=len(d)),400
 
     courses = MasterDetails.query.filter((MasterDetails.projectTitle.like('%'+d+'%')) | (MasterDetails.PI.like('%'+d+'%'))) .all()
     length=len(courses)
@@ -1444,3 +1450,16 @@ def searchTable(query):
         i.file_breakdown = []
         add_user(user)
     return render_template('searchTableChart.html', query=d, courses=courses, length=length, userdata=userdata)
+
+
+# adding new code Burst and Trends.html
+
+@bp.route('/trends', methods = ['GET', 'POST'])
+def trends():
+
+    return render_template('trends.html')
+
+@bp.route('/bursts', methods = ['GET', 'POST'])
+def bursts():
+
+    return render_template('bursts.html')

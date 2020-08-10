@@ -18,10 +18,12 @@
 			outline: none;
 			font-size: 15px;
 			transition: 0.4s;
+			font-weight: 500;
 		}
 
 		.active, .accordion:hover {
 			background-color: #ccc;
+			font-weight: 500;
 		}
 
 		.accordion:after {
@@ -42,6 +44,9 @@
 			max-height: 0;
 			overflow: hidden;
 			transition: max-height 0.2s ease-out;
+			text-align: justify;
+			color: #444242;
+			font-size: 15px;
 		}
 
 		.word_button {
@@ -56,6 +61,14 @@
 			margin: 2px;
 			cursor: pointer;
 		}
+		/*.nav, .ul, .a {
+
+			    font-size: 1.5rem;
+			    color: #fff;
+			    display: block;
+			    padding: 0 15px;
+			    cursor: pointer;
+		}*/
 
 	</style>
 
@@ -83,14 +96,14 @@
 
 			<div class="row">
 				<span style="font-size: 2vh;">
-					<strong><h5>Project Topics</h5></strong>
+					<strong><h5 style="color:#444242;font-family: arial">Project Topics</h5></strong>
 					<div id = "proj_topics"></div>
 				</span>
 			</div>
 
 			<div class="row">
 				<span style="font-size: 2vh;">
-					<strong><h5>Item Topics</h5></strong>
+					<strong><h5 style="color:#444242;font-family: arial">Item Topics</h5></strong>
 					<div id = "item_topics"></div>
 				</span>
 			</div>
@@ -99,7 +112,7 @@
 
 			<div class="row">
 				<span style="font-size: 2vh;">
-					<strong><h5>Matched Topics</h5></strong>
+					<strong><h5 style="color:#444242;font-family: arial">Matched Topics</h5></strong>
 					<table>
 						<thead>
 							<th>Project</th>
@@ -114,7 +127,7 @@
 
 			<div class="row">
 				<span style="font-size: 2vh;">
-					<strong><h5>Unmatched Topics</h5></strong>
+					<strong><h5 style="color:#444242;font-family: arial">Unmatched Topics</h5></strong>
 					<table>
 						<thead>
 							<th>Project</th>
@@ -126,10 +139,10 @@
 			</div>
 
 			<br>
-
+<!-- 
 			<div class="projModal-footer">
 			<h8>sbMACRO</h8>
-			</div>
+			</div> -->
 
 		</div>
 
@@ -376,3 +389,11 @@
 	</script>
 
 {% endblock %}
+<!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->

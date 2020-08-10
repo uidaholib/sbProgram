@@ -10,9 +10,10 @@
 }
 .header {
   position: relative;
-list-style-type: none;
-  height: 35px;
-  width: 100%;
+  list-style-type: none;
+  height: 50px;
+  margin-top: 45px;
+  width: 18%;
   /*overflow: hidden;*/
   /* background: #4caf50; */
 }
@@ -21,25 +22,25 @@ list-style-type: none;
   padding: 6px;
 }
 .dropdown {
-  color: #FFF;
-  position: relative;
+  /*color: #FFF;*/
+  /*position: relative;*/
   text-align: left;
 }
 .dropdown ul {
   list-style-type: none;
   position: absolute;
-  /* and here */
   top: 100%;
   left: 0;
-  color: #4caf50;
+  color: black;
   width: 100%;
   display: none;
   background:white; 
   /* border: 1px solid black; */
 }
 .dropdown :hover {
-        background-color:white;
-        color: black;
+        /*background-color:#fff;*/
+        color: #444242;
+        /*font-weight: bold;*/
       }
 .dropdown:hover ul {
   display: block;
@@ -61,7 +62,7 @@ list-style-type: none;
 </head>
 <body>
         <ul class="header btn wave-effect waves-teal">
-          <li class="dropdown left">Data Chart Type
+          <li class="dropdown left" style="margin-left: 10px;">Data Chart Type
               <i class="fa fa-caret-down"></i>
             <ul>
                     <li class="active"><a href="/treemap">TreeMap</a></li>

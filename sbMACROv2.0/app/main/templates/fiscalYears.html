@@ -12,13 +12,14 @@
 <!-- Must import again to supersede the newest materialize imports -->
 <link rel="stylesheet" href="static/css/custom.css" />
 
-<h4>Welcome to SB MACRO</h4>
+<h4 style="color: #444242;font-family: arial;">Welcome to SB MACRO</h4>
+<div class="gradient-line"></div>
 <br />
-<p>
+<p class="font_format">
   This program can be used to better understand the data present in one or
   multiple fiscal years under any CASC on ScienceBase.
 </p>
-<p>
+<p class="font_format">
   Choose the fiscal year(s) under your desired Climate Adaptation Science Center
   from which you want a report generated:
 </p>
@@ -36,13 +37,17 @@
   <div class="row" id="{{ number }}">
     {% endif %}
     <div class="col s4 m4 l4">
-      <div class="card blue-grey lighten-4">
-        <div class="card-content">
-          <span class="card-title">
+      <div class="card blue-grey lighten-4 parent-div">
+      <div onclick="togglediv(this);" style="background:#26a69a; border:0px;text-align: center;color: #fff;padding: 10px;font-size: 25px;cursor: pointer;"><strong>{{ casc_name }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#9662;</strong></div>
+
+
+
+        <div class="card-content" style="background-color: #fff;">
+          <!-- <span class="card-title" >
             <p>
               <strong>{{ casc_name }}</strong>
             </p>
-          </span>
+          </span> -->
           {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %} {%
           set field_name = "fy" ~ fiscal_year["id"] %} {% set field =
           form|attr(field_name) %}
@@ -59,11 +64,33 @@
     {% endfor %}
   </div>
 </form>
-
+ 
 <script src="{{ url_for('main.static', filename='js/fiscalYears.js') }}"></script>
 <script>
     let currentPage = document.getElementById('Nav-FiscalYear');
     currentPage.classList.add("currentPage");
 </script>
 
+
+<script> 
+$( document ).ready(function() {
+   //hide all div on ready
+    $(".card-content").hide();
+
+});
+
+  function togglediv(divid){
+  $(divid).closest('.parent-div').children('.card-content').toggle();
+}
+</script>
 {% endblock %}
+
+
+ <!-- Footer Copyright -->
+  <div class="projModal-footer">
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+   <a href="{{ url_for('main.index') }}" class="brand-logo center" style="
+    color: #fff;">sbMACRO</a>
+  </div>
+</div>
+  <!-- Copyright -->

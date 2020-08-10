@@ -18,75 +18,75 @@
 
 /* For FY graph */
 #NACASC {
-    fill: #0e726a;
+    fill: #4caf50; /*green*/
 }
 
-#NACASC:hover {
-    fill: #353536;
+#NACASC:hover { /* grey*/
+    fill: #9e9e9e; 
 }
 
 #AKCASC {
-    fill: #0c650f;
+    fill: #3fa99f; /*teal*/
 }
 
-#AKCASC:hover {
-    fill: #353536;
+#AKCASC:hover { /*gray*/
+    fill: #9e9e9e;
 }
 
 #NCCASC {
-    fill: #914f18;
+    fill: #e67c26; /*orange*/
 }
 
 #NCCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 #NECASC {
-    fill: #87110f;
+    fill: #ef7573; /*pink*/
 }
 
 #NECASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 #NWCASC {
-    fill: #003995;
+    fill: #0089d9; /*blue*/
 }
 
 #NWCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 #PICASC {
-    fill: #8c245f;
+    fill: #e85959; /*red*/
 }
 
 #PICASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 #SCCASC {
-    fill: #501f7e;
+    fill: #ac7fd8; /*purple*/
 }
 
 #SCCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 #SECASC {
-    fill: #6c8e2a;
+    fill: #9EBD48; /*light green*/
 }
 
 #SECASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 #SWCASC {
-    fill: #d5a700;
+    fill: #84827d; /*dark gray*/
 }
 
 #SWCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 
@@ -94,19 +94,19 @@
 /* NACASC */
 /*****************************************************************/
 .bar.NACASC {
-    fill: #02433e;
+    fill: #4caf50;
 }
 
 .bar.NACASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
-.NACASC#FY2008 {
-    fill: #053733;
+.NACASC#FY2008 { /*light green*/
+    fill: #4caf50; 
 }
 
-.bar.NACASC#FY2008:hover {
-    fill: #353536;
+.bar.NACASC#FY2008:hover { /*light gray*/
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2009 {
@@ -114,7 +114,7 @@
 }
 
 .bar.NACASC#FY2009:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2010 {
@@ -122,7 +122,7 @@
 }
 
 .bar.NACASC#FY2010:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2011 {
@@ -130,7 +130,7 @@
 }
 
 .bar.NACASC#FY2011:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2012 {
@@ -138,7 +138,7 @@
 }
 
 .bar.NACASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2013 {
@@ -146,7 +146,7 @@
 }
 
 .bar.NACASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2014 {
@@ -154,7 +154,7 @@
 }
 
 .bar.NACASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2015 {
@@ -162,7 +162,7 @@
 }
 
 .bar.NACASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2016 {
@@ -170,7 +170,7 @@
 }
 
 .bar.NACASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2017 {
@@ -178,7 +178,7 @@
 }
 
 .bar.NACASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NACASC#FY2018 {
@@ -186,433 +186,433 @@
 }
 
 .bar.NACASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* AKCASC */
 /*****************************************************************/
 .bar.AKCASC {
-    fill: #003a02;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2011 {
-    fill: #003a02;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2011:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2012 {
-    fill: #08480a;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2013 {
-    fill: #1b601d;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2014 {
-    fill: #2e8c31;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2015 {
-    fill: #4ebc52;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2016 {
-    fill: #79c77c;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2017 {
-    fill: #5fe863;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .AKCASC#FY2018 {
-    fill: #2ef735;
+    fill: #3fa99f;
 }
 
 .bar.AKCASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* NCCASC */
 /*****************************************************************/
 .bar.NCCASC {
-    fill: #2d1603;
+    fill: #e67c26;
 }
 
 .bar.NCCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2011 {
-    fill: #3f1e03;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2011:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2012 {
-    fill: #46250a;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2013 {
-    fill: #563011;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2014 {
-    fill: #61340f;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2015 {
-    fill: #7b4315;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2016 {
-    fill: #a55818;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2017 {
-    fill: #c66b21;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NCCASC#FY2018 {
-    fill: #d26b18;
+    fill: #e67c26;
 }
 
 .bar.NCCASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* NECASC */
 /*****************************************************************/
 .bar.NECASC {
-    fill: #4a0302;
+    fill: #ef7573;
 }
 
 .bar.NECASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NECASC#FY2012 {
-    fill: #4a0302;
+    fill: #ef7573;
 }
 
 .bar.NECASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NECASC#FY2013 {
-    fill: #52100f;
+    fill: #ef7573;
 }
 
 .bar.NECASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NECASC#FY2014 {
-    fill: #5e2322;
+    fill: #ef7573;
 }
 
 .bar.NECASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NECASC#FY2015 {
-    fill: #852726;
+    fill: #ef7573;
 }
 
 .bar.NECASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NECASC#FY2016 {
-    fill: #ab2321;
+    fill: #ef7573;
 }
 
 .bar.NECASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NECASC#FY2017 {
-    fill: #da2c29;
+    fill: #ef7573;
 }
 
 .bar.NECASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NECASC#FY2018 {
-    fill: #ef130f;
+    fill: #ef7573;
 }
 
 .bar.NECASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* NWCASC */
 /*****************************************************************/
 .bar.NWCASC {
-    fill: #2f5390;
+    fill: #0089d9;
 }
 
 .bar.NWCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2011 {
-    fill: #001f54;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2011:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2012 {
-    fill: #003995;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2013 {
-    fill: #0042ad;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2014 {
-    fill: #0053d9;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2015 {
-    fill: #0062ff;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2016 {
-    fill: #4b80cf;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2017 {
-    fill: #91b6ed;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .NWCASC#FY2018 {
-    fill: #a1c7ff;
+    fill: #0089d9;
 }
 
 .bar.NWCASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* PICASC */
 /*****************************************************************/
 .bar.PICASC {
-    fill: #34031f;
+    fill: #e85959;
 }
 
 .bar.PICASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .PICASC#FY2012 {
-    fill: #34031f;
+    fill: #e85959;
 }
 
 .bar.PICASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .PICASC#FY2013 {
-    fill: #3f0928;
+    fill: #e85959;
 }
 
 .bar.PICASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .PICASC#FY2014 {
-    fill: #521337;
+    fill: #e85959;
 }
 
 .bar.PICASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .PICASC#FY2015 {
-    fill: #6c1848;
+    fill: #e85959;
 }
 
 .bar.PICASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .PICASC#FY2016 {
-    fill: #932f68;
+    fill: #e85959;
 }
 
 .bar.PICASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .PICASC#FY2017 {
-    fill: #bc2f7f;
+    fill: #e85959;
 }
 
 .bar.PICASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .PICASC#FY2018 {
-    fill: #ea50a7;
+    fill: #e85959;
 }
 
 .bar.PICASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* SCCASC */
 /*****************************************************************/
 .bar.SCCASC {
-    fill: #1c0334;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SCCASC#FY2012 {
-    fill: #1c0334;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SCCASC#FY2013 {
-    fill: #280c43;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SCCASC#FY2014 {
-    fill: #331054;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SCCASC#FY2015 {
-    fill: #451b6c;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SCCASC#FY2016 {
-    fill: #5b2191;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SCCASC#FY2017 {
-    fill: #7431b3;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SCCASC#FY2018 {
-    fill: #9436ed;
+    fill: #ac7fd8;
 }
 
 .bar.SCCASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* SECASC */
 /*****************************************************************/
 .SECASC {
-    fill: #3a4b17;
+    fill: #9EBD48;
 }
 
 .bar.SECASC:hover {
@@ -620,141 +620,141 @@
 }
 
 .SECASC#FY2011 {
-    fill: #3a4b17;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2011:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SECASC#FY2012 {
-    fill: #485b22;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SECASC#FY2013 {
-    fill: #5b712e;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SECASC#FY2014 {
-    fill: #7b9842;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SECASC#FY2015 {
-    fill: #86b32b;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SECASC#FY2016 {
-    fill: #a2d53b;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SECASC#FY2017 {
-    fill: #bcfa3f;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SECASC#FY2018 {
-    fill: #aaff00;
+    fill: #9EBD48;
 }
 
 .bar.SECASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /* SWCASC */
 /*****************************************************************/
 .SWCASC {
-    fill: #5b4000;
+    fill: #84827d;
 }
 
 .bar.SWCASC:hover {
-    fill: rgb(86, 93, 105);
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2011 {
-    fill: #5b4000;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2011:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2012 {
-    fill: #845c00;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2012:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2013 {
-    fill: #b27c00;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2013:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2014 {
-    fill: #9d7b2d;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2014:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2015 {
-    fill: #d79806;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2015:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2016 {
-    fill: #efa700;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2016:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2017 {
-    fill: #fec339;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2017:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 .SWCASC#FY2018 {
-    fill: #ffd87e;
+    fill: #84827d;
 }
 
 .bar.SWCASC#FY2018:hover {
-    fill: #353536;
+    fill: #9e9e9e;
 }
 
 /*For legend: */

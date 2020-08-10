@@ -64,9 +64,13 @@ class User(UserMixin, db.Model):
         try:
             id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256'])['reset_password']
-        except:
+        except Exception:
             return
         return User.query.get(id)
+
+    def set_email_confirmation(self):
+        self.email_confirmed = True
+        self.email_confirmed_on = datetime.now()
 
 
 @login.user_loader
@@ -229,6 +233,7 @@ class FiscalYear(db.Model):
         backref='fiscal_years',
         lazy='dynamic')
 
+
 class Project(db.Model):
     """Project database model class."""
     __searchable__ = ['name']
@@ -259,9 +264,11 @@ class Project(db.Model):
         secondary=assoc_proj_prob_item,
         backref='projects',
         lazy='dynamic')
+
     def __repr__(self):
         return '<Project %r>' % (self.name)
-        
+
+
 class Item(db.Model):
     """Item database model class."""
 
@@ -302,16 +309,17 @@ class ProblemItem(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     issue = db.Column(db.String(128))
 
+
 class MasterDetails(db.Model):
     """Master table model class."""
-    __searchable__ = ['title','PI']
-    id = db.Column(db.Integer, primary_key = True)
-    sb_id = db.Column(db.String(32), unique = True)
+    __searchable__ = ['title', 'PI']
+    id = db.Column(db.Integer, primary_key=True)
+    sb_id = db.Column(db.String(32), unique=True)
     parentId = db.Column(db.String(32))
     projectId = db.Column(db.String(32))
     projectTitle = db.Column(db.String(256))
-    projectSize = db.Column(db.Integer, default = 0)
-    num_files = db.Column(db.Integer, default = 0)
+    projectSize = db.Column(db.Integer, default=0)
+    num_files = db.Column(db.Integer, default=0)
     start_date = db.Column(db.String(16))
     end_date = db.Column(db.String(16))
     pub_date = db.Column(db.String(16))
@@ -320,18 +328,18 @@ class MasterDetails(db.Model):
     url = db.Column(db.String(128))
     xml_urls = db.Column(db.String(2048))
     relatedItemsUrl = db.Column(db.String(128))
-    title = db.Column(db.String(256), index = True)
+    title = db.Column(db.String(256), index=True)
     summary = db.Column(db.String(1024))
-    PI = db.Column(db.String(32), index = True)
+    PI = db.Column(db.String(32), index=True)
     CI = db.Column(db.String(256))
+
 
 class ProjectDetails(db.Model):
     """Project details model class."""
 
-    id = db.Column(db.Integer, primary_key = True)
-    sb_id = db.Column(db.String(32), unique = True)
-    title = db.Column(db.String(256), index = True)
+    id = db.Column(db.Integer, primary_key=True)
+    sb_id = db.Column(db.String(32), unique=True)
+    title = db.Column(db.String(256), index=True)
     casc = db.Column(db.String(32))
     fy = db.Column(db.String(4))
-    size = db.Column(db.Integer, default = 0)
-    
+    size = db.Column(db.Integer, default=0)

@@ -3205,4 +3205,143 @@ I created another route, `/google_authentication_res/<token>`, to handle the res
 
 I also realized that, to do as google suggests, ie. that the user's access and refresh tokens need stored in the database, I also need to add those things to the db model for `User`. However, upon further reflection, I believe that erring on the side of security is best, so storage of the tokens will only take place in the temporary `session` variable. This means that they are not stored permanently, which is more secure, but means that users will have to give their permission more frequently--a price worth paying for the increased security and decreased responsibility of the app.
 
+Features Added With Respect To Current App
+
+1. Registration Feature:
+
+	Objective: Useful for creating new users.
+	
+	Files: register.html, forms.py and routes.py present in auth folder inside base application.
+	
+	Testing: Testing with respect to feature is automated and test cases can be found in tests.py file
+	
+	Updated Functionality: Implemented the confirm Email option to the exixsting registration feature. Basically, when user registers for the first time, until he confirms and validates the 		email provided, it does not allow for login. This is implemented for better security and to avoid invalid emails.
+	
+	The code for this functionality is presented in email_confirmation.html, email_confirmation.text and routes.py present in auth folder. The code has been tested automatically and test cases 		can be found in tests.py file.
+
+2. Reset Password Feature:
+
+	Objective: Resets the password, when user is requested.
+	
+	Files: reset_password.html, successful_pass_reset.html and routes.py file.
+	
+	Testing: Test cases are written using untitest Library and can be found in tests.py file.
+	
+	First, User is requested to submit the email, and then, the password request link is sent to the provided emai from the admin@mail.com account. The user can follow instructions and reset 		the password.
+	
+	Updated Functionality: Storing the new passwords after encryption in DB.
+	
+3. Profile Feature: 
+
+	Objective: Keep tracks of user personal details. And can change his password anytime.
+	
+	Files: edit_profile.html, users.html and routes.py present in main folder.
+	
+	Testing: Test cases are written using untitest Library and can be found in tests.py file.
+	
+4. Report Feature:
+
+	Objective: Retrieves the users action performed on his current session. 
+	
+	Files: The functionality of this feature is present in routes.py file defined in method report().
+	
+	Testing: Valid Response objects with proper status codes have defined and Only manual testing is conducted. 
+	
+	Updated Funtionality: Enabled Report Feature only after Authentication i.e for valid users. Provided with Valid Error messages.
+	
+	The scope of this feature can be extended to develop a proper report based on the user actions for that particular session, and provide him with an option to store in local text file or 		send the report to his email for his references.
+	
+5. Fiscal Year Report Feature:
+
+	Objective: To provide the list of projects based on the selected CASC.
+	
+	Files: fiscalYears.html, and the functionality for this feature is present in routes.py file defined by method fiscalyear()
+	
+	Testing: Valid Response objects with proper status codes have defined and Only manual testing is conducted.
+	
+	This feature provides the output for the user using 3 different analysis charts slightly different content from each other.
+	
+	A. Vertical Bar Chart
+	B. Horizontal Bar Chart
+	C. Tree Map
+	 
+	These charts analyzes amd compares the different years selected for each particular CASC and generates the graph based on the size. The x axis of the graphs defines the 		   		project numbers and y-axis defines the size with respect to each project, selected based on the casc. The the graph lists only projects with the size greater than zero.
+	
+	Next the, data consumed with respect to each year for particular CASC and comparison between them is provided in horizontal bar graph. The user can export the data to EXCEL.
+	
+	At last, a table has been generated listing all the projects present in CASC seleced by the user.
+	
+	The complete list of files used to implement this feature are,
+	
+	fiscalyears.html
+	horizontalbar.html
+	dropdown.html
+	dropdowntree.html
+	treemap.html
+	verticalbar.html
+	routes.py 
+
+6. Project Report Feature:
+
+	Objective: To provide the comaprision with the new projects by providing the link or csv file.
+	
+	Testing: Valid Response objects with proper status codes have defined and Only manual testing is conducted.
+	
+	Upon submission, the comparison will be done and the output is displayed in the format with respect to feature 5.
+	
+	The complete list of files used to implement this feature are,
+	
+	projects.html
+	
+	routes.py
+
+7. Project Compare Feature: 
+
+	Objective: Compares the simpilarity between the projects.
+	
+	Testing: Valid Response objects with proper status codes have defined and Only manual testing is conducted.
+	
+	Upon selecting the two different cascs, provides an analysis and when user selects particular squares, presents the similarity in terms of percentage.
+	
+	The complete list of files used to implement this feature are,
+	
+	proj_compare.html
+	
+	routes.py
+
+8. Update Database Feature:
+
+	Objective: Updates the Application database from retreiving or updating directly from Sciencebbase website.
+	
+	Testing: Manually done
+	
+	User can update the CASC automatically for the data which is missing for the analysis or comparison of projects present in CASC.
+	
+	The complete list of files used to implement this feature are,
+	
+	proj_compare.html
+	
+	routes.py
+
+9. Search Feature:
+
+	Objectives:
+		1. Search Functionality based on the keywords, Principal Investigators or Project Name.
+		2. Providing the Tree chart based on keyword searched.
+		3. Analysing the serached key word with horizontal and vertical bar graphs.
+		4. Generating the table with all the details based on the chart.
+		5. Validating the metadata.
+	
+	Testing: Valid Response objects with proper status codes have defined and Only manual testing is conducted. Valid Error messages are shown.
+	
+	User can enter the keyword to list out the projects or data items he is looking for. He can also check if the metadata present in each dataitem is valid or not. The one which is invalid 	 geneartes the detailed error message including the line number.
+	
+	The complete list of files used to implement this feature are,
+	
+	search_results.html
+	searchTableChart.html
+	searchTree.html
+	routes.py
+	
+	
 
