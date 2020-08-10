@@ -250,6 +250,7 @@
 					}
 				})
 				.on('mouseover', function(d) {
+		        	d3.select(this).style("cursor", "pointer");
 				    // Get data value
 					var value = d.properties.casc;
 				    casc_name = legendText[value];

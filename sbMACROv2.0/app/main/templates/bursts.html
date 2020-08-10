@@ -1589,8 +1589,7 @@
 							     .attr("y", function(d, i){ return 10 + i*15; })
 							     .attr("class", "chart_legend")
 					             .on("mouseover", function() {
-					            	d3.select(this)
-					            	  .style("cursor", "pointer");
+					            	d3.select(this).style("cursor", "pointer");
 					             })
 					             .on("click", function(d) {
 					             	// https://octoperf.com/blog/2018/04/18/d3-js-drag-and-drop-tutorial/

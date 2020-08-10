@@ -313,8 +313,10 @@
 		        .style("fill", "none")
 		        .style("stroke", "tan")
 		        .style("stroke-opacity", ".2")
-		        .on("mouseover", function(d) { 
-		        	d3.select(this).style("stroke-opacity", ".5") } )
+		        .on("mouseover", function(d) {
+		        	d3.select(this)
+		        	  .style("cursor", "pointer")
+		        	  .style("stroke-opacity", ".5") } )
 		        .on("mouseout", function() { d3.select(this).style("stroke-opacity", ".2") } )
 		        .style("stroke-width", function (d) {
 		            return linkScale(d.value);
@@ -347,6 +349,7 @@
 		            return "translate(" + d.x + "," + d.y + ")";
 		        })
 		        .on("mouseover",function(d, i){
+		        	d3.select(this).style("cursor", "pointer");
 		        	var interact_mode = "hover";
 		        	highlight_node_links(d, i, this, interact_mode);
 		        })
@@ -398,6 +401,7 @@
 			    	if (mode==="click") {
 			    		d3.select(thisnode)
 			    		.on("mouseover",function(d,i) {
+		        			d3.select(this).style("cursor", "pointer");
 			    			var interact_mode="hover";
 			    			highlight_node_links(d,i,this,interact_mode);
 			    		})
@@ -451,7 +455,7 @@
 		        .style("fill", "none")
 		        .style("stroke", "tan")
 		        .style("stroke-opacity", ".33")
-		        .on("mouseover", function() { d3.select(this).style("stroke-opacity", ".7") } )
+		        .on("mouseover", function() { d3.select(this).style("cursor", "pointer").style("stroke-opacity", ".7") } )
 		        .on("mouseout", function() { d3.select(this).style("stroke-opacity", ".2") } )
 		        .style("stroke-width", function (d) {
 		            return linkScale(d.value);
@@ -586,6 +590,7 @@
 
 		g.selectAll(".mainBars")
 			.on("mouseover", function(d) {
+		        d3.select(this).style("cursor", "pointer");
 				bp.mouseover(d);
 			})
 			.on("mouseout", function(d) {
