@@ -1591,17 +1591,3 @@ def searchTable(query):
         add_user(user)
     return render_template('searchTableChart.html', query=d, courses=courses,
                            length=length, userdata=userdata)
-
-
-# adding new code Burst and Trends.html
-
-@bp.route('/trends', methods=['GET', 'POST'])
-def trends():
-
-    return render_template('trends.html')
-
-
-@bp.route('/bursts', methods=['GET', 'POST'])
-def bursts():
-
-    return render_template('bursts.html')
