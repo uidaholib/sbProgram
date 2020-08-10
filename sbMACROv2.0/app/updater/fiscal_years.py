@@ -112,7 +112,7 @@ def parse_fiscal_years(app, fy_obj_list):
                        not done correctly already, OR None if done correctly.
         None -- (boolean) Returned if it appears the fiscal years were parsed
                 correctly.
-    
+
     Raises:
         Exception -- if fy_obj_list iteration does not return properly.
 
@@ -122,16 +122,18 @@ def parse_fiscal_years(app, fy_obj_list):
     if fy_obj_list:
         try:
             curr_casc = fy_obj_list[0].csc
-        except:
+        except Exception:
             pass
 
         for fiscal_year in fy_obj_list:
             if not fiscal_year:
                 assert False, "FOUND NULL FISCAL YEAR."
 
-            # if curr_casc != fiscal_year.csc: # One CASC done, starting next CASC
+            # if curr_casc != fiscal_year.csc:
+            # One CASC done, starting next CASC
 
-            #     msg = '{} updated!<br><br>Updating {}...'.format(curr_casc, fiscal_year.csc)
+            #     msg = '{} updated!<br><br>
+            # Updating {}...'.format(curr_casc, fiscal_year.csc)
 
             #     emit('casc_done', {'info': msg}, namespace='/test')
 
@@ -180,7 +182,8 @@ def parse_fiscal_years(app, fy_obj_list):
             fy_obj_list[index_of_fy] = None
             fiscal_year = None
             if __debug__:
-                print("fy_obj_list after NULLing {0}:\n{1}".format(fiscal_year, fy_obj_list))
+                print("fy_obj_list after \
+                    NULLing {0}:\n{1}".format(fiscal_year, fy_obj_list))
             continue
         for obj in fy_obj_list:
             if obj is not None:
@@ -206,6 +209,7 @@ def generate_test():
     obj = sb_fy_id("531dd8c3e4b04cb293ee78ee", "SWCSC")
     fy_id_list.append(obj)  # SWCSC 2014
     return fy_id_list
+
 
 def get_a_casc():
     """Get fiscal year IDs and return their SbFiscalYear objects as a list.
@@ -235,7 +239,7 @@ def get_a_casc():
     #                                             ".get_child_ids")
 
     sb_fy_id_list = []
-    
+
     for sb_id in secsc_fiscal_years:
         if sb_id == "59c56277e4b017cf313d592c":
             continue
@@ -247,6 +251,7 @@ def get_a_casc():
     #     sb_fy_id_list.append(obj)
 
     return create_fy_objs(sb_fy_id_list)
+
 
 def get_cascs(casc_list):
     """Get fiscal year IDs and return their SbFiscalYear objects as a list.
@@ -268,63 +273,76 @@ def get_cascs(casc_list):
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (2)")
-            alaska_fiscal_years = gl.exception_loop("4f831626e4b0e84f6086809b", ".get_child_ids")
+            alaska_fiscal_years = gl.exception_loop("4f831626e4b0e84f6086809b",
+                                                    ".get_child_ids")
     if 'National' in casc_list:
         try:
             nccwsc_fiscal_years = SB.get_child_ids("5050cb0ee4b0be20bb30eac0")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (2)")
-            nccwsc_fiscal_years = gl.exception_loop("5050cb0ee4b0be20bb30eac0", ".get_child_ids")
+            nccwsc_fiscal_years = gl.exception_loop("5050cb0ee4b0be20bb30eac0",
+                                                    ".get_child_ids")
     if 'North Central' in casc_list:
         try:
             nccsc_fiscal_years = SB.get_child_ids("4f83509de4b0e84f60868124")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (2)")
-            nccsc_fiscal_years = gl.exception_loop("4f83509de4b0e84f60868124", ".get_child_ids")
+            nccsc_fiscal_years = gl.exception_loop("4f83509de4b0e84f60868124",
+                                                   ".get_child_ids")
     if 'Northeast' in casc_list:
         try:
             necsc_fiscal_years = SB.get_child_ids("4f8c648de4b0546c0c397b43")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (2)")
-            necsc_fiscal_years = gl.exception_loop("4f8c648de4b0546c0c397b43", ".get_child_ids")
+            necsc_fiscal_years = gl.exception_loop("4f8c648de4b0546c0c397b43",
+                                                   ".get_child_ids")
     if 'Northwest' in casc_list:
         try:
             nwcsc_fiscal_years = SB.get_child_ids("4f8c64d2e4b0546c0c397b46")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (1)")
-            nwcsc_fiscal_years = gl.exception_loop("4f8c64d2e4b0546c0c397b46", ".get_child_ids")
+            nwcsc_fiscal_years = gl.exception_loop("4f8c64d2e4b0546c0c397b46",
+                                                   ".get_child_ids")
     if 'Pacific Islands' in casc_list:
         try:
             pacific_fiscal_years = SB.get_child_ids("4f8c650ae4b0546c0c397b48")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (1)")
-            pacific_fiscal_years = gl.exception_loop("4f8c650ae4b0546c0c397b48", ".get_child_ids")
+            pacific_fiscal_years = gl.exception_loop(" \
+                                                     4f8c650ae4b0546c0c397b48",
+                                                     ".get_child_ids")
     if 'South Central' in casc_list:
         try:
             sccsc_fiscal_years = SB.get_child_ids("4f8c652fe4b0546c0c397b4a")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (2)")
-            sccsc_fiscal_years = gl.exception_loop("4f8c652fe4b0546c0c397b4a", ".get_child_ids")
+            sccsc_fiscal_years = gl.exception_loop(" \
+                                                   f8c652fe4b0546c0c397b4a",
+                                                   ".get_child_ids")
     if 'Southeast' in casc_list:
         try:
             secsc_fiscal_years = SB.get_child_ids("4f8c6557e4b0546c0c397b4c")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (2)")
-            secsc_fiscal_years = gl.exception_loop("4f8c6557e4b0546c0c397b4c", ".get_child_ids")
+            secsc_fiscal_years = gl.exception_loop("\
+                                                   4f8c6557e4b0546c0c397b4c",
+                                                   ".get_child_ids")
     if 'Southwest' in casc_list:
         try:
             swcsc_fiscal_years = SB.get_child_ids("4f8c6580e4b0546c0c397b4e")
             time.sleep(.050)  # Possibly for use to combat exceptions
         except Exception:  # pylint: disable=W0703
             print("----------Exception Raised in full_hard_search (2)")
-            swcsc_fiscal_years = gl.exception_loop("4f8c6580e4b0546c0c397b4e", ".get_child_ids")
+            swcsc_fiscal_years = gl.exception_loop("\
+                                                   4f8c6580e4b0546c0c397b4e",
+                                                   ".get_child_ids")
 
     sb_fy_id_list = []
     
@@ -370,6 +388,7 @@ def get_cascs(casc_list):
             sb_fy_id_list.append(obj)
 
     return create_fy_objs(sb_fy_id_list)
+
 
 def get_all_cscs():
     """Get fiscal year IDs and return their SbFiscalYear objects as a list.
@@ -423,7 +442,7 @@ def get_all_cscs():
     except Exception:  # pylint: disable=W0703
         print("----------Exception Raised in full_hard_search (1)")
         pacific_fiscal_years = gl.exception_loop("4f8c650ae4b0546c0c397b48",
-                                               ".get_child_ids")
+                                                 ".get_child_ids")
     try:
         sccsc_fiscal_years = SB.get_child_ids("4f8c652fe4b0546c0c397b4a")
         time.sleep(.050)  # Possibly for use to combat exceptions
@@ -665,7 +684,8 @@ def get_user_input_fys():
         if answer == "test":
             fy_id_list = generate_test()
             break
-        elif answer == "598dac27e4b09fa1cb13ef6a" or answer == "59c56277e4b017cf313d592c":
+        elif (answer == "598dac27e4b09fa1cb13ef6a" or
+              answer == "59c56277e4b017cf313d592c"):
             print("That is not a fiscal year...")
             continue
         obj = sb_fy_id(None, None)

@@ -1,6 +1,6 @@
 def get_sheet_name(casc):
     """Return sheet name for provided CASC.
-    
+
     Arguments:
         casc -- (string) The string name of a CASC
     Returns:
@@ -17,6 +17,7 @@ def get_sheet_name(casc):
         return None
     return sheet_name
 
+
 def parse_values(values):
     """Create a new dictionary version from the sheet values passed in.
 
@@ -26,7 +27,7 @@ def parse_values(values):
         new_sheet -- (dictionary) a dictionary representation of 'values'
 
     """
-    
+
     new_sheet = {}
     header = values[0]
     values = values[1:]  # Shave off the first item (header)
@@ -36,14 +37,15 @@ def parse_values(values):
 
         folder_url = "https://www.sciencebase.gov/catalog/folder/"
         item_url = "https://www.sciencebase.gov/catalog/item/"
-        
+
         if folder_url in proj_id:
             proj_id = proj_id.replace(folder_url, '')
         if item_url in proj_id:
             proj_id = proj_id.replace(item_url, '')
         if '/' in proj_id:
-            proj_id = proj_id.replace('/', '') # in case there is a trailing slash
-        
+            # in case there is a trailing slash
+            proj_id = proj_id.replace('/', '')
+
         if proj_id != '':
             new_sheet[proj_id] = {}
             for n in range(0, len(header)):

@@ -23,9 +23,11 @@ file_path = os.getcwd() + '/app/main/templates/static/'
 conll = ConllExtractor()
 fastext = FastNPExtractor()
 
+
 def load_details_from_file(file_location):
 
-    details = [] # a list of dicts
+    # a list of dicts
+    details = []
 
     try:
         with open(file_location, 'rb') as details_file:
@@ -35,9 +37,13 @@ def load_details_from_file(file_location):
 
     return details
 
+
 def update_graphs():
 
-    cascs = ['Alaska', 'North Central', 'Northeast', 'Northwest', 'Pacific', 'South Central', 'Southeast', 'Southwest', 'National']
+    cascs = ['Alaska', 'North Central',
+             'Northeast', 'Northwest',
+             'Pacific', 'South Central',
+             'Southeast', 'Southwest', 'National']
 
     processed = set()
 
@@ -47,7 +53,7 @@ def update_graphs():
             if casc1 == casc2 or casc2 in processed:
                 continue
             create_graph(casc1, casc2)
-            
+
         processed.add(casc1)
     print('Graph updates completed!')
 
@@ -57,16 +63,18 @@ def update_graphs():
     mins = int(duration/60)
     secs = duration % 60
 
-    print('\nProject comparison graphs updated in {} minutes and {} seconds'.format(mins, secs))
+    print('\nProject comparison graphs updated \
+         in {} minutes and {} seconds'.format(mins, secs))
+
 
 def create_graph(casc1, casc2):
-    
+
     proj_details1 = {}
     proj_details2 = {}
     graph = {'nodes': [], 'links': [], 'num_sources': 0, 'num_targets': 0}
 
     # destination file
-    graph_name = casc1.lower().replace(' ','_') + '_' + casc2.lower().replace(' ','_') + '_' + 'proj_graph'
+    graph_name = casc1.lower().replace(' ', '_') + '_' + casc2.lower().replace(' ', '_') + '_' + 'proj_graph'
     print('Building {}...'.format(graph_name))
     graph_file_name = file_path + 'project_graphs/' + graph_name + '.json'
 
@@ -88,8 +96,9 @@ def create_graph(casc1, casc2):
         if proj_dict[proj_id]['casc'] == casc2 + ' CASC':
             proj_details2[proj_id] = {'title': proj_dict[proj_id]['title'], 'summary': proj_dict[proj_id]['summary'], 'casc': proj_dict[proj_id]['casc'], 'fy': proj_dict[proj_id]['fy'], 'url': proj_dict[proj_id]['url']}
             graph['num_targets'] += 1
-            
-    print('{} sources, {} targets'.format(graph['num_sources'], graph['num_targets']))
+
+    print('{} sources, {} targets'.format(graph['num_sources'],
+          graph['num_targets']))
 
     # build node details
     print('collecting node details...')
@@ -104,8 +113,11 @@ def create_graph(casc1, casc2):
         proj_items = proj_dataset_matches[proj_id]['proj_items']
         items = {}
         for item_id in proj_items:
-            items[item_id] = {'title': item_dict[item_id]['title'], 'url': item_dict[item_id]['url']}
-        graph['nodes'].append({'node': n, 'name': name, 'casc': casc, 'fy': fy, 'url': url, 'num_items': num_items, 'items': items, 'summary': summary})
+            items[item_id] = {'title': item_dict[item_id]['title'],
+                              'url': item_dict[item_id]['url']}
+        graph['nodes'].append({'node': n, 'name': name, 'casc': casc,
+                               'fy': fy, 'url': url, 'num_items': num_items,
+                               'items': items, 'summary': summary})
         proj_details1[proj_id]['node'] = n
         n += 1
     for proj_id in proj_details2:
@@ -118,14 +130,19 @@ def create_graph(casc1, casc2):
         proj_items = proj_dataset_matches[proj_id]['proj_items']
         items = {}
         for item_id in proj_items:
-            items[item_id] = {'title': item_dict[item_id]['title'], 'url': item_dict[item_id]['url']}
-        graph['nodes'].append({'node': n, 'name': name, 'casc': casc, 'fy': fy, 'url': url, 'num_items': num_items, 'items': items, 'summary': summary})
+            items[item_id] = {'title': item_dict[item_id]['title'],
+                              'url': item_dict[item_id]['url']}
+        graph['nodes'].append({'node': n, 'name': name, 'casc': casc,
+                               'fy': fy, 'url': url,
+                               'num_items': num_items,
+                               'items': items, 'summary': summary
+                               })
         proj_details2[proj_id]['node'] = n
         n += 1
 
     # create graph links
     graph_links = create_graph_links(proj_details1, proj_details2)
-    
+
     # build link details
     print('compiling link details...')
     scale_factor = 100
@@ -134,16 +151,19 @@ def create_graph(casc1, casc2):
         target = link['target']
         value = link['value'] * scale_factor
         matches = link['matches']
-        graph['links'].append({'source': source, 'target': target, 'value': value, 'matches': matches})
+        graph['links'].append({'source': source,
+                               'target': target, 'value': value,
+                               'matches': matches})
 
     # write graph to file
     with open(graph_file_name, 'w') as output_file:
         json.dump(graph, output_file)
     print('{} written to file\n'.format(graph_name))
 
+
 def create_graph_links(proj_details1, proj_details2):
     graph_links = []
-    
+
     for id1 in proj_details1:
         node1 = proj_details1[id1]['node']
         text1 = proj_details1[id1]['summary']
@@ -163,22 +183,24 @@ def create_graph_links(proj_details1, proj_details2):
             # exclude single-letter words
             text2 = ' '.join([word for word in text2.split() if len(word) > 1])
             sim, matches = get_similarity(text1, text2)
-            graph_links.append({'source': node1, 'target': node2, 'value': sim, 'matches': matches})
-            
+            graph_links.append({'source': node1, 'target': node2,
+                                'value': sim, 'matches': matches})
+
     return graph_links
 
+
 def get_similarity(text1, text2):
-    
+
     sim_threshold = 0.5
 
     # grab the general topics/ideas of interest from the project summary
-    text1_blob1 = TextBlob(text1, np_extractor = conll)
-    text1_blob2 = TextBlob(text1, np_extractor = fastext)
+    text1_blob1 = TextBlob(text1, np_extractor=conll)
+    text1_blob2 = TextBlob(text1, np_extractor=fastext)
     text1_phrases = set(text1_blob1.noun_phrases + text1_blob2.noun_phrases)
 
     # grab the general topics/ideas of interest from the item summary
-    text2_blob1 = TextBlob(text2, np_extractor = conll)
-    text2_blob2 = TextBlob(text2, np_extractor = fastext)
+    text2_blob1 = TextBlob(text2, np_extractor=conll)
+    text2_blob2 = TextBlob(text2, np_extractor=fastext)
     text2_phrases = set(text2_blob1.noun_phrases + text2_blob2.noun_phrases)
 
     # compute and store item similarity with project
@@ -209,16 +231,17 @@ def get_similarity(text1, text2):
 
     return weighted_sim, similarities
 
+
 def rescale(num, old_min, old_max, new_min, new_max):
     """
     Rescale num from range [old_min, old_max] to range [new_min, new_max]
     """
-    
     old_range = old_max - old_min
     new_range = new_max - new_min
     new_val = new_min + (((num - old_min) * new_range)/old_range)
-    
+
     return new_val
+
 
 def update_search_table(app, source):
 
@@ -236,6 +259,7 @@ def update_search_table(app, source):
     db_save.save_project_details(app, proj_details)
 
     print('===== Master table update completed =====')
+
 
 def get_details(source):
 
@@ -265,7 +289,8 @@ def get_details(source):
     item_jsons = {}
 
     if source == 'file':
-        # read from files instead - no need to save from sciencebase along the way
+        # read from files instead - no need
+        # to save from sciencebase along the way
         with open(file_path + 'proj_jsons.json') as input_file:
             proj_jsons = json.load(input_file)
         with open(file_path + 'item_jsons.json') as input_file:
@@ -274,7 +299,9 @@ def get_details(source):
     pause_duration = 2  # duration in seconds
 
     start = time.time()
-    total_items = process_casc_ids(source, casc_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
+    total_items = process_casc_ids(source, casc_ids,
+                                   proj_details_list, item_details_list,
+                                   proj_jsons, item_jsons, pause_duration)
     end = time.time()
 
     duration = end - start
@@ -283,7 +310,7 @@ def get_details(source):
 
     print('\n===== {} total items collected in {} minutes and {} seconds =====\n\n'.format(total_items, mins, secs))
 
-    #========== Save data ==========
+    # ========== Save data ==========
     print('===== Saving data =====')
 
     # build and save dictionary of project and item details
@@ -291,7 +318,12 @@ def get_details(source):
     print('Building proj_dict...')
     proj_dict = {}
     for proj_detail in proj_details_list:
-        proj_dict[proj_detail['id']] = {'title': proj_detail['title'], 'size': proj_detail['size'], 'casc': proj_detail['casc'], 'fy': proj_detail['fy'], 'summary': re.sub(html_tags, '', proj_detail['summary']).replace('\n', ' ').replace('&nbsp;', ' '), 'url': proj_detail['url']}
+        proj_dict[proj_detail['id']] = {'title': proj_detail['title'],
+                                        'size': proj_detail['size'],
+                                        'casc': proj_detail['casc'],
+                                        'fy': proj_detail['fy'],
+                                        'summary': re.sub(html_tags,
+                                        '', proj_detail['summary']).replace('\n', ' ').replace('&nbsp;', ' '), 'url': proj_detail['url']}
     # save proj_dict to file
     with open(file_path + 'proj_dict.json', 'w') as output_file:
         json.dump(proj_dict, output_file)
@@ -306,7 +338,8 @@ def get_details(source):
         json.dump(item_dict, output_file)
     print('item_dict written to item_dict.json')
 
-    if source == 'sciencebase': # we have created new proj and item jsons
+    # we have created new proj and item jsons
+    if source == 'sciencebase':
         # write proj and item jsons to file
         with open(file_path + 'proj_jsons.json', 'w') as output_file:
             json.dump(proj_jsons, output_file)
@@ -321,14 +354,18 @@ def get_details(source):
     print('proj_details_list written to proj_dict.pkl')
     with open(file_path + 'master_details_full.pkl', 'wb') as output_file:
         pickle.dump(item_details_list, output_file)
-    print('item_details_list written to master_details_full.pkl') 
+    print('item_details_list \
+        written to master_details_full.pkl')
 
-    print()       
+    print()
 
     return item_details_list, proj_details_list
 
-def process_casc_ids(source, casc_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
-    
+
+def process_casc_ids(source, casc_ids, proj_details_list,
+                     item_details_list, proj_jsons,
+                     item_jsons, pause_duration):
+
     total_items = 0
     for casc in casc_ids:
         num_items = 0
@@ -336,86 +373,110 @@ def process_casc_ids(source, casc_ids, proj_details_list, item_details_list, pro
         casc += ' CASC'
         time.sleep(pause_duration)
         fy_ids = sb.get_child_ids(casc_id)
-        num_items = process_proj_ids(source, casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
+        num_items = process_proj_ids(source, casc,
+                                     fy_ids, proj_details_list,
+                                     item_details_list,
+                                     proj_jsons, item_jsons, pause_duration)
         total_items += num_items
         print('{} processed ({} items)\n'.format(casc, num_items))
 
     return total_items
 
-def process_proj_ids(source, casc, fy_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
-    
+
+def process_proj_ids(source, casc, fy_ids, proj_details_list,
+                     item_details_list, proj_jsons,
+                     item_jsons, pause_duration):
+
     print('Processing: {}'.format(casc))
 
     num_items = 0
     for fy_id in fy_ids:
-        time.sleep(pause_duration) # to ease pressure on sciencebase servers
+        # to ease pressure on sciencebase servers
+        time.sleep(pause_duration)
         fy_json = sb.get_item(fy_id)
         fy = fy_json['title'].split()[1]
         if fy.isnumeric():
             proj_ids = sb.get_child_ids(fy_id)
-            num_items += process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration)
+            num_items += process_approved_ids(source, casc, fy, proj_ids,
+                                              proj_details_list,
+                                              item_details_list,
+                                              proj_jsons, item_jsons,
+                                              pause_duration)
 
     return num_items
 
-def process_approved_ids(source, casc, fy, proj_ids, proj_details_list, item_details_list, proj_jsons, item_jsons, pause_duration):
+
+def process_approved_ids(source, casc, fy,
+                         proj_ids, proj_details_list,
+                         item_details_list, proj_jsons, item_jsons,
+                         pause_duration):
     num_items = 0
     for proj_id in proj_ids:
-        #-----build project details-----
+        # -----build project details-----
         approved_dataset_items = []
         proj_details = {}
-        
+
         proj_details['id'] = proj_id
         proj_details['casc'] = casc
         proj_details['fy'] = fy
-        
+
         if source == 'file':
             proj_json = proj_jsons[proj_id]
         else:
-            time.sleep(pause_duration) # to ease pressure on sciencebase servers
+            # to ease pressure on sciencebase servers
+            time.sleep(pause_duration)
             proj_json = sb.get_item(proj_id)
-            proj_jsons[proj_id] = proj_json # save proj_json
-        
+            # save proj_json
+            proj_jsons[proj_id] = proj_json
+
         proj_details['title'] = proj_json['title']
         proj_details['size'] = 0
         try:
             proj_details['url'] = proj_json['link']['url']
-        except:
+        except Exception:
             proj_details['url'] = ''
         try:
             proj_files = proj_json['files']
             for proj_file in proj_files:
                 proj_details['size'] += proj_file['size']
-        #-------------------------------
-        except:
+        # -------------------------------
+        except Exception:
             pass
         try:
             proj_details['summary'] = proj_json['body']
-        except:
+        except Exception:
             try:
                 proj_details['summary'] = proj_json['summary']
-            except:
+            except Exception:
                 proj_details['summary'] = ''
-        
+
         proj_title = proj_details['title']
         proj_size = proj_details['size']
-        
+
         proj_details_list.append(proj_details)
-        
+ 
         # build approved dataset list
         dataset_ids = sb.get_child_ids(proj_id)
         for dataset_id in dataset_ids:
-            time.sleep(pause_duration) # to ease pressure on sciencebase servers
+            # to ease pressure on sciencebase servers
+
+            time.sleep(pause_duration)
             dataset_json = sb.get_item(dataset_id)
             if dataset_json['title'].lower() == 'approved datasets':
                 approved_dataset_items = get_approved_items(dataset_id)
-                num_items += collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration)
-        
+                num_items += collect_item_details(
+                                source, casc, fy, proj_id,
+                                proj_title, proj_size,
+                                approved_dataset_items,
+                                item_details_list, item_jsons, pause_duration)
+
     return num_items
 
+
 def get_approved_items(dataset_id):
-        
+
     approved_items = []
-    
+
     def get_items(parent_id):
         child_id_list = sb.get_child_ids(parent_id)
         for child_id in child_id_list:
@@ -425,19 +486,22 @@ def get_approved_items(dataset_id):
                     get_items(child_id)
                 else:
                     approved_items.append(child_id)
-            except:
+            except Exception:
                 pass
-    
+
     get_items(dataset_id)
-    
+
     return approved_items
 
-def collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, approved_dataset_items, item_details_list, item_jsons, pause_duration):
-    
+
+def collect_item_details(source, casc, fy, proj_id, proj_title,
+                         proj_size, approved_dataset_items,
+                         item_details_list, item_jsons, pause_duration):
+
     num_items = 0
 
     for item_id in approved_dataset_items:
-        #-----build item details-----
+        # -----build item details-----
         item_details = {}
 
         item_details['id'] = item_id
@@ -450,78 +514,82 @@ def collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, appro
         if source == 'file':
             item_json = item_jsons[item_id]
         else:
-            time.sleep(pause_duration) # to ease pressure on sciencebase servers
+            # to ease pressure on sciencebase servers
+            time.sleep(pause_duration)
             item_json = sb.get_item(item_id)
-            item_jsons[item_id] = item_json # save item_json
-
+            # save item_json
+            item_jsons[item_id] = item_json
         try:
             item_details['title'] = item_json['title']
-        except:
+        except Exception:
             item_details['title'] = ''
         try:
             item_details['url'] = item_json['link']['url']
-        except:
+        except Exception:
             item_details['url'] = ''
         try:
-            item_details['relatedItemsUrl'] = item_json['relatedItems']['link']['url']
-        except:
+            item_details['relatedItemsUrl'] = \
+                item_json['relatedItems']['link']['url']
+        except Exception:
             item_details['relatedItemsUrl'] = ''
         try:
             item_details['summary'] = item_json['body']
-        except:
+        except Exception:
             try:
                 item_details['summary'] = item_json['summary']
-            except:
+            except Exception:
                 item_details['summary'] = ''
         try:
             item_details['purpose'] = item_json['purpose']
-        except:
+        except Exception:
             item_details['purpose'] = ''
         try:
             item_details['hasChildren'] = item_json['hasChildren']
-        except:
+        except Exception:
             item_details['hasChildren'] = ''
         try:
             item_details['parentId'] = item_json['parentId']
-        except:
+        except Exception:
             item_details['parentId'] = ''
-        
+
         xml_urls = ''
         try:
             for item_file in item_json['files']:
-                if 'xml' in item_file['contentType'] and 'xml' in item_file['name']:
-                    xml_urls += item_file['url'] + ',' # separate by commas
+                if 'xml' in item_file['contentType'] and \
+                 'xml' in item_file['name']:
+                    xml_urls += item_file['url'] + ','  # separate by commas
             xml_urls = xml_urls.strip(',')
-        except:
+        except Exception:
             pass
         item_details['xml_urls'] = xml_urls
 
         try:
             item_details['num_files'] = len(item_json['files'])
-        except:
+        except Exception:
             item_details['num_files'] = 0
-            
+
         item_details['pub_date'] = ''
         item_details['start_date'] = ''
         item_details['end_date'] = ''
         try:
             for date_item in item_json['dates']:
                 try:
-                    if date_item['type'].lower() == 'publication' or date_item['label'] == 'publication date':
+                    if date_item['type'].lower() == 'publication' or\
+                       date_item['label'] == 'publication date':
                         item_details['pub_date'] = date_item['dateString']
-                except:
+                except Exception:
                     item_details['pub_date'] = ''
                 try:
                     if date_item['type'].lower() == 'start':
                         item_details['start_date'] = date_item['dateString']
-                except:
+                except Exception:
                     item_details['start_date'] = ''
                 try:
                     if date_item['type'].lower() == 'end':
                         item_details['end_date'] = date_item['dateString']
-                except:
+                except Exception:
                     item_details['end_date'] = ''
-        except:
+        except Exception:
             pass
 
         item_details['contacts'] = []
@@ -531,41 +599,43 @@ def collect_item_details(source, casc, fy, proj_id, proj_title, proj_size, appro
                 details = {}
                 try:
                     details['name'] = contact['name']
-                except:
+                except Exception:
                     details['name'] = ''
                 try:
                     details['type'] = contact['type']
-                except:
+                except Exception:
                     details['type'] = ''
                 try:
                     details['email'] = contact['email']
-                except:
+                except Exception:
                     details['email'] = ''
                 try:
                     details['jobTitle'] = contact['jobTitle']
-                except:
+                except Exception:
                     details['jobTitle'] = ''
                 try:
                     details['orcId'] = contact['orcId']
-                except:
+                except Exception:
                     details['orcId'] = ''
 
                 item_details['contacts'].append(details)
-        #----------------------------
-        except:
+        # ----------------------------
+        except Exception:
             pass
 
         item_details_list.append(item_details)
         num_items += 1
-        
+
     return num_items
+
 
 def update_proj_dataset_matches():
     proj_dataset_matches = {}
     sim_threshold = 0.5
 
     # read in item_details and proj_dict
-    item_details = pd.DataFrame(pd.read_pickle(file_path + 'master_details_full.pkl'))
+    item_details = pd.DataFrame(pd.read_pickle(file_path +
+                                'master_details_full.pkl'))
     with open(file_path + 'proj_dict.json') as input_file:
         proj_dict = json.load(input_file)
     with open(file_path + 'item_dict.json') as input_file:
@@ -580,29 +650,36 @@ def update_proj_dataset_matches():
         proj_dataset_matches[pid]['proj_url'] = proj_dict[pid]['url']
         proj_summary = proj_dict[pid]['summary']
         proj_dataset_matches[pid]['proj_summary'] = proj_summary
-        
+
         # grab the general topics/ideas of interest from the project summary
-        proj_blob1 = TextBlob(proj_summary, np_extractor = conll)
-        proj_blob2 = TextBlob(proj_summary, np_extractor = fastext)
+
+        proj_blob1 = TextBlob(proj_summary, np_extractor=conll)
+        proj_blob2 = TextBlob(proj_summary, np_extractor=fastext)
         proj_phrases = set(proj_blob1.noun_phrases + proj_blob2.noun_phrases)
         proj_dataset_matches[pid]['proj_phrases'] = list(proj_phrases)
-        
+
         # compile details of all items for this project
         proj_dataset_matches[pid]['proj_items'] = {}
         items = item_details[item_details['proj_id'] == pid][['id']]
         for item_id in items['id'].values:
             num_items += 1
             proj_dataset_matches[pid]['proj_items'][item_id] = {}
-            proj_dataset_matches[pid]['proj_items'][item_id]['item_url'] = item_dict[item_id]['url']
-            item_summary = (item_dict[item_id]['summary'] + ' ' + item_dict[item_id]['purpose']).strip()
-            proj_dataset_matches[pid]['proj_items'][item_id]['item_summary'] = item_summary
-            
+            proj_dataset_matches[pid]['proj_items'][item_id]['item_url'] = \
+                item_dict[item_id]['url']
+            item_summary = \
+                (item_dict[item_id]['summary'] + ' ' +
+                    item_dict[item_id]['purpose']).strip()
+            proj_dataset_matches[pid]['proj_items'][item_id]['item_summary'] =\
+                item_summary
+
             # grab the general topics/ideas of interest from the item summary
-            item_blob1 = TextBlob(item_summary, np_extractor = conll)
-            item_blob2 = TextBlob(item_summary, np_extractor = fastext)
-            item_phrases = set(item_blob1.noun_phrases + item_blob2.noun_phrases)
-            proj_dataset_matches[pid]['proj_items'][item_id]['item_phrases'] = list(item_phrases)
-            
+            item_blob1 = TextBlob(item_summary, np_extractor=conll)
+            item_blob2 = TextBlob(item_summary, np_extractor=fastext)
+            item_phrases = set(item_blob1.noun_phrases +
+                               item_blob2.noun_phrases)
+            proj_dataset_matches[pid]['proj_items'][item_id]['item_phrases'] =\
+                list(item_phrases)
+
             # compute and store item similarity with project
             matches = []
             similarities = []
@@ -623,19 +700,25 @@ def update_proj_dataset_matches():
                 weighted_sim = 0
             else:
                 inv_match_ratio = phrases_len/match_len
-                scaled_inv_ratio = rescale(inv_match_ratio, 0, phrases_len, 0, 2)
+                scaled_inv_ratio = rescale(inv_match_ratio,
+                                           0, phrases_len, 0, 2)
                 weight = 0.5**(scaled_inv_ratio)
-                
+
                 avg_sim = round(match_sum/match_len, 4)
                 weighted_sim = round(weight * avg_sim, 4)
-            
-            proj_dataset_matches[pid]['proj_items'][item_id]['similarities'] = similarities
-            proj_dataset_matches[pid]['proj_items'][item_id]['avg_sim'] = avg_sim
-            proj_dataset_matches[pid]['proj_items'][item_id]['weighted_sim'] = weighted_sim
+
+            proj_dataset_matches[pid]['proj_items'][item_id]['similarities'] =\
+                similarities
+            proj_dataset_matches[pid]['proj_items'][item_id]['avg_sim'] =\
+                avg_sim
+            proj_dataset_matches[pid]['proj_items'][item_id]['weighted_sim'] =\
+                weighted_sim
             item_weighted_sims.append(weighted_sim)
-            
+
         proj_dataset_matches[pid]['num_items'] = num_items
-        proj_dataset_matches[pid]['avg_item_sim'] = 0 if len(item_weighted_sims) == 0 else round(sum(item_weighted_sims)/len(item_weighted_sims), 4)
+        proj_dataset_matches[pid]['avg_item_sim'] =\
+            0 if len(item_weighted_sims) ==\
+            0 else round(sum(item_weighted_sims)/len(item_weighted_sims), 4)
 
     print('proj_dataset_matches done, saving to file...')
 
@@ -645,12 +728,14 @@ def update_proj_dataset_matches():
     mins = int(duration/60)
     secs = duration % 60
 
-    print('\nProject match dictionary update completed in {} minutes and {} seconds'.format(mins, secs))
+    print('\nProject match dictionary update completed \
+        in {} minutes and {} seconds'.format(mins, secs))
 
     # write proj_dataset_matches to file
     with open(file_path + 'proj_dataset_matches.json', 'w') as output_file:
         json.dump(proj_dataset_matches, output_file)
     print('proj_dataset_matches written to proj_dataset_matches.json')
+
 
 def update_cascs(app, casc_list):
     """Perform hard search on any ids older than 1 day.
@@ -857,12 +942,13 @@ def get_date():
     date = now.strftime("%Y%m%d")
     return date
 
+
 def save_to_db(app, fiscal_year):
     """Save Fiscal Year data to database.
-    
+
     Call functions from the module 'db_save.py' to save Fiscal Year, Projects,
     Items, etc to the database.
-    
+
     Arguments:
         app -- (App class) As defined in the package's __init__.py, the class
                gives access to the application instance, the database, and the
