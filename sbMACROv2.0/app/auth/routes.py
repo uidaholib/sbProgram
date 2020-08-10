@@ -28,12 +28,15 @@ def login():
 
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password', 'error')
-            return render_template('login.html', title='Sign In', form=form), 401
+            return render_template('login.html',
+                                   title='Sign In', form=form), 401
 
         if not user.email_confirmed:
-            flash("Please confirm your email address to activate your Account", 'error')
-            return render_template('login.html', title='Sign In', form=form), 401
-          
+            flash("Please confirm your email \
+                  address to activate your Account", 'error')
+            return render_template('login.html',
+                                   title='Sign In', form=form), 401
+
         login_user(user, remember=form.remember_me.data)
 
         next_page = request.args.get('next')
@@ -63,11 +66,12 @@ def register():
         db.session.add(user)
         db.session.commit()
         send_confirmation_email(user.email)
-        flash('Thanks for Registering. Account Successfully got created, Please check your email to confirm',
+        flash('Thanks for Registering. Account Successfully got created, \
+              Please check your email to confirm',
               'success')
         return redirect(url_for('auth.login'))
     return render_template('register.html', title='Register',
-                           form=form),417
+                           form=form), 417
 
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
@@ -79,16 +83,20 @@ def reset_password_request():
             user = User.query.filter_by(email=form.email.data).first_or_404()
         except Exception:
             flash('This Email ID is Not Registered', 'error')
-            return render_template('password_reset_request.html', form=form), 400
+            return render_template('password_reset_request.html',
+                                   form=form), 400
 
         if user:
             send_password_reset_email(user)
-            flash('Please check your email for a password reset link.', 'success')
+            flash('Please check your email for a password reset link.',
+                  'success')
             return render_template('post_pass_reset_request.html',
                                    title="Reset Password")
         else:
             flash(
-                'Your email address must be confirmed before attempting a password reset.', 'error')
+                'Your email address must be confirmed \
+                 before attempting a password reset.',
+                'error')
         return redirect(url_for('auth.login'))
 
     return render_template('password_reset_request.html', form=form), 400

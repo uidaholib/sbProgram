@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Module for app instantiation and shell context creation."""
-import sys
-import os
+# import sys
+# import os
 from app import create_app, db
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
-from app.models import ProblemItem, PrincipalInvestigator, MasterDetails, ProjectDetails
+from app.models import ProblemItem, \
+    PrincipalInvestigator, MasterDetails, ProjectDetails
 
-app = create_app() # pylint: disable=C0103
+app = create_app()
+# pylint: disable=C0103
 # socketio = SocketIO(app)
 
 
@@ -41,5 +43,6 @@ def make_shell_context():
         'ProjectDetails': ProjectDetails
     }
 
+
 if __name__ == "__main__":
-    app.run(debug = True, threaded = True)
+    app.run(debug=True, threaded=True)

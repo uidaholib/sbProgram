@@ -1,9 +1,10 @@
-#pylint: disable=W0703
+# pylint: disable=W0703
 """Fiscal Year, Project, and Item class definitions and exception_loop()."""
 import sciencebasepy  # pylint: disable=wrong-import-order
 import time
 
 SB = sciencebasepy.SbSession()
+
 
 class SbFiscalYear(object):  # pylint: disable=R0902,R0903
     """Science Base Fiscal Year object."""
@@ -48,7 +49,7 @@ class SbFiscalYear(object):  # pylint: disable=R0902,R0903
         URL: {4}
         Date: {5}
         Total FY Data: {6}
-        
+
         Exceptions: {7}
         Missing: {8}"""
               .format(self.object_type, self.ID, self.name, self.csc, self.URL,
@@ -57,13 +58,13 @@ class SbFiscalYear(object):  # pylint: disable=R0902,R0903
 
         if long:
             print("""
-        Projects: 
+        Projects:
         {0}
         ----------------------------------------------------------------------
                   """.format(self.projects))
         else:
             print("""
-        Projects: 
+        Projects:
         ***Pass boolean 'True' to Print() to show Projects***
         ----------------------------------------------------------------------
                   """.format(self.projects))
@@ -176,6 +177,7 @@ class SbItem(object):  # pylint: disable=R0902,R0903
         ID: {2}
         Name: {3}
         """.format(self.object_type, self.URL, self.ID, self.name))
+
 
 def check_for_files(item_json):
     """Find all files and extentions of an item, add their size together.

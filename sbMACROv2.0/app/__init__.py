@@ -1,5 +1,5 @@
 """Initialization module for the basic web application."""
-#pylint: disable=C0103
+# pylint: disable=C0103
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
@@ -31,7 +31,7 @@ def create_app(config_class=Config):
     login.init_app(app)
     mail.init_app(app)
     moment.init_app(app)
-    
+
     with app.app_context():
         db.create_all()
 
@@ -74,7 +74,9 @@ def create_app(config_class=Config):
         # Set format of logging
         file_handler.setFormatter(
             logging.Formatter(
-                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'  # pylint: disable=C0301
+                '%(asctime)s %(levelname)s: \
+                 %(message)s [in %(pathname)s:%(lineno)d]'
+                # pylint: disable=C0301
             ))
         # Set logging sensitivity level to handler
         file_handler.setLevel(logging.INFO)
@@ -84,7 +86,6 @@ def create_app(config_class=Config):
         app.logger.info('sbMACRO startup')
 
     return app
-
 
 
 from app import models

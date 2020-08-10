@@ -25,5 +25,5 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['ad.sbmacro@gmail.com'
-              ]  # Must be changed once hosted. Is a list.
-    
+              ]
+    # Must be changed once hosted. Is a list.
