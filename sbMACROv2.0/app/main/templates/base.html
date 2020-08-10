@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
    
 
+   <!-- favicon -->
+ 
     <style>
 
       * {box-sizing: border-box;}
@@ -30,6 +32,23 @@
 
 
 /*----------------------------------------------------------*/
+    
+      
+      .nav-wrapper a:hover{
+        color: #fff;
+        text-decoration: none;
+      }
+
+nav ul a {
+    -webkit-transition: background-color .3s;
+    transition: background-color .3s;
+    font-size: 15px;
+    color: #fff;
+    display: block;
+    padding: 0 15px;
+    cursor: pointer;
+}
+
       .gradient-line {
       border: 0;
       height: 1px;
@@ -185,8 +204,8 @@
         <li>
           <div class="search-container "> 
             <form style="display: inline;" action="{{ url_for('main.search')}}  "  method="post" name="query">
-            <input type="text" class="white " placeholder=" Search Here" name="search" style="border-radius: 5px;  width: 85%; margin: 0 0 0 0 ;"></input>
-            <button type="submit"></button> 
+            <input type="text" class="white " placeholder=" Search Here... " name="search" style="border-radius: 5px;  width: 85%; margin: 0 0 0 0 ;font-weight: 400; height: 45px;color:#000;"></input>
+            <!-- <button type="submit"></button>  -->
             </form>
           </div>
         </li>
