@@ -34,7 +34,9 @@ from typing import Tuple
 sb = sciencebasepy.SbSession()
 chars_to_exclude = ",:;()&-–.’'`=<>/"
 
-file_path = os.getcwd() + '/app/main/templates/static/'
+my_root = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(my_root, 'templates/static/')
+# file_path = os.getcwd() + '/app/main/templates/static/'
 nlp = spacy.load('en')
 conll = ConllExtractor()
 fastext = FastNPExtractor()

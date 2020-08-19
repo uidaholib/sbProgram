@@ -16,7 +16,6 @@
 function processForm(e) {
     
     const boxes = document.getElementsByClassName("FY-Checkbox");
-    console.log(boxes);
     let anyChecks = false;
     for(var i = 0; i < boxes.length; i++)
     {   
