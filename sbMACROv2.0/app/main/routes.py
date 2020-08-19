@@ -170,6 +170,7 @@ def update_db():
     update_graphs = False
     update_search_table = False
     update_proj_matches = False
+    update_trends_bursts = False
     cascs_to_update = []
 
     list_of_cascs = ['Alaska', 'North Central', 'Northeast',
