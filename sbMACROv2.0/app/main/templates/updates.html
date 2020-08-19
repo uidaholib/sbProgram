@@ -7,26 +7,30 @@
   <br>
 
   {% if update_search_table %}
-    <p>- The master table will be updated
+    <p>- Master table updated started.
       <i>
         <br>&nbsp&nbsp&nbsp&nbsp&nbsp The data will be updated by querying the sciencebase servers,
         <br>&nbsp&nbsp&nbsp&nbsp&nbsp and in order to keep from overwhelming the servers, the query
         <br>&nbsp&nbsp&nbsp&nbsp&nbsp frequency has been throttled. Estimated update duration is 
-        <br>&nbsp&nbsp&nbsp&nbsp&nbsp 1 hour 45 minutes.
+        <br>&nbsp&nbsp&nbsp&nbsp&nbsp 2 hours.
       </i>
     </p>
   {% endif %}
 
   {% if update_graphs %}
-    <p>- The project comparison graphs will be updated (estimated duration: 6 - 8 hours)</p>
+    <p>- Update of project comparison graphs started (estimated duration: 6 - 8 hours)</p>
   {% endif %}
 
   {% if update_proj_matches %}
-    <p>- The project match dictionaries will be updated (estimated duration: 6 minutes)</p>
+    <p>- Update of project match dictionaries started (estimated duration: 5 minutes)</p>
+  {% endif %}
+
+  {% if update_trends_bursts %}
+    <p>- Update of trend and burst data started (estimated duration: 2 hours)</p>
   {% endif %}
 
   {% if cascs_to_update %}
-    <p>- The following CASC(s) will be updated (estimated duration: {{ cascs_to_update|length * 2 }} minutes):</p>
+    <p>- Update of the following CASC(s) started (estimated duration: {{ cascs_to_update|length * 2 }} minutes):</p>
     {% for casc in cascs_to_update %}
       <li>{{ casc }}</li>
     {% endfor %}

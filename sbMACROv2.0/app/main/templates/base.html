@@ -188,7 +188,7 @@ nav ul a {
 
           </ul> 
         </li>
-        <li id ="get_trends"><a href="{{ url_for('main.trends') }}" id="Nav-Home"> TRENDS </a>
+        <li id ="get_trends"><a href="{{ url_for('main.trends') }}" id="Nav-Trends"> TRENDS </a>
           <ul id="trends_menu" style="position: absolute;">
 
             <li><a href="{{ url_for('main.bursts') }}" id="Nav-Bursts" style = "background-color: #f5b423;width:90px;"> BURSTS</a></li>
@@ -196,7 +196,7 @@ nav ul a {
           </ul> 
         </li>
          {% if current_user.is_authenticated %} 
-        <li><a href="{{ url_for('main.update_db') }}" id="Nav-Update">UPDATE DATABASE</a></li>
+        <li><a href="{{ url_for('main.update_db') }}" id="Nav-Update">DATA UPDATE</a></li>
         <li><a href="{{ url_for('main.user', username=current_user.username) }}">PROFILE</a></li>
         <li><a href="{{ url_for('auth.revoke') }}">LOGOUT</a></li>
         <li>

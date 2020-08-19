@@ -260,7 +260,8 @@
 		Research Pulses & Bursts
 		<img id="pulse_burst_info" src = "{{ url_for('main.static', filename='info.png') }}" class = "header_info_icon">
 	</h4>
-<hr size="20" noshade="noshade">
+<!-- <hr size="20" noshade="noshade"> -->
+<div class="gradient-line"></div>
 
 <!-- Tooltips -->
 <div class="tl_tooltip"></div> <!-- Timeline tooltip -->
@@ -330,7 +331,7 @@
 				Update Pulses
 			</button>
 		</div>
-		<text style="font-size: 12px; margin-top: 10px"><br>&nbsp;&nbsp;<--&nbsp;useful after excluding phrases</text>
+		<text style="font-size: 12px; margin-top: 10px"><br>&nbsp;&nbsp;<span style="font-size:20px">&larr;</span>&nbsp;useful after excluding phrases</text>
 	</fieldset>
 	<fieldset style="width: 40%; margin-left: 5%; margin-top: 20px; margin-bottom: 20px; float:left;">
 		<legend>Exclusion List</legend>
@@ -343,9 +344,9 @@
 	</fieldset>
 	<div style="clear: both;"></div>
 	<b>Pulses are shaded by intensity: deeper shades => stronger pulses</b><br>
-	<i>- Click on a phrase or bar below for more information on the pulse items</i><br>
-	<i>- Ctrl + click on a phrase or bar below to exclude it from any further analysis</i><br>
-	<i>- Ctrl + click on a phrase in the exclusion list above to restore it</i><br>
+	&#8226;<i> <u>Click</u> on a phrase or bar below for more information on the pulse items</i><br>
+	&#8226;<i> <u>Ctrl + click</u> on a phrase or bar below to exclude it from any further analysis</i><br>
+	&#8226;<i> <u>Ctrl + click</u> on a phrase in the exclusion list above to restore it</i><br>
 	<br>
 	<div id = "timeline"></div>
 </div>
@@ -418,11 +419,11 @@
 
 			<p><hr class="gradient-line" width="80%"></p>
 			<div>
-				<i>Click the colored legend rectangles below to select/deselect bursts</i><br>
-				<i>Click on a phrase in the legend for more information on the burst items</i><br>
+				&#8226;<i> <u>Click</u> the colored legend rectangles below to select/deselect bursts</i><br>
+				&#8226;<i> <u>Click</u> on a phrase in the legend for more information on the burst items</i><br>
 				<br>
-				<i>Ctrl + click on a phrase in the legend below to exclude it from any further analysis</i><br>
-				<i>Ctrl + click on a phrase in the exclusion list above to restore it</i>
+				&#8226;<i> <u>Ctrl + click</u> on a phrase in the legend below to exclude it from any further analysis</i><br>
+				&#8226;<i> <u>Ctrl + click</u> on a phrase in the exclusion list above to restore it</i>
 			</div>
 
 		</fieldset>
@@ -1110,7 +1111,7 @@
 	function getID(phrase) {
 
 		phrase = processText(phrase);
-		phrase = phrase.replace(/\s+/g, '_').replace(/(%)/g, s0 => '').replace(/(=)/g, s0 => '');
+		phrase = phrase.replace(/\s+/g, '_').replace(/(%)/g, s0 => '').replace(/(=)/g, s0 => '').replace(/(`)/g, s0 => '');
 
 		return phrase;
 
@@ -1850,8 +1851,8 @@
 		}
 	}
 
-	// let currentPage = document.getElementById('Nav-Proj-Compare');
-	// currentPage.classList.add("currentPage");
+	let currentPage = document.getElementById('Nav-Bursts');
+	currentPage.classList.add("currentPage");
 
 </script>
 

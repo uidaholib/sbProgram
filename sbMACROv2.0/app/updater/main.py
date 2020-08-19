@@ -4,7 +4,14 @@ import re
 import time
 import json
 import pickle
+import string
+import sqlite3
+import numpy as np
 import pandas as pd
+import scipy.stats as stats
+from collections import Counter
+from itertools import dropwhile
+import burst_detection as bd
 import sciencebasepy
 import app.updater.gl
 from datetime import datetime
@@ -12,16 +19,535 @@ from app.updater import db_save
 from app.updater import projects
 from app.updater import fiscal_years
 from difflib import SequenceMatcher
+# ------ Phrase extraction libraries ------
+# https://www.analyticsvidhya.com/blog/2018/02/natural-language-processing-for-beginners-using-textblob/
+import nltk
+import spacy
 from textblob import TextBlob
 from textblob.np_extractors import ConllExtractor
 from textblob.np_extractors import FastNPExtractor
+# for TrieNode class
+from typing import Tuple
+
+
 
 sb = sciencebasepy.SbSession()
 chars_to_exclude = ",:;()&-–.’'`=<>/"
 
 file_path = os.getcwd() + '/app/main/templates/static/'
+nlp = spacy.load('en')
 conll = ConllExtractor()
 fastext = FastNPExtractor()
+
+
+# Trie class to help with phrase extraction
+# Source: https://towardsdatascience.com/implementing-a-trie-data-structure-in-python-in-less-than-100-lines-of-code-a877ea23c1a1
+# (Another cool implementation: https://stackoverflow.com/a/11016430/8379443)
+# (Also http://pythonfiddle.com/python-trie-implementation/)
+class TrieNode(object):
+    """
+    Our trie node implementation. Very basic. but does the job
+    """
+    
+    def __init__(self, char: str):
+        self.char = char
+        self.children = []
+        # Is it the last character of the word.`
+        self.word_finished = False
+        # How many times this character appeared in the addition process
+        self.counter = 1
+    
+
+    def add(self, word: str):
+        """
+        Adding a word in the trie structure
+        """
+        node = self
+        for char in word:
+            found_in_child = False
+            # Search for the character in the children of the present `node`
+            for child in node.children:
+                if child.char == char:
+                    # We found it, increase the counter by 1 to keep track that another
+                    # word has it as well
+                    child.counter += 1
+                    # And point the node to the child that contains this char
+                    node = child
+                    found_in_child = True
+                    break
+            # We did not find it so add a new chlid
+            if not found_in_child:
+                new_node = TrieNode(char)
+                node.children.append(new_node)
+                # And then point node to the new child
+                node = new_node
+        # Everything finished. Mark it as the end of a word.
+        node.word_finished = True
+
+
+    def find_prefix(self, prefix: str) -> Tuple[bool, int]:
+        """
+        Check and return 
+          1. If the prefix exsists in any of the words we added so far
+          2. If yes then how may words actually have the prefix
+        """
+        node = self
+        # If the root node has no children, then return False.
+        # Because it means we are trying to search in an empty trie
+        if not node.children:
+            return False, 0
+        for char in prefix:
+            char_not_found = True
+            # Search through all the children of the present `node`
+            for child in node.children:
+                if child.char == char:
+                    # We found the char existing in the child.
+                    char_not_found = False
+                    # Assign node as the child containing the char and break
+                    node = child
+                    break
+            # Return False anyway when we did not find a char.
+            if char_not_found:
+                return False, 0
+        # Well, we are here means we have found the prefix. Return true to indicate that
+        # And also the counter of the last node. This indicates how many words have this
+        # prefix
+        return True, node.counter
+
+def getTimes(start, end):
+    '''
+    Function to get hours, minutes and seconds
+
+    Input:
+    start: start time in seconds
+    end: end time in seconds
+
+    Output:
+    h: number of hours in the duration
+    m: number of minutes in the duration after outside of h
+    s: number of seconds in the duration afeer outside of h and m
+    '''
+    
+    diff = end - start
+    
+    seconds = int(diff % 60)
+    minutes = int(diff / 60)
+    hours = 0
+    
+    if minutes >= 60:
+        hours = int(minutes / 60)
+        minutes = minutes - hours * 60
+        
+    h = ' ' + str(hours) + ' hour' if hours != 0 else ''
+    m = ' ' + str(minutes) + ' minute' if minutes != 0 else ''
+    s = ' ' + str(seconds) + ' second' if seconds != 0 else ' 0 seconds' if hours == 0 and minutes == 0 else ''
+
+    if hours > 1:
+        h += 's'
+    if minutes > 1:
+        m += 's'
+    if seconds > 1:
+        s += 's'
+        
+    return h, m, s
+
+def update_trends_bursts():
+
+    proj_agg = get_proj_agg()
+
+    # all_start = time.time()
+    update_trends(proj_agg)
+    update_bursts(proj_agg)
+    # all_end = time.time()
+    # h, m, s = getTimes(all_start, all_end)
+    # print('Trends and bursts updated in{}{}{}\n\n'.format(h, m, s))
+
+    print('--------- Trend and burst updates completed! ---------')
+
+
+def get_proj_agg():
+
+    conn = sqlite3.connect('sbmacro.db')
+
+    items = pd.read_sql_query('select * from item', conn)
+    master_details = pd.read_sql_query('select * from master_details', conn)
+
+    items_table_sbids = items.sb_id.values
+    master_details['item_size'] = master_details.sb_id.apply(lambda x: items[items.sb_id == x].total_data.values[0] if x in items_table_sbids else 0)
+    # include a new column for the date, and extract only relevant columns
+    data = master_details.reindex(columns = ['casc', 'projectId', 'projectTitle', 'sb_id', 'url', 'summary', 'fy', 'item_type'])
+    data['year'] = data['fy'].apply(np.int)
+    data = data.drop(['fy'], axis = 1)
+    # remove all rows where date is NaT (not a type)
+    data = data[data.year.notnull()]
+
+    def compile_abstracts(row):
+        df = data[(data.projectId == row['projectId']) & (data.year == row['year'])]
+        return ' '.join(df.summary.values)
+
+    proj_agg = data.groupby(['projectId', 'year', 'casc'])['sb_id'].nunique().reset_index()
+    proj_agg['abstracts'] = proj_agg.apply(compile_abstracts, axis = 1)
+
+    # extract phrases from abstracts
+    print('\n\nExtracting phrases/topics...')
+    # exclude irrelevant phrases
+    exclusions = ['united states', 'climate change', 'climate data', 'science center',
+                  'natural resources', ' ‘' '’ s', 'u.s. geological survey', 'et al', 'doi abs',
+                  'u s', 'e g', 'onlinelibrary wiley com', 'u s department', 'u s  department',
+                  'org content', 'hawai ‘']
+
+    start = time.time()
+    proj_agg['phrases'] = proj_agg['abstracts'].apply(lambda x: extract_phrases(x, exclusions))
+    end = time.time()
+    h, m, s = getTimes(start, end)
+    print('Phrase extraction completed in{}{}{}\n\n'.format(h, m, s))
+
+    return proj_agg
+
+def extract_phrases(text, exclusions, min_word_count = 2, max_word_count = 3, verbose = False):
+    text = re.sub(re.compile('<.*?>'), '', text) # remove html tags
+    text = re.sub('[\.\(\)\[\]/]', ' ', text)    # remove extra unwanted characters
+    text = text.replace('&nbsp;', ' ')           # remove 'nbsp;'
+    text = text.replace('’', '')
+    
+    # Textblob extraction
+    if verbose:
+        print('--> Running Conll noun phrase exctration...')
+    phrases1 = TextBlob(text, np_extractor = conll).noun_phrases
+    # decompose phrases to have word count no more than max_word_count
+    phrases1 = enforce_word_counts(set(phrases1), min_word_count, max_word_count, conll)
+    
+    if verbose:
+        print('--> Running FastNP noun phrase exctration...')
+    phrases2 = TextBlob(text, np_extractor = fastext).noun_phrases
+    # decompose phrases to have word count no more than max_word_count
+    phrases2 = enforce_word_counts(set(phrases2), min_word_count, max_word_count, fastext)
+    
+    # combine phrases1 and phrases2
+    extracted_phrases = phrases1 | phrases2
+    
+    # spaCy extraction
+    if verbose:
+        print('--> Running spaCy noun phrase exctration...')
+    doc = nlp(text)
+    for np in doc.noun_chunks:
+        noun_phrase = np.text
+        # remove stop words from noun_phrase
+        for token in nlp(noun_phrase):
+            if token.is_stop:
+                noun_phrase = noun_phrase.replace(token.text + ' ', '').strip()
+        if not nlp(noun_phrase)[0].is_stop: # if the resulting phrase is not itself a stopword
+            extracted_phrases.add(noun_phrase.lower())
+    # decompose phrases to have word count no more than max_word_count
+    extracted_phrases = enforce_word_counts(extracted_phrases, min_word_count, max_word_count, 'spacy')
+            
+    
+    # remove all phrases that begin with a verb
+    for phrase in list(extracted_phrases):
+        # print(phrase, type(phrase), str(phrase))
+        doc = nlp(str(phrase))
+        if doc[0].pos_ == 'VERB':
+            extracted_phrases.remove(phrase)
+                
+    # Finally, remove any present phrases listed in 'exclusions'
+    for p in exclusions:
+        if p in extracted_phrases:
+            if verbose:
+                print('Removing excluded phrase:', p)
+            extracted_phrases.remove(p)
+            
+    if verbose:
+        print('Phrase extraction completed!')
+    
+    # exclude phrases whose word counts are less than min_word_count
+    return [phrase for phrase in extracted_phrases if len(phrase.split()) >= min_word_count]
+
+def enforce_word_counts(extracted_phrases, min_word_count, max_word_count, extractor = 'spacy'):
+    
+    invalid_word_count = True
+    loop_count = 0
+    violations = {}
+    extractor_id = extractor if extractor == 'spacy' else str(extractor).split('.')[3].split()[0].replace('Extractor', '')
+    
+    while invalid_word_count and loop_count < 5: # limit this process to 3 loops to avoid infinite loops
+        invalid_word_count = False
+        loop_count += 1
+        for phrase in list(extracted_phrases):
+            word_count = len(phrase.split())
+            if word_count < min_word_count or word_count > max_word_count:
+                invalid_word_count = True
+                # remove this phrase from extracted_phrases
+                extracted_phrases.remove(phrase)
+                if phrase in violations:
+                    if violations[phrase] != 'spacy':
+                        # phrase has been seen before, could not be decomposed using TextBlob... try spaCy
+                        doc = nlp(str(phrase))
+                        for np in doc.noun_chunks:
+                            noun_phrase = np.text
+                            # remove stop words from noun_phrase
+                            for token in nlp(noun_phrase):
+                                if token.is_stop:
+                                    noun_phrase = noun_phrase.replace(token.text + ' ', '').strip()
+                            if not nlp(noun_phrase)[0].is_stop: # if the resulting phrase is not itself a stopword
+                                extracted_phrases.add(noun_phrase.lower())
+                        # mark as having been processed using spacy
+                        violations[phrase] = extractor_id
+                        continue
+                    else:
+                        # phrase has been seen before, could not be decomposed using spaCy... try TextBlob
+                        
+                        # mark as having been processed using TextBlob
+                        extracted_phrases = extracted_phrases | set(TextBlob(phrase, np_extractor = extractor).noun_phrases)
+                        violations[phrase] = extractor_id
+                        continue
+                else:
+                    # save the phrase and information on which extraction method is being used
+                    if word_count > max_word_count:
+                        # decompose this phrase and add the results to extracted_phrases
+                        if extractor != 'spacy': # use the given TextBlob's extractor
+                            extracted_phrases = extracted_phrases | set(TextBlob(phrase, np_extractor = extractor).noun_phrases)
+                            # mark as having been processed using TextBlob
+                            violations[phrase] = extractor_id
+                        else: # use spacy
+                            pass
+    
+    return extracted_phrases
+
+def update_trends(proj_agg):
+
+    print('Commencing update of trends...\n')
+    cascs = proj_agg.casc.unique()
+    all_cascs = ['All CASCs'] + list(cascs)
+    counts_folder = file_path + 'counts/'
+    count_threshold = 2
+    phrase_count_threshold = 5
+
+    start = time.time()
+
+    print('Compiling counts for each casc\n')
+    for casc_name in all_cascs:
+        
+        print('CASC:', casc_name)
+        
+        if casc_name == 'All CASCs':
+            casc = proj_agg
+        else:
+            casc = proj_agg[proj_agg.casc == casc_name]
+        
+        temp_threshold = count_threshold
+        phrase_counts = {}
+        phrase_count_len = 0
+        while temp_threshold > 0 and phrase_count_len < phrase_count_threshold:
+            # count all phrases in the abstracts
+            all_phrases = list(casc.phrases.apply(pd.Series).stack().values)
+            phrase_counts = Counter(all_phrases)
+            print('Number of unique phrases (including prefixes): ', len(phrase_counts))
+            
+            # First, remove prefix phrases: 
+            # Sort phrases by descending order of length.
+            # This is so that we can add the longest phrases to the trie first,
+            # then as we add subsequent phrases we can check them against the longer ones.
+            # If subsequent phrases are prefixes of the initial (longest) ones, we exclude them
+
+            print('Removing prefix phrases...')
+            casc_start = time.time()
+
+            unique_phrases = list(phrase_counts.keys())
+            unique_phrases.sort(key = len, reverse = True) # longest phrases first
+
+            trie = TrieNode('*')
+
+            prefix_count = 0
+            # iter_all_phrases = all_phrases[:]
+            for p in unique_phrases:
+                if trie.find_prefix(p)[0]: # p is a prefix of some other phrase
+                    prefix_count += 1
+                    del phrase_counts[p]
+                else:
+                    trie.add(p)
+
+            casc_end = time.time()
+            h, m, s = getTimes(casc_start, casc_end)
+
+            print(prefix_count, 'prefixes removed in{}{}{}'.format(h, m, s))
+            print('Number of unique phrases (prefixes removed): ', len(phrase_counts))
+            
+            # remove phrases that appear fewer than temp_threshold times
+            for key, count in dropwhile(lambda x: x[1] >= temp_threshold, phrase_counts.most_common()):
+                del phrase_counts[key]
+                
+            print('Number of unique phrases with at least', temp_threshold, 'occurance(s): ', len(phrase_counts))
+            
+            # update phrase_count_len
+            phrase_count_len = len(phrase_counts)
+            if phrase_count_len < phrase_count_threshold:
+                print('Not enough phrases! Retrying with lower threshold...')
+                # relax threshold limit and re-run the loop
+                temp_threshold -= 1
+        
+        ### write to file
+        casc_id = '_'.join(casc_name.split()[:-1]).lower()
+        
+        # phrase counts
+        phrase_counts_df = pd.DataFrame(phrase_counts.most_common(), columns = ['phrase', 'count'])
+        phrase_counts_json = casc_id + '_phrase_counts.json'
+        phrase_counts_df.to_json(counts_folder + phrase_counts_json, orient = 'records')
+        # year phrase counts
+        unique_phrases = list(phrase_counts.keys())
+        c = casc[casc.phrases.map(lambda x: np.any([str(p) in x for p in unique_phrases]))]
+        yr_phrase_counts_df = pd.concat([c['year'], c['phrases'].apply(Counter)], axis = 1, sort = True).groupby(by = ['year']).sum().reset_index()
+        yr_phrase_counts_df = yr_phrase_counts_df.rename(columns = {'phrases': 'phrase_counts'})
+        yr_phrase_counts_json = casc_id + '_yr_phrase_counts.json'
+        
+        yr_phrase_counts_df.to_json(counts_folder + yr_phrase_counts_json, orient = 'records')
+        print(casc_name, 'data written to file\n')
+        
+        
+        ## count the number of projects and items released each year
+        # project counts
+        counts = casc.groupby(['year'])['projectId'].nunique().reset_index()
+        counts.rename(columns = {'projectId': 'project_count'}, inplace = True)
+        # item counts
+        d_items = casc.groupby(['year'])['sb_id'].sum().reset_index()
+        counts['item_count'] = d_items.sb_id
+        
+        ##### write casc data to file: #####
+        
+        # counts
+        counts_json = casc_id + '_counts.json'
+        counts.to_json(counts_folder + counts_json, orient = 'records')
+                
+    end = time.time()
+    h, m, s = getTimes(start, end)
+
+    print('Trend updates completed in{}{}{}\n\n'.format(h, m, s))
+
+def update_bursts(proj_agg):
+
+    print('Commencing update of bursts...\n')
+    cascs = proj_agg.casc.unique()
+    all_cascs = ['All CASCs'] + list(cascs)
+    counts_folder = file_path + 'counts/'
+    bursts_folder = file_path + 'bursts/'
+
+    # ----------- Burst parameters -----------
+    res = 1.5         # resolution of state jumps; higher s --> fewer but stronger bursts
+    gam = 0.01      # difficulty of moving up a state; larger gamma --> harder to move up states, less bursty
+    smooth_win = 1  # smoothing window size
+    # ----------------------------------------
+
+    start = time.time()
+
+    for casc_name in all_cascs:
+        
+        print('CASC:', casc_name)
+        
+        casc_start = time.time()
+        
+        if casc_name == 'All CASCs':
+            casc = proj_agg
+        else:
+            casc = proj_agg[proj_agg.casc == casc_name]
+            
+        casc_id = '_'.join(casc_name.split()[:-1]).lower()
+        counts_json = casc_id + '_counts.json'
+        phrase_counts_json = casc_id + '_phrase_counts.json'
+        
+        d = pd.read_json(counts_folder + counts_json)
+        phrase_counts = pd.read_json(counts_folder + phrase_counts_json)
+        unique_phrases = phrase_counts.phrase.values
+        
+        print('Getting r...')
+        #create a dataframe to contain all target phrase proportions
+        all_r = pd.DataFrame(columns = unique_phrases, index = d.index)
+        
+        for i, phrase in enumerate(unique_phrases):
+
+            all_r[phrase] = pd.concat([casc.loc[:, ['year']], 
+                                     casc['phrases'].apply(lambda x: phrase in x)], axis = 1, sort = True) \
+                            .groupby(by = ['year']) \
+                            .sum() \
+                            .reset_index(drop = True)
+        
+        print('Getting bursts...')
+        d_temp = d # save d
+        d = d.project_count
+
+        #create a dataframe to hold results
+        all_bursts = pd.DataFrame(columns = ['begin', 'end', 'weight'])
+
+        n = len(d)      #number of timepoints
+
+        #loop through unique words
+        for i, phrase in enumerate(unique_phrases):
+
+            r = all_r.loc[:, phrase].astype(int)
+
+            #find the optimal state sequence (using the Viterbi algorithm)
+            [q, d, r, p] = bd.burst_detection(r, d, n, res, gam, smooth_win = smooth_win)
+
+            #enumerate the bursts
+            bursts = bd.enumerate_bursts(q, phrase)
+
+            #find weight of each burst
+            bursts = bd.burst_weights(bursts, r, d, p)
+
+            #add the bursts to a list of all bursts
+            all_bursts = all_bursts.append(bursts, ignore_index = True, sort = True)
+
+        # reset d
+        d = d_temp
+
+        all_bursts.sort_values(by = 'weight', ascending = False)
+        
+        #find words with upward trends
+
+        #create a dataframe to hold the slopes of the word counts
+        phrase_trends = pd.DataFrame(columns = ['m','baseline_prop'], index = unique_phrases)
+
+        #loop through words
+        for phrase in unique_phrases:
+
+            #pull out proportion of titles with WORD throughout the whole time period
+            phrase_trends.loc[phrase,'baseline_prop'] = np.sum(all_r[phrase]) / np.sum(d.project_count)
+
+            #find the proporitions of titles with WORD for each month 
+            prop =  all_r[phrase] / d.project_count
+
+            #normalize the proportions 
+            norm_prop = prop / phrase_trends.loc[phrase,'baseline_prop']
+
+            #find the slope of the proportions over time by taking the line of best fit
+            phrase_trends.loc[phrase,'m'] = stats.linregress(range(len(d)), norm_prop)[0]
+
+        phrase_trends['phrase'] = phrase_trends.index
+        
+        # write all_r, all_bursts and phrase_trends to file
+        # r
+        r_json = casc_id + '_r.json'
+        # all_bursts
+        bursts_json = casc_id + '_bursts.json'
+        # phrase_trends
+        phrase_trends_json = casc_id + '_phrase_trends.json'
+        
+        # reshape r
+        reshaped_r = pd.DataFrame(all_r.stack()).reset_index()[['level_1', 0]].rename(columns = {'level_1': 'phrase', 0: 'value'})
+            
+        reshaped_r.to_json(bursts_folder + r_json, orient = 'records')
+        all_bursts.to_json(bursts_folder + bursts_json, orient = 'records')
+        phrase_trends.to_json(bursts_folder + phrase_trends_json, orient = 'records')
+        
+        casc_end = time.time()
+        
+        h, m, s = getTimes(casc_start, casc_end)
+        print(casc_name.replace('All', 'Combined') + ' completed in{}{}{}'.format(h, m, s))
+
+        print()
+        
+    end = time.time()
+    h, m, s = getTimes(start, end)
+
+    print('Burst updates completed in{}{}{}\n\n'.format(h, m, s))
 
 
 def load_details_from_file(file_location):

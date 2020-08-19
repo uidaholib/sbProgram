@@ -16,14 +16,14 @@
 function processForm(e) {
     
     const boxes = document.getElementsByClassName("FY-Checkbox");
-    console.log(boxes);
+    // console.log(boxes);
     let anyChecks = false;
     for(var i = 0; i < boxes.length; i++)
     {   
         if(boxes[i].checked===true)
         {
             anyChecks = true;
-            console.log(boxes[i].checked);
+            // console.log(boxes[i].checked);
         }
     }
     if(anyChecks===true)

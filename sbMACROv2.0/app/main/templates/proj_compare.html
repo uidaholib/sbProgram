@@ -1,15 +1,16 @@
 {% extends "base.html" %} {% block content %}
 
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}"/>
 
-<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
 <script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="http://vizjs.org/viz.v1.1.0.min.js"></script>
+<!-- <script src="https://vizjs.org/viz.v1.1.0.min.js"></script> -->
+<script src="{{ url_for('main.static', filename='js/viz.v1.1.0.min.js') }}"></script>
 <script src="{{ url_for('main.static', filename='js/sankey.js') }}"></script>
 
 <style>
@@ -123,6 +124,9 @@
 
 <script>
 
+	var static_data_path = '/static/main/';
+	var exclusions_file = 'exclusions.csv';
+
 	// create drop down menu cascs
 	var cascs1 = ["", "Alaska", "North Central", "Northeast", "Northwest", "Pacific", "South Central", "Southeast", "Southwest", "National"];
 
@@ -201,6 +205,8 @@
 			}
 		});
 
+
+	var dictColumn = (dict, key) => dict.map(entry => entry[key]);
 
 	function compareCASCProjects() {
 
@@ -494,127 +500,136 @@
 
 	function displayModal(d) {
 
-		// set modal title
-		$('.projModal-header h5').html('Project Details (similarity: ' + d.value.toFixed(2) + '%)');
+		d3.csv(static_data_path + exclusions_file, function(excluded_phrases) {
 
-		// Remove previous modal contents
-		proj1_details = document.getElementById('proj1_details');
-		proj2_details = document.getElementById('proj2_details');
-		match_vis_div = document.getElementById('match_vis_div');
+			excluded_phrases = dictColumn(excluded_phrases, 'phrase');
 
-		while (proj1_details.firstChild) {
-			proj1_details.removeChild(proj1_details.firstChild);
-		}
-		while (proj2_details.firstChild) {
-			proj2_details.removeChild(proj2_details.firstChild);
-		}
-		while (match_vis_div.firstChild) {
-			match_vis_div.removeChild(match_vis_div.firstChild);
-		}
+			// set modal title
+			$('.projModal-header h5').html('Project Details (similarity: ' + d.value.toFixed(2) + '%)');
 
-		// remove previous match svg
-		d3.select('#match_svg').remove();
+			// Remove previous modal contents
+			proj1_details = document.getElementById('proj1_details');
+			proj2_details = document.getElementById('proj2_details');
+			match_vis_div = document.getElementById('match_vis_div');
 
-		// Append new content
+			while (proj1_details.firstChild) {
+				proj1_details.removeChild(proj1_details.firstChild);
+			}
+			while (proj2_details.firstChild) {
+				proj2_details.removeChild(proj2_details.firstChild);
+			}
+			while (match_vis_div.firstChild) {
+				match_vis_div.removeChild(match_vis_div.firstChild);
+			}
 
-		// Project 1 details
-		// header line
-		details = '<h6><b>';
-		details += d.source.casc.replace(' CASC', '') + ' project (FY ' + d.source.fy + '): ';
-		details += '<br><p><a href = "' + d.source.url + '" target = "_blank">' + d.source.name + '</a></p>';
-		details += '</b></h6>';
-		// project summary
-		details += '<h6><b>Project Summary:</b><p>' + d.source.summary + '</p><br>';
-		// project datasets
-		details += '<b>Approved Datasets</b> (' + d.source.num_items + ')<br><br>';
+			// remove previous match svg
+			d3.select('#match_svg').remove();
 
-		items = d.source.items;
+			// Append new content
 
-		for (var item_id of Object.keys(items)){
-			details += '<li><a href = "' + items[item_id].url + '" target = "_blank">' + items[item_id].title + '</a></li><br>';
-		}
+			// Project 1 details
+			// header line
+			details = '<h6><b>';
+			details += d.source.casc.replace(' CASC', '') + ' project (FY ' + d.source.fy + '): ';
+			details += '<br><p><a href = "' + d.source.url + '" target = "_blank">' + d.source.name + '</a></p>';
+			details += '</b></h6>';
+			// project summary
+			details += '<h6><b>Project Summary:</b><p>' + d.source.summary + '</p><br>';
+			// project datasets
+			details += '<b>Approved Datasets</b> (' + d.source.num_items + ')<br><br>';
 
-		details += '</h6>';
+			items = d.source.items;
 
-		proj1_details.innerHTML = details;
+			for (var item_id of Object.keys(items)){
+				details += '<li><a href = "' + items[item_id].url + '" target = "_blank">' + items[item_id].title + '</a></li><br>';
+			}
 
-		// Project 2 details
-		details = '<hr>';
-		// header line
-		details += '<h6><b>';
-		details += d.target.casc.replace(' CASC', '') + ' project (FY ' + d.target.fy + '): ';
-		details += '<br><p><a href = "' + d.target.url + '" target = "_blank">' + d.target.name + '</a></p>';
-		details += '</b></h6>';
-		// project summary
-		details += '<h6><b>Project Summary:</b><br><p>' + d.target.summary + '</p><br>';
-		// project datasets
-		details += '<b>Approved Datasets</b> (' + d.target.num_items + ')<br><br>';
+			details += '</h6>';
 
-		items = d.target.items;
+			proj1_details.innerHTML = details;
 
-		for (var item_id of Object.keys(items)){
-			details += '<li><a href = "' + items[item_id].url + '" target = "_blank">' + items[item_id].title + '</a></li><br>';
-		}
+			// Project 2 details
+			details = '<hr>';
+			// header line
+			details += '<h6><b>';
+			details += d.target.casc.replace(' CASC', '') + ' project (FY ' + d.target.fy + '): ';
+			details += '<br><p><a href = "' + d.target.url + '" target = "_blank">' + d.target.name + '</a></p>';
+			details += '</b></h6>';
+			// project summary
+			details += '<h6><b>Project Summary:</b><br><p>' + d.target.summary + '</p><br>';
+			// project datasets
+			details += '<b>Approved Datasets</b> (' + d.target.num_items + ')<br><br>';
 
-		details += '</h6>';
+			items = d.target.items;
 
-		proj2_details.innerHTML = details;
+			for (var item_id of Object.keys(items)){
+				details += '<li><a href = "' + items[item_id].url + '" target = "_blank">' + items[item_id].title + '</a></li><br>';
+			}
 
-		// match details
-		details = '<hr>';
-		// header line
-		details += '<h6><b>Phrase/Word Matches</b><br><br><p>';
-		details += d.target.casc.replace(' CASC', '') + ': ' + d.target.name.split(' ').slice(0, 3).join(' ') + '... (left)';
-		details += ' <===== vs =====> ';
-		details += d.source.casc.replace(' CASC', '') + ': ' + d.source.name.split(' ').slice(0, 3).join(' ') + '... (right)';
-		details += '</p></h6>';
+			details += '</h6>';
 
-		match_vis_div.innerHTML = details;
+			proj2_details.innerHTML = details;
 
-		var match_data = d.matches;
+			//================ match details ================
+			details = '<hr>';
+			// header line
+			details += '<h6><b>Phrase/Word Matches</b><br><br><p>';
+			details += d.target.casc.replace(' CASC', '') + ': ' + d.target.name.split(' ').slice(0, 3).join(' ') + '... (left)';
+			details += ' <===== vs =====> ';
+			details += d.source.casc.replace(' CASC', '') + ': ' + d.source.name.split(' ').slice(0, 3).join(' ') + '... (right)';
+			details += '</p></h6>';
 
-		var match_colors = d3.schemeCategory20;
-		var svg = d3.select("#match_vis_div").append("svg").attr("width", 960).attr("height", 750).attr("id", "match_svg");
-		var g = svg.append("g").attr("transform","translate(200,50)");
+			match_vis_div.innerHTML = details;
 
-		var bp = viz.bP()
-				.data(match_data)
-				.min(12)
-				.pad(1)
-				.height(600)
-				.width(500)
-				.barSize(35)
-				.fill(d => match_colors[Math.floor(Math.random() * 20)]);
-					
-		g.call(bp);
-
-		g.selectAll(".mainBars")
-			.on("mouseover", function(d) {
-		        d3.select(this).style("cursor", "pointer");
-				bp.mouseover(d);
-			})
-			.on("mouseout", function(d) {
-				bp.mouseout(d);
+			var match_data = d.matches;
+			// filter out excluded phrases
+			match_data = match_data.filter(function(data) {
+				return excluded_phrases.indexOf(data[0]) == -1 && excluded_phrases.indexOf(data[1]) == -1;
 			})
 
-		g.selectAll(".mainBars").append("text")
-			.attr("class","label")
-			.attr("x", d => (d.part == "primary"? -30: 30))
-			.attr("y", d => +6)
-			.text(d => d.key)
-			.attr("text-anchor", d => (d.part == "primary"? "end": "start"));
+			var match_colors = d3.schemeCategory20;
+			var svg = d3.select("#match_vis_div").append("svg").attr("width", 960).attr("height", 750).attr("id", "match_svg");
+			var g = svg.append("g").attr("transform","translate(200,50)");
 
-		d3.select(self.frameElement).style("height", "800px");
+			var bp = viz.bP()
+					.data(match_data)
+					.min(12)
+					.pad(1)
+					.height(600)
+					.width(500)
+					.barSize(35)
+					.fill(d => match_colors[Math.floor(Math.random() * 20)]);
+						
+			g.call(bp);
 
-		// Add close functionality to the modal's close button
-		var span = $('#modal').find('.close');
-		span.on('click', function() {
-			let modal = document.getElementById('modal');
-			modal.style.display = 'none';
-		})
+			g.selectAll(".mainBars")
+				.on("mouseover", function(d) {
+			        d3.select(this).style("cursor", "pointer");
+					bp.mouseover(d);
+				})
+				.on("mouseout", function(d) {
+					bp.mouseout(d);
+				})
 
-		// Display the modal
-		document.getElementById('modal').style.display = 'block';
+			g.selectAll(".mainBars").append("text")
+				.attr("class","label")
+				.attr("x", d => (d.part == "primary"? -30: 30))
+				.attr("y", d => +6)
+				.text(d => d.key)
+				.attr("text-anchor", d => (d.part == "primary"? "end": "start"));
+
+			d3.select(self.frameElement).style("height", "800px");
+
+			// Add close functionality to the modal's close button
+			var span = $('#modal').find('.close');
+			span.on('click', function() {
+				let modal = document.getElementById('modal');
+				modal.style.display = 'none';
+			})
+
+			// Display the modal
+			document.getElementById('modal').style.display = 'block';
+		});
 	}
 
 	// When the user clicks anywhere outside of the modal, close it

@@ -25,7 +25,7 @@ from app.main.metadata import write_metadata
 from app.main.forms import EditProfileForm, FyForm, GeneralForm
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.auth.read_sheets import get_sheet_name, parse_values
-from app.updater.__init__ import casc_update, search_table_update, graphs_update, proj_matches_update
+from app.updater.__init__ import casc_update, search_table_update, graphs_update, proj_matches_update, trends_update
 import multiprocessing
 import time
 
@@ -36,9 +36,9 @@ from config import Config
 from pprint import pprint
 
 
-# my_root = os.path.dirname(os.path.abspath(__file__))
-# path_to_static = os.path.join(my_root, 'templates/static/')
-path_to_static = os.getcwd() + '/app/main/templates/static/'
+my_root = os.path.dirname(os.path.abspath(__file__))
+path_to_static = os.path.join(my_root, 'templates/static/')
+# path_to_static = os.getcwd() + '/app/main/templates/static/'
 
 
 @bp.before_app_request
@@ -185,6 +185,8 @@ def update_db():
     setattr(F, str('update_graphs'), BooleanField('update_graphs'))
     # set form attributs for 'update_proj_matches' checkbox
     setattr(F, str('update_proj_matches'), BooleanField('update_proj_matches'))
+    # set form attributs for 'update_trends_bursts' checkbox
+    setattr(F, str('update_trends_bursts'), BooleanField('update_trends_bursts'))
     # set form attributs for casc checkboxes
     for curr_casc in list_of_cascs:
         setattr(F, str(curr_casc), BooleanField(curr_casc))
@@ -198,6 +200,8 @@ def update_db():
             update_graphs = True
         if getattr(form, 'update_proj_matches').data:
             update_proj_matches = True
+        if getattr(form, 'update_trends_bursts').data:
+            update_trends_bursts = True
 
         for csc in list_of_cascs:
             csc_attr = getattr(form, csc)
@@ -209,6 +213,7 @@ def update_db():
         session['update_graphs'] = update_graphs
         session['update_search_table'] = update_search_table
         session['update_proj_matches'] = update_proj_matches
+        session['update_trends_bursts'] = update_trends_bursts
         session['cascs_to_update'] = cascs_to_update
 
         return redirect(url_for('main.updates'))
@@ -217,7 +222,7 @@ def update_db():
         pass
 
     return render_template('update_db.html',
-                           form=form, list_of_cascs=list_of_cascs), 400
+                           form = form, list_of_cascs = list_of_cascs), 400
 
 # @socketio.on('connect', namespace='/test')
 
@@ -232,13 +237,13 @@ def updates():
 
     update_graphs = session['update_graphs']
     if update_graphs:
-        print('Starting graph update thread')
+        print('--------- Starting graph update thread ---------')
         graph_upate_thread = multiprocessing.Process(target=graphs_update)
         graph_upate_thread.start()
 
     update_search_table = session['update_search_table'] # same as master table
     if update_search_table:
-        print('Starting search table update thread')
+        print('--------- Starting search table update thread ---------')
         search_table_update_thread = multiprocessing.Process(
                                      target=search_table_update, args=(source,)
                                     )
@@ -246,11 +251,17 @@ def updates():
 
     update_proj_matches = session['update_proj_matches']
     if update_proj_matches:
-        print('Starting project matches update thread')
+        print('--------- Starting project matches update thread ---------')
         proj_matches_update_thread = multiprocessing.Process(
                                      target=proj_matches_update
                                     )
         proj_matches_update_thread.start()
+
+    update_trends_bursts = session['update_trends_bursts']
+    if update_trends_bursts:
+        print('--------- Starting trend and burst update thread ---------')
+        trends_update_thread = multiprocessing.Process(target=trends_update)
+        trends_update_thread.start()
 
     cascs_to_update = session['cascs_to_update']
     if cascs_to_update:
@@ -263,6 +274,7 @@ def updates():
     return render_template("updates.html", update_graphs=update_graphs,
                            update_search_table=update_search_table,
                            update_proj_matches=update_proj_matches,
+                           update_trends_bursts=update_trends_bursts,
                            cascs_to_update=cascs_to_update
                            )
 

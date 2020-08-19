@@ -12,7 +12,7 @@ sys.path.insert(0, LOC)
 
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem, PrincipalInvestigator, MasterDetails, ProjectDetails
-from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs, update_search_table, update_graphs, update_proj_dataset_matches
+from app.updater.main import full_hard_search, defined_hard_search, update_casc_total_data, update_cascs, update_search_table, update_graphs, update_proj_dataset_matches, update_trends_bursts
 from config import Config
 
 
@@ -76,6 +76,11 @@ def graphs_update():
     """Refresh project comparison graph files
     """
     update_graphs()
+
+def trends_update():
+    """Refresh trend and burst files
+    """
+    update_trends_bursts()
 
 def search_table_update(source = None):
     """Refresh database MasterDetails table

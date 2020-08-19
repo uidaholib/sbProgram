@@ -30,37 +30,40 @@
   </div>
   {{ form.hidden_tag() }}
   <div class="row">
-    {% set count = namespace(a=-1) %} {% set mod_num = 3 %} {% for casc_name,
-    casc_info in cascs_and_fys.items(): %} {% set count.a = count.a + 1 %} {% if
-    count.a % mod_num == 0 %}
+    {% set count = namespace(a=-1) %} {% set mod_num = 3 %} 
+    {% for casc_name,casc_info in cascs_and_fys.items(): %} {% set count.a = count.a + 1 %} 
+    {% if count.a % mod_num == 0 %}
   </div>
   <div class="row" id="{{ number }}">
     {% endif %}
     <div class="col s4 m4 l4">
       <div class="card blue-grey lighten-4 parent-div">
-      <div onclick="togglediv(this);" style="background:#26a69a; border:0px;text-align: center;color: #fff;padding: 10px;font-size: 25px;cursor: pointer;"><strong>{{ casc_name }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#9662;</strong></div>
-
-
-
-        <div class="card-content" style="background-color: #fff;    height: 350px;
-    width: 337px;
-    background: #F5F5F5;
-    overflow-y: scroll;
-    margin-bottom: 25px;
+      <div onclick="togglediv(this);" style="background:#26a69a; border:0px;text-align: center;color: #fff;padding: 10px;font-size: 25px;cursor: pointer;">
+        <strong>{{ casc_name }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#9662;</strong>
+      </div>
+    <div class="card-content" style="background-color: #fff;height: 350px;width: 337px;background: #F5F5F5;
+    overflow-y: scroll;margin-bottom: 25px;
 }">
           <!-- <span class="card-title" >
             <p>
               <strong>{{ casc_name }}</strong>
             </p>
           </span> -->
-          {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %} {%
-          set field_name = "fy" ~ fiscal_year["id"] %} {% set field =
-          form|attr(field_name) %}
-          <br />
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label }}
-          <br />
+          {% for fiscal_year in cascs_and_fys[casc_name]["fiscal_years"] %}
+             {% set field_name = "fy" ~ fiscal_year["id"] %} 
+             {% set field = form|attr(field_name) %}
+             
+             {% if field_name != ('fy68') %}
+             
+              <br />
+              {{ form|attr(field_name)(class="FY-Checkbox") }} 
+              {{ field.label }}
+              <br />
+            {% endif %}
+          
           {% for error in field.errors %}
           <span style="color: red;">{{ error }}</span>
+
           {% endfor %} {% endfor %}
         </div>
       </div>

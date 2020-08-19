@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Module for app instantiation and shell context creation."""
 # import sys
-# import os
+import os
 from app import create_app, db
 from app.models import User, casc, FiscalYear, Project, Item, SbFile
 from app.models import ProblemItem, \
@@ -45,4 +45,6 @@ def make_shell_context():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, threaded=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True, threaded=True)
+    # app.run(debug=True, threaded=True)

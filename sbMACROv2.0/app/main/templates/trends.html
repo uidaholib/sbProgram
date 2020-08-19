@@ -8,7 +8,7 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" href="{{ url_for('main.static', filename='css/modal.css') }}"/>
 
 <style>
@@ -159,17 +159,18 @@
 
 </style>
 
-<h4>Research Trends</h4>
-<hr size="20" noshade="noshade">
+<h4 style="color: #444242;font-family: arial;">Research Trends</h4>
+<!-- <hr size="20" noshade="noshade"> -->
+<div class = "gradient-line"></div>
 
 
 <!-- VERTICAL BAR CHART -->
 <br>
-<p><h5 style="text-align: center;">Total Project/Item Count per Year</h5></p>
-<hr class="double-line" width="39%">
+<p><h5 style="text-align: left;color: #444242;font-family: arial;font-size: 30px;">Total Project/Item Count per Year</h5></p>
+<!-- <hr class="double-line" width="39%"> -->
 <div style="margin-left: 10%">
 
-	<div>
+	<div style="padding: 2%;">
 		<div id = 'vbc_casc_dropdown'></div>
 
 		<button class="btn wave-effect waves-teal" style="margin-left: 16%; margin-top: 2px" onclick="downloadCSVFromJson('counts')">
@@ -182,13 +183,16 @@
 	</div>
 </div>
 
+<br>
+<div class="gradient-line"></div>
 
 <p></p>
 <p></p>
 
 <br>
-<p><h5 style="text-align: center;">Topic Trends by CASC and Year</h5></p>
-<hr class="double-line" width="36%">
+<p><h5 style="text-align: left;color: #444242; font-family: arial;font-size: 30px;">Topic Trends by CASC and Year</h5></p>
+<br>
+<!-- <hr class="double-line" width="36%"> -->
 
 <!-- PHRASE COUNTS -->
 <div>
@@ -218,7 +222,7 @@
 				Update Charts
 			</button>
 		</div>
-		<text style="font-size: 12px; margin-top: 10px"><br>&nbsp;&nbsp;<--&nbsp;useful after excluding bars</text>
+		<text style="font-size: 12px; margin-top: 10px"><br>&nbsp;&nbsp;<span style="font-size:20px">&larr;</span>&nbsp;useful after excluding bars</text>
 	</fieldset>
 	<fieldset style="width: 40%; margin-left: 5%; margin-top: 20px; margin-bottom: 20px; float:left;">
 		<legend>Exclusion List</legend>
@@ -230,9 +234,9 @@
 		</div>
 	</fieldset>
 	<div style="clear: both;"></div>
-	<i>Click on a bar below for more information on the trending items</i><br>
-	<i>Ctrl + click on a phrase bar below to exclude it from any further analysis</i><br>
-	<i>Ctrl + click on a phrase in the exclusion list above to restore it</i><br>
+	&#8226;<i> <u>Click</u> on a bar below for more information on the trending items</i><br>
+	&#8226;<i> <u>Ctrl + click</u> on a phrase bar below to exclude it from any further analysis</i><br>
+	&#8226;<i> <u>Ctrl + click</u> on a phrase in the exclusion list above to restore it</i><br>
 </div>
 
 <div style="margin-left: 5%">
@@ -1369,7 +1373,7 @@ function processText(text) {
 function getID(phrase) {
 
 	phrase = processText(phrase);
-	phrase = phrase.replace(/\s+/g, '_').replace(/(%)/g, s0 => '').replace(/(=)/g, s0 => '');
+	phrase = phrase.replace(/\s+/g, '_').replace(/(%)/g, s0 => '').replace(/(=)/g, s0 => '').replace(/(`)/g, s0 => '');
 
 	return phrase;
 
@@ -1528,8 +1532,8 @@ function displayModal(data_item) {
 		}
 	}
 
-	// let currentPage = document.getElementById('Nav-Proj-Compare');
-	// currentPage.classList.add("currentPage");
+	let currentPage = document.getElementById('Nav-Trends');
+	currentPage.classList.add("currentPage");
 
 </script>
 

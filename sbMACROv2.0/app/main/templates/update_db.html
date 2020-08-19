@@ -7,13 +7,16 @@
 <!-- OLD Compiled and minified JavaScript for correct formatting of checkboxes -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 
+<!-- Sweet Alert -->
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
 <!-- Must import again to supersede the newest materialize imports -->
 <link rel="stylesheet" href="static/css/custom.css">
 
 <!-- To enable us call a function synchronously in routes.py -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-<h4 style="color:#444242;font-family: arial;margin-top: 23px;">sbMACRO Database Update</h4>
+<h4 style="color:#444242;font-family: arial;margin-top: 23px;">sbMACRO Data Update</h4>
 <div class="gradient-line"></div>
 <br>
 <h5 class = "font_format" >Select desired update(s) and click 'SUBMIT'</h5>
@@ -30,14 +33,14 @@
     <div class="col s4 m4 l4">
         <div class="card blue-grey lighten-4">
             <div class="card-content" style="
-    background: #f5f5f5;
-    font-size: 16px;
-    font-family: arial;
-    color: #444242;
-
-">
-              Select CASC(s) to update
-              <br>[Estimated duration: 2 mins per CASC]<br>
+                background: #f5f5f5;
+                font-size: 16px;
+                font-family: arial;
+                color: #444242;
+            ">
+              <b>&emsp;&emsp;&ensp;DATABASE UPDATE</b><br><br>
+              <b>&emsp;&nbsp;Select CASC(s) to update</b><br><br>
+              <span style="color: #9e9e9e">[Estimated duration: 2 mins per CASC]</span><br>
               {% for casc_name in list_of_cascs: %}
                   {% set field_name = casc_name %}
                   {% set field = form|attr(field_name) %}
@@ -51,40 +54,53 @@
 
       <div class="card blue-grey lighten-4">
         <div class="card-content" style="
-    background: #f5f5f5;
-    font-size: 16px;
-    font-family: arial;
-    color: #444242;
-">
+            background: #f5f5f5;
+            font-size: 16px;
+            font-family: arial;
+            color: #444242;
+        ">
           {% set field_name = 'update_search_table' %}
           {% set field = form|attr(field_name) %}
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Master Table<br>[Estimated duration: 1hr 45 mins]') }}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('<b style="color: #444242">Master Table</b><br>[Estimated duration: 2 hrs]') }}
         </div>
       </div>
 
       <div class="card blue-grey lighten-4">
         <div class="card-content" style="
-    background: #f5f5f5;
-    font-size: 16px;
-    font-family: arial;
-    color: #444242;
-">
+            background: #f5f5f5;
+            font-size: 16px;
+            font-family: arial;
+            color: #444242;
+        ">
           {% set field_name = 'update_graphs' %}
           {% set field = form|attr(field_name) %}
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Comparison Graphs<br>[Estimated duration: 6 - 8 hrs]') }}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('<b style="color: #444242">Project Comparison Graphs</b><br>[Estimated duration: 6 - 8 hrs]') }}
         </div>
       </div>
 
       <div class="card blue-grey lighten-4">
         <div class="card-content" style="
-    background: #f5f5f5;
-    font-size: 16px;
-    font-family: arial;
-    color: #444242;
-">
+            background: #f5f5f5;
+            font-size: 16px;
+            font-family: arial;
+            color: #444242;
+        ">
           {% set field_name = 'update_proj_matches' %}
           {% set field = form|attr(field_name) %}
-          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('Update Project Match Dictionaries<br>[Estimated duration: 2 mins]') }}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('<b style="color: #444242">Project Match Dictionaries</b><br>[Estimated duration: 5 mins]') }}
+        </div>
+      </div>
+
+      <div class="card blue-grey lighten-4">
+        <div class="card-content" style="
+            background: #f5f5f5;
+            font-size: 16px;
+            font-family: arial;
+            color: #444242;
+        ">
+          {% set field_name = 'update_trends_bursts' %}
+          {% set field = form|attr(field_name) %}
+          {{ form|attr(field_name)(class="FY-Checkbox") }} {{ field.label('<b style="color: #444242">Trends & Bursts</b><br>[Estimated duration: 2 hrs]') }}
         </div>
       </div>
 

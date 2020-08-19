@@ -1,9 +1,9 @@
 function gatherProjects() {
   let input = document.querySelector('#url').value // item is gotten from the for input with id 'item'
-  console.log('input1: ' + input)
+  // console.log('input1: ' + input)
   input = input.replace(/,/g, ' ')
-  console.log('input: comma->space')
-  console.log(input)
+  // console.log('input: comma->space')
+  // console.log(input)
   $('#url').val('') //clear the input
   let anySkipped = false
   let amountSkipped = 0
@@ -13,17 +13,17 @@ function gatherProjects() {
     //String must at least be length of the url
     if (input.trim().length === 0) {
       blank = true
-      console.log('skipped1')
+      // console.log('skipped1')
       amountSkipped++
       anySkipped = true
-      console.log('Blank Entry')
+      // console.log('Blank Entry')
     } else {
       //if "length" is not in the reasons array, add it.
       let typeIndex = reasons.indexOf('length')
       if (typeIndex == -1) {
         reasons.push('length')
       }
-      console.log('skipped2')
+      // console.log('skipped2')
       amountSkipped++
       anySkipped = true
     }
@@ -43,7 +43,7 @@ function gatherProjects() {
       } else {
         if (e.trim().length > 0) {
           //If 0, it is filtered whitespace
-          console.log('skipped3')
+          // console.log('skipped3')
           amountSkipped++
           anySkipped = true
           //if "length" is not in the reasons array, add it.
@@ -57,7 +57,7 @@ function gatherProjects() {
     } else {
       if (e.trim().length > 0) {
         //If 0, it is filtered whitespace
-        console.log('skipped4')
+        // console.log('skipped4')
         amountSkipped++
         anySkipped = true
         //if "format" is not in the reasons array, add it.
@@ -79,14 +79,14 @@ function gatherProjects() {
     }
     return entry
   })
-  console.log('urlArray:')
-  console.log(urlArray)
+  // console.log('urlArray:')
+  // console.log(urlArray)
 
   // if (anySkipped === true) {
   //   problemAlert(amountSkipped, reasons, blank)
   // }
-  console.log('urlArray')
-  console.log(urlArray)
+  // console.log('urlArray')
+  // console.log(urlArray)
   if (urlArray.length > 0) {
     createCollection(urlArray)
   }
@@ -133,7 +133,7 @@ function createCollection(array) {
     return
   }
   let ul = document.querySelector('.SbCollection')
-  console.log(ul)
+  // console.log(ul)
   if (!ul.className.includes(' collection')) {
     ul.className += ' collection' //adds the collection class to the ul's so they look good as a Materialize list
   }
@@ -170,7 +170,7 @@ $(document).ready(function() {
 
 function processForm(e) {
   const urls = document.getElementsByClassName('SBurls')
-  console.log(urls)
+  // console.log(urls)
 
   if (urls.length > 0) {
     // You must return true to allow the default form behavior

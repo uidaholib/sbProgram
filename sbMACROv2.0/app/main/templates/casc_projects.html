@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 
-	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 
@@ -155,6 +155,8 @@
 		// var proj_phrases;
 		//=========================================================
 
+		var static_data_path = '/static/main/';
+		var exclusions_file = 'exclusions.csv';
 		var proj_infos;
 		var acc = document.getElementsByClassName("accordion");
 		var projs_with_approved = 0;
@@ -162,6 +164,8 @@
 		var casc_name = '{{ casc_name }}' + ' CASC';
 		var proj_ids = [];
 		var item_titles = {};
+
+		var dictColumn = (dict, key) => dict.map(entry => entry[key]);
 
 		// Populate item_titles
 		d3.json("{{ url_for('main.static', filename = 'item_dict.json') }}", function(item_dict) {
@@ -298,81 +302,100 @@
 			}
 			
 			d3.json("{{ url_for('main.static', filename = 'proj_dataset_matches.json') }}", function(proj_info) {
-				var item_details = proj_info[proj_id].proj_items[item_id];
-				var proj_phrases = proj_info[proj_id].proj_phrases;
 
-				// append new content
-				for (var i = 0; i < proj_phrases.length; i++){
-					topic_btn = document.createElement('button');
-					topic_btn.classList.add('word_button');
-					topic_btn.innerHTML = proj_phrases[i];
-					p_topic_div.appendChild(topic_btn);
-				}
-				var item_phrases = item_details.item_phrases;
-				for (var i = 0; i < item_phrases.length; i++){
-					topic_btn = document.createElement('button');
-					topic_btn.classList.add('word_button');
-					topic_btn.innerHTML = item_phrases[i];
-					i_topic_div.appendChild(topic_btn);
-				}
+				d3.csv(static_data_path + exclusions_file, function(excluded_phrases) {
 
-				var matches = item_details.similarities;
-				var proj_matches = {};
-				for (var i in Object.keys(matches)) {
-					item_match = matches[i][0];
-					proj_match = matches[i][1];
-					if (!(proj_match in proj_matches)) {
-						proj_matches[proj_match] = [];
+					excluded_phrases = dictColumn(excluded_phrases, 'phrase');
+
+					var item_details = proj_info[proj_id].proj_items[item_id];
+					var proj_phrases = proj_info[proj_id].proj_phrases;
+
+					// filter out excluded phrases
+					proj_phrases = proj_phrases.filter(function(phrase) {
+						return excluded_phrases.indexOf(phrase) == -1;
+					})
+					// append new html content
+					for (var i = 0; i < proj_phrases.length; i++){
+						topic_btn = document.createElement('button');
+						topic_btn.classList.add('word_button');
+						topic_btn.innerHTML = proj_phrases[i];
+						p_topic_div.appendChild(topic_btn);
 					}
-					proj_matches[proj_match].push(item_match);
-				}
 
-				// construct the tables
-				var proj_phrases_set = new Set();
-				var item_phrases_set = new Set();
-
-				var table_rows = '';
-				for (var proj_phrase in proj_matches) {
-
-					topic_btn = document.createElement('button');
-					topic_btn.classList.add('word_button');
-					topic_btn.innerHTML = proj_phrase;
-
-					table_rows += '<tr><td><button class = "word_button">' + proj_phrase + '</button></td>';
-					proj_phrases_set.add(proj_phrase);
-					item_phrase_list = proj_matches[proj_phrase];
-					table_rows += '<td>';
-					var phrase_list = '';
-					for (var item_phrase of item_phrase_list) {
-						phrase_list += '<button class = "word_button">' +  item_phrase + '</button>';
-						item_phrases_set.add(item_phrase);
+					var item_phrases = item_details.item_phrases;
+					// filter out excluded phrases
+					item_phrases = item_phrases.filter(function(phrase) {
+						return excluded_phrases.indexOf(phrase) == -1;
+					})
+					// append new html content
+					for (var i = 0; i < item_phrases.length; i++){
+						topic_btn = document.createElement('button');
+						topic_btn.classList.add('word_button');
+						topic_btn.innerHTML = item_phrases[i];
+						i_topic_div.appendChild(topic_btn);
 					}
-					table_rows += phrase_list + '</td></tr>';
-				}
 
-				$('#matches_table').append(table_rows);
+					var matches = item_details.similarities;
+					// construct dictionary of matches
+					var proj_matches = {};
+					for (var i in Object.keys(matches)) {
+						item_match = matches[i][0];
+						proj_match = matches[i][1];
+						if (excluded_phrases.indexOf(proj_match) == -1) { // filter out excluded phrases
+							if (!(proj_match in proj_matches)) {
+								proj_matches[proj_match] = [];
+							}
+							proj_matches[proj_match].push(item_match);
+						}
+					}
 
-				var table_rows = '<tr><td>';
-				for (var proj_phrase of proj_phrases) {
+					// construct the tables
+					var proj_phrases_set = new Set();
+					var item_phrases_set = new Set();
 
-					if (!(proj_phrases_set.has(proj_phrase))) {
+					var table_rows = '';
+					for (var proj_phrase in proj_matches) {
 
 						topic_btn = document.createElement('button');
 						topic_btn.classList.add('word_button');
 						topic_btn.innerHTML = proj_phrase;
 
-						table_rows += '<button class = "word_button">' + proj_phrase + '</button>';
+						table_rows += '<tr><td><button class = "word_button">' + proj_phrase + '</button></td>';
+						proj_phrases_set.add(proj_phrase);
+						item_phrase_list = proj_matches[proj_phrase];
+						table_rows += '<td>';
+						var phrase_list = '';
+						for (var item_phrase of item_phrase_list) {
+							phrase_list += '<button class = "word_button">' +  item_phrase + '</button>';
+							item_phrases_set.add(item_phrase);
+						}
+						table_rows += phrase_list + '</td></tr>';
 					}
-				}
-				table_rows += '</td><td>';
-				for (var item_phrase of item_phrases) {
-					if (!(item_phrases_set.has(item_phrase))) {
-						table_rows += '<button class = "word_button">' +  item_phrase + '</button>';
-					}
-				}
-				table_rows += '</td></tr>';
 
-				$('#no_matches_table').append(table_rows);
+					$('#matches_table').append(table_rows);
+
+					var table_rows = '<tr><td>';
+					for (var proj_phrase of proj_phrases) {
+
+						if (!(proj_phrases_set.has(proj_phrase))) {
+
+							topic_btn = document.createElement('button');
+							topic_btn.classList.add('word_button');
+							topic_btn.innerHTML = proj_phrase;
+
+							table_rows += '<button class = "word_button">' + proj_phrase + '</button>';
+						}
+					}
+					table_rows += '</td><td>';
+					for (var item_phrase of item_phrases) {
+						if (!(item_phrases_set.has(item_phrase))) {
+							table_rows += '<button class = "word_button">' +  item_phrase + '</button>';
+						}
+					}
+					table_rows += '</td></tr>';
+
+					$('#no_matches_table').append(table_rows);
+				});
 			});
 
 			// Add close functionality to the modal's close button

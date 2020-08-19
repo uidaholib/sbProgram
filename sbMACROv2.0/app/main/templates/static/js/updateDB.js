@@ -33,7 +33,7 @@ function processForm(e) {
     else {
         if (e.preventDefault) e.preventDefault();
         DontShowLoading();
-        alert("Nothing selected");
+        swal("Oops!", "Nothing is selected.", "error");
         return false;
     }
     /* do what you want with the form */
