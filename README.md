@@ -2,6 +2,7 @@
 
 This is a program and web app meant to work with the ScienceBase.gov REST API to generate reports useful for USGS CASC Data Managers. The program can count data on [Science Base](https://www.sciencebase.gov/catalog/), determine DMP status, present Data Steward-PI history, and more. The current iteration of the project can parse through entire fiscal years or selected projects from any Climate Adaptation Science Center directories on ScienceBase.gov, and generate a report based on the selection provided. Data from Science Base is combined with data found in the combined Data Manager Google Sheets spreadsheet.
 
+This application is currently hosted at https://sbmacro.nkn.uidaho.edu/
 
 Entire commit history and contributor history can be found here: https://github.com/uidaholib/sbProgram
 
@@ -12,7 +13,7 @@ Entire commit history and contributor history can be found here: https://github.
 [Python 3](https://www.python.org/downloads/) is required to run this program. The program is currently best used on a recent version of Google Chrome.
 
 Libraries you need to install to run sbMACRO Web App are listed in sbMACROv2.0/requirements.txt. The recommended way to make sure you have all dependencies/prerequisites is to download the `requirements.txt` file and run
-`python -m pip install -r requirements.txt` in the sbMACROv2.0 directory.
+`python -m pip install -r requirements.txt` in the sbMACROv2.0 directory. **Note**: You may need to install `mysqlclient` manually on your specific platform.
 
 Alternatively, to install each library manually, simply type `python -m pip install <library_name>` without the brackets.
 
@@ -26,7 +27,7 @@ The project is also mid-development, so if you have trouble, or `requirements.tx
 
 ### Installing
 
-Simply install all libraries and python 3 before running the program in your favorite command line/terminal program.
+Simply install python 3 and all libraries from `requirements.txt` as described above before running the program in your favorite command line/terminal program.
 
 Creating a virtual environment is highly recommended so you do not affect your global version of python by installing all of these libraries. Information on virtualenv can be found here: https://virtualenv.pypa.io/en/stable/ . It is easy and highly recommended.
 
@@ -65,16 +66,19 @@ Javascript
 
 [Joel Oduro-Afriyie](https://github.com/KobyO)
 
+[Amruta Kale](https://github.com/amrutakale08)
+
 ## Authors
 
 * **Taylor Rogers** - *Initial work* - [Capt.Rogers](https://gitlab.com/Capt.Rogers) as well as [trogers1](https://github.com/trogers1)
 * **Sandeep Ravindrababu** - *Contributor* - [sgravi1992](https://github.com/sgravi1992)
 * **Joel Oduro-Afriyie** - *Contributor* - [KobyO](https://github.com/KobyO)
+* **Amruta Kale** - *Contributor* - [amrutakale08](https://github.com/amrutakale08)
 
 ## License
 The MIT License
 
-Copyright (c) 2017-2019
+Copyright (c) 2017-2020
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
