@@ -1,0 +1,6 @@
+[mailer]
+MAIL_SERVER=<MailServerURL>
+MAIL_PORT=<Port>
+MAIL_USE_TLS=1
+MAIL_USERNAME=<Username>
+MAIL_PASSWORD=<password>
