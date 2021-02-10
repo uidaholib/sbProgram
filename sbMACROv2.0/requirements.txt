@@ -11,7 +11,7 @@ chardet==3.0.4
 cheroot==6.5.5
 CherryPy==18.1.1
 Click==7.0
-cryptography==3.2
+cryptography==3.3.2
 dnspython==1.16.0
 et-xmlfile==1.0.1
 feedparser==5.2.1
