@@ -74,6 +74,6 @@ tempora==1.14.1
 textblob==0.15.3
 uritemplate==3.0.0
 urllib3==1.26.5
-Werkzeug==0.15.4
+Werkzeug==2.2.3
 WTForms==2.2.1
 zc.lockfile==1.4
